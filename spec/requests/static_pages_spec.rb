@@ -26,4 +26,19 @@ describe "Static pages" do
     it { should have_title('Route Guides | Disclaimer') }
   end
 
+ it "should have the right links on the layout" do
+    visit root_path
+    click_link "About"
+    expect(page).to have_title("About")
+    click_link "Disclaimer"
+    expect(page).to have_title('Disclaimer')
+    click_link "Home"
+    expect(page).to have_title('Route Guides')
+    expect(page).to_not have_title('|')
+    click_link "Sign up now!"
+    expect(page).to have_title('Sign up')
+    click_link "Route Guides"
+    expect(page).to have_title('Route Guides')
+    expect(page).to_not have_title('|')
+  end
 end
