@@ -6,6 +6,7 @@ gem 'rails', '4.0.5'
 gem 'bootstrap-sass', '2.3.2.0'
 gem 'sprockets', '2.11.0'
 gem 'bcrypt-ruby', '3.1.2'
+gem 'activerecord-postgis-adapter', '2.1.0'
 
 group :development, :test do
   gem 'rspec-rails', '2.13.1'
@@ -17,7 +18,8 @@ group :test do
   gem 'factory_girl_rails', '4.2.1'
 end
 
-gem 'mysql2'
+#gem 'mysql2'
+gem 'pg', '0.17.1'
 gem 'sass-rails', '4.0.1'
 gem 'uglifier', '2.1.1'
 gem 'coffee-rails', '4.0.1'
