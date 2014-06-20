@@ -1,0 +1,23 @@
+<div class="row">
+  <div class="span6 offset3">
+     <%= form_for(@place) do |f| %>
+
+      <%= f.label :name %>
+      <%= f.text_field :name, :disabled=>!@edit %>
+
+      <%= f.label :description %>
+      <%= f.text_area :description, :disabled=>!@edit, size: "80x7" %>
+
+      <%= f.label :location %>
+      <%= f.text_field :location, :disabled=>!@edit %>
+
+      <%= f.label :altitude %>
+      <%= f.text_field :altitude, :disabled=>!@edit %>
+      <br/>
+      <% if @edit %>
+        <%= f.submit "Save", class: "btn btn-large btn-primary" %>
+      <% end %>
+    <% end %>
+  </div>
+</div>
+
