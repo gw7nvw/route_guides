@@ -22,6 +22,9 @@
 </div>
 <%=@x%> <%=@y%>
 <div align="center">
-              <img src="/cgi-bin/mapserv?map=/ms4w/apps/matts_app/htdocs/example1-5.map&layer=states&layer=topo&mode=map&map_extent=<%=@map_extent%> />
+              <img src=
+   <%="/cgi-bin/mapserv?map=/ms4w/apps/matts_app/htdocs/example1-5.map&layer=states&layer=topo&mode=map&map_extent="+@map_extent if Rails.env.production?%>
+  <%="../dummyImage.png" if !Rails.env.production?%>
+ />
 </div> 
 

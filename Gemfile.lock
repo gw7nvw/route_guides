@@ -163,6 +163,7 @@ DEPENDENCIES
   jquery-rails (= 3.0.4)
   pg (= 0.17.1)
   rails (= 4.0.5)
+  rgeo (= 0.3.20)
   rspec-rails (= 2.13.1)
   sass-rails (= 4.0.1)
   sdoc (= 0.3.20)

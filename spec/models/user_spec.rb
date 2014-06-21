@@ -17,8 +17,9 @@ describe User do
   it { should respond_to(:remember_token) }
   it { should respond_to(:authenticate) }
   it { should respond_to(:places) }
-
   it { should be_valid }
+  
+
 
   describe "when name is not present" do
     before { @user.name = " " }
@@ -86,17 +87,4 @@ describe User do
     its(:remember_token) { should_not be_blank }
   end
 
-  describe "places associations" do
-
-    before { @user.save }
-    let!(:place1) do
-      FactoryGirl.create(:place, createdBy: @user)
-    end
-    let!(:place2) do
-      FactoryGirl.create(:place,createdBy: @user)
-    end
-
-    it "should have the right places"
-      expect(@user.places.to_a).to eq [place1, place2]
-    end
 end
