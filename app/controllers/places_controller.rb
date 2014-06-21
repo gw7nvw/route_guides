@@ -100,11 +100,13 @@ end
   
   def update
 
-    @place = Place.new(place_params)
     if( !@place = Place.find_by_id(params[:id]))
     #tried to update a nonexistant place
       render 'edit'
     end
+    @place.name= place_params[:name]
+    @place.description = place_params[:description]
+    @place.altitude = place_params[:altitude].to_i
 
     x=place_params[:location].to_s.split(' ')[0].to_f
     y=place_params[:location].to_s.split(' ')[1].to_f
