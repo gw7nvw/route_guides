@@ -6,6 +6,14 @@ FactoryGirl.define do
     password_confirmation "foobar"
   end
 
+  factory :createdBy, :class => "User"  do
+    name     "Michael Hartl"
+    email    "michael@example.com"
+    password "foobar"
+    password_confirmation "foobar"
+  end
+
+
   factory :place do
     name     "A Test Place"
     description    "A cool place to be"

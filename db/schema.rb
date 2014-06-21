@@ -31,9 +31,9 @@ ActiveRecord::Schema.define(version: 20140617061510) do
   create_table "places", force: true do |t|
     t.string   "name"
     t.text     "description"
-    t.spatial  "location",        limit: {:srid=>4326, :type=>"point", :geographic=>true}
+    t.spatial  "location",     limit: {:srid=>4326, :type=>"point", :geographic=>true}
     t.integer  "altitude"
-    t.integer  "createdByUserId"
+    t.integer  "createdBy_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

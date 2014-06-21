@@ -1,15 +1,28 @@
 class PlacesController < ApplicationController
-before_action :signed_in_user
+before_action :signed_in_user, only: [:edit, :update, :new, :create]
+
 def new
     @edit=true
     @place=Place.new
   
   end
 
+def index
+    @places = Place.all
+end
   def create
+
+
     @place = Place.new(place_params)
 
-    @place.location='POINT('+place_params[:location].to_s+')'
+    x=place_params[:location].to_s.split(' ')[0].to_f
+    y=place_params[:location].to_s.split(' ')[1].to_f
+    wgs=RGeo::CoordSys::Proj4.new(wgs84_proj4)
+    nztm=RGeo::CoordSys::Proj4.new(nztm_proj4)
+
+    xyarr=RGeo::CoordSys::Proj4::transform_coords(nztm,wgs,x, y)
+
+    @place.location='POINT('+xyarr[0].to_s+" "+xyarr[1].to_s+')'
     @place.createdBy_id = 1 #current_user.id
 
     @place_instance=PlaceInstance.new(@place.attributes)
@@ -34,11 +47,6 @@ def new
   end
 
   def show
-wgs84_proj4 = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
-
-
-nztm_proj4 = '+proj=tmerc +lat_0=0 +lon_0=173 +k=0.9996 +x_0=1600000 +y_0=10000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'
-
 
 
     @edit=false
@@ -47,13 +55,23 @@ nztm_proj4 = '+proj=tmerc +lat_0=0 +lon_0=173 +k=0.9996 +x_0=1600000 +y_0=100000
     #show
 
 
-    wgs=RGeo::CoordSys::Proj4.new(wgs84_proj4)
-    nztm=RGeo::CoordSys::Proj4.new(nztm_proj4)
+#    wgs=RGeo::CoordSys::Proj4.new(wgs84_proj4)
+#    nztm=RGeo::CoordSys::Proj4.new(nztm_proj4)
 
-    xyarr=RGeo::CoordSys::Proj4::transform_coords(wgs,nztm,@place.location.x, @place.location.y)
-    #convery location to readable format
-    @x=xyarr[0]
-    @y=xyarr[1]
+#    xyarr=RGeo::CoordSys::Proj4::transform_coords(wgs,nztm,@place.location.x, @place.location.y)
+
+    xycoords = RGeo::Feature.cast(@place.location, :factory => nztm_factory, :project => true)
+#    convery location to readable format
+#    if xyarr.nil? 
+#    then
+#       @x=0
+#       @y=0
+#    else
+#      @x=xyarr[0]
+#      @y=xyarr[1]
+#    end
+    @x=xycoords.x
+    @y=xycoords.y
     @map_extent=(@x-2000).to_s+" "+(@y-1000).to_s+" "+(@x+2000).to_s+" "+(@y+1000).to_s
     @place.location=@x.to_s+" "+@y.to_s
     else
@@ -63,37 +81,51 @@ nztm_proj4 = '+proj=tmerc +lat_0=0 +lon_0=173 +k=0.9996 +x_0=1600000 +y_0=100000
   end
 
   def edit
+
     @edit=true
     if( @place = Place.find_by_id(params[:id]))
     #show
 
-    #convery location to readable format
-    @x = @place.location.x
-    @y = @place.location.y
+    xycoords = RGeo::Feature.cast(@place.location, :factory => nztm_factory, :project => true)
+    @x=xycoords.x
+    @y=xycoords.y
+    @map_extent=(@x-2000).to_s+" "+(@y-1000).to_s+" "+(@x+2000).to_s+" "+(@y+1000).to_s
     @place.location=@x.to_s+" "+@y.to_s
     else
     #place does not exist - return to home
     redirect_to root_url
-    end    
+    end
+
   end
   
   def update
+
     @place = Place.new(place_params)
     if( !@place = Place.find_by_id(params[:id]))
     #tried to update a nonexistant place
       render 'edit'
     end
 
-    @place.location='POINT('+place_params[:location].to_s+')'
+    x=place_params[:location].to_s.split(' ')[0].to_f
+    y=place_params[:location].to_s.split(' ')[1].to_f
+    wgs=RGeo::CoordSys::Proj4.new(wgs84_proj4)
+    nztm=RGeo::CoordSys::Proj4.new(nztm_proj4)
+
+    xyarr=RGeo::CoordSys::Proj4::transform_coords(nztm,wgs,x, y)
+
+    @place.location='POINT('+xyarr[0].to_s+" "+xyarr[1].to_s+')'
     @place.createdBy_id = current_user.id
 
     @place_instance=PlaceInstance.new(@place.attributes)
     # but doesn;t handle location ... so
 
+
+    @place_instance.id=nil
+
     if @place.save
       @place_instance.place_id=@place.id
       if @place_instance.save
-        flash[:success] = "New place added, id:"+@place.id.to_s
+        flash[:success] = "Updated place, id:"+@place.id.to_s
         redirect_to @place
       else
 # Handle a successful save.
@@ -102,7 +134,7 @@ nztm_proj4 = '+proj=tmerc +lat_0=0 +lon_0=173 +k=0.9996 +x_0=1600000 +y_0=100000
       render 'new'
       end
     else
-      flash[:error] = "Error creating place"
+      flash[:error] = "Error saving place"
 
       render 'new'
     end
