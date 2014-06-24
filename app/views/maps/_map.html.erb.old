@@ -1,0 +1,50 @@
+<script language="JavaScript">
+function point_it(event){
+    pos_x = event.offsetX?(event.offsetX):event.pageX-document.getElementById("pointer_div").offsetLeft;
+    coord_x =  pos_x*<%=@maxx-@minx%>/400+<%=@minx%>;
+    pos_y = event.offsetY?(event.offsetY):event.pageY-document.getElementById("pointer_div").offsetTop;
+    coord_y = pos_y*<%=@maxy-@miny%>/300+<%=@miny%>;
+    document.pointform.form_x.value = coord_x;
+    document.pointform.form_y.value = coord_y;
+<% if @edit %>
+      document.placeform.place_location.value = coord_x + " " + coord_y;
+<% end %>
+
+}
+</script>
+
+
+<%= link_to "Show analysis", '/redisplay', :remote => true , :id => "thelink" %>
+
+<div id="replaced"> will be replaced </div>
+
+<script>  
+ $('#thelink').bind('ajax:complete', function(event, data) {
+  $('#replaced').html(data.responseText);
+}); </script>  
+
+<%= form_tag '/redisplay', :remote=> true, :id => "thelink", :name=> 'pointform', :method=> 'post'%>
+<div class="row">
+<div>
+You clicked on x = <input type="text" name="form_x" size="4" /> - y = <input type="text" name="form_y" size="4" />
+</div>
+     <input type="radio" name="action" value="-2"> -2
+     <input type="radio" name="action" value="-1"> -1
+     <input type="radio" name="action" value="0"> 0
+     <input type="radio" name="action" value="1"> 1
+     <input type="radio" name="action" value="2"> 2
+</div>
+<%= submit_tag "Recenter", :id => 'thelink' %>
+</form>
+
+<div id="themap">
+<%= @x %>, <%=@y%>
+</div>
+<div id="pointer_div" onclick="point_it(event)" 
+  style = "background-image:url( 
+    <%="/cgi-bin/mapserv?map=/ms4w/apps/matts_app/htdocs/example1-5.map&layer=states&layer=topo&mode=map&map_extent="+@map_extent if Rails.env.production?%> 
+    <%="/dummyImage.png" if !Rails.env.production?%>
+  );width:400px;height:300px;">
+</div>
+
+

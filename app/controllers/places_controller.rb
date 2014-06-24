@@ -1,14 +1,21 @@
 class PlacesController < ApplicationController
-before_action :signed_in_user, only: [:edit, :update, :new, :create]
+ before_action :signed_in_user, only: [:edit, :update, :new, :create]
 
 def new
-    @edit=true
+@edit=true
     @place=Place.new
-  
+    @x=1540000
+    @y=5370000
+    @zoom=512
+ 
   end
 
 def index
     @places = Place.all
+    @x=1540000
+    @y=5370000
+    @zoom=512
+
 end
   def create
 
@@ -55,24 +62,25 @@ end
     #show
 
 
-#    wgs=RGeo::CoordSys::Proj4.new(wgs84_proj4)
-#    nztm=RGeo::CoordSys::Proj4.new(nztm_proj4)
+    wgs=RGeo::CoordSys::Proj4.new(wgs84_proj4)
+    nztm=RGeo::CoordSys::Proj4.new(nztm_proj4)
 
-#    xyarr=RGeo::CoordSys::Proj4::transform_coords(wgs,nztm,@place.location.x, @place.location.y)
+    xyarr=RGeo::CoordSys::Proj4::transform_coords(wgs,nztm,@place.location.x, @place.location.y)
 
-    xycoords = RGeo::Feature.cast(@place.location, :factory => nztm_factory, :project => true)
-#    convery location to readable format
-#    if xyarr.nil? 
-#    then
-#       @x=0
-#       @y=0
-#    else
-#      @x=xyarr[0]
-#      @y=xyarr[1]
-#    end
-    @x=xycoords.x
-    @y=xycoords.y
-    @map_extent=(@x-2000).to_s+" "+(@y-1000).to_s+" "+(@x+2000).to_s+" "+(@y+1000).to_s
+#    xycoords = RGeo::Feature.cast(@place.location, :factory => nztm_factory, :project => true)
+ #   convery location to readable format
+    if xyarr.nil? 
+    then
+       @x=1540000
+       @y=5370000
+       @zoom=512
+    else
+      @x=xyarr[0].to_i
+      @y=xyarr[1].to_i
+      @zoom=1
+    end
+#    @x=xycoords.x.to_i
+#    @y=xycoords.y.to_i
     @place.location=@x.to_s+" "+@y.to_s
     else
     #place does not exist - return to home
@@ -86,10 +94,27 @@ end
     if( @place = Place.find_by_id(params[:id]))
     #show
 
-    xycoords = RGeo::Feature.cast(@place.location, :factory => nztm_factory, :project => true)
-    @x=xycoords.x
-    @y=xycoords.y
-    @map_extent=(@x-2000).to_s+" "+(@y-1000).to_s+" "+(@x+2000).to_s+" "+(@y+1000).to_s
+  #  xycoords = RGeo::Feature.cast(@place.location, :factory => nztm_factory, :project => true)
+  #  @x=xycoords.x.to_i
+  #  @y=xycoords.y.to_i
+      wgs=RGeo::CoordSys::Proj4.new(wgs84_proj4)
+    nztm=RGeo::CoordSys::Proj4.new(nztm_proj4)
+
+    xyarr=RGeo::CoordSys::Proj4::transform_coords(wgs,nztm,@place.location.x, @place.location.y)
+
+#    xycoords = RGeo::Feature.cast(@place.location, :factory => nztm_factory, :project => true)
+ #   convery location to readable format
+    if xyarr.nil?
+    then
+       @x=1540000
+       @y=5370000
+       @zoom=512
+    else
+      @x=xyarr[0].to_i
+      @y=xyarr[1].to_i
+      @zoom=1
+    end
+
     @place.location=@x.to_s+" "+@y.to_s
     else
     #place does not exist - return to home
@@ -146,8 +171,25 @@ end
   def destroy
   end
 
+  def redisplay
+      @x=params[:form_x].to_i
+      @y=params[:form_y].to_i
+#    @x=xycoords.x.to_i
+#    @y=xycoords.y.to_i
+      @minx=@x-2000
+      @miny=@y-1500
+      @maxx=@x+2000
+      @maxy=@y+1500
+
+  respond_to do |format|
+      format.html   { render partial: 'redisplay' }
+    end
+end  
+    
   private 
   def place_params
     params.require(:place).permit(:name, :description, :location, :altitude)
   end
+
+
 end

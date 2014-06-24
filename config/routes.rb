@@ -3,7 +3,14 @@ resources :users
 resources :sessions, only: [:new, :create, :destroy]
 resources :places
 
+controller :places do
+#    post 'places/:id' => :redisplay
+    post 'places/:id' => :redisplay
+end
+
 root 'static_pages#home'
+  match '/redisplay', to: 'places#redisplay',    via:'get'
+  match '/redisplay', to: 'places#redisplay',    via:'post'
   match '/signup',  to: 'users#new',            via: 'get'
   match '/signin',  to: 'sessions#new',         via: 'get'
   match '/signout', to: 'sessions#destroy',     via: 'delete'

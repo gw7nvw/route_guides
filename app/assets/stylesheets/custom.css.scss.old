@@ -66,24 +66,9 @@ p {
 
 /* header */
 
-#main_page{
-  float:left;
-  width:100%;
-  height:auto;
-  margin-left:2%;
-  margin-right:2%%;
-}
-#header
-{
-	height: 50px;
-	background-color: #666;
-	margin-bottom: 10px;
-}
-
 #logo {
   float: left;
-  margin-right: 1%;
-  margin-left:1%;
+  margin-right: 10px;
   font-size: 1.7em;
   color: white;
   text-transform: uppercase;
@@ -96,46 +81,38 @@ p {
     text-decoration: none;
   }
 }
-
-#menus {
-  float: right;
+#container
+{
+  display: block; 
+  height:auto;
+  position: relative; 
+  width: auto;
 }
-
-.container{
+#map {
+  display:block;
   float:left;
-  width:100%;
-  margin-left:2%;
-  margin-right:2%%;
+  width:500px;
+  height:auto;
+  padding-left:10px;
+  padding-top:15px;
+  padding-right:10px;
+  padding-bottom:5px;
 }
+/* footer */
 
-
-#map
-{
-	float: left;
-	width: 40%;
-	height: 80%;
-	margin-bottom: 10px;
+#content {
+  display:block;
+  float:left;
+  width:auto;
+  height:auto;
+  padding-left:10px;
+  padding-top:15px;
+  padding-right:10px;
+  padding-bottom:5px;
 }
+/* footer */
 
-#right_panel
-{
-	float: left;
-	margin-left: 5%;
-	margin-right:5%;
-	width: 50%;
-	height: auto;
-	margin-bottom: 10px;
-}
-
-#footer
-{
-	clear: both;
-	height: 50px;
-	background-color: #666;
-	margin-bottom: 10px;
-}
-
-/*footer {
+footer {
   margin-top: 45px;
   padding-top: 5px;
   border-top: 1px solid $grayMediumLight;
@@ -154,10 +131,9 @@ p {
     list-style: none;
     li {
       float: left;
-      margin-left: 1%;
+      margin-left: 10px;
     }
   }
-*/
 
 /* miscellaneous */
 
@@ -212,4 +188,5 @@ input {
     width: 640px; 
     height: 420px; 
     background: url('ajax-loader.gif') center center no-repeat; 
+}
 }

@@ -1,6 +1,7 @@
-<div>
-  <div>
-     <%= form_for  @place, :html => {:name => 'placeform'}  do |f| %>
+<div class="row">
+  <div class="span6 offset3">
+     <%= form_for(@place) do |f| %>
+
       <%= f.label :name %>
       <%= f.text_field :name, :disabled=>!@edit %>
 
@@ -21,3 +22,13 @@
     <% end %>
   </div>
 </div>
+<% if !@x.nil? %>
+<%=@x%> <%=@y%>
+<div align="center">
+              <img src=
+   <%="/cgi-bin/mapserv?map=/ms4w/apps/matts_app/htdocs/example1-5.map&layer=states&layer=topo&mode=map&map_extent="+@map_extent if Rails.env.production?%>
+  <%="../dummyImage.png" if !Rails.env.production?%>
+ />
+</div> 
+<% end %>
+

@@ -1,5 +1,9 @@
 <% provide(:title, 'New Place') %>
-<h1>New Place</h1>
+<% @title=" | Place | Add "%>
+<div id="map">
+<%= render 'maps/map' %>
+</div>
+<div id="content">
 <%= render 'places/place_details' %>
-Projlib installed: <%=RGeo::CoordSys::Proj4.supported?.to_s%>
+</div>
 
