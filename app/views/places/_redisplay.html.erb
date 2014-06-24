@@ -1,0 +1,8 @@
+<%= @x%>, <%= @y %>
+<div id="pointer_div" onclick="point_it(event)" 
+  style = "background-image:url( 
+    <%="/dummyImage.png" if !Rails.env.production?%>
+  );width:400px;height:300px;">
+</div>
+
+

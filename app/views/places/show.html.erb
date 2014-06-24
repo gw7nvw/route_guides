@@ -1,3 +1,10 @@
 <% provide(:title, "Place | "+@place.name) %>
-<h1> Place | <%=@place.name %></h1>
+<% @title=" | Place | "+@place.name %>
+
+<div id="map">
+<%= render 'maps/map' %>
+</div>
+<div id="right_panel">
 <%= render 'places/place_details' %>
+</div>
+
