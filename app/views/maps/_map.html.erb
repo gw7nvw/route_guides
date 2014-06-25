@@ -130,11 +130,27 @@ function load_map() {
   miny = Number(document.pointform.form_miny.value);
   maxx = Number(document.pointform.form_maxx.value);
   maxy = Number(document.pointform.form_maxy.value);
+  zoom = Number(document.pointform.form_zoom.value);
+
+
+  /* get list of layers based on zoom */
+  layer="&layer=topo4000"; 
+
+  if (zoom<4) { /*topo 50 */
+     layer="&layer=topo50"; 
+
+  }
+
+ if (zoom>=4 && zoom<32){ /*topo 250 */
+     layer="&layer=topo250"; 
+ 
+  }
+
 
   /*calculate the size of the image = size of the div we have to display it in */
   map_size = $('#map').width()+"+"+($(window).height()-200);
   map_extent=minx+"+"+miny+"+"+maxx+"+"+maxy;
-  newMapUrl = '/cgi-bin/mapserv?map=/ms4w/apps/matts_app/htdocs/example1-5.map&layer=states&layer=topo&mode=map&map_extent='+map_extent+"&map_size="+map_size;
+  newMapUrl = '/cgi-bin/mapserv?map=/ms4w/apps/matts_app/htdocs/example1-5.map&mode=map'+layer+'&map_extent='+map_extent+"&map_size="+map_size;
 
   /* be nice to show a spinner somwehere to show it is loading */
   /*        $('#mainImage').hide();*/
@@ -151,10 +167,13 @@ function load_map() {
 
 </script>
 
+<div id="map_map">
 <div id="imageWrap">
   <img alt="Main Image" id="mainImage" onclick="get_coords(event)" src="/defaultMap.jpg">
 </div>
+</div>
 
+<div id="map_controls">
 <%= form_tag '/redisplay', :remote=> true, :id => "thelink", :name=> 'pointform', :method=> 'post'%>
   <div align="center">
      <input type="radio" name="action" value="draw"> draw
@@ -165,16 +184,16 @@ function load_map() {
      <input type="radio" name="action" value="2"> +2
   </div>
   <div class="row">
-     x = <input type="text" name="form_x" size="1" /> 
-     y = <input type="text" name="form_y" size="1" />
-     minx = <input type="text" name="form_minx" size="1" /> 
-     miny = <input type="text" name="form_miny" size="1" />
-     maxx = <input type="text" name="form_maxx" size="1" /> 
-     maxy = <input type="text" name="form_maxy" size="1" />
-     zoom = <input type="text" name="form_zoom" size="1" /> 
+     <input type="text" name="form_x" size="1" /> 
+     <input type="text" name="form_y" size="1" />
+     <input type="hidden" name="form_minx" size="1" /> 
+     <input type="hidden" name="form_miny" size="1" />
+     <input type="hidden" name="form_maxx" size="1" /> 
+     <input type="hidden" name="form_maxy" size="1" />
+     <input type="hidden" name="form_zoom" size="1" /> 
   </div>
 </form>
-
+</div>
 
 
 
