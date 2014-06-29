@@ -1,9 +1,6 @@
 class StaticPagesController < ApplicationController
   def home
-       @x=1540000
-       @y=5370000
-       @zoom=512
-
+       @static_page=true
   end
 
   def about
