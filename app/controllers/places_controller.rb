@@ -22,14 +22,10 @@ end
 
     @place = Place.new(place_params)
 
-    x=place_params[:location].to_s.split(' ')[0].to_f
-    y=place_params[:location].to_s.split(' ')[1].to_f
-    wgs=RGeo::CoordSys::Proj4.new(wgs84_proj4)
-    nztm=RGeo::CoordSys::Proj4.new(nztm_proj4)
+    x=place_params[:x].to_f
+    y=place_params[:y].to_f
 
-    xyarr=RGeo::CoordSys::Proj4::transform_coords(nztm,wgs,x, y)
-
-    @place.location='POINT('+xyarr[0].to_s+" "+xyarr[1].to_s+')'
+    @place.location='POINT(place_params[:location])'
     @place.createdBy_id = 1 #current_user.id
 
     @place_instance=PlaceInstance.new(@place.attributes)
@@ -59,29 +55,12 @@ end
     @edit=false
     if( @place = Place.find_by_id(params[:id]))
     then 
+      xstr = @place.location.x.to_s
+      ystr = @place.location.y.to_s
+
+      @place.location = xstr+" "+ystr
+
     #show
-
-
-    wgs=RGeo::CoordSys::Proj4.new(wgs84_proj4)
-    nztm=RGeo::CoordSys::Proj4.new(nztm_proj4)
-
-    xyarr=RGeo::CoordSys::Proj4::transform_coords(wgs,nztm,@place.location.x, @place.location.y)
-
-#    xycoords = RGeo::Feature.cast(@place.location, :factory => nztm_factory, :project => true)
- #   convery location to readable format
-    if xyarr.nil? 
-    then
-       @x=1540000
-       @y=5370000
-       @zoom=512
-    else
-      @x=xyarr[0].to_i
-      @y=xyarr[1].to_i
-      @zoom=1
-    end
-#    @x=xycoords.x.to_i
-#    @y=xycoords.y.to_i
-    @place.location=@x.to_s+" "+@y.to_s
     else
     #place does not exist - return to home
     redirect_to root_url
@@ -93,29 +72,11 @@ end
     @edit=true
     if( @place = Place.find_by_id(params[:id]))
     #show
+      xstr = @place.location.x.to_s
+      ystr = @place.location.y.to_s
+      
+      @place.location = xstr+" "+ystr
 
-  #  xycoords = RGeo::Feature.cast(@place.location, :factory => nztm_factory, :project => true)
-  #  @x=xycoords.x.to_i
-  #  @y=xycoords.y.to_i
-      wgs=RGeo::CoordSys::Proj4.new(wgs84_proj4)
-    nztm=RGeo::CoordSys::Proj4.new(nztm_proj4)
-
-    xyarr=RGeo::CoordSys::Proj4::transform_coords(wgs,nztm,@place.location.x, @place.location.y)
-
-#    xycoords = RGeo::Feature.cast(@place.location, :factory => nztm_factory, :project => true)
- #   convery location to readable format
-    if xyarr.nil?
-    then
-       @x=1540000
-       @y=5370000
-       @zoom=512
-    else
-      @x=xyarr[0].to_i
-      @y=xyarr[1].to_i
-      @zoom=1
-    end
-
-    @place.location=@x.to_s+" "+@y.to_s
     else
     #place does not exist - return to home
     redirect_to root_url
@@ -131,14 +92,15 @@ end
     end
     @place.name= place_params[:name]
     @place.description = place_params[:description]
+    @place.x = place_params[:x].to_f
+    @place.y = place_params[:y].to_f
+    @place.projn = place_params[:projn]
     @place.altitude = place_params[:altitude].to_i
-
-    x=place_params[:location].to_s.split(' ')[0].to_f
-    y=place_params[:location].to_s.split(' ')[1].to_f
+    # need tomake this generic for all projections 
     wgs=RGeo::CoordSys::Proj4.new(wgs84_proj4)
     nztm=RGeo::CoordSys::Proj4.new(nztm_proj4)
 
-    xyarr=RGeo::CoordSys::Proj4::transform_coords(nztm,wgs,x, y)
+    xyarr=RGeo::CoordSys::Proj4::transform_coords(nztm,wgs,@place.x, @place.y)
 
     @place.location='POINT('+xyarr[0].to_s+" "+xyarr[1].to_s+')'
     @place.createdBy_id = current_user.id
@@ -171,24 +133,9 @@ end
   def destroy
   end
 
-  def redisplay
-      @x=params[:form_x].to_i
-      @y=params[:form_y].to_i
-#    @x=xycoords.x.to_i
-#    @y=xycoords.y.to_i
-      @minx=@x-2000
-      @miny=@y-1500
-      @maxx=@x+2000
-      @maxy=@y+1500
-
-  respond_to do |format|
-      format.html   { render partial: 'redisplay' }
-    end
-end  
-    
   private 
   def place_params
-    params.require(:place).permit(:name, :description, :location, :altitude)
+    params.require(:place).permit(:name, :description, :location, :altitude, :x, :y, :projn)
   end
 
 

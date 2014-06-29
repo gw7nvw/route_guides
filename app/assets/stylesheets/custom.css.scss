@@ -1,4 +1,4 @@
-@import "bootstrap";
+ @import "bootstrap"; 
 
 /* mixins, variables, etc. */
 
@@ -7,8 +7,8 @@
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
 }
-
-
+$grayLight: #999;
+$grayLighter: #eee;
 $grayMediumLight: #eaeaea;
 
 /* universal */
@@ -67,11 +67,12 @@ p {
 /* header */
 
 #main_page{
-  float:left;
-  width:100%;
-  height:90%;
-  margin-left:2%;
-  margin-right:2%%;
+  float: left;
+  width: 100%;
+  height: 100%;
+  margin-left: 2%;
+  margin-right: 2%;
+  margin-top: 60px;
 }
 #header
 {
@@ -108,15 +109,33 @@ p {
   margin-right:2%%;
 }
 
-#map
+#left_panel
 {
         float: left;
         width: 40%;
-        height: 80%;
+        height: 100%;
         margin-bottom: 10px;
 }
 
-#map_map
+html, body {
+        height: 100%;
+        width: 100%;
+        border: 0px;
+        margin: 0px;
+        padding: 0px;
+}
+
+#map_map {
+        width: calc(100% - 2px);
+        height: calc(100% - 62px); 
+        border: 1px solid black;
+        margin: 0px;
+        margin-top: 100px;
+	margin-left: 20px;
+        padding: 0px;
+}
+
+#map-blah
 {
 	float: left;
 	width: 100%;
@@ -228,3 +247,19 @@ input {
     height: 420px; 
     background: url('ajax-loader.gif') center center no-repeat; 
 }
+/**
+ * Map Examples Specific
+ */
+.smallmap {
+    width: 512px;
+    height: 256px;
+    border: 1px solid #ccc;
+}
+#tags {
+    display: none;
+}
+
+#docs p {
+    margin-bottom: 0.5em;
+}
+/* mobile specific */

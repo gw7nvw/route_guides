@@ -7,8 +7,17 @@
       <%= f.label :description %>
       <%= f.text_area :description, :disabled=>!@edit, size: "80x7" %>
 
-      <%= f.label :location %>
-      <%= f.text_field :location, :disabled=>!@edit %>
+      <%= f.label "Lat-long" %>
+      <%= f.text_field :location, :disabled=>true %>
+
+      <%= f.label :projn %>
+      <%= f.text_field :projn, :disabled=>!@edit %>
+
+      <%= f.label :x %>
+      <%= f.text_field :x, :disabled=>!@edit %>
+
+      <%= f.label :y %>
+      <%= f.text_field :y, :disabled=>!@edit %>
 
       <%= f.label :altitude %>
       <%= f.text_field :altitude, :disabled=>!@edit %>
@@ -21,3 +30,4 @@
     <% end %>
   </div>
 </div>
+

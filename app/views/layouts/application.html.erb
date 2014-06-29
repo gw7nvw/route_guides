@@ -1,22 +1,52 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <style>
+html, body {
+        height: 100%;
+        width: 100%;
+        border: 0px;
+        margin: 0px;
+        padding: 0px;
+}
+
+#map_map {
+        width: calc(100% - 2px);
+        height: calc(100% - 62px);
+        border: 1px solid black;
+        margin: 0px;
+        margin-top: 100px;
+        margin-left: 20px;
+        padding: 0px;
+}
+</style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <script src="http://www.openlayers.org/api/OpenLayers.js"></script>
+    <script type="text/javascript" src="http://svn.osgeo.org/metacrs/proj4js/trunk/lib/proj4js.js"></script>
+    <%= javascript_include_tag "/assets/map.js" %>
+
+    <!-- load page-specific map javascript and determine init function to call. Default is init() -->
+    <%  @init_name = "init()" %>
+    <% if @place %>
+      <%  @init_name = "place_init()" %>
+      <%= javascript_include_tag "/assets/place.js" %>
+    <% end %>
+
     <title><%= full_title(yield(:title)) %></title>
-    <%= stylesheet_link_tag "application", media: "all",
-                                           "data-turbolinks-track" => true %>
+    <%= stylesheet_link_tag "application", media: "all", "data-turbolinks-track" => true %>
     <%= javascript_include_tag "application", "data-turbolinks-track" => true %>
     <%= csrf_meta_tags %>
-    <%= render 'layouts/shim' %>
-  </head>
-  <body>
+    <%= render 'layouts/shim' %> 
+</head>
+<body onload='<%=@init_name%>'>
     <%= render 'layouts/header' %>
     <div id="main_page">
       <% flash.each do |key, value| %>
         <div class="alert alert-<%= key %>"><%= value %></div>
       <% end %>
-      <%= yield %>
-    </div>
-    <%= render 'layouts/footer' %>
-    <%= debug(params)  if Rails.env.development? %>  
-  </body>
+
+  <%= yield %>
+</div>
+</body>
 </html>
