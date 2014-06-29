@@ -7,8 +7,8 @@
       <%= f.label :description %>
       <%= f.text_area :description, :disabled=>!@edit, size: "80x7" %>
 
-      <%= f.label "Lat-long" %>
-      <%= f.text_field :location, :disabled=>true %>
+      <%= f.label "Lat Long" %>
+      <%= f.text_field :location, :readonly => true %>
 
       <%= f.label :projn %>
       <%= f.text_field :projn, :disabled=>!@edit %>
