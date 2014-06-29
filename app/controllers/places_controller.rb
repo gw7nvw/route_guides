@@ -96,13 +96,7 @@ end
     @place.y = place_params[:y].to_f
     @place.projn = place_params[:projn]
     @place.altitude = place_params[:altitude].to_i
-    # need tomake this generic for all projections 
-    wgs=RGeo::CoordSys::Proj4.new(wgs84_proj4)
-    nztm=RGeo::CoordSys::Proj4.new(nztm_proj4)
-
-    xyarr=RGeo::CoordSys::Proj4::transform_coords(nztm,wgs,@place.x, @place.y)
-
-    @place.location='POINT('+xyarr[0].to_s+" "+xyarr[1].to_s+')'
+    @place.location='POINT('+place_params[:location]+')'
     @place.createdBy_id = current_user.id
 
     @place_instance=PlaceInstance.new(@place.attributes)
