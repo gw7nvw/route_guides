@@ -11,17 +11,24 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140617061510) do
+ActiveRecord::Schema.define(version: 20140630022053) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
 
+  create_table "doc_huts", primary_key: "gid", force: true do |t|
+    t.string  "status",     limit: 40
+    t.string  "descriptio", limit: 40
+    t.string  "category_d", limit: 50
+    t.string  "object_typ", limit: 40
+    t.spatial "geom",       limit: {:srid=>4326, :type=>"point"}
+  end
+
   create_table "place_instances", force: true do |t|
     t.integer  "place_id"
     t.string   "name"
     t.text     "description"
-    t.spatial  "location",     limit: {:srid=>4326, :type=>"point", :geographic=>true}
     t.float    "x"
     t.float    "y"
     t.string   "projn"
@@ -29,12 +36,14 @@ ActiveRecord::Schema.define(version: 20140617061510) do
     t.integer  "createdBy_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.spatial  "location",     limit: {:srid=>4326, :type=>"point"}
+    t.string   "place_type",   limit: 20
+    t.string   "place_owner",  limit: 20
   end
 
   create_table "places", force: true do |t|
     t.string   "name"
     t.text     "description"
-    t.spatial  "location",     limit: {:srid=>4326, :type=>"point", :geographic=>true}
     t.float    "x"
     t.float    "y"
     t.string   "projn"
@@ -42,6 +51,9 @@ ActiveRecord::Schema.define(version: 20140617061510) do
     t.integer  "createdBy_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.spatial  "location",     limit: {:srid=>4326, :type=>"point"}
+    t.string   "place_type",   limit: 20
+    t.string   "place_owner",  limit: 20
   end
 
   create_table "users", force: true do |t|

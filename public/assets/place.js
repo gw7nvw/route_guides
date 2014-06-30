@@ -3,7 +3,7 @@ function place_init() {
 OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {                
      defaultHandlerOptions: {
          'single': true,
-         'double': false,
+         'double': true,
          'pixelTolerance': 0,
          'stopSingle': false,
          'stopDouble': false

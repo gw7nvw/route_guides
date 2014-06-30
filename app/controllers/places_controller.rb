@@ -4,17 +4,11 @@ class PlacesController < ApplicationController
 def new
 @edit=true
     @place=Place.new
-    @x=1540000
-    @y=5370000
-    @zoom=512
  
   end
 
 def index
-    @places = Place.all
-    @x=1540000
-    @y=5370000
-    @zoom=512
+    @places = Place.all.order(:name)
 
 end
   def create
