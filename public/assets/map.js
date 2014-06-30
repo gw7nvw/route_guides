@@ -169,7 +169,7 @@ function init(){
 
     vectorLayer = new OpenLayers.Layer.Vector("Current Item", {
                 renderers: renderer
-    });
+    }); 
     layer_style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
     layer_style.fillOpacity = 0.2;
     layer_style.graphicOpacity = 1;
@@ -226,12 +226,11 @@ function init(){
     if(typeof(click)!='undefined') 
     {
       map_map.addControl(click);
-    } else {
+    } 
         // Create a select feature control and add it to the map.
             var select = new OpenLayers.Control.SelectFeature(places_layer, {hover: true});
             map_map.addControl(select);
             select.activate();
-    }
            //callback for moveend event - fix tooltips
             map_map.events.register("moveend", map_map, function() {
                 tooltip();
