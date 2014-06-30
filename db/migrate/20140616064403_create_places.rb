@@ -3,7 +3,7 @@ class CreatePlaces < ActiveRecord::Migration
     create_table :places do |t|
       t.string :name
       t.text :description
-      t.point :location, :geographic => true, :spatial => true, :srid => 4326
+      t.point :location, :spatial => true, :srid => 4326
       t.float :x
       t.float :y
       t.string :projn

@@ -8,6 +8,9 @@ var renderer;
 var layer_style;
 var click;
 var style_blue;
+var style_hut;
+var style_pt_default;
+var pt_styleMap;
 
 function init(){
   if(typeof(map_map)=='undefined') {
@@ -17,6 +20,25 @@ function init(){
     /* explicityly define the projections we will use */
     Proj4js.defs["EPSG:2193"] = "+proj=tmerc +lat_0=0 +lon_0=173 +k=0.9996 +x_0=1600000 +y_0=10000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs";
     Proj4js.defs["EPSG:900913"] = "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_defs";
+
+    style_pt_default = {strokeColor: "red", strokeOpacity: "0.7", strokeWidth: 3, cursor: "pointer", pointRadius: 4, fillColor: "red", graphicName: "circle", title: '${name}'};
+
+    var sty = OpenLayers.Util.applyDefaults(style_pt_default, OpenLayers.Feature.Vector.style["default"]);
+    pt_styleMap = new OpenLayers.StyleMap({
+            'default': sty,
+            'select': {strokeColor: "pink", fillColor: "pink"}
+        });
+    pt_styleMap.styles['default'].addRules([
+        new OpenLayers.Rule({
+            filter: new OpenLayers.Filter.Comparison({
+            type: OpenLayers.Filter.Comparison.EQUAL_TO, property: "place_type", value: "Hut"
+            }),
+            symbolizer: {strokeColor: "blue", fillColor: "blue"}
+        }),
+        new OpenLayers.Rule({
+            elseFilter: true
+        })
+    ]);
 
     map_map = new OpenLayers.Map( 'map_map', {
             displayProjection: new OpenLayers.Projection("EPSG:2193"),
@@ -154,7 +176,7 @@ function init(){
 
     var extent = new OpenLayers.Bounds(19342958.233236, -5095432.4834721,  19551784.194512, -5000803.4424551);
     var test_g_wmts_layer = new OpenLayers.Layer.WMTS({
-        name: "test-g-WMTS",
+        name: "nztopomaps.com",
         url: "http://wharncliffe.co.nz/mapcache/wmts/",
         layer: 'test',
         matrixSet: 'g',
@@ -170,15 +192,101 @@ function init(){
       }
     );
 
+/*    places_layer = new OpenLayers.Layer.MapServer( "Places",
+            "http://wharncliffe.co.nz/cgi-bin/mapserv", {layers: 'places', map: '/ms4w/apps/matts_app/htdocs/example1-5.map'},
+            {gutter: 15, transparent: true, isBaseLayer: false}); */
+/*      places_layer = new OpenLayers.Layer.Vector( "Places",
+                "http://wharncliffe.co.nz/cgi-bin/mapserv?map=/ms4w/apps/matts_app/htdocs/example1-5.map",
+				{ typename: 'places' },
+				{ extractAttributes: true }); */
+            
+      places_layer = new OpenLayers.Layer.Vector("Places", {
+                    strategies: [new OpenLayers.Strategy.BBOX()],
+                    protocol: new OpenLayers.Protocol.WFS({
+                        url:  "http://wharncliffe.co.nz/cgi-bin/mapserv?map=/ms4w/apps/matts_app/htdocs/example1-5.map",
+                        featureType: "places",
+                        extractAttributes: true
+                    }),
+                    styleMap: pt_styleMap
+                }); 
 
-    map_map.addLayer(test_g_wmts_layer, vectorLayer);
+ //callback after a layer has been loaded in openlayers
+    places_layer.events.register("loadend", places_layer, function() { 
+           tooltip();
+    });
+
+    map_map.addLayer(test_g_wmts_layer);
+    map_map.addLayer(places_layer);
+    map_map.addLayer(vectorLayer);
 
 
     map_map.zoomToExtent(extent);
     map_map.addControl(new OpenLayers.Control.LayerSwitcher());
     map_map.addControl(new OpenLayers.Control.MousePosition());
-    if(typeof(click)!='undefined') map_map.addControl(click);
+    if(typeof(click)!='undefined') 
+    {
+      map_map.addControl(click);
+    } else {
+        // Create a select feature control and add it to the map.
+            var select = new OpenLayers.Control.SelectFeature(places_layer, {hover: true});
+            map_map.addControl(select);
+            select.activate();
+    }
+           //callback for moveend event - fix tooltips
+            map_map.events.register("moveend", map_map, function() {
+                tooltip();
+            });
+
+            //callback for moveend event - fix tooltips
+            map_map.events.register("zoomend", map_map, function() {
+                tooltip();
+            });
 
   }
 }
+/* tooltip functionality */
+
+ function tooltip(){
+            
+            var tooltips = document.getElementsByTagName("title");
+            var tooltip = document.getElementById("tooltip");
+
+          for (var i = 0; i < tooltips.length; i++) {
+            tooltips.item(i).parentNode.addEventListener('mouseover', function(e) {
+              showTip(this,xy(e));
+            }, true);
+            tooltips.item(i).parentNode.addEventListener('mouseout', function() {
+              hideTip(this);
+            }, true);
+          }
+
+          function showTip(element,pos) {
+            
+            var title = element.attributes.title.value; //many different ways to grab this
+            var offset = 7;
+            var top = pos[1]+offset+'px';
+            var left = pos[0]+offset+'px';
+            tooltip.style.top = top;
+            tooltip.style.left = left;
+            tooltip.textContent = title;
+            tooltip.style.display = 'block';
+          }
+
+          function hideTip(element) {
+            tooltip.style.display = 'none';
+          }
+
+          function xy(e) {
+            if (!e) var e = window.event;
+            if (e.pageX || e.pageY) {
+              return [e.pageX,e.pageY]
+            } else if (e.clientX || e.clientY) {
+              return [e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft,e.clientY + document.body.scrollTop + document.documentElement.scrollTop];
+            }
+            return [0,0]
+          }
+
+        }
+
+
 

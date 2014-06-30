@@ -19,10 +19,18 @@ html, body {
         margin-left: 20px;
         padding: 0px;
 }
+            #tooltip{
+                position:absolute; 
+                z-index:10000; 
+                background-color:#FFFFFF;
+                display:none;
+                padding:5px;
+            }
+
 </style>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <script src="http://www.openlayers.org/api/OpenLayers.js"></script>
+    <script src="/assets/OpenLayers.js"></script>
     <script type="text/javascript" src="http://svn.osgeo.org/metacrs/proj4js/trunk/lib/proj4js.js"></script>
     <%= javascript_include_tag "/assets/map.js" %>
 
