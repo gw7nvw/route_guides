@@ -1,6 +1,8 @@
 
 function place_init() {
-OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {                
+  if(!document.placeform.place_x.disabled)
+   {
+     OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {                
      defaultHandlerOptions: {
          'single': true,
          'double': true,
@@ -8,6 +10,7 @@ OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {
          'stopSingle': false,
          'stopDouble': false
      },
+
 
     initialize: function(options) {
        this.handlerOptions = OpenLayers.Util.extend(
@@ -51,9 +54,9 @@ OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {
 
     }
 
-});
+    });
 
-
+  }
 Proj4js.defs["EPSG:2193"] = "+proj=tmerc +lat_0=0 +lon_0=173 +k=0.9996 +x_0=1600000 +y_0=10000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs";
 Proj4js.defs["EPSG:900913"] = "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_defs";
 
@@ -67,6 +70,15 @@ if (typeof(map_map)=='undefined') init();
    style_blue.strokeWidth = 3;
    style_blue.rotation = 45;
    style_blue.strokeLinecap = "butt";
+
+   style_purple = OpenLayers.Util.extend({}, layer_style);
+   style_purple.strokeColor = "purple";
+   style_purple.fillColor = "purple";
+   style_purple.graphicName = "star";
+   style_purple.pointRadius = 10;
+   style_purple.strokeWidth = 3;
+   style_purple.rotation = 45;
+   style_purple.strokeLinecap = "butt";
 
 
 vectorLayer = new OpenLayers.Layer.Vector("Current feature", {
@@ -85,11 +97,11 @@ var thisPoint = new OpenLayers.Geometry.Point(x, y).transform(srcProj, mapProj);
 
 /*add to map */
           var point = new OpenLayers.Geometry.Point(thisPoint.x,thisPoint.y)
-            var pointFeature = new OpenLayers.Feature.Vector(point,null,style_blue);
+            var pointFeature = new OpenLayers.Feature.Vector(point,null,style_purple);
             vectorLayer.addFeatures(pointFeature);
             map_map.addLayer(vectorLayer);
 /* turn on click to get coords */
-    click.activate();
+    if(!document.placeform.place_x.disabled) click.activate();
 }
 
 
