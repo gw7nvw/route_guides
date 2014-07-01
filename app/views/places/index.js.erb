@@ -1,0 +1,2 @@
+window.history.pushState(null, '', '/places/');
+$('#right_panel').html("<%= escape_javascript(render(:partial => 'places/index')).html_safe %>");

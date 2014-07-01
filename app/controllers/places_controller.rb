@@ -4,12 +4,11 @@ class PlacesController < ApplicationController
 def new
 @edit=true
     @place=Place.new
- 
+    @place_types = Place_type.all.order(:name)
   end
 
 def index
     @places = Place.all.order(:name)
-
 end
   def create
 
@@ -44,6 +43,7 @@ end
   end
 
   def show
+    @place_types = Place_type.all.order(:name)
 
 
     @edit=false
@@ -59,10 +59,14 @@ end
     #place does not exist - return to home
     redirect_to root_url
     end    
+  
+ #   respond_to do |format|
+ #       format.js
+ #   end
   end
 
   def edit
-
+    @place_types = Place_type.all.order(:name)
     @edit=true
     if( @place = Place.find_by_id(params[:id]))
     #show
@@ -92,6 +96,8 @@ end
     @place.altitude = place_params[:altitude].to_i
     @place.location='POINT('+place_params[:location]+')'
     @place.createdBy_id = current_user.id
+    @place.place_type = place_params[:place_type]
+    @place.place_owner = place_params[:place_owner]
 
     @place_instance=PlaceInstance.new(@place.attributes)
     # but doesn;t handle location ... so
@@ -123,7 +129,7 @@ end
 
   private 
   def place_params
-    params.require(:place).permit(:name, :description, :location, :altitude, :x, :y, :projn)
+    params.require(:place).permit(:name, :place_type, :place_owner, :description, :location, :altitude, :x, :y, :projn)
   end
 
 
