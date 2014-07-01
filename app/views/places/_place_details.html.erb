@@ -1,23 +1,29 @@
-<div>
+<div id='place_details'>
   <div>
      <%= form_for  @place, :html => {:name => 'placeform'}  do |f| %>
       <%= f.label :name %>
       <%= f.text_field :name, :disabled=>!@edit %>
 
-      <%= f.label :description %>
-      <%= f.text_area :description, :disabled=>!@edit, size: "80x7" %>
 
-      <%= f.label "Lat Long" %>
-      <%= f.text_field :location, :readonly => true %>
+      <%= f.label :place_type %>
+      <%= collection_select( :place, :place_type, @place_types, :name, :name, {}, {:disabled => !@edit}) %>
+ 
+      <%= f.label :place_owner %>
+      <%= f.text_field :place_owner, :disabled=>!@edit %>
+
+      <%= f.label :description %>
+      <%= f.text_area :description, :disabled=>!@edit, :rows=>"8"   %>
+
+      <%= f.hidden_field :location, :readonly => true %>
 
       <%= f.label :projn %>
       <%= f.text_field :projn, :disabled=>!@edit %>
 
       <%= f.label :x %>
-      <%= f.text_field :x, :disabled=>!@edit %>
+      <%= f.text_field :x, :disabled=>!@edit, :size => 8 %>
 
       <%= f.label :y %>
-      <%= f.text_field :y, :disabled=>!@edit %>
+      <%= f.text_field :y, :disabled=>!@edit, :size => 8 %>
 
       <%= f.label :altitude %>
       <%= f.text_field :altitude, :disabled=>!@edit %>
@@ -25,9 +31,13 @@
       <% if @edit %>
         <%= f.submit "Save", class: "btn btn-large btn-primary" %>
       <% else %>
-        <%=  link_to "Edit", '/places/'+@place.id.to_s+'/edit', class: "btn btn-large btn-primary" %>
+        <%=  link_to "Edit", '/places/'+@place.id.to_s+'/edit', class: "btn btn-large btn-primary", remote: true %>
       <% end %>
     <% end %>
   </div>
 </div>
+<script>
+/*    reset_map_controllers(); */
+    place_init();
+</script>
 

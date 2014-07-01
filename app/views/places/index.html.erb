@@ -1,16 +1,2 @@
-<% provide(:title, 'Places') %>
-<% @title=" | Places" %>
-
-<div id="left_panel">
-<%= render 'maps/map' %>
-</div>
-<div id="right_panel">
-  <ul class="places">
-    <% @places.each do |place| %>
-      <li>
-        <%= link_to place.name, place %>
-      </li>
-    <% end %>
-  </ul>
-</div>
+<%= render 'places/index' %>
 
