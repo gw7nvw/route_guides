@@ -1,4 +1,5 @@
  @import "bootstrap"; 
+@import "slider";
 
 /* mixins, variables, etc. */
 
@@ -81,11 +82,22 @@ p {
 	margin-bottom: 10px;
 }
 
+#our_logo {
+  width: calc(100% - 580px);
+  height: 27px;
+  overflow: hidden;
+  float: left;
+  margin-left: 0px;
+  margin-right: 0px%;
+  padding-right: 0px;
+  padding-left: 0px;
+}
+
 #logo {
   float: left;
   margin-right: 1%;
   margin-left:1%;
-  font-size: 1.7em;
+  font-size: 1.5em;
   color: white;
   text-transform: uppercase;
   letter-spacing: -1px;
@@ -117,6 +129,42 @@ p {
         position: fixed;
         margin-bottom: 10px;
 }
+
+.diff_label
+{
+        float: left;
+        width: 90px;
+        height: 30px;
+        font-weight: bold;
+}
+.difficulty
+{
+        float: left;
+        width: 100%;
+}
+.diff_details
+{
+        float: left;
+        height: 30px;
+        width: 100%;
+        font-weight: lighter;
+        font-style: italic;
+        margin-left: 90px;
+        color: darkgrey;
+}
+.diff_name
+{
+        float: left;
+        height: 30px;
+        width: 250px;
+}
+.diff_slider
+{
+        float: left;
+        height: 30px;
+        width: 210px;
+}
+
 
 html, body {
         height: 100%;

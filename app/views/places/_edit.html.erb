@@ -1,4 +1,5 @@
 <% provide(:title, "Edit Place | "+@place.name) %>
 <% @title=" | Place | Edit -> "+@place.name %>
+<script> update_title('<%=@title%>'); </script>
 <%= render 'places/place_details' %>
 

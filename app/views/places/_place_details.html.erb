@@ -1,6 +1,8 @@
 <div id='place_details'>
   <div>
      <%= form_for  @place, :html => {:name => 'placeform'}  do |f| %>
+      <%= render 'shared/error_messages' %>
+
       <%= f.label :name %>
       <%= f.text_field :name, :disabled=>!@edit %>
 

@@ -1,0 +1,292 @@
+ @import "bootstrap"; 
+@import "slider";
+
+/* mixins, variables, etc. */
+
+@mixin box_sizing {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+$grayLight: #999;
+$grayLighter: #eee;
+$grayMediumLight: #eaeaea;
+
+/* universal */
+
+html {
+  overflow-y: scroll;
+}
+
+body {
+  padding-top: 60px;
+}
+
+section {
+  overflow: auto;
+}
+
+textarea {
+  resize: vertical;
+}
+
+.center {
+  text-align: center;
+  h1 {
+    margin-bottom: 10px;
+  }
+}
+
+/* typography */
+
+h1, h2, h3, h4, h5, h6 {
+  line-height: 1;
+}
+
+h1 {
+  font-size: 3em;
+  letter-spacing: -2px;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+h2 {
+  font-size: 1.2em;
+  letter-spacing: -1px;
+  margin-bottom: 30px;
+  text-align: center;
+  font-weight: normal;
+  color: $grayLight;
+}
+
+p {
+  font-size: 1.1em;
+  line-height: 1.7em;
+}
+
+
+/* header */
+
+#main_page{
+  float: left;
+  width: 100%;
+  height: 100%;
+  margin-left: 2%;
+  margin-right: 2%;
+  margin-top: 60px;
+}
+#header
+{
+	height: 50px;
+	background-color: #666;
+	margin-bottom: 10px;
+}
+
+#logo {
+  float: left;
+  margin-right: 1%;
+  margin-left:1%;
+  font-size: 1.7em;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: -1px;
+  padding-top: 9px;
+  font-weight: bold;
+  line-height: 1;
+  &:hover {
+    color: white;
+    text-decoration: none;
+  }
+}
+
+#menus {
+  float: right;
+}
+
+.container{
+  float:left;
+  width:100%;
+  margin-left:2%;
+  margin-right:2%%;
+}
+
+#left_panel
+{
+        float: left;
+        width: 40%;
+        height: 100%;
+        position: fixed;
+        margin-bottom: 10px;
+}
+
+.diff_label
+{
+        float: left;
+        width: 90px;
+        height: 60px;
+}
+.difficulty
+{
+        float: left;
+        height: 60px;
+        width: 100%;
+}
+.diff_details
+{
+        float: bottom;
+        height: 30px;
+        width: calc(100% - 102px);
+}
+.diff_slider
+{
+        float: top;
+        height: 30px;
+}
+
+
+html, body {
+        height: 100%;
+        width: 100%;
+        border: 0px;
+        margin: 0px;
+        padding: 0px;
+}
+
+#map_map {
+        width: calc(100% - 2px);
+        height: calc(100% - 62px); 
+        border: 0px;
+        margin: 0px;
+ /*       margin-top: 100px; */
+	margin-left: 20px;
+        padding: 0px;
+}
+
+#map-blah
+{
+	float: left;
+	width: 100%;
+	height: 80%;
+}
+
+#map_controls
+{
+        float: left;
+        width: 100%;
+        height: 20%;
+
+}
+#right_panel
+{
+	float: left;
+	margin-left: 45%;
+	margin-right:5%;
+	width: 50%;
+	height: auto;
+	margin-bottom: 10px;
+}
+
+#footer
+{
+	clear: both;
+	height: 50px;
+	background-color: #666;
+	margin-left: 2%;
+	margin-right: 2%;
+	margin-bottom: 10px;
+}
+
+/*footer {
+  margin-top: 45px;
+  padding-top: 5px;
+  border-top: 1px solid $grayMediumLight;
+  color: $grayLight;
+  a {
+    color: $gray;
+    &:hover {
+      color: $grayDarker;
+    }
+  }
+  small {
+    float: left;
+  }
+  ul {
+    float: right;
+    list-style: none;
+    li {
+      float: left;
+      margin-left: 1%;
+    }
+  }
+*/
+
+/* miscellaneous */
+
+.debug_dump {
+  clear: both;
+  float: left;
+  width: 100%;
+  margin-top: 45px;
+  @include box_sizing;
+}
+/* forms */
+
+input, textarea, select, .uneditable-input {
+  border: 1px solid #bbb;
+  width: 100%;
+  margin-bottom: 15px;
+  @include box_sizing;
+}
+
+input {
+  height: auto !important;
+}
+
+#error_explanation {
+  color: #f00;
+  ul {
+    list-style: none;
+    margin: 0 0 18px 0;
+  }
+}
+
+.field_with_errors {
+  @extend .control-group;
+  @extend .error;
+}
+
+/* Places index */
+
+.places {
+  list-style: none;
+  margin: 0;
+  li {
+    overflow: auto;
+    padding: 10px 0;
+    border-top: 1px solid $grayLighter;
+    &:last-child {
+      border-bottom: 1px solid $grayLighter;
+    }
+  }
+}
+.imageWrap { 
+    width: 640px; 
+    height: 420px; 
+    background: url('ajax-loader.gif') center center no-repeat; 
+}
+/**
+ * Map Examples Specific
+ */
+.smallmap {
+    width: 512px;
+    height: 256px;
+    border: 1px solid #ccc;
+}
+#tags {
+    display: none;
+}
+
+#docs p {
+    margin-bottom: 0.5em;
+}
+/* mobile specific */

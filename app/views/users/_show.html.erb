@@ -1,3 +1,4 @@
 <% provide(:title, @user.name) %>
 <% @title=" | User | "+@user.name %>
+<script> update_title('<%=@title%>'); </script>
 <%= @user.name %>, <%= @user.email %>

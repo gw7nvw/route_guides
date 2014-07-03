@@ -1,0 +1,4 @@
+window.history.pushState(null, '', '/routes/<%=params[:id]+"/edit"%>');
+$('#right_panel').html("<%= escape_javascript(render(:partial => 'routes/edit')).html_safe %>");
+
+
