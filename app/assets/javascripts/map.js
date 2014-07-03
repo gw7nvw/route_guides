@@ -81,9 +81,15 @@ function init(){
 	     var f = places_layer.selectedFeatures.pop();
              document.selectform.select.value = f.attributes.id;
              document.selectform.selectname.value = f.attributes.name;
+             document.selectform.selectx.value = f.geometry.x;
+             document.selectform.selecty.value = f.geometry.y;
+
            },
            'featureunselected': function(feature) {
              document.selectform.select.value = "";
+             document.selectform.selectname.value = "";
+             document.selectform.selectx.value = "";
+             document.selectform.selecty.value = "";
            }
     });
 
@@ -282,6 +288,14 @@ function add_click_to_copy_start_point() {
     trigger: function(e) {
       document.routeform.route_startplace_id.value=document.selectform.select.value;
       document.routeform.route_startplace_name.value=document.selectform.selectname.value;
+
+      /* get x,y of place, transform to WGS and write to form */
+      var mapProj =  map_map.projection;
+      var dstProj =  new OpenLayers.Projection("EPSG:4326");
+ 
+      var thisPoint = new OpenLayers.Geometry.Point(document.selectform.selectx.value, document.selectform.selecty.value).transform(mapProj,dstProj);
+      document.routeform.route_startplace_location.value='POINT('+thisPoint.x+" "+thisPoint.y+')';
+
     }
   });
 }
@@ -316,6 +330,14 @@ function add_click_to_copy_end_point() {
     trigger: function(e) {
       document.routeform.route_endplace_id.value=document.selectform.select.value;
       document.routeform.route_endplace_name.value=document.selectform.selectname.value;
+
+      /* get x,y of place, transform to WGS and write to form */
+      var mapProj =  map_map.projection;
+      var dstProj =  new OpenLayers.Projection("EPSG:4326");
+
+      var thisPoint = new OpenLayers.Geometry.Point(document.selectform.selectx.value, document.selectform.selecty.value).transform(mapProj,dstProj);
+      document.routeform.route_endplace_location.value='POINT('+thisPoint.x+" "+thisPoint.y+')';
+
     }
   });
 }
@@ -519,21 +541,23 @@ function route_init() {
 
   vectorLayer.destroyFeatures();
 
+  var srcProj =  new OpenLayers.Projection("EPSG:4326");
+  var mapProj =  new OpenLayers.Projection("EPSG:900913");
   /* add start point */
 
+  if(document.routeform.route_startplace_location.value!="") {
   /* read location from form */
   var feaWGS = new OpenLayers.Format.WKT().read(document.routeform.route_startplace_location.value);
 
   /*convert to map projectiob */
-  var srcProj =  new OpenLayers.Projection("EPSG:4326");
-  var mapProj =  new OpenLayers.Projection("EPSG:900913");
   var geomMap = feaWGS.geometry.transform(srcProj, mapProj); 
   var pointFeature = new OpenLayers.Feature.Vector(geomMap,null,star_green);
 
   /*add to map */
   vectorLayer.addFeatures(pointFeature);
-
+}
   /* add end point */
+  if(document.routeform.route_endplace_location.value!="") {
 
   /* read location from form */
   feaWGS = new OpenLayers.Format.WKT().read(document.routeform.route_endplace_location.value);
@@ -544,10 +568,12 @@ function route_init() {
 
   /*add to map */
   vectorLayer.addFeatures(pointFeature);
-
+}
 
 
   /* add route */
+  if(document.routeform.route_location.value!="") {
+
   /* read location from form */
   feaWGS = new OpenLayers.Format.WKT().read(document.routeform.route_location.value);
 
@@ -557,7 +583,7 @@ function route_init() {
 
   /*add to map */
   vectorLayer.addFeatures(lineFeature);
-
+}
 
 }
 

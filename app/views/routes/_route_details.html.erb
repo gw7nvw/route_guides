@@ -30,7 +30,7 @@
            <img id="locationtick" src="/assets/tick.png" onclick="endSelectLocation()" width="0"></img>
          <% end %>
          &nbsp;Route points</label>
-      <%= f.text_field :location, :disabled=>!@edit %>
+      <%= f.text_field :location, :disabled=>true %>
 
       <%= f.label :description %>
       <%= f.text_area :description, :disabled=>!@edit, :rows=>"8"   %>
@@ -252,15 +252,16 @@ function selectLocation() {
 }
 
 function endSelectLocation() {
+  if(typeof( vectorLayer.features[0])!='undefined') {
   var wktParser=new OpenLayers.Format.WKT();
   var dstProj =  new OpenLayers.Projection("EPSG:4326");
   var mapProj =  map_map.projection;
   var lineGeomNewProj = vectorLayer.features[0].geometry.transform(mapProj,dstProj);
   var wktText = wktParser.write(new OpenLayers.Feature.Vector(lineGeomNewProj));
   /* really should do foreach an dconcatenate here ... */
-
   document.routeform.route_location.value=wktText;
 
+}
   selectNothing();
   
 
@@ -272,10 +273,13 @@ function selectNothing() {
   document.getElementById("endplacetick").width=0;
   document.getElementById("locationplus").width=16;
   document.getElementById("locationtick").width=0;
- 
+
+  /* resisplay all point / lines from from */ 
+  vectorLayer.destroyFeatures();
 
   deactivate_all_click();
 
+  route_init();
   /* Only enable clickto select in read-only mode */
   <% if !@edit %>
      click_to_select.activate(); 
