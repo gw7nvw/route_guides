@@ -10,11 +10,17 @@ var click_to_select;
 var click_to_copy_start_point;
 var click_to_copy_end_point;
 var click_to_create;
-var style_blue;
+var star_blue;
 var style_hut;
 var style_pt_default;
 var pt_styleMap;
 var select;
+var draw;
+var star_purple;
+var star_red;
+var star_green;
+var star_blue;
+var line_red;
 
 function init(){
   if(typeof(map_map)=='undefined') {
@@ -74,6 +80,7 @@ function init(){
         'featureselected': function(feature) {
 	     var f = places_layer.selectedFeatures.pop();
              document.selectform.select.value = f.attributes.id;
+             document.selectform.selectname.value = f.attributes.name;
            },
            'featureunselected': function(feature) {
              document.selectform.select.value = "";
@@ -108,6 +115,12 @@ function init(){
         tooltip();
     });
 
+    vectorLayer = new OpenLayers.Layer.Vector("Current feature", {
+                style: layer_style,
+                renderers: renderer
+            });
+    map_map.addLayer(vectorLayer);
+
     /* create click controllers*/
     add_click_to_select_controller();
     click_to_select = new OpenLayers.Control.Click();
@@ -125,6 +138,8 @@ function init(){
     click_to_create = new OpenLayers.Control.Click();
     map_map.addControl(click_to_create);
 
+    add_draw_controller();
+
     /* by default, activate only xclick_to_select */
     click_to_select.activate();
 
@@ -132,10 +147,12 @@ function init(){
 }
 
 function deactivate_all_click() {
-    click_to_select.deactivate();
-    click_to_create.deactivate();
-    click_to_copy_start_point.deactivate();
-    click_to_copy_end_point.deactivate();
+    if(typeof(click_to_select)!='undefined') click_to_select.deactivate();
+    if(typeof(click_to_create)!='undefined') click_to_create.deactivate();
+    if(typeof(click_to_copy_start_point)!='undefined') click_to_copy_start_point.deactivate();
+    if(typeof(click_to_copy_end_point)!='undefined') click_to_copy_end_point.deactivate();
+    if(typeof(draw)!='undefined') draw.deactivate();
+
 }
 
 function add_click_to_select_controller() {
@@ -264,6 +281,7 @@ function add_click_to_copy_start_point() {
 
     trigger: function(e) {
       document.routeform.route_startplace_id.value=document.selectform.select.value;
+      document.routeform.route_startplace_name.value=document.selectform.selectname.value;
     }
   });
 }
@@ -297,6 +315,7 @@ function add_click_to_copy_end_point() {
 
     trigger: function(e) {
       document.routeform.route_endplace_id.value=document.selectform.select.value;
+      document.routeform.route_endplace_name.value=document.selectform.selectname.value;
     }
   });
 }
@@ -349,7 +368,7 @@ function add_click_to_create_controller() {
        vectorLayer.destroyFeatures();
 
        var point = new OpenLayers.Geometry.Point(lonlat.lon, lonlat.lat);
-       var pointFeature = new OpenLayers.Feature.Vector(point,null,style_blue);
+       var pointFeature = new OpenLayers.Feature.Vector(point,null,star_blue);
        vectorLayer.addFeatures(pointFeature);
 
     }
@@ -378,9 +397,167 @@ function create_styles() {
             elseFilter: true
         })
     ]);
+
+  star_blue = OpenLayers.Util.extend({}, layer_style);
+  star_blue.strokeColor = "blue";
+  star_blue.fillColor = "blue";
+  star_blue.graphicName = "star";
+  star_blue.pointRadius = 10;
+  star_blue.strokeWidth = 3;
+  star_blue.rotation = 45;
+  star_blue.strokeLinecap = "butt";
+
+  star_red = OpenLayers.Util.extend({}, layer_style);
+  star_red.strokeColor = "darkred";
+  star_red.fillColor = "darkred";
+  star_red.graphicName = "star";
+  star_red.pointRadius = 10;
+  star_red.strokeWidth = 3;
+  star_red.rotation = 45;
+  star_red.strokeLinecap = "butt";
+
+  star_green = OpenLayers.Util.extend({}, layer_style);
+  star_green.strokeColor = "green";
+  star_green.fillColor = "green";
+  star_green.graphicName = "star";
+  star_green.pointRadius = 10;
+  star_green.strokeWidth = 3;
+  star_green.rotation = 45;
+  star_green.strokeLinecap = "butt";
+
+  star_purple = OpenLayers.Util.extend({}, layer_style);
+  star_purple.strokeColor = "purple";
+  star_purple.fillColor = "purple";
+  star_purple.graphicName = "star";
+  star_purple.pointRadius = 10;
+  star_purple.strokeWidth = 3;
+  star_purple.rotation = 45;
+  star_purple.strokeLinecap = "butt";
+
+  line_red = OpenLayers.Util.extend({}, layer_style);
+  line_red.strokeColor = "red";
+  line_red.strokeWidth = 3;
+  line_red.strokeLinecap = "butt";
+
 }
 
 function update_title(title) {
   document.getElementById('logo').innerHTML='Route Guides'+title;
 
 }
+
+function add_draw_controller () {
+
+  draw = new OpenLayers.Control.DrawFeature(
+      vectorLayer, OpenLayers.Handler.Path
+  );
+  map_map.addControl(draw);
+
+  OpenLayers.Event.observe(document, "keydown", function(evt) {
+    var handled = false;
+    switch (evt.keyCode) {
+        case 90: // z
+            if (evt.metaKey || evt.ctrlKey) {
+                draw.undo();
+                handled = true;
+            }
+            break;
+        case 89: // y
+            if (evt.metaKey || evt.ctrlKey) {
+                draw.redo();
+                handled = true;
+            }
+            break;
+        case 27: // esc
+            draw.cancel();
+            handled = true;
+            break;
+    }
+    if (handled) {
+        OpenLayers.Event.stop(evt);
+    }
+});
+}
+
+
+function activate_draw() {
+   vectorLayer.destroyFeatures;
+   deactivate_all_click();
+   draw.activate();
+}
+
+function place_init() {
+
+  if (typeof(map_map)=='undefined') init();
+
+  vectorLayer.destroyFeatures();
+
+  /* get location from form */
+  var x = document.placeform.place_x.value;
+  var y = document.placeform.place_y.value;
+  var proj = document.placeform.place_projn.value;
+
+  /*convert to map projectiob */
+  var srcProj =  new OpenLayers.Projection("EPSG:2193");
+  var mapProj =  new OpenLayers.Projection("EPSG:900913");
+  var thisPoint = new OpenLayers.Geometry.Point(x, y).transform(srcProj, mapProj);
+
+  /*add to map */
+  var point = new OpenLayers.Geometry.Point(thisPoint.x,thisPoint.y)
+  var pointFeature = new OpenLayers.Feature.Vector(point,null,star_purple);
+  vectorLayer.addFeatures(pointFeature);
+
+  /* turn on click to get coords */
+  if(!document.placeform.place_x.disabled) {
+     deactivate_all_click();
+     click_to_create.activate();
+  }
+}
+
+function route_init() {
+    if (typeof(map_map)=='undefined') init();
+
+  vectorLayer.destroyFeatures();
+
+  /* add start point */
+
+  /* read location from form */
+  var feaWGS = new OpenLayers.Format.WKT().read(document.routeform.route_startplace_location.value);
+
+  /*convert to map projectiob */
+  var srcProj =  new OpenLayers.Projection("EPSG:4326");
+  var mapProj =  new OpenLayers.Projection("EPSG:900913");
+  var geomMap = feaWGS.geometry.transform(srcProj, mapProj); 
+  var pointFeature = new OpenLayers.Feature.Vector(geomMap,null,star_green);
+
+  /*add to map */
+  vectorLayer.addFeatures(pointFeature);
+
+  /* add end point */
+
+  /* read location from form */
+  feaWGS = new OpenLayers.Format.WKT().read(document.routeform.route_endplace_location.value);
+
+  /*convert to map projectiob */
+  geomMap = feaWGS.geometry.transform(srcProj, mapProj);
+  pointFeature = new OpenLayers.Feature.Vector(geomMap,null,star_red);
+
+  /*add to map */
+  vectorLayer.addFeatures(pointFeature);
+
+
+
+  /* add route */
+  /* read location from form */
+  feaWGS = new OpenLayers.Format.WKT().read(document.routeform.route_location.value);
+
+  /*convert to map projectiob */
+  geomMap = feaWGS.geometry.transform(srcProj, mapProj);
+  var lineFeature = new OpenLayers.Feature.Vector(geomMap,null,line_red);
+
+  /*add to map */
+  vectorLayer.addFeatures(lineFeature);
+
+
+}
+
