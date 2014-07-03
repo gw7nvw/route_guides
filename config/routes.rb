@@ -1,12 +1,12 @@
 RouteGuides::Application.routes.draw do
 resources :users
+resources :routes
 resources :sessions, only: [:new, :create, :destroy]
 resources :places
 resources :maps, only: [:index]
-controller :places do
+#controller :places do
 #    post 'places/:id' => :redisplay
-    post 'places/:id' => :redisplay
-end
+#end
 
 root 'static_pages#home'
   match '/redisplay', to: 'places#redisplay',    via:'get'

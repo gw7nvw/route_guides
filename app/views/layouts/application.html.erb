@@ -31,13 +31,10 @@ html, body {
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <script src="/assets/OpenLayers.js"></script>
-    <script type="text/javascript" src="/assets/proj4js/lib/proj4js-compressed.js"></script>
 
-    <%= javascript_include_tag "/assets/map.js" %>
 
     <!-- load page-specific map javascript and determine init function to call. Default is init() -->
     <%  @init_name = "init()" %>
-      <%= javascript_include_tag "/assets/place.js" %>
 
     <title><%= full_title(yield(:title)) %></title>
     <%= stylesheet_link_tag "application", media: "all", "data-turbolinks-track" => true %>
@@ -52,9 +49,12 @@ html, body {
     <%= render 'maps/map' %>
     </div>
     <div id="right_panel">
-      <% flash.each do |key, value| %>
-        <div class="alert alert-<%= key %>"><%= value %></div>
+      <% if (flash[:error] or flash[:success]) %>
+         <% flash.each do |key, value| %>
+           <div class="alert alert-<%= key %>"><%= value %></div>
+         <% end %>
       <% end %>
+
       <!-- clear flash as if we use partials it won't clear itself -->
       <% flash[:error] = flash[:success] = nil %>
       <%= yield %>

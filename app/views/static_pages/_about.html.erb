@@ -1,8 +1,9 @@
-<script>
-   reset_map_controllers();
-</script>
 <% provide(:title, 'About Route Guides') %>
 <% @title=" | About " %>
+<script>
+   update_title('<%=@title%>');
+   reset_map_controllers();
+</script>
 <h1>About Us</h1>
 <p>
   This project aims to provide a repository for tramping route

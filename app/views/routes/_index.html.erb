@@ -1,0 +1,15 @@
+<% provide(:title, 'Routes') %>
+<% @title=" | Routes" %>
+<script>
+   update_title('<%=@title%>'); 
+   reset_map_controllers();
+</script>
+
+  <ul class="places">
+    <% @routes.each do |route| %>
+      <li>
+        <%= link_to route.name, route, remote: true %>
+      </li>
+    <% end %>
+  </ul>
+

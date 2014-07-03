@@ -1,5 +1,6 @@
 class User < ActiveRecord::Base
   has_many :places, class_name: "Place", foreign_key: "createdBy_id"
+  has_many :routes, class_name: "Route", foreign_key: "createdBy_id"
 
   before_save { self.email = email.downcase }
   before_create :create_remember_token
