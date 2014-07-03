@@ -1,4 +1,5 @@
 class Route < ActiveRecord::Base
+
   has_many :routeInstances
   belongs_to :createdBy, class_name: "User"
   validates :createdBy, :presence => true

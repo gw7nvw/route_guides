@@ -50,6 +50,7 @@ end
     @edit=false
     if( @route = Route.find_by_id(params[:id]))
     then
+      @route.location=@route.location.as_text
       @route_types = Routetype.all
       @gradients = Gradient.all
       @alpines = Alpine.all
@@ -65,6 +66,7 @@ end
     @edit=true
     if( @route = Route.find_by_id(params[:id]))
     then
+      @route.location=@route.location.as_text
       @route_types = Routetype.all
       @gradients = Gradient.all
       @alpines = Alpine.all
