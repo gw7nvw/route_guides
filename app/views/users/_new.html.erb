@@ -20,6 +20,9 @@
 
       <%= f.label :password_confirmation, "Confirmation" %>
       <%= f.password_field :password_confirmation %>
+
+      <label for="user_answer"><%="If I have the number of "+Securityquestion.find(@id1).question+Securityoperator.find(@op).operator+"the number of "+Securityquestion.find(@id2).question+", what number do I have?"%></label>
+      <input id="user_answer" name="user[answer]" type="text">
       <br/>
       <%= f.submit "Create account", class: "btn btn-large btn-primary" %>
     <% end %>

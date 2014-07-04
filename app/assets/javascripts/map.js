@@ -46,7 +46,7 @@ function init(){
     layer_style.fillOpacity = 0.2;
     layer_style.graphicOpacity = 1;
 
-    var extent = new OpenLayers.Bounds(19342958.233236, -5095432.4834721,  19551784.194512, -5000803.4424551);
+    var extent = new OpenLayers.Bounds(18642642.180088, -5791195.9326324, 19829515.150218,  -4476561.4562925);
     var test_g_wmts_layer = new OpenLayers.Layer.WMTS({
         name: "nztopomaps.com",
         url: "http://wharncliffe.co.nz/mapcache/wmts/",
@@ -63,17 +63,53 @@ function init(){
         sphericalMercator: true
       }
     );
+    routes_layer = new OpenLayers.Layer.Vector("routes", {
+                    strategies: [new OpenLayers.Strategy.BBOX()],
+                    protocol: new OpenLayers.Protocol.WFS({
+                        url:  "http://wharncliffe.co.nz/cgi-bin/mapserv?map=/ms4w/apps/matts_app/htdocs/routes.map",
+                        featureType: "routes",
+                        extractAttributes: true
+                    }),
+                    styleMap: pt_styleMap
+                });
 
             
     places_layer = new OpenLayers.Layer.Vector("Places", {
                     strategies: [new OpenLayers.Strategy.BBOX()],
                     protocol: new OpenLayers.Protocol.WFS({
-                        url:  "http://wharncliffe.co.nz/cgi-bin/mapserv?map=/ms4w/apps/matts_app/htdocs/example1-5.map",
+                        url:  "http://wharncliffe.co.nz/cgi-bin/mapserv?map=/ms4w/apps/matts_app/htdocs/places.map",
                         featureType: "places",
                         extractAttributes: true
                     }),
                     styleMap: pt_styleMap
                 }); 
+   /* copy selected feature to div */
+    routes_layer.events.on({
+        'featureselected': function(feature) {
+             var f = routes_layer.selectedFeatures.pop();
+             document.selectform.select.value = f.attributes.id;
+             document.selectform.selectname.value = f.attributes.name;
+             document.selectform.selectx.value = f.geometry.x;
+             document.selectform.selecty.value = f.geometry.y;
+             document.selectform.selecttype.value = "/routes/";
+
+           },
+           'featureunselected': function(feature) {
+             document.selectform.select.value = "";
+             document.selectform.selectname.value = "";
+             document.selectform.selectx.value = "";
+             document.selectform.selecty.value = "";
+             document.selectform.selecttype.value = "";
+
+           }
+    });
+
+
+ //callback after a layer has been loaded in openlayers
+    routes_layer.events.register("loadend", routes_layer, function() {
+           tooltip_routes();
+    });
+
 
    /* copy selected feature to div */
     places_layer.events.on({
@@ -83,6 +119,7 @@ function init(){
              document.selectform.selectname.value = f.attributes.name;
              document.selectform.selectx.value = f.geometry.x;
              document.selectform.selecty.value = f.geometry.y;
+             document.selectform.selecttype.value = "/places/";
 
            },
            'featureunselected': function(feature) {
@@ -90,35 +127,41 @@ function init(){
              document.selectform.selectname.value = "";
              document.selectform.selectx.value = "";
              document.selectform.selecty.value = "";
+             document.selectform.selecttype.value = "";
+
            }
     });
 
  
  //callback after a layer has been loaded in openlayers
     places_layer.events.register("loadend", places_layer, function() { 
-           tooltip();
+           tooltip_places();
     });
 
     map_map.addLayer(test_g_wmts_layer);
     map_map.addLayer(places_layer);
+    map_map.addLayer(routes_layer);
 
-
-    map_map.zoomToExtent(extent);
+    map_map.zoomToExtent(extent); 
+    map_map.zoom = 6;
     map_map.addControl(new OpenLayers.Control.LayerSwitcher());
     map_map.addControl(new OpenLayers.Control.MousePosition());
     
     // Create a select feature control and add it to the map.
-    select = new OpenLayers.Control.SelectFeature(places_layer, {hover: true});
+    select = new OpenLayers.Control.SelectFeature([places_layer, routes_layer], {hover: true});
     map_map.addControl(select);
     select.activate();
+
    //callback for moveend event - fix tooltips
     map_map.events.register("moveend", map_map, function() {
-        tooltip();
+ //       tooltip_routes();
+        tooltip_places();
     });
 
     //callback for moveend event - fix tooltips
     map_map.events.register("zoomend", map_map, function() {
-        tooltip();
+   //     tooltip_routes();
+        tooltip_places();
     });
 
     vectorLayer = new OpenLayers.Layer.Vector("Current feature", {
@@ -196,7 +239,7 @@ function add_click_to_select_controller() {
           xhr.setRequestHeader("Accept","text/javascript");
         }, 
         type: "GET", 
-        url: "/places/"+document.selectform.select.value
+        url: document.selectform.selecttype.value+document.selectform.select.value
       });
     }
   });
@@ -217,7 +260,7 @@ function add_click_to_select_controller() {
  }
 
 /* tooltip functionality */
- function tooltip(){
+ function tooltip_places(){
             
             var tooltips = document.getElementsByTagName("title");
             var tooltip = document.getElementById("tooltip");
@@ -233,6 +276,49 @@ function add_click_to_select_controller() {
 
           function showTip(element,pos) {
             
+            var title = element.attributes.title.value; //many different ways to grab this
+            var offset = 7;
+            var top = pos[1]+offset+'px';
+            var left = pos[0]+offset+'px';
+            tooltip.style.top = top;
+            tooltip.style.left = left;
+            tooltip.textContent = title;
+            tooltip.style.display = 'block';
+          }
+
+          function hideTip(element) {
+            tooltip.style.display = 'none';
+          }
+
+          function xy(e) {
+            if (!e) var e = window.event;
+            if (e.pageX || e.pageY) {
+              return [e.pageX,e.pageY]
+            } else if (e.clientX || e.clientY) {
+              return [e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft,e.clientY + document.body.scrollTop + document.documentElement.scrollTop];
+            }
+            return [0,0]
+          }
+
+        }
+
+/* tooltip functionality */
+ function tooltip_routes(){
+
+            var tooltips = document.getElementsByTagName("title");
+            var tooltip = document.getElementById("tooltip");
+
+          for (var i = 0; i < tooltips.length; i++) {
+            tooltips.item(i).parentNode.addEventListener('mouseover', function(e) {
+              showTip(this,xy(e));
+            }, true);
+            tooltips.item(i).parentNode.addEventListener('mouseout', function() {
+              hideTip(this);
+            }, true);
+          }
+
+          function showTip(element,pos) {
+
             var title = element.attributes.title.value; //many different ways to grab this
             var offset = 7;
             var top = pos[1]+offset+'px';
@@ -584,6 +670,64 @@ function route_init() {
   /*add to map */
   vectorLayer.addFeatures(lineFeature);
 }
+
+}
+
+function route_selectStartPlace() {
+  route_selectNothing();
+  document.getElementById("startplaceplus").width=0;
+  document.getElementById("startplacetick").width=16;
+ 
+  deactivate_all_click();
+  click_to_copy_start_point.activate();
+}
+
+function route_selectEndPlace() { 
+  route_selectNothing();
+  document.getElementById("endplaceplus").width=0;
+  document.getElementById("endplacetick").width=16;
+ 
+
+  deactivate_all_click();
+  click_to_copy_end_point.activate();
+
+}
+
+function route_selectLocation() {
+  route_selectNothing();
+  document.getElementById("locationplus").width=0;
+  document.getElementById("locationtick").width=16;
+  vectorLayer.destroyFeatures(); 
+  deactivate_all_click();
+  activate_draw();
+
+}
+
+function route_endSelectLocation() {
+  if(typeof( vectorLayer.features[0])!='undefined') {
+    var wktParser=new OpenLayers.Format.WKT();
+    var dstProj =  new OpenLayers.Projection("EPSG:4326");
+    var mapProj =  map_map.projection;
+    var lineGeomNewProj = vectorLayer.features[0].geometry.transform(mapProj,dstProj);
+    var wktText = wktParser.write(new OpenLayers.Feature.Vector(lineGeomNewProj));
+    /* really should do foreach an dconcatenate here ... */
+    document.routeform.route_location.value=wktText;
+  }
+}
+function route_selectNothing() {
+  document.getElementById("startplaceplus").width=16;
+  document.getElementById("startplacetick").width=0;
+  document.getElementById("endplaceplus").width=16;
+  document.getElementById("endplacetick").width=0;
+  document.getElementById("locationplus").width=16;
+  document.getElementById("locationtick").width=0;
+
+  /* resisplay all point / lines from from */ 
+  vectorLayer.destroyFeatures();
+
+  deactivate_all_click();
+
+  route_init();
 
 }
 

@@ -23,7 +23,7 @@ end
     @alpines = Alpine.all
     @rivers = River.all
     @terrains = Terrain.all
-    @route.createdBy_id = 1 #current_user.id
+    @route.createdBy_id = @current_user.id #current_user.id
     @route_instance=RouteInstance.new(@route.attributes)
     # but doesn;t handle location ... so
 
@@ -90,7 +90,7 @@ end
     @rivers = River.all
     @terrains = Terrain.all
     @route_instance=RouteInstance.new(@route.attributes)
-    @route_instance.createdBy_id = 1 #current_user.id
+    @route_instance.createdBy_id = @current_user.id #current_user.id
     # but doesn;t handle location ... so
 
     if @route.update(route_params)

@@ -1,4 +1,8 @@
 <% provide(:title, @user.name) %>
 <% @title=" | User | "+@user.name %>
 <script> update_title('<%=@title%>'); </script>
-<%= @user.name %>, <%= @user.email %>
+User:  <%= @user.name %><br/>
+<% if @user.id == @current_user.id%>
+  Email: <%= @user.email %><br/>
+  <%=  link_to "Edit", '/users/'+@user.id.to_s+'/edit', class: "btn btn-large btn-primary", remote: true %>
+<%end%>

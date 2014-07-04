@@ -19,7 +19,7 @@ end
     y=place_params[:y].to_f
 
     @place.location='POINT('+place_params[:location]+')'
-    @place.createdBy_id = 1 #current_user.id
+    @place.createdBy_id = @currentUser.id #current_user.id
 
     @place_instance=PlaceInstance.new(@place.attributes)
     # but doesn;t handle location ... so
@@ -95,7 +95,7 @@ end
     @place.projn = place_params[:projn]
     @place.altitude = place_params[:altitude].to_i
     @place.location='POINT('+place_params[:location]+')'
-    @place.createdBy_id = current_user.id
+    @place.createdBy_id = @current_user.id
     @place.place_type = place_params[:place_type]
     @place.place_owner = place_params[:place_owner]
 
