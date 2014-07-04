@@ -34,7 +34,8 @@ function init(){
 
     map_map = new OpenLayers.Map( 'map_map', {
             displayProjection: new OpenLayers.Projection("EPSG:2193"),
-            projection: new OpenLayers.Projection("EPSG:900913")
+            projection: new OpenLayers.Projection("EPSG:900913"),
+            numZoomLevels: null, minZoomLevel: 6, maxZoomLevel: 14 
     } );
 
 
@@ -46,17 +47,19 @@ function init(){
     layer_style.fillOpacity = 0.2;
     layer_style.graphicOpacity = 1;
 
-    var extent = new OpenLayers.Bounds(18642642.180088, -5791195.9326324, 19829515.150218,  -4476561.4562925);
+    var extent = new OpenLayers.Bounds(18842642.180088, -5791195.9326324, 19729515.150218,  -4476561.4562925);
     var test_g_wmts_layer = new OpenLayers.Layer.WMTS({
         name: "nztopomaps.com",
-        url: "http://wharncliffe.co.nz/mapcache/wmts/",
+        url: "http://routeguides.co.nz/mapcache/wmts/",
         layer: 'test',
         matrixSet: 'g',
         format: 'image/png',
         style: 'default',
         gutter:0,buffer:0,isBaseLayer:true,transitionEffect:'resize',
-        resolutions:[156543.03392804099712520838,78271.51696402048401068896,39135.75848201022745342925,19567.87924100512100267224,9783.93962050256050133612,4891.96981025128025066806,2445.98490512564012533403,1222.99245256282006266702,611.49622628141003133351,305.74811314070478829308,152.87405657035250783338,76.43702828517623970583,38.21851414258812695834,19.10925707129405992646,9.55462853564703173959,4.77731426782351586979,2.38865713391175793490,1.19432856695587897633,0.59716428347793950593],
-        zoomOffset:0,
+      /*  resolutions:[156543.03392804099712520838,78271.51696402048401068896,39135.75848201022745342925,19567.87924100512100267224,9783.93962050256050133612,4891.96981025128025066806,2445.98490512564012533403,1222.99245256282006266702,611.49622628141003133351,305.74811314070478829308,152.87405657035250783338,76.43702828517623970583,38.21851414258812695834,19.10925707129405992646,9.55462853564703173959,4.77731426782351586979,2.38865713391175793490,1.19432856695587897633,0.59716428347793950593],*/
+        /*zoomOffset:0,*/
+        resolutions:[2445.98490512564012533403,1222.99245256282006266702,611.49622628141003133351,305.74811314070478829308,152.87405657035250783338,76.43702828517623970583,38.21851414258812695834,19.10925707129405992646,9.55462853564703173959],
+        zoomOffset:6,
         units:"m",
         maxExtent: new OpenLayers.Bounds(-20037508.342789,-20037508.342789,20037508.342789,20037508.342789),
         projection: new OpenLayers.Projection("EPSG:900913".toUpperCase()),
@@ -66,7 +69,7 @@ function init(){
     routes_layer = new OpenLayers.Layer.Vector("routes", {
                     strategies: [new OpenLayers.Strategy.BBOX()],
                     protocol: new OpenLayers.Protocol.WFS({
-                        url:  "http://wharncliffe.co.nz/cgi-bin/mapserv?map=/ms4w/apps/matts_app/htdocs/routes.map",
+                        url:  "http://routeguides.co.nz/cgi-bin/mapserv?map=/ms4w/apps/matts_app/htdocs/routes.map",
                         featureType: "routes",
                         extractAttributes: true
                     }),
@@ -77,7 +80,7 @@ function init(){
     places_layer = new OpenLayers.Layer.Vector("Places", {
                     strategies: [new OpenLayers.Strategy.BBOX()],
                     protocol: new OpenLayers.Protocol.WFS({
-                        url:  "http://wharncliffe.co.nz/cgi-bin/mapserv?map=/ms4w/apps/matts_app/htdocs/places.map",
+                        url:  "http://routeguides.co.nz/cgi-bin/mapserv?map=/ms4w/apps/matts_app/htdocs/places.map",
                         featureType: "places",
                         extractAttributes: true
                     }),
@@ -143,7 +146,6 @@ function init(){
     map_map.addLayer(routes_layer);
 
     map_map.zoomToExtent(extent); 
-    map_map.zoom = 6;
     map_map.addControl(new OpenLayers.Control.LayerSwitcher());
     map_map.addControl(new OpenLayers.Control.MousePosition());
     
@@ -161,6 +163,14 @@ function init(){
     //callback for moveend event - fix tooltips
     map_map.events.register("zoomend", map_map, function() {
    //     tooltip_routes();
+       var x = map_map.getZoom();
+        
+        if( x > 15) {
+            map_map.zoomTo(15);
+        }
+        if( x < 6) {
+            map_map.zoomTo(6);
+        }
         tooltip_places();
     });
 
