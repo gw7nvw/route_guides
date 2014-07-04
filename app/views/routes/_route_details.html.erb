@@ -8,8 +8,8 @@
 
       <label for="route_startPlace">
          <% if @edit %> 
-           <img id="startplaceplus" src="/assets/add.png" onclick="selectStartPlace()" width="16"></img>
-           <img id="startplacetick" src="/assets/tick.png" onclick="selectNothing()" width="0"></img> 
+           <img id="startplaceplus" src="/assets/add.png" onclick="route_selectStartPlace()" width="16"></img>
+           <img id="startplacetick" src="/assets/tick.png" onclick="route_selectNothing()" width="0"></img> 
          <% end %>
          &nbsp;Start Place</label>
       <%= f.hidden_field :startplace_id %> 
@@ -17,8 +17,8 @@
       <input disabled="disabled" id="route_startplace_location" name="route[startplace_location]" type="text" <%if @route.startplace %>value='<%=@route.startplace.location%>'<%end%>>
       <label for="route_endPlace">
          <% if @edit %> 
-           <img id="endplaceplus" src="/assets/add.png" onclick="selectEndPlace()" width="16"></img>
-           <img id="endplacetick" src="/assets/tick.png" onclick="selectNothing()" width="0"></img>
+           <img id="endplaceplus" src="/assets/add.png" onclick="route_selectEndPlace()" width="16"></img>
+           <img id="endplacetick" src="/assets/tick.png" onclick="route_selectNothing()" width="0"></img>
          <% end %>
          &nbsp;End Place</label>
       <%= f.hidden_field :endplace_id %>
@@ -26,11 +26,11 @@
       <input disabled="disabled" id="route_endplace_location" name="route[endplace_location]" type="text"  <%if @route.endplace %>value='<%=@route.endplace.location%>'<%end%>>
       <label for="route_location">
          <% if @edit %> 
-           <img id="locationplus" src="/assets/add.png" onclick="selectLocation()" width="16"></img>
-           <img id="locationtick" src="/assets/tick.png" onclick="endSelectLocation()" width="0"></img>
+           <img id="locationplus" src="/assets/add.png" onclick="route_selectLocation()" width="16"></img>
+           <img id="locationtick" src="/assets/tick.png" onclick="route_endSelectLocation()" width="0"></img>
          <% end %>
          &nbsp;Route points</label>
-      <%= f.text_field :location, :disabled=>true %>
+      <%= f.text_field :location, :readonly=>true %>
 
       <%= f.label :description %>
       <%= f.text_area :description, :disabled=>!@edit, :rows=>"8"   %>
@@ -134,9 +134,12 @@
     <% end %>
   </div>
 </div>
+<small> 
+  Created by: <%= link_to @route.createdBy.name, '/users/'+@route.createdBy_id.to_s, remote: true%> on <%=@route.created_at%>. Last updated: <%=@route.updated_at%>
+</small>
 <script>
 
-    if (typeof(map_map)=='undefined') init();
+route_init();
 
 /*    reset_map_controllers(); */
 var routeType = [<%= raw @route_types.to_json %>];
@@ -221,74 +224,5 @@ deactivate_all_click();
    click_to_select.activate();
 <% end %>
 
-function selectStartPlace() {
-  selectNothing();
-  document.getElementById("startplaceplus").width=0;
-  document.getElementById("startplacetick").width=16;
- 
-  deactivate_all_click();
-  click_to_copy_start_point.activate();
-}
-
-function selectEndPlace() { 
-  selectNothing();
-  document.getElementById("endplaceplus").width=0;
-  document.getElementById("endplacetick").width=16;
- 
-
-  deactivate_all_click();
-  click_to_copy_end_point.activate();
-
-}
-
-function selectLocation() {
-  selectNothing();
-  document.getElementById("locationplus").width=0;
-  document.getElementById("locationtick").width=16;
-  vectorLayer.destroyFeatures(); 
-  deactivate_all_click();
-  activate_draw();
-
-}
-
-function endSelectLocation() {
-  if(typeof( vectorLayer.features[0])!='undefined') {
-  var wktParser=new OpenLayers.Format.WKT();
-  var dstProj =  new OpenLayers.Projection("EPSG:4326");
-  var mapProj =  map_map.projection;
-  var lineGeomNewProj = vectorLayer.features[0].geometry.transform(mapProj,dstProj);
-  var wktText = wktParser.write(new OpenLayers.Feature.Vector(lineGeomNewProj));
-  /* really should do foreach an dconcatenate here ... */
-  document.routeform.route_location.value=wktText;
-
-}
-  selectNothing();
-  
-
-}
-function selectNothing() {
-  document.getElementById("startplaceplus").width=16;
-  document.getElementById("startplacetick").width=0;
-  document.getElementById("endplaceplus").width=16;
-  document.getElementById("endplacetick").width=0;
-  document.getElementById("locationplus").width=16;
-  document.getElementById("locationtick").width=0;
-
-  /* resisplay all point / lines from from */ 
-  vectorLayer.destroyFeatures();
-
-  deactivate_all_click();
-
-  route_init();
-  /* Only enable clickto select in read-only mode */
-  <% if !@edit %>
-     click_to_select.activate(); 
-  <% end%>
-
-}
-</script>
-<script>
-/*    reset_map_controllers(); */
-    route_init();
 </script>
 
