@@ -81,9 +81,29 @@ end
     end
 
   end
-  
+ 
+ 
   def update
+    if (params[:add]) 
+      @trip=Trip.find_by_id(@current_user.currenttrip)
+      @trip_details = TripDetail.new
+      @trip_details.trip = @trip
+      @trip_details.place_id = params[:id]
+      @trip_details.showForward=true;
+      if(@trip.trip_details.max)
+        @trip_details.order = @trip.trip_details.max.id+1
+      else
+        @trip_details.order = 1
+      end
+      @trip_details.save
 
+      @place_types = Place_type.all.order(:name)
+      @place = Place.find_by_id(params[:id])
+      @edit=false
+      render 'show'
+    end
+
+    if (params[:save]) 
     if( !@place = Place.find_by_id(params[:id]))
     #tried to update a nonexistant place
       render 'edit'
@@ -121,7 +141,7 @@ end
 
       render 'new'
     end
-
+  end
   end
 
   def destroy

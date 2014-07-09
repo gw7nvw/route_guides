@@ -3,27 +3,28 @@
      <%= form_for  @route, :html => {:name => 'routeform'}  do |f| %>
       <%= render 'shared/error_messages' %>
 
-      <%= f.label :name %>
-      <%= f.text_field :name, :disabled=>!@edit %>
-
       <label for="route_startPlace">
          <% if @edit %> 
            <img id="startplaceplus" src="/assets/add.png" onclick="route_selectStartPlace()" width="16"></img>
            <img id="startplacetick" src="/assets/tick.png" onclick="route_selectNothing()" width="0"></img> 
          <% end %>
-         &nbsp;Start Place</label>
+         &nbsp;From</label>
       <%= f.hidden_field :startplace_id %> 
       <input disabled="disabled" id="route_startplace_name" name="route[startplace_name]" type="text" <%if @route.startplace %>value='<%=@route.startplace.name%>'<%end%>>
-      <input disabled="disabled" id="route_startplace_location" name="route[startplace_location]" type="text" <%if @route.startplace %>value='<%=@route.startplace.location%>'<%end%>>
+      <input  type="hidden" id="route_startplace_location" name="route[startplace_location]" type="text" <%if @route.startplace %>value='<%=@route.startplace.location%>'<%end%>>
       <label for="route_endPlace">
          <% if @edit %> 
            <img id="endplaceplus" src="/assets/add.png" onclick="route_selectEndPlace()" width="16"></img>
            <img id="endplacetick" src="/assets/tick.png" onclick="route_selectNothing()" width="0"></img>
          <% end %>
-         &nbsp;End Place</label>
+         &nbsp;To</label>
       <%= f.hidden_field :endplace_id %>
       <input disabled="disabled" id="route_endplace_name" name="route[endplace_name]" type="text"  <%if @route.endplace %>value='<%=@route.endplace.name%>'<%end%>>
-      <input disabled="disabled" id="route_endplace_location" name="route[endplace_location]" type="text"  <%if @route.endplace %>value='<%=@route.endplace.location%>'<%end%>>
+      <input type="hidden" id="route_endplace_location" name="route[endplace_location]" type="text"  <%if @route.endplace %>value='<%=@route.endplace.location%>'<%end%>>
+
+      <%= f.label :via  %>
+      <%= f.text_field :via, :disabled=>!@edit %>
+
       <label for="route_location">
          <% if @edit %> 
            <img id="locationplus" src="/assets/add.png" onclick="route_selectLocation()" width="16"></img>
@@ -34,6 +35,9 @@
 
       <%= f.label :description %>
       <%= f.text_area :description, :disabled=>!@edit, :rows=>"8"   %>
+
+      <%= f.label :reverse_description %>
+      <%= f.text_area :reverse_description, :disabled=>!@edit, :rows=>"8"   %>
 
       <b>Normal conditions:</b><br/>
       <div class="difficulty">
@@ -126,10 +130,11 @@
 
 
       <% if @edit %>
-        <%= f.submit "Save", class: "btn btn-large btn-primary" %>
+        <%= f.submit "Save", class: "btn btn-large btn-primary", name: "save" %>
       <% else %>
         <%=  link_to "Edit", '/routes/'+@route.id.to_s+'/edit', class: "btn btn-large btn-primary", remote: true %>
       <% end %>
+        <%= f.submit "Add to trip", class: "btn btn-large btn-primary", :disabled => @current_user, name: "add" %>
 
     <% end %>
   </div>

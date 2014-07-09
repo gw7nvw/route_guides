@@ -12,6 +12,8 @@ class User < ActiveRecord::Base
   has_secure_password
   validates :password, length: {minimum: 5 }
 
+  belongs_to :currenttrip, class_name: "Trip"
+
   def User.new_remember_token
     SecureRandom.urlsafe_base64
   end

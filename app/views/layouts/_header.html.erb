@@ -46,7 +46,7 @@
                    <b>My Trip</b> <b class="caret"></b>
                 </a>
                 <ul class="dropdown-menu">
-                  <li><%= link_to "Current", '#' %></li>
+                  <li><%= link_to "Current",  '/trips/'+@current_user.currenttrip.id.to_s,  remote: true,  :id => 'my_trip_link', :onclick => "linkHandler('my_trip_link')"  %></li>
                   <li><%= link_to "Wishlist", '#' %></li>
                 </ul>
              </li>

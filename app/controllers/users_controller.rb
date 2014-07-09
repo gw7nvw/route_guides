@@ -34,6 +34,11 @@ class UsersController < ApplicationController
 
        render 'new'
     else
+      @trip=Trip.new
+      @trip.createdBy = @user
+      @trip.save
+
+      @user.currenttrip=@trip
       if @user.save
         # clear the security question coz we're tidy kiwis 
         session[:id1]=nil

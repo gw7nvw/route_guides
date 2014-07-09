@@ -31,16 +31,18 @@
       <%= f.text_field :altitude, :disabled=>!@edit %>
       <br/>
       <% if @edit %>
-        <%= f.submit "Save", class: "btn btn-large btn-primary" %>
+        <%= f.submit "Save", class: "btn btn-large btn-primary", name: "save" %>
       <% else %>
         <%=  link_to "Edit", '/places/'+@place.id.to_s+'/edit', class: "btn btn-large btn-primary", remote: true %>
       <% end %>
+        <%= f.submit "Add to trip", class: "btn btn-large btn-primary", :disabled => @current_user, name: "add" %>
     <% end %>
   </div>
 </div>
 <% if @place.createdBy_id %>
   Created by: <%= link_to @place.createdBy.name, '/users/'+@place.createdBy_id.to_s, remote: true%> on <%=@place.created_at%>. Last updated: <%=@place.updated_at%>
 <% end %>
+
 
 <script>
 /*    reset_map_controllers(); */
