@@ -1,3 +1,4 @@
+
 var map_map;
 
             // we want opaque external graphics and non-opaque internal graphics
@@ -21,6 +22,7 @@ var star_red;
 var star_green;
 var star_blue;
 var line_red;
+var statusMessage = 0;
 
 function init(){
   if(typeof(map_map)=='undefined') {
@@ -180,6 +182,14 @@ function init(){
             });
     map_map.addLayer(vectorLayer);
 
+   /* arrange layer order */
+   map_map.setLayerIndex(test_g_wmts_layer,100);
+   map_map.setLayerIndex(places_layer,200);
+   map_map.setLayerIndex(routes_layer,300);
+   map_map.setLayerIndex(vector_layer,400);
+
+   //map_map.redraw();
+
     /* create click controllers*/
     add_click_to_select_controller();
     click_to_select = new OpenLayers.Control.Click();
@@ -243,13 +253,21 @@ function add_click_to_select_controller() {
        /*naviagte to selection */
 // window.location.replace(document.getElementById('selected').innerHTML);
 //      $('#right_panel').load(document.getElementById('selected').innerHTML);
+      document.getElementById("page_status").innerHTML = 'Loading ...'
+
       $.ajax({
         beforeSend: function (xhr){ 
           xhr.setRequestHeader("Content-Type","application/javascript");
           xhr.setRequestHeader("Accept","text/javascript");
         }, 
         type: "GET", 
-        url: document.selectform.selecttype.value+document.selectform.select.value
+        timeout: 15000,
+        url: document.selectform.selecttype.value+document.selectform.select.value,
+        complete: function() {
+            /* complete also fires when error ocurred, so only clear if no error has been shown */
+            document.getElementById("page_status").innerHTML = '';
+        }
+
       });
     }
   });
@@ -741,3 +759,34 @@ function route_selectNothing() {
 
 }
 
+function linkHandler(entity_name) {
+    /* close the dropdown */
+    $('.dropdown').removeClass('open');
+
+    /* show 'loading ...' */
+    document.getElementById("page_status").innerHTML = 'Loading ...'
+
+//    $('#'+entity_name).bind('ajax:timeout', function() {
+//           document.getElementById("page_status").innerHTML = 'Timed out';
+//           statusMessage=1;
+//    });
+
+    /* register on complete ... */
+    $('#'+entity_name).bind('ajax:complete', function() {
+        /* complete also fires when error ocurred, so only clear if no error has been shown */
+         document.getElementById("page_status").innerHTML = '';
+    });
+
+    /* set timeoput and register handler */
+    $(function() {
+     $.rails.ajax = function (options) {
+      if (!options.timeout) {
+         options.timeout = 15000;
+         }
+      return $.ajax(options);
+     };
+    }); 
+
+   
+ 
+}

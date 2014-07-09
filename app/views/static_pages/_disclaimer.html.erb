@@ -1,6 +1,9 @@
 <% provide(:title, 'Disclaimer') %>
 <% @title=" | Disclaimer  %>
-<script> update_title('<%=@title%>'); </script>
+<script> 
+   update_title('<%=@title%>'); 
+   document.getElementById("page_status").innerHTML = '';
+</script>
 <h1>Disclaimer</h1>
 <p>
 The outdoors is a big, dangerous, unpredictable place.<br/>

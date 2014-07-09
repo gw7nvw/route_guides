@@ -135,7 +135,9 @@
   </div>
 </div>
 <small> 
+<% if @route.createdBy_id %>
   Created by: <%= link_to @route.createdBy.name, '/users/'+@route.createdBy_id.to_s, remote: true%> on <%=@route.created_at%>. Last updated: <%=@route.updated_at%>
+<% end %>
 </small>
 <script>
 

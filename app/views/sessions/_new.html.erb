@@ -1,6 +1,9 @@
 <% provide(:title, "Sign in") %>
 <% @title=" | Sign in " %>
-<script> update_title('<%=@title%>'); </script>
+<script> 
+   update_title('<%=@title%>'); 
+   document.getElementById("page_status").innerHTML = '';
+</script>
 
  <div class="row">
   <div class="span6">
