@@ -183,11 +183,11 @@ function init(){
     map_map.addLayer(vectorLayer);
 
    /* arrange layer order */
-   map_map.setLayerIndex(test_g_wmts_layer,100);
-   map_map.setLayerIndex(places_layer,200);
-   map_map.setLayerIndex(routes_layer,300);
-   map_map.setLayerIndex(vector_layer,400);
-
+//   map_map.setLayerIndex(test_g_wmts_layer,100);
+ //  map_map.setLayerIndex(places_layer,200);
+  // map_map.setLayerIndex(routes_layer,300);
+   //map_map.setLayerIndex(vector_layer,400);
+//
    //map_map.redraw();
 
     /* create click controllers*/

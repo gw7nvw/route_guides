@@ -83,6 +83,32 @@ end
   end
 
   def update
+    if (params[:add])
+      @trip=Trip.find_by_id(@current_user.currenttrip)
+      @trip_details = TripDetail.new
+      @trip_details.trip = @trip
+      @trip_details.route_id = params[:id]
+      @trip_details.showForward=true;
+      @trip_details.showReverse=true;
+      if(@trip.trip_details.max)
+        @trip_details.order = @trip.trip_details.max.id+1
+      else
+        @trip_details.order = 1
+      end
+      @trip_details.save
+
+      @route_types = Routetype.all
+      @gradients = Gradient.all
+      @alpines = Alpine.all
+      @rivers = River.all
+      @terrains = Terrain.all
+      @route = Route.find_by_id(params[:id])
+      @edit=false
+      render 'show'
+    end
+
+    if (params[:save])
+
     @route = Route.find_by_id(params[:id])
     @route_types = Routetype.all
     @gradients = Gradient.all
@@ -110,15 +136,16 @@ end
       @edit=true
       render 'edit'
     end
-
+  end
 end
 
   private
   def route_params
     params.require(:route).permit(
-       :name, 
-       :description,        
+       :via, 
        :routetype_id,
+       :description,        
+       :reverse_description,        
        :gradient_id,
        :terrain_id,
        :alpinesummer_id,

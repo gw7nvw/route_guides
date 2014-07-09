@@ -4,6 +4,7 @@ resources :routes
 resources :sessions, only: [:new, :create, :destroy]
 resources :places
 resources :maps, only: [:index]
+resources :trips
 #controller :places do
 #    post 'places/:id' => :redisplay
 #end

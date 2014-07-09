@@ -1,0 +1,25 @@
+<% provide(:title, "Trip | "+@trip.name) %>
+<% @title=" | Trip | "+@trip.name %>
+<script> 
+   update_title('<%=@title%>'); 
+   document.getElementById("page_status").innerHTML = '';
+</script>
+<% @trip.trip_details.each do |td| %>
+============================================================================<br/>
+  <% if td.place %>
+    <%=td.place.name %><br/>
+    <% if td.showForward %>
+      <%=td.place.description %>
+    <% end %>
+  <% end %>
+  <% if td.route %>
+    <%=td.route.name %><br/>
+    <% if td.showForward %>
+      <%=td.route.description %><br/>
+    <% end %>
+    <% if td.showReverse %>
+      <%=td.route.reverse_description %><br/>
+    <% end %>
+  <% end %>
+<% end %>
+
