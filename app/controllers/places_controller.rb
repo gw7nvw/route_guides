@@ -19,7 +19,7 @@ end
     y=place_params[:y].to_f
 
     @place.location='POINT('+place_params[:location]+')'
-    @place.createdBy_id = @currentUser.id #current_user.id
+    @place.createdBy_id = @current_user.id #current_user.id
 
     @place_instance=PlaceInstance.new(@place.attributes)
     # but doesn;t handle location ... so

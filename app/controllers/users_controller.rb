@@ -36,6 +36,7 @@ class UsersController < ApplicationController
     else
       @trip=Trip.new
       @trip.createdBy = @user
+      @trip.name="default"
       @trip.save
 
       @user.currenttrip=@trip

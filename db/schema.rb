@@ -52,9 +52,9 @@ ActiveRecord::Schema.define(version: 20140709071418) do
     t.integer  "createdBy_id"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.spatial  "location",     limit: {:srid=>4326, :type=>"point"}
     t.string   "place_type",   limit: 20
     t.string   "place_owner",  limit: 20
+    t.spatial  "location",     limit: {:srid=>4326, :type=>"point"}
   end
 
   create_table "place_types", force: true do |t|
@@ -78,9 +78,9 @@ ActiveRecord::Schema.define(version: 20140709071418) do
     t.integer  "createdBy_id"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.spatial  "location",     limit: {:srid=>4326, :type=>"point"}
     t.string   "place_type",   limit: 20
     t.string   "place_owner",  limit: 20
+    t.spatial  "location",     limit: {:srid=>4326, :type=>"point"}
   end
 
   create_table "rivers", force: true do |t|
@@ -108,9 +108,9 @@ ActiveRecord::Schema.define(version: 20140709071418) do
     t.integer  "createdBy_id"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.spatial  "location",            limit: {:srid=>4326, :type=>"line_string"}
     t.string   "via"
     t.text     "reverse_description"
+    t.spatial  "location",            limit: {:srid=>4326, :type=>"line_string"}
   end
 
   create_table "routes", force: true do |t|
@@ -129,9 +129,9 @@ ActiveRecord::Schema.define(version: 20140709071418) do
     t.integer  "createdBy_id"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.spatial  "location",            limit: {:srid=>4326, :type=>"line_string"}
     t.string   "via"
     t.text     "reverse_description"
+    t.spatial  "location",            limit: {:srid=>4326, :type=>"line_string"}
   end
 
   create_table "routetypes", force: true do |t|
