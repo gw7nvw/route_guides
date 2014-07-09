@@ -1,5 +1,8 @@
 <% provide(:title, 'New Place') %>
 <% @title=" | Place | Add "%>
-<script> update_title('<%=@title%>'); </script>
+<script> 
+   update_title('<%=@title%>'); 
+   document.getElementById("page_status").innerHTML = '';
+</script>
 <%= render 'places/place_details' %>
 

@@ -38,7 +38,9 @@
     <% end %>
   </div>
 </div>
+<% if @place.createdBy_id %>
   Created by: <%= link_to @place.createdBy.name, '/users/'+@place.createdBy_id.to_s, remote: true%> on <%=@place.created_at%>. Last updated: <%=@place.updated_at%>
+<% end %>
 
 <script>
 /*    reset_map_controllers(); */
