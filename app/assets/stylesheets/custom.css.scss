@@ -60,6 +60,11 @@ h2 {
   color: $grayLight;
 }
 
+small {
+  color: $grayLight;
+  font-size: 0.7em;
+}
+
 p {
   font-size: 1.1em;
   line-height: 1.7em;
@@ -170,6 +175,32 @@ p {
         float: left;
         height: 30px;
         width: 210px;
+}
+
+.expandrow {
+        width: 100%;
+        float: left;
+}
+
+.expandbuttons {
+        width: 20px;
+        float: left;
+}
+
+.sectiontext {
+        float: left;
+        width: 100%;
+        margin-left: 20px;
+}
+
+.sectiontitle {
+        margin-left: 4px;
+        margin-top: 1px;
+        float: left;
+        font-size: 1.2em;
+        letter-spacing: -1px;
+        font-weight: bold;
+        color: $grayLight;
 }
 
 

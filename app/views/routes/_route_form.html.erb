@@ -1,0 +1,244 @@
+<div id='route_details'>
+  <div>
+     <%= form_for  @route, :html => {:name => 'routeform'}  do |f| %>
+      <%= render 'shared/error_messages' %>
+
+      <label for="route_startPlace">
+         <% if @edit %> 
+           <img id="startplaceplus" src="/assets/add.png" onclick="route_selectStartPlace()" width="16"></img>
+           <img id="startplacetick" src="/assets/tick.png" onclick="route_selectNothing()" width="0"></img> 
+         <% end %>
+         &nbsp;From</label>
+      <%= f.hidden_field :startplace_id %> 
+      <input disabled="disabled" id="route_startplace_name" name="route[startplace_name]" type="text" <%if @route.startplace %>value='<%=@route.startplace.name%>'<%end%>>
+      <input  type="hidden" id="route_startplace_location" name="route[startplace_location]" type="text" <%if @route.startplace %>value='<%=@route.startplace.location%>'<%end%>>
+      <label for="route_endPlace">
+         <% if @edit %> 
+           <img id="endplaceplus" src="/assets/add.png" onclick="route_selectEndPlace()" width="16"></img>
+           <img id="endplacetick" src="/assets/tick.png" onclick="route_selectNothing()" width="0"></img>
+         <% end %>
+         &nbsp;To</label>
+      <%= f.hidden_field :endplace_id %>
+      <input disabled="disabled" id="route_endplace_name" name="route[endplace_name]" type="text"  <%if @route.endplace %>value='<%=@route.endplace.name%>'<%end%>>
+      <input type="hidden" id="route_endplace_location" name="route[endplace_location]" type="text"  <%if @route.endplace %>value='<%=@route.endplace.location%>'<%end%>>
+
+      <%= f.label :via  %>
+      <%= f.text_field :via, :disabled=>!@edit %>
+
+      <label for="route_location">
+         <% if @edit %> 
+           <img id="locationplus" src="/assets/add.png" onclick="route_selectLocation()" width="16"></img>
+           <img id="locationtick" src="/assets/tick.png" onclick="route_endSelectLocation()" width="0"></img>
+         <% end %>
+         &nbsp;Route points</label>
+      <%= f.text_field :location, :readonly=>true %>
+
+      <%= f.label :description %>
+      <%= f.text_area :description, :disabled=>!@edit, :rows=>"8"   %>
+
+      <%= f.label :reverse_description %>
+      <%= f.text_area :reverse_description, :disabled=>!@edit, :rows=>"8"   %>
+     <b>Length:</b><br/>
+      <%= f.label 'Time (DOC hours)'  %>
+      <%= f.text_field :time, :disabled=>!@edit %>
+      <%= f.label 'Distance (km)'  %>
+      <%= f.text_field :distance, :disabled=>!@edit, :readonly=>true %>
+
+      <b>Normal conditions:</b><br/>
+      <div class="difficulty">
+          <div class="diff_label">Route Type</div>
+          <div class="diff_name" id="rt_name"></div>
+            <%= f.text_field :routetype_id, id: 'route_type', type: 'text',
+                         data: {'slider-id' => 'ex1Slider',
+                          'slider-min' => @route_types.minimum(:id),
+                          'slider-max' => @route_types.maximum(:id),
+                          'slider-step' => '1',
+                          'slider-value' => @route.routetype_id || 1,
+                          'slider-tooltip' => 'hide' } %>
+      </div>
+      <div class="diff_details" id="rt_text"></div>
+      <div class="difficulty">
+          <div class="diff_label">Gradient</div> 
+          <div class="diff_name" id="gradient_name"></div>
+          <%= f.text_field :gradient_id, id: 'gradient', type: 'text',
+                         data: {'slider-id' => 'ex1Slider',
+                          'slider-min' => @gradients.minimum(:id),
+                          'slider-max' => @gradients.maximum(:id),
+                          'slider-step' => '1',
+                          'slider-value' => @route.gradient_id || 1,
+                          'slider-tooltip' => 'hide' } %>
+      </div>
+      <div class="diff_details" id="gradient_text"></div>
+
+      <div class="difficulty">
+        <div class="diff_label">Veg/Terrain</div> 
+        <div class="diff_name" id="terr_name"></div>
+        <%= f.text_field :terrain_id, id: 'terrain', type: 'text',
+                         data: {'slider-id' => 'ex1Slider',
+                          'slider-min' => @terrains.minimum(:id),
+                          'slider-max' => @terrains.maximum(:id),
+                          'slider-step' => '1',
+                          'slider-value' => @route.terrain_id || 1, 
+                          'slider-tooltip' => 'hide'  } %>
+      </div>
+      <div class="diff_details" id="terr_text"></div>
+      
+      <div class="difficulty">
+        <div class="diff_label">Alpine</div> 
+        <div class="diff_name" id="alps_name"></div>
+        <%= f.text_field :alpinesummer_id, id: 'alpinesummer', type: 'text',
+                         data: {'slider-id' => 'ex1Slider',
+                          'slider-min' => @alpines.minimum(:id),
+                          'slider-max' => @alpines.maximum(:id),
+                          'slider-step' => '1',
+                          'slider-value' => @route.alpinesummer_id || 1, 
+                          'slider-tooltip' => 'hide'  } %>
+      </div>
+      <div class="diff_details" id="alps_text"></div>
+      
+      <div class="difficulty">
+        <div class="diff_label">Rivers</div> 
+        <div class="diff_name" id="river_name"></div>
+        <%= f.text_field :river_id, id: 'river', type: 'text',
+                         data: {'slider-id' => 'ex1Slider',
+                          'slider-min' => @rivers.minimum(:id),
+                          'slider-max' => @rivers.maximum(:id),
+                          'slider-step' => '1',
+                          'slider-value' => @route.river_id || 1, 
+                          'slider-tooltip' => 'hide'  } %>
+        <div class="diff_details" id="river_text"></div>
+      </div>
+
+      <b>Winter conditions</b><br/>
+      <div class="difficulty">
+        <div class="diff_label">Alpine</div> 
+        <div class="diff_name" id="alpw_name"></div>
+        <%= f.text_field :alpinewinter_id, id: 'alpinewinter', type: 'text',
+                         data: {'slider-id' => 'ex1Slider',
+                          'slider-min' => @alpines.minimum(:id),
+                          'slider-max' => @alpines.maximum(:id),
+                          'slider-step' => '1',
+                          'slider-value' => @route.alpinewinter_id || 1,
+                          'slider-tooltip' => 'hide'  } %>
+        <div class="diff_details" id="alpw_text"></div>
+      </div>
+
+      <br/><br/>
+      <div>
+        <%= f.label :winterdescription, "Winter notes" %>
+        <%= f.text_area :winterdescription, :disabled=>!@edit, :rows=>"8"   %>
+      </div>
+
+      <br/>
+      <%= f.label :links %>
+      <%= f.text_area :links, :disabled=>!@edit, :rows=>"4"   %>
+
+
+      <% if @edit %>
+        <%= f.submit "Save", class: "btn btn-large btn-primary", name: "save" %>
+        <%     if((@route.createdBy_id==@current_user.id) or (@current_user.role==Role.find_by( :name => 'root'))) %>
+           <%= f.submit "Delete", class: "btn btn-large btn-primary", name: "delete" %>
+        <% end %>
+
+      <% else %>
+        <%=  link_to "Edit", '/routes/'+@route.id.to_s+'/edit', class: "btn btn-large btn-primary", remote: true %>
+      <% end %>
+        <%= f.submit "Add to trip", class: "btn btn-large btn-primary", :disabled => @current_user, name: "add" %>
+
+    <% end %>
+  </div>
+</div>
+<small> 
+<% if @route.createdBy_id %>
+  Created by: <%= link_to @route.createdBy.name, '/users/'+@route.createdBy_id.to_s, remote: true%> on <%=@route.created_at%>. Last updated: <%=@route.updated_at%>
+<% end %>
+</small>
+<script>
+
+route_init();
+
+/*    reset_map_controllers(); */
+var routeType = [<%= raw @route_types.to_json %>];
+var gradient = [<%= raw @gradients.to_json %>];
+var terrain = [<%= raw @terrains.to_json %>];
+var alpine = [<%= raw @alpines.to_json %>];
+var river = [<%= raw @rivers.to_json %>];
+
+function rt_change() {
+    document.getElementById("rt_text").innerHTML = routeType[0][rt_val.getValue()-1].description;
+    document.getElementById("rt_name").innerHTML = routeType[0][rt_val.getValue()-1].name;}
+function gradient_change() {
+    document.getElementById("gradient_text").innerHTML = gradient[0][grad_val.getValue()-1].description;
+    document.getElementById("gradient_name").innerHTML = gradient[0][grad_val.getValue()-1].name;}
+function terr_change() {
+    document.getElementById("terr_text").innerHTML = terrain[0][ter_val.getValue()-1].description;
+    document.getElementById("terr_name").innerHTML = terrain[0][ter_val.getValue()-1].name;}
+function alps_change() {
+    document.getElementById("alps_text").innerHTML = alpine[0][alps_val.getValue()-1].description;
+    document.getElementById("alps_name").innerHTML = alpine[0][alps_val.getValue()-1].name;}
+function river_change() {
+    document.getElementById("river_text").innerHTML = river[0][riv_val.getValue()-1].description;
+    document.getElementById("river_name").innerHTML = river[0][riv_val.getValue()-1].name;}
+function alpw_change() {
+    document.getElementById("alpw_text").innerHTML = alpine[0][alpw_val.getValue()-1].description;
+    document.getElementById("alpw_name").innerHTML = alpine[0][alpw_val.getValue()-1].name;}
+    
+
+var rt_val= $('#route_type').slider() 
+        .on('slide', rt_change)
+        .data('slider');
+
+var grad_val= $('#gradient').slider() 
+        .on('slide', gradient_change)
+        .data('slider');
+
+var ter_val = $("#terrain").slider()
+        .on('slide', terr_change)
+        .data('slider');
+    
+var alps_val = $("#alpinesummer").slider()
+        .on('slide', alps_change)
+        .data('slider');
+
+var riv_val = $("#river").slider()
+        .on('slide', river_change)
+        .data('slider');
+var alpw_val = $("#alpinewinter").slider()
+        .on('slide', alpw_change)
+        .data('slider');
+
+/* set initial values */
+rt_change();
+document.routeform.route_type.value = <%=@route.routetype_id || 1%>;
+gradient_change();
+document.routeform.gradient.value = <%=@route.gradient_id || 1%>;
+terr_change();
+document.routeform.terrain.value = <%=@route.terrain_id || 1%>;
+alps_change();
+document.routeform.alpinesummer.value = <%=@route.alpinesummer_id || 1%>;
+river_change();
+document.routeform.river.value = <%=@route.river_id || 1%>;
+alpw_change();
+document.routeform.alpinewinter.value = <%=@route.alpinewinter_id || 1%>;
+
+
+/* disable slider in read-only mode */
+<% if !@edit %>
+  $('#route_type').slider('disable');
+  $('#gradient').slider('disable');
+  $('#terrain').slider('disable');
+  $('#alpinesummer').slider('disable');
+  $('#river').slider('disable');
+  $('#alpinewinter').slider('disable');
+<% end %>
+
+/* specify map click mode */
+deactivate_all_click();
+
+/* turn on click_to_select if in edit mode */
+<% if !@edit %>
+   click_to_select.activate();
+<% end %>
+
+</script>
+

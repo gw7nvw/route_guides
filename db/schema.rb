@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140709071418) do
+ActiveRecord::Schema.define(version: 20140712091524) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -55,6 +55,7 @@ ActiveRecord::Schema.define(version: 20140709071418) do
     t.string   "place_type",   limit: 20
     t.string   "place_owner",  limit: 20
     t.spatial  "location",     limit: {:srid=>4326, :type=>"point"}
+    t.text     "links"
   end
 
   create_table "place_types", force: true do |t|
@@ -81,12 +82,19 @@ ActiveRecord::Schema.define(version: 20140709071418) do
     t.string   "place_type",   limit: 20
     t.string   "place_owner",  limit: 20
     t.spatial  "location",     limit: {:srid=>4326, :type=>"point"}
+    t.text     "links"
   end
 
   create_table "rivers", force: true do |t|
     t.string   "name"
     t.string   "description"
     t.integer  "difficulty"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "roles", force: true do |t|
+    t.string   "name"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -111,6 +119,8 @@ ActiveRecord::Schema.define(version: 20140709071418) do
     t.string   "via"
     t.text     "reverse_description"
     t.spatial  "location",            limit: {:srid=>4326, :type=>"line_string"}
+    t.decimal  "time"
+    t.decimal  "distance"
   end
 
   create_table "routes", force: true do |t|
@@ -132,6 +142,8 @@ ActiveRecord::Schema.define(version: 20140709071418) do
     t.string   "via"
     t.text     "reverse_description"
     t.spatial  "location",            limit: {:srid=>4326, :type=>"line_string"}
+    t.decimal  "time"
+    t.decimal  "distance"
   end
 
   create_table "routetypes", force: true do |t|
@@ -174,6 +186,8 @@ ActiveRecord::Schema.define(version: 20140709071418) do
     t.integer  "order"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.boolean  "showConditions"
+    t.boolean  "showLinks"
   end
 
   create_table "trips", force: true do |t|
@@ -192,6 +206,7 @@ ActiveRecord::Schema.define(version: 20140709071418) do
     t.string   "password_digest"
     t.string   "remember_token"
     t.integer  "currenttrip_id"
+    t.integer  "role_id"
   end
 
   add_index "users", ["email"], :name => "index_users_on_email", :unique => true

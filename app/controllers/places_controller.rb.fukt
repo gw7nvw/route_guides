@@ -1,0 +1,137 @@
+class PlacesController < ApplicationController
+  before_action :signed_in_user
+  def new
+    @edit=true
+    @place=Place.new
+  
+  end
+ def index
+    @places=Place.all
+  end
+
+  def create
+    @place = Place.new(place_params)
+
+    @place.location='POINT('+place_params[:location].to_s+')'
+    @place.createdBy_id = 1 #current_user.id
+
+    @place_instance=PlaceInstance.new(@place.attributes)
+    # but doesn;t handle location ... so
+
+    if @place.save
+      @place_instance.place_id=@place.id
+      if @place_instance.save     
+        flash[:success] = "New place added, id:"+@place.id.to_s
+        redirect_to @place
+      else
+# Handle a successful save.
+      flash[:error] = "Error creating instance"
+
+      render 'new'
+      end
+    else
+      flash[:error] = "Error creating place"
+    
+      render 'new'
+    end
+  end
+
+  def show
+wgs84_proj4 = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
+wgs84_wkt = <<WKT
+  GEOGCS["WGS 84",
+    DATUM["WGS_1984",
+      SPHEROID["WGS 84",6378137,298.257223563,
+        AUTHORITY["EPSG","7030"]],
+      AUTHORITY["EPSG","6326"]],
+    PRIMEM["Greenwich",0,
+      AUTHORITY["EPSG","8901"]],
+    UNIT["degree",0.01745329251994328,
+      AUTHORITY["EPSG","9122"]],
+    AUTHORITY["EPSG","4326"]]
+WKT
+ 
+wgs84_factory = RGeo::Geographic.spherical_factory(:srid => 4326,
+  :proj4 => wgs84_proj4, :coord_sys => wgs84_wkt)
+
+nztm_proj4 = '+proj=tmerc +lat_0=0 +lon_0=173 +k=0.9996 +x_0=1600000 +y_0=10000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'
+nztm_wkt = <<WKT
+GEOGCS["NZGD2000",DATUM["New_Zealand_Geodetic_Datum_2000",SPHEROID["GRS 1980",6378137,298.257222101,AUTHORITY["EPSG","7019"]],TOWGS84[0,0,0,0,0,0,0],AUTHORITY["EPSG","6167"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.01745329251994328,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4167"]],UNIT["metre",1,AUTHORITY["EPSG","9001"]],PROJECTION["Transverse_Mercator"],PARAMETER["latitude_of_origin",0],PARAMETER["central_meridian",173],PARAMETER["scale_factor",0.9996],PARAMETER["false_easting",1600000],PARAMETER["false_northing",10000000],AUTHORITY["EPSG","2193"],AXIS["Easting",EAST],AXIS["Northing",NORTH]
+WKT
+
+nztm_factory = RGeo::Cartesian.factory(:srid => 2193,
+  :proj4 => nztm_proj4, :coord_sys => nztm_wkt)
+
+
+    @edit=false
+    if( @place = Place.find_by_id(params[:id]))
+    then 
+    #show
+
+    #convery location to readable format
+    @xy_coords = RGeo::Feature.cast(@place.location, :factory => nztm_factory, :project => true)
+    @x=@xy_coords.x
+    @y = @xy_coords.y
+    @map_extent=(@x-2000).to_s+" "+(@y-1000).to_s+" "+(@x+2000).to_s+" "+(@y+1000).to_s
+    @place.location=@x.to_s+" "+@y.to_s
+    else
+    #place does not exist - return to home
+    redirect_to root_url
+    end    
+  end
+
+  def edit
+    @edit=true
+    if( @place = Place.find_by_id(params[:id]))
+    #show
+
+    #convery location to readable format
+    @x = @place.location.x
+    @y = @place.location.y
+    @place.location=@x.to_s+" "+@y.to_s
+    else
+    #place does not exist - return to home
+    redirect_to root_url
+    end    
+  end
+  
+  def update
+    @place = Place.new(place_params)
+    if( !@place = Place.find_by_id(params[:id]))
+    #tried to update a nonexistant place
+      render 'edit'
+    end
+
+    @place.location='POINT('+place_params[:location].to_s+')'
+    @place.createdBy_id = current_user.id
+
+    @place_instance=PlaceInstance.new(@place.attributes)
+    # but doesn;t handle location ... so
+
+    if @place.save
+      @place_instance.place_id=@place.id
+      if @place_instance.save
+        flash[:success] = "New place added, id:"+@place.id.to_s
+        redirect_to @place
+      else
+# Handle a successful save.
+      flash[:error] = "Error creating instance"
+
+      render 'new'
+      end
+    else
+      flash[:error] = "Error creating place"
+
+      render 'new'
+    end
+
+  end
+
+  def destroy
+  end
+
+  private 
+  def place_params
+    params.require(:place).permit(:name, :place_type, :place_owner, :description, :location, :altitude, :x, :y, :projn, :links)
+  end
+end
