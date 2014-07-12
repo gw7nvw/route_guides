@@ -40,6 +40,8 @@ class UsersController < ApplicationController
       @trip.save
 
       @user.currenttrip=@trip
+      @user.role=Role.find_by(:name => 'user')
+
       if @user.save
         # clear the security question coz we're tidy kiwis 
         session[:id1]=nil
@@ -50,6 +52,7 @@ class UsersController < ApplicationController
         flash[:success] = "Welcome to the Route Guides"
         redirect_to @user
       else
+        new()
         render 'new'
       end
     end
@@ -57,7 +60,7 @@ class UsersController < ApplicationController
 
   def edit
     @user = User.find(params[:id])
-    if(@user.id!=@current_user.id)
+    if((@user.id!=@current_user.id) and (@current_user.role!=Role.find_by( :name => 'root')))
       redirect_to @user
     end
   end

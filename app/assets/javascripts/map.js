@@ -23,6 +23,7 @@ var star_green;
 var star_blue;
 var line_red;
 var statusMessage = 0;
+var autoPlacesOff = false;
 
 function init(){
   if(typeof(map_map)=='undefined') {
@@ -167,18 +168,28 @@ function init(){
    //     tooltip_routes();
        var x = map_map.getZoom();
         
-        if( x > 15) {
-            map_map.zoomTo(15);
+        if( x > 9) {
+            map_map.zoomTo(9);
         }
-        if( x < 6) {
-            map_map.zoomTo(6);
+        if( x < 0) {
+            map_map.zoomTo(0);
         }
+        // hide places above 7 zoom (too much data).  Turn back on if we drop beloiw 
+        if( x < 2) {
+            places_layer.setVisibility(false);
+            autoPlacesOff=true;
+       } else {
+            if (autoPlacesOff==true) {
+                places_layer.setVisibility(true);
+            }
+       }
         tooltip_places();
     });
 
     vectorLayer = new OpenLayers.Layer.Vector("Current feature", {
                 style: layer_style,
-                renderers: renderer
+                renderers: renderer,
+                projection: new OpenLayers.Projection("EPSG:900913".toUpperCase())
             });
     map_map.addLayer(vectorLayer);
 
@@ -211,6 +222,16 @@ function init(){
 
     /* by default, activate only xclick_to_select */
     click_to_select.activate();
+
+    // hide places below 2 zoom (too much data).  Turn back on if we drop beloiw 
+    if( map_map.getZoom() < 2) {
+        places_layer.setVisibility(false);
+        autoPlacesOff=true;
+   } else {
+        if (autoPlacesOff==true) {
+            places_layer.setVisibility(true);
+        }
+   }
 
   }
 }
@@ -736,11 +757,18 @@ function route_endSelectLocation() {
     var wktParser=new OpenLayers.Format.WKT();
     var dstProj =  new OpenLayers.Projection("EPSG:4326");
     var mapProj =  map_map.projection;
+    var distProj =  new OpenLayers.Projection("EPSG:2193");
+
     var lineGeomNewProj = vectorLayer.features[0].geometry.transform(mapProj,dstProj);
     var wktText = wktParser.write(new OpenLayers.Feature.Vector(lineGeomNewProj));
-    /* really should do foreach an dconcatenate here ... */
+    var lineGeomMeterProj = lineGeomNewProj.transform(dstProj,distProj);
+
+   /* really should do foreach an dconcatenate here ... */
     document.routeform.route_location.value=wktText;
+    document.routeform.route_distance.value=lineGeomMeterProj.getLength()/1000;
   }
+
+  route_selectNothing();
 }
 function route_selectNothing() {
   document.getElementById("startplaceplus").width=16;
@@ -790,3 +818,16 @@ function linkHandler(entity_name) {
    
  
 }
+   function clickplus(divname) {
+     document.getElementById(divname).style.display = 'block';
+     document.getElementById(divname+"plus").width=0;
+     document.getElementById(divname+"minus").width=16;
+   }
+
+
+   function clickminus(divname) {
+     document.getElementById(divname).style.display = 'none';
+     document.getElementById(divname+"plus").width=16;
+     document.getElementById(divname+"minus").width=0;
+   }
+

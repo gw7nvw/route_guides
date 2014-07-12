@@ -1,0 +1,16 @@
+<% provide(:title, 'Trips') %>
+<% @title=" | Trips" %>
+<script>
+   update_title('<%=@title%>');
+   reset_map_controllers();
+   document.getElementById("page_status").innerHTML = '';
+</script>
+
+  <ul class="places">
+    <% @trips.each do |trip| %>
+      <li>
+        <%= link_to trip.id, trip, remote: true, :id => 'trip_link_'+trip.id.to_s, :onclick => "linkHandler('trip_link_"+trip.id.to_s+"')" %></li>
+      </li>
+    <% end %>
+  </ul>
+

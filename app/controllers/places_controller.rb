@@ -45,14 +45,30 @@ end
   def show
     @place_types = Place_type.all.order(:name)
 
+    # default visibility 
+    @showForward=1
+    @showReverse=0
+    @showConditions=0
+    @showLinks=1
 
     @edit=false
     if( @place = Place.find_by_id(params[:id]))
     then 
-      xstr = @place.location.x.to_s
-      ystr = @place.location.y.to_s
+    wgs84_proj4 = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
+    nztm_proj4 = '+proj=tmerc +lat_0=0 +lon_0=173 +k=0.9996 +x_0=1600000 +y_0=10000000 +ellps=GRS80 +towg'
 
-      @place.location = xstr+" "+ystr
+    wgs=RGeo::CoordSys::Proj4.new(wgs84_proj4)
+    nztm=RGeo::CoordSys::Proj4.new(nztm_proj4)
+
+    xyarr=RGeo::CoordSys::Proj4::transform_coords(wgs,nztm,@place.location.x, @place.location.y)
+    #convery location to readable format
+    @x=xyarr[0]
+    @y=xyarr[1]
+
+#      xstr = @place.location.x.to_s
+#      ystr = @place.location.y.to_s
+
+#      @place.location = xstr+" "+ystr
 
     #show
     else
@@ -63,6 +79,7 @@ end
  #   respond_to do |format|
  #       format.js
  #   end
+
   end
 
   def edit
@@ -90,6 +107,10 @@ end
       @trip_details.trip = @trip
       @trip_details.place_id = params[:id]
       @trip_details.showForward=true;
+      @trip_details.showReverse=false;
+      @trip_details.showConditions=false;
+      @trip_details.showLinks=false;
+
       if(@trip.trip_details.max)
         @trip_details.order = @trip.trip_details.max.id+1
       else
@@ -97,9 +118,9 @@ end
       end
       @trip_details.save
 
-      @place_types = Place_type.all.order(:name)
-      @place = Place.find_by_id(params[:id])
-      @edit=false
+      #refrese show' variables 
+      show()
+      #render the panel
       render 'show'
     end
 
@@ -118,6 +139,7 @@ end
     @place.createdBy_id = @current_user.id
     @place.place_type = place_params[:place_type]
     @place.place_owner = place_params[:place_owner]
+    @place.links = place_params[:links]
 
     @place_instance=PlaceInstance.new(@place.attributes)
     # but doesn;t handle location ... so
@@ -142,14 +164,49 @@ end
       render 'new'
     end
   end
+
+ if (params[:delete])
+
+   if(!trip=TripDetail.find_by(:place_id => params[:id]))
+
+     if(!route=Route.find_by(:startplace_id => params[:id]))
+
+       if(!route=Route.find_by(:endplace_id => params[:id]))
+         place=Place.find_by_id(params[:id])
+         if place.destroy
+           flash[:success] = "Place deleted, id:"+params[:id]
+           redirect_to '/places'
+         else
+           edit()
+           render 'edit'
+         end
+       else
+         flash[:error] = "Route "+route.name+" uses this place, cannot delete"
+         edit()
+         render 'edit'
+       end
+     else
+       flash[:error] = "Route "+route.name+" uses this place, cannot delete"
+       edit()
+       render 'edit'
+     end
+    else
+
+      flash[:error] = "Trip "+trip.id.to_s+" uses this place, cannot delete"
+      edit()
+      render 'edit'
+    end
+  
   end
+
+end
 
   def destroy
   end
 
   private 
   def place_params
-    params.require(:place).permit(:name, :place_type, :place_owner, :description, :location, :altitude, :x, :y, :projn)
+    params.require(:place).permit(:name, :place_type, :place_owner, :description, :location, :altitude, :x, :y, :projn, :links)
   end
 
 

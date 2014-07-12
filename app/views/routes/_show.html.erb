@@ -4,6 +4,25 @@
    update_title('<%=@title%>'); 
    document.getElementById("page_status").innerHTML = '';
 </script>
+
+
+<%= render 'shared/error_messages' %>
 <%= render 'routes/route_details' %>
 
+<%= form_for  @route, :html => {:name => 'routeform'}, remote: true  do |f| %>
+      <input  type="hidden" id="route_startplace_location" name="route[startplace_location]" type="text" <%if @route.startplace %>value='<%=@route.startplace.location%>'<%end%>>
+      <input  type="hidden" id="route_endplace_location" name="route[endplace_location]" type="text" <%if @route.endplace %>value='<%=@route.endplace.location%>'<%end%>>
+      <%= f.hidden_field :location, :readonly=>true %>
+
+      <%=  link_to "Edit", '/routes/'+@route.id.to_s+'/edit', class: "btn btn-large btn-primary", remote: true %>
+      <%= f.submit "Add to trip", class: "btn btn-large btn-primary", :disabled => @current_user, name: "add" %>
+
+    <% end %>
+
+<script>
+  route_init();
+
+  /* specify map click mode */
+  deactivate_all_click();
+</script>
 

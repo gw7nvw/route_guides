@@ -48,6 +48,13 @@ end
 
   def show
     @edit=false
+
+    # default visibility 
+    @showForward=1
+    @showReverse=1
+    @showConditions=1
+    @showLinks=1
+
     if( @route = Route.find_by_id(params[:id]))
     then
       if(@route.location)
@@ -90,6 +97,9 @@ end
       @trip_details.route_id = params[:id]
       @trip_details.showForward=true;
       @trip_details.showReverse=true;
+      @trip_details.showConditions=false;
+      @trip_details.showLinks=false;
+
       if(@trip.trip_details.max)
         @trip_details.order = @trip.trip_details.max.id+1
       else
@@ -97,13 +107,10 @@ end
       end
       @trip_details.save
 
-      @route_types = Routetype.all
-      @gradients = Gradient.all
-      @alpines = Alpine.all
-      @rivers = River.all
-      @terrains = Terrain.all
-      @route = Route.find_by_id(params[:id])
-      @edit=false
+      #refresh variables
+      show()
+
+      #render show panel
       render 'show'
     end
 
@@ -137,6 +144,31 @@ end
       render 'edit'
     end
   end
+  
+
+  if (params[:delete])
+    
+  if(!trip=TripDetail.find_by(:route_id => params[:id])) 
+   
+     route=Route.find_by_id(params[:id])
+     if route.destroy
+       flash[:success] = "Route deleted, id:"+params[:id]
+       redirect_to '/routes'
+     else
+     edit()
+     render 'edit'
+     end 
+
+  else
+
+    flash[:error] = "Trip "+trip.id.to_s+" uses this route, cannot delete"
+
+    edit()
+    render 'edit'
+
+  end
+
+  end
 end
 
   private
@@ -155,7 +187,9 @@ end
        :startplace_id,
        :endplace_id,
        :links,
-       :location)
+       :location,
+       :time,
+       :distance)
   end
 
 end

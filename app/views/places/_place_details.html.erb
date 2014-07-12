@@ -1,51 +1,48 @@
 <div id='place_details'>
-  <div>
-     <%= form_for  @place, :html => {:name => 'placeform'}  do |f| %>
-      <%= render 'shared/error_messages' %>
-
-      <%= f.label :name %>
-      <%= f.text_field :name, :disabled=>!@edit %>
-
-
-      <%= f.label :place_type %>
-      <%= collection_select( :place, :place_type, @place_types, :name, :name, {}, {:disabled => !@edit}) %>
- 
-      <%= f.label :place_owner %>
-      <%= f.text_field :place_owner, :disabled=>!@edit %>
-
-      <%= f.label :description %>
-      <%= f.text_area :description, :disabled=>!@edit, :rows=>"8"   %>
-
-      <%= f.hidden_field :location, :readonly => true %>
-
-      <%= f.label :projn %>
-      <%= f.text_field :projn, :disabled=>!@edit %>
-
-      <%= f.label :x %>
-      <%= f.text_field :x, :disabled=>!@edit, :size => 8 %>
-
-      <%= f.label :y %>
-      <%= f.text_field :y, :disabled=>!@edit, :size => 8 %>
-
-      <%= f.label :altitude %>
-      <%= f.text_field :altitude, :disabled=>!@edit %>
-      <br/>
-      <% if @edit %>
-        <%= f.submit "Save", class: "btn btn-large btn-primary", name: "save" %>
-      <% else %>
-        <%=  link_to "Edit", '/places/'+@place.id.to_s+'/edit', class: "btn btn-large btn-primary", remote: true %>
+          <div class="expandrow">
+            <div class="expandbuttons">
+              <img id='<%="forwards_p"+@place.id.to_s+"plus"%>' src="/assets/whiteplus.png" <%=%q[onclick=clickplus('forwards_p]+@place.id.to_s+%q[')]%> width=<%=(16*(1-@showForward)).to_s%>></img>
+              <img id='<%="forwards_p"+@place.id.to_s+"minus"%>' src="/assets/whiteminus.png" <%=%q[onclick=clickminus('forwards_p]+@place.id.to_s+%q[')]%> width=<%=(16*(@showForward)).to_s%>></img>
+            </div>
+            <div class="sectiontitle">
+                <%=@place.name+" ("%>
+              <% if (@place.place_owner) %>
+                  <%= @place.place_owner+" " %>
+                <% end %>
+                <%=@place.place_type+" )"%>
+            </div>
+          </div>
+          <div id='<%="forwards_p"+@place.id.to_s%>' class="sectiontext" style=<%=if (@showForward==1) then "display:block" else "display:none" end %>>
+            <p>
+              <%= "NZTM2000: "+@x.to_i.to_s+", "+@y.to_i.to_s %>
+              <% if @place.altitude %>
+                <%="(alt: "+@place.altitude.to_i.to_s+"m)"%>
+              <% end %>
+            </p>
+            <p>
+              <%= simple_format(@place.description).html_safe %><br/>
+            </p>
+          </div>
+      <% if (@place.links) %>
+        <% if @place.links.length>0 %>
+          <div class="expandrow">
+            <div class="expandbuttons">
+              <img id='<%="links_p"+@place.id.to_s+"plus"%>' src="/assets/whiteplus.png" <%=%q[onclick=clickplus('links_p]+@place.id.to_s+%q[')]%> width=<%=(16*(1-@showLinks)).to_s%>></img>
+              <img id='<%="links_p"+@place.id.to_s+"minus"%>' src="/assets/whiteminus.png" <%=%q[onclick=clickminus('links_p]+@place.id.to_s+%q[')]%> width=<%=(16*(@showLinks)).to_s%>></img>
+            </div>
+            <div class="sectiontitle">
+              Further information:
+            </div>
+          </div>
+          <div id='<%="links_p"+@place.id.to_s%>' class="sectiontext" style=<%=if (@showLinks==1) then "display:block" else "display:none" end %>>
+  	    <p><%=@place.links %><br/></p>
+	  </div>
+        <% end %>
       <% end %>
-        <%= f.submit "Add to trip", class: "btn btn-large btn-primary", :disabled => @current_user, name: "add" %>
-    <% end %>
-  </div>
-</div>
-<% if @place.createdBy_id %>
-  Created by: <%= link_to @place.createdBy.name, '/users/'+@place.createdBy_id.to_s, remote: true%> on <%=@place.created_at%>. Last updated: <%=@place.updated_at%>
-<% end %>
-
-
-<script>
-/*    reset_map_controllers(); */
-    place_init();
-</script>
+      <% if @place.createdBy_id %>
+        <small color="greyLight">
+	  Created by: <%= link_to @place.createdBy.name, '/users/'+@place.createdBy_id.to_s, remote: true%> on <%=@place.created_at%>. Last updated: <%=@place.updated_at%>
+        </small>
+      <% end %>
+    </div>
 
