@@ -1,5 +1,7 @@
 <% provide(:title, 'About Route Guides') %>
 <% @title=" | About " %>
+<%= render 'flash' %>
+
 <script>
    update_title('<%=@title%>');
    reset_map_controllers();

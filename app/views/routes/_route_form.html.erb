@@ -1,6 +1,6 @@
 <div id='route_details'>
   <div>
-     <%= form_for  @route, :html => {:name => 'routeform'}  do |f| %>
+     <%= form_for  @route, :html => {:name => 'routeform'}, :remote => 'true'  do |f| %>
       <%= render 'shared/error_messages' %>
 
       <label for="route_startPlace">
@@ -135,7 +135,7 @@
 
 
       <% if @edit %>
-        <%= f.submit "Save", class: "btn btn-large btn-primary", name: "save" %>
+        <%= f.submit "Save", class: "btn btn-large btn-primary", name: "save", onclick: "updateRoute('savebutton')", id:  "savebutton"  %>
         <%     if((@route.createdBy_id==@current_user.id) or (@current_user.role==Role.find_by( :name => 'root'))) %>
            <%= f.submit "Delete", class: "btn btn-large btn-primary", name: "delete" %>
         <% end %>

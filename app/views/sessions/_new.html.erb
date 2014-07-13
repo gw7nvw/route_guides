@@ -1,5 +1,7 @@
 <% provide(:title, "Sign in") %>
 <% @title=" | Sign in " %>
+<%= render 'flash' %>
+
 <script> 
    update_title('<%=@title%>'); 
    document.getElementById("page_status").innerHTML = '';

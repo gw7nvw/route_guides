@@ -24,6 +24,9 @@ var star_blue;
 var line_red;
 var statusMessage = 0;
 var autoPlacesOff = false;
+var placesStale=false;
+var routesStale=false;
+var tripsStale=false;
 
 function init(){
   if(typeof(map_map)=='undefined') {
@@ -69,6 +72,9 @@ function init(){
         sphericalMercator: true
       }
     );
+
+    places_layer_add();
+
     routes_layer = new OpenLayers.Layer.Vector("routes", {
                     strategies: [new OpenLayers.Strategy.BBOX()],
                     protocol: new OpenLayers.Protocol.WFS({
@@ -79,16 +85,11 @@ function init(){
                     styleMap: pt_styleMap
                 });
 
+ //callback after a layer has been loaded in openlayers
+    routes_layer.events.register("loadend", routes_layer, function() {
+           tooltip_routes();
+    });
             
-    places_layer = new OpenLayers.Layer.Vector("Places", {
-                    strategies: [new OpenLayers.Strategy.BBOX()],
-                    protocol: new OpenLayers.Protocol.WFS({
-                        url:  "http://routeguides.co.nz/cgi-bin/mapserv?map=/ms4w/apps/matts_app/htdocs/places.map",
-                        featureType: "places",
-                        extractAttributes: true
-                    }),
-                    styleMap: pt_styleMap
-                }); 
    /* copy selected feature to div */
     routes_layer.events.on({
         'featureselected': function(feature) {
@@ -108,40 +109,6 @@ function init(){
              document.selectform.selecttype.value = "";
 
            }
-    });
-
-
- //callback after a layer has been loaded in openlayers
-    routes_layer.events.register("loadend", routes_layer, function() {
-           tooltip_routes();
-    });
-
-
-   /* copy selected feature to div */
-    places_layer.events.on({
-        'featureselected': function(feature) {
-	     var f = places_layer.selectedFeatures.pop();
-             document.selectform.select.value = f.attributes.id;
-             document.selectform.selectname.value = f.attributes.name;
-             document.selectform.selectx.value = f.geometry.x;
-             document.selectform.selecty.value = f.geometry.y;
-             document.selectform.selecttype.value = "/places/";
-
-           },
-           'featureunselected': function(feature) {
-             document.selectform.select.value = "";
-             document.selectform.selectname.value = "";
-             document.selectform.selectx.value = "";
-             document.selectform.selecty.value = "";
-             document.selectform.selecttype.value = "";
-
-           }
-    });
-
- 
- //callback after a layer has been loaded in openlayers
-    places_layer.events.register("loadend", places_layer, function() { 
-           tooltip_places();
     });
 
     map_map.addLayer(test_g_wmts_layer);
@@ -236,6 +203,44 @@ function init(){
   }
 }
 
+function places_layer_add() {
+    places_layer = new OpenLayers.Layer.Vector("Places", {
+                    strategies: [new OpenLayers.Strategy.BBOX()],
+                    protocol: new OpenLayers.Protocol.WFS({
+                        url:  "http://routeguides.co.nz/cgi-bin/mapserv?map=/ms4w/apps/matts_app/htdocs/places.map",
+                        featureType: "places",
+                        extractAttributes: true
+                    }),
+                    styleMap: pt_styleMap
+                });
+
+
+
+   /* copy selected feature to div */
+    places_layer.events.on({
+        'featureselected': function(feature) {
+	     var f = places_layer.selectedFeatures.pop();
+             document.selectform.select.value = f.attributes.id;
+             document.selectform.selectname.value = f.attributes.name;
+             document.selectform.selectx.value = f.geometry.x;
+             document.selectform.selecty.value = f.geometry.y;
+             document.selectform.selecttype.value = "/places/";
+
+           },
+           'featureunselected': function(feature) {
+             document.selectform.select.value = "";
+             document.selectform.selectname.value = "";
+             document.selectform.selectx.value = "";
+             document.selectform.selecty.value = "";
+             document.selectform.selecttype.value = "";
+
+           }
+    });
+ //callback after a layer has been loaded in openlayers
+    places_layer.events.register("loadend", places_layer, function() { 
+           tooltip_places();
+    });
+}
 function deactivate_all_click() {
     if(typeof(click_to_select)!='undefined') click_to_select.deactivate();
     if(typeof(click_to_create)!='undefined') click_to_create.deactivate();
@@ -794,11 +799,6 @@ function linkHandler(entity_name) {
     /* show 'loading ...' */
     document.getElementById("page_status").innerHTML = 'Loading ...'
 
-//    $('#'+entity_name).bind('ajax:timeout', function() {
-//           document.getElementById("page_status").innerHTML = 'Timed out';
-//           statusMessage=1;
-//    });
-
     /* register on complete ... */
     $('#'+entity_name).bind('ajax:complete', function() {
         /* complete also fires when error ocurred, so only clear if no error has been shown */
@@ -829,5 +829,21 @@ function linkHandler(entity_name) {
      document.getElementById(divname).style.display = 'none';
      document.getElementById(divname+"plus").width=16;
      document.getElementById(divname+"minus").width=0;
+   }
+
+   function updatePlace(buttonName) {
+     placesStale=true;
+     linkHandler(buttonName);
+   }
+
+   function updateRoute(buttonName) {
+     routesStale=true;
+     linkHandler(buttonName); 
+   }
+
+   function updateTrip(buttonName) {
+    tripsStale=true;
+     linkHandler(buttonName);
+
    }
 

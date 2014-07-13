@@ -1,5 +1,6 @@
 <% provide(:title, 'New Place') %>
 <% @title=" | Place | Add "%>
+<%= render 'flash' %>
 <script> 
    update_title('<%=@title%>'); 
    document.getElementById("page_status").innerHTML = '';

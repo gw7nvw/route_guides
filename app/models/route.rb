@@ -4,6 +4,7 @@ class Route < ActiveRecord::Base
   belongs_to :createdBy, class_name: "User"
   validates :createdBy, :presence => true
 
+  validates :via, presence: true
   validates :routetype, presence: true
   belongs_to :routetype
   validates :gradient, presence: true

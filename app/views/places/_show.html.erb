@@ -1,22 +1,33 @@
 <% provide(:title, "Place | "+@place.name) %>
 <% @title=" | Place | "+@place.name %>
+<%= render 'flash' %>
 <script> 
    update_title('<%=@title%>'); 
    document.getElementById("page_status").innerHTML = '';
 </script>
-<%= render 'places/place_details' %>
+<div id='place_details'>
+   <%= render 'places/place_details' %>
+</div>
 <%= form_for  @place, :html => {:name => 'placeform'}, remote: true  do |f| %>
       <%= f.hidden_field :projn, :disabled=>!@edit %>
 
       <%= f.hidden_field :x, :disabled=>!@edit, :size => 8 %>
 
       <%= f.hidden_field :y, :disabled=>!@edit, :size => 8 %>
-
-      <%=  link_to "Edit", '/places/'+@place.id.to_s+'/edit', class: "btn btn-large btn-primary", remote: true %>
-      <%= f.submit "Add to trip", class: "btn btn-large btn-primary", :disabled => @current_user, name: "add" %>
+  
+      <% if signed_in? %> 
+        <%=  link_to "Edit", '/places/'+@place.id.to_s+'/edit', class: "btn btn-large btn-primary",  remote: true, onclick: "linkHandler('editbutton')", id:  "editbutton"  %>
+        <%= f.submit "Add to trip", class: "btn btn-large btn-primary", name: "add", onclick: "linkHandler('addbutton')", id: "addbutton" %>
+     <% end %>
 <% end %>
 <script>
 /*    reset_map_controllers(); */
     place_init();
+
+    /* relad places layer if we've been asked to */
+    if(placesStale) {
+       places_layer.refresh({force: true}); 
+       placesStale=false;
+    }
 </script>
 

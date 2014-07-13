@@ -1,5 +1,7 @@
 <% provide(:title, 'Trips') %>
 <% @title=" | Trips" %>
+<%= render 'flash' %>
+
 <script>
    update_title('<%=@title%>');
    reset_map_controllers();
@@ -9,7 +11,7 @@
   <ul class="places">
     <% @trips.each do |trip| %>
       <li>
-        <%= link_to trip.id, trip, remote: true, :id => 'trip_link_'+trip.id.to_s, :onclick => "linkHandler('trip_link_"+trip.id.to_s+"')" %></li>
+        <%= link_to trip.id.to_s+". "+trip.createdBy.name+" - "+trip.name, trip, remote: true, :id => 'trip_link_'+trip.id.to_s, :onclick => "linkHandler('trip_link_"+trip.id.to_s+"')" %></li>
       </li>
     <% end %>
   </ul>

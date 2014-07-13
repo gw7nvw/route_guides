@@ -1,11 +1,78 @@
 <% provide(:title, "Trip | "+@trip.id.to_s) %>
 <% @title=" | Trip | "+@trip.id.to_s %>
+<%= render 'flash' %>
+
 <script> 
    update_title('<%=@title%>'); 
    document.getElementById("page_status").innerHTML = '';
 </script>
-<% @trip.trip_details.each do |td| %>
-============================================================================<br/>
+<div id='place_details'>
+   <% if !@edit %>
+      <div class="expandrow">
+         <%  if(signed_in? and ((@trip.createdBy_id == current_user.id) or (@current_user.role==Role.find_by( :name => 'root')))) %>
+            <div class="expandbuttons">
+                <%= form_for @trip, remote: true do |f| %>
+                   <%= f.submit "edit", :type => :image, :src => '/assets/pencil_edit.png', :style => 'margin-bottom:0',onclick: "linkHandler('editbutton')", id:  "editbutton" %>
+                <% end %>
+            </div>
+         <% end %>
+         <div class="sectiontitle">
+             Trip: <%=@trip.name%>
+         </div>
+      </div> 
+      <p>
+         <%=simple_format(@trip.description).html_safe%>
+      </p>
+   <% else %>
+
+      <%= form_for @trip, remote: true do |f| %>
+         <div class="expandrow">
+            <div class="expandbuttons">
+               <%= f.submit "Save", :type => :image, :src => '/assets/tick.png', :style => 'margin-bottom:0',onclick: "linkHandler('editbutton')", id:  "editbutton" %>
+            </div>
+            <div class="sectiontitle">
+               <%= f.text_field :name %>
+            </div>  
+         </div>
+         <p>
+            <%= f.label :description %>
+            <%= f.text_area :description, :rows => "8" %>
+         </p>
+      <% end %>
+   <% end %>
+
+
+   <% @totalcount=@trip.trip_details.count %>
+   <% @count = 0 %>
+   <% @trip.trip_details.order(:order).each do |td| %>
+   <div class="hrline">
+      <hr noshade size="4">
+   </div>
+   <div class="expandrow">
+         <% if @edit %>
+            <%= form_for @trip, remote: true do |f| %>
+               <%= f.hidden_field :td, value: td.id %>
+               <% @count=@count+1 %>
+               <% if @count>1 %>
+                  <%= f.submit "top", :type => :image, :src => '/assets/green-go-top.png', :style => 'margin-bottom:0' %>
+                  <%= f.submit "up", :type => :image, :src => '/assets/green-go-up.png', :style => 'margin-bottom:0' %>
+               <% else %>
+                   <%= f.submit "top", :type => :image, :src => '/assets/grey-go-top.png', :style => 'margin-bottom:0', :disabled => 'disabled' %>
+                  <%= f.submit "up", :type => :image, :src => '/assets/grey-go-up.png', :style => 'margin-bottom:0', :disabled => 'disabled' %>
+               <% end%>
+
+               <% if @count<@totalcount %>
+                  <%= f.submit "down", :type => :image, :src => '/assets/green-go-down.png', :style => 'margin-bottom:0' %>
+                  <%= f.submit "bottom", :type => :image, :src => '/assets/green-go-bottom.png', :style => 'margin-bottom:0' %>
+               <% else %>
+                  <%= f.submit "down", :type => :image, :src => '/assets/grey-go-down.png', :style => 'margin-bottom:0', :disabled => 'disabled'  %>
+                  <%= f.submit "bottom", :type => :image, :src => '/assets/grey-go-bottom.png', :style => 'margin-bottom:0', :disabled => 'disabled'  %>
+
+               <% end%>
+               <%= f.submit "X", :type => :image, :src => '/assets/red-x.png', :style => 'margin-bottom:0' %>
+            <% end %>
+         <% end %>
+   </div>
   <% 
       #convert show boolean to int
       @showForward=if(td.showForward) then 1 else 0 end
@@ -13,7 +80,6 @@
       @showConditions=if(td.showConditions) then 1 else 0 end
       @showLinks=if(td.showLinks) then 1 else 0 end
   %>
-
   <% if td.place %>
     <% @place=td.place %>
     <%     
@@ -41,3 +107,4 @@
   <% end %>
 <% end %>
 
+</div>
