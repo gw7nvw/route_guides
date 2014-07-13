@@ -1,5 +1,7 @@
 <% provide(:title, '') %>
 <% @title=" " %>
+<%= render 'flash' %>
+
 <script>
    update_title('<%=@title%>'); 
    reset_map_controllers();

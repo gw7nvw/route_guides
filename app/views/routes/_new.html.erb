@@ -1,5 +1,7 @@
 <% provide(:title, "Route | New") %>
 <% @title=" | Route | New" %>
+<%= render 'flash' %>
+
 <script> 
    update_title('<%=@title%>'); 
    document.getElementById("page_status").innerHTML = '';

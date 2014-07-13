@@ -50,14 +50,6 @@ html, body {
     <%= render 'maps/map' %>
     </div>
     <div id="right_panel">
-      <% if (flash[:error] or flash[:success]) %>
-         <% flash.each do |key, value| %>
-           <div class="alert alert-<%= key %>"><%= value %></div>
-         <% end %>
-      <% end %>
-
-      <!-- clear flash as if we use partials it won't clear itself -->
-      <% flash[:error] = flash[:success] = nil %>
       <%= yield %>
     </div>
   <%= form_tag '/redisplay', :remote=> true, :id => "thelink", :name=> 'selectform', :method=> 'post'%>

@@ -1,5 +1,7 @@
 <% provide(:title, "Route | "+@route.name) %>
 <% @title=" | Route | "+@route.name %>
+<%= render 'flash' %>
+
 <script> 
    update_title('<%=@title%>'); 
    document.getElementById("page_status").innerHTML = '';
@@ -13,16 +15,22 @@
       <input  type="hidden" id="route_startplace_location" name="route[startplace_location]" type="text" <%if @route.startplace %>value='<%=@route.startplace.location%>'<%end%>>
       <input  type="hidden" id="route_endplace_location" name="route[endplace_location]" type="text" <%if @route.endplace %>value='<%=@route.endplace.location%>'<%end%>>
       <%= f.hidden_field :location, :readonly=>true %>
-
-      <%=  link_to "Edit", '/routes/'+@route.id.to_s+'/edit', class: "btn btn-large btn-primary", remote: true %>
-      <%= f.submit "Add to trip", class: "btn btn-large btn-primary", :disabled => @current_user, name: "add" %>
-
+      <% if signed_in? %>
+         <%=  link_to "Edit", '/routes/'+@route.id.to_s+'/edit', class: "btn btn-large btn-primary", remote: true, onclick: "linkHandler('editbutton')", id:  "editbutton"   %>
+         <%= f.submit "Add to trip", class: "btn btn-large btn-primary", name: "add", onclick: "linkHandler('addbutton')", id:  "addbutton" %>
+      <% end %>
     <% end %>
 
 <script>
   route_init();
 
   /* specify map click mode */
-  deactivate_all_click();
+//  deactivate_all_click();
+
+  /* relad routes layer if we've been asked to */
+  if(routesStale) {
+       routes_layer.refresh({force: true}); 
+       routesStale=false;
+  }
 </script>
 

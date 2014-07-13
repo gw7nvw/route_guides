@@ -1,5 +1,7 @@
 <% provide(:title, @user.name) %>
 <% @title=" | Edit User => "+@user.name %>
+<%= render 'flash' %>
+
 <script> update_title('<%=@title%>'); </script>
 <div class="row">
   <div class="span6">

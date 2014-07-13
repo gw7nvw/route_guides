@@ -1,19 +1,19 @@
-<div id='route_details'>
-
+<div id="route_details">    
+    <div class="expandrow">
     <div class="sectiontitle">
       <%= @route.startplace.name+" to "+@route.endplace.name+" via "+@route.via %>
     </div>
  
-    <p>
-    <br/> 
+    <div class="sectiontext">
     <% if @route.distance %>
       <%= "Distance: "+@route.distance.round(1).to_s+" km " %>
     <%end %>
     <% if @route.time %>
       <%="("+@route.time.round(1).to_s+" DOC hours)"  %>
+      <br/><br/>
     <% end %>
-    </p>
-
+    </div>
+    </div>
 
     <% if @route.description %>
       <% if @route.description.length > 0 %>
@@ -117,8 +117,10 @@
      <% end %>
    <% end %>
 
-<small> 
-  <% if @route.createdBy_id %>
-    Created by: <%= link_to @route.createdBy.name, '/users/'+@route.createdBy_id.to_s, remote: true%> on <%=@route.created_at%>. Last updated: <%=@route.updated_at%>
-  <% end %>
-</small>
+   <small> 
+     <% if @route.createdBy_id %>
+       Created by: <%= link_to @route.createdBy.name, '/users/'+@route.createdBy_id.to_s, remote: true%> on <%=@route.created_at%>. Last updated: <%=@route.updated_at%>
+     <% end %>
+   </small>
+
+</div>

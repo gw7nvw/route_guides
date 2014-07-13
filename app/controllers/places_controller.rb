@@ -28,16 +28,23 @@ end
       @place_instance.place_id=@place.id
       if @place_instance.save     
         flash[:success] = "New place added, id:"+@place.id.to_s
-        redirect_to @place
+        #refresh variables
+        show()
+
+        #render show panel
+        render 'show'
+
       else
 # Handle a successful save.
       flash[:error] = "Error creating instance"
-
+      @place_types = Place_type.all.order(:name)
+      @edit=true
       render 'new'
       end
     else
       flash[:error] = "Error creating place"
-    
+      @place_types = Place_type.all.order(:name)
+      @edit=true
       render 'new'
     end
   end
@@ -111,12 +118,15 @@ end
       @trip_details.showConditions=false;
       @trip_details.showLinks=false;
 
-      if(@trip.trip_details.max)
-        @trip_details.order = @trip.trip_details.max.id+1
-      else
-        @trip_details.order = 1
+      last_td=TripDetail.where(trip_id: @trip.id).order(:order).last()
+      if(last_td)  then
+        @trip_details.order = last_td.order+1 
+      else 
+        @trip_details.order=1 
       end
       @trip_details.save
+
+      flash[:success] = "Added place to trip"
 
       #refrese show' variables 
       show()
@@ -125,45 +135,49 @@ end
     end
 
     if (params[:save]) 
-    if( !@place = Place.find_by_id(params[:id]))
-    #tried to update a nonexistant place
-      render 'edit'
+       if( !@place = Place.find_by_id(params[:id]))
+          #tried to update a nonexistant place
+          @place_types = Place_type.all.order(:name) 
+          @edit=true
+          render 'edit'
+       end
+       @place.name= place_params[:name]
+       @place.description = place_params[:description]
+       @place.x = place_params[:x].to_f
+       @place.y = place_params[:y].to_f
+       @place.projn = place_params[:projn]
+       @place.altitude = place_params[:altitude].to_i
+       @place.location='POINT('+place_params[:location]+')'
+       @place.createdBy_id = @current_user.id
+       @place.place_type = place_params[:place_type]
+       @place.place_owner = place_params[:place_owner]
+       @place.links = place_params[:links]
+
+       @place_instance=PlaceInstance.new(@place.attributes)
+
+
+       @place_instance.id=nil
+
+       if @place.save
+         @place_instance.place_id=@place.id
+         if @place_instance.save
+           flash[:success] = "Updated place, id:"+@place.id.to_s
+           show()
+           render 'show'
+         else
+           # Handle an unsuccessful save.
+           flash[:error] = "Error creating instance"
+           @edit=true
+           @place_types = Place_type.all.order(:name)
+           render 'edit'
+         end
+       else
+         flash[:error] = "Error saving place"
+         @edit=true
+         @place_types = Place_type.all.order(:name)
+         render 'edit'
+       end
     end
-    @place.name= place_params[:name]
-    @place.description = place_params[:description]
-    @place.x = place_params[:x].to_f
-    @place.y = place_params[:y].to_f
-    @place.projn = place_params[:projn]
-    @place.altitude = place_params[:altitude].to_i
-    @place.location='POINT('+place_params[:location]+')'
-    @place.createdBy_id = @current_user.id
-    @place.place_type = place_params[:place_type]
-    @place.place_owner = place_params[:place_owner]
-    @place.links = place_params[:links]
-
-    @place_instance=PlaceInstance.new(@place.attributes)
-    # but doesn;t handle location ... so
-
-
-    @place_instance.id=nil
-
-    if @place.save
-      @place_instance.place_id=@place.id
-      if @place_instance.save
-        flash[:success] = "Updated place, id:"+@place.id.to_s
-        redirect_to @place
-      else
-# Handle a successful save.
-      flash[:error] = "Error creating instance"
-
-      render 'new'
-      end
-    else
-      flash[:error] = "Error saving place"
-
-      render 'new'
-    end
-  end
 
  if (params[:delete])
 

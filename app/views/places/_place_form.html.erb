@@ -1,6 +1,6 @@
 <div id='place_details'>
   <div>
-     <%= form_for  @place, :html => {:name => 'placeform'}  do |f| %>
+     <%= form_for  @place, :remote=> true, :html => {:name => 'placeform'}  do |f| %>
       <%= render 'shared/error_messages' %>
 
       <%= f.label :name %>
@@ -34,9 +34,9 @@
       <%= f.text_area :links, :disabled=>!@edit, :rows=> "4" %>
       <br/>
       <% if @edit %>
-        <%= f.submit "Save", class: "btn btn-large btn-primary", name: "save" %>
+        <%= f.submit "Save", class: "btn btn-large btn-primary", name: "save", onclick: "updatePlace('savebutton')", id:  "savebutton" %>
         <%     if((@place.createdBy_id==@current_user.id) or (@current_user.role==Role.find_by( :name => 'root'))) %>
-           <%= f.submit "Delete", class: "btn btn-large btn-primary", name: "delete" %>
+           <%= f.submit "Delete", class: "btn btn-large btn-primary", name: "delete", onclick: "updatePlace('deletebutton')", id:  "deletebutton" %>
         <% end %>
 
       <% else %>
