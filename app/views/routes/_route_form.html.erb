@@ -3,45 +3,58 @@
      <%= form_for  @route, :html => {:name => 'routeform'}, :remote => 'true'  do |f| %>
       <%= render 'shared/error_messages' %>
 
-      <label for="route_startPlace">
+      
+      <div class="expandrow">
          <% if @edit %> 
-           <img id="startplaceplus" src="/assets/add.png" onclick="route_selectStartPlace()" width="16"></img>
-           <img id="startplacetick" src="/assets/tick.png" onclick="route_selectNothing()" width="0"></img> 
+           <div class="expandbuttons">
+              <img id="startplaceplus" src="/assets/add.png" onclick="route_selectStartPlace()" width="16" style="display:block"></img>
+              <img id="startplacetick" src="/assets/tick.png" onclick="route_selectNothing()" width="16" style="display:none"></img> 
+           </div>
          <% end %>
-         &nbsp;From</label>
+         <div class="rowtitle">From:</div>
+      </div>
       <%= f.hidden_field :startplace_id %> 
       <input disabled="disabled" id="route_startplace_name" name="route[startplace_name]" type="text" <%if @route.startplace %>value='<%=@route.startplace.name%>'<%end%>>
       <input  type="hidden" id="route_startplace_location" name="route[startplace_location]" type="text" <%if @route.startplace %>value='<%=@route.startplace.location%>'<%end%>>
-      <label for="route_endPlace">
+
+      <div class="expandrow">
          <% if @edit %> 
-           <img id="endplaceplus" src="/assets/add.png" onclick="route_selectEndPlace()" width="16"></img>
-           <img id="endplacetick" src="/assets/tick.png" onclick="route_selectNothing()" width="0"></img>
+           <div class="expandbuttons">
+              <img id="endplaceplus" src="/assets/add.png" onclick="route_selectEndPlace()" width="16" style="display:block"></img>
+              <img id="endplacetick" src="/assets/tick.png" onclick="route_selectNothing()" width="16" style="display:none"></img>
+           </div>
          <% end %>
-         &nbsp;To</label>
+         <div class="rowtitle">To:</div>
+      </div>
       <%= f.hidden_field :endplace_id %>
       <input disabled="disabled" id="route_endplace_name" name="route[endplace_name]" type="text"  <%if @route.endplace %>value='<%=@route.endplace.name%>'<%end%>>
       <input type="hidden" id="route_endplace_location" name="route[endplace_location]" type="text"  <%if @route.endplace %>value='<%=@route.endplace.location%>'<%end%>>
 
-      <%= f.label :via  %>
+
+      <div class="rowtitle">Via:</div>
       <%= f.text_field :via, :disabled=>!@edit %>
 
-      <label for="route_location">
+      <div class="expandrow"> 
          <% if @edit %> 
-           <img id="locationplus" src="/assets/add.png" onclick="route_selectLocation()" width="16"></img>
-           <img id="locationtick" src="/assets/tick.png" onclick="route_endSelectLocation()" width="0"></img>
+           <div class="expandbuttons">
+              <img id="locationplus" src="/assets/add.png" onclick="route_selectLocation()" width="16" style="display:block"></img>
+              <img id="locationtick" src="/assets/tick.png" onclick="route_endSelectLocation()" width="16" style="display:none"></img>
+            </div>
          <% end %>
-         &nbsp;Route points</label>
+         <div class="rowtitle">Route points:</div>
       <%= f.text_field :location, :readonly=>true %>
 
-      <%= f.label :description %>
+      <div class="rowtitle">Description:</div>
       <%= f.text_area :description, :disabled=>!@edit, :rows=>"8"   %>
 
-      <%= f.label :reverse_description %>
+      <div class="rowtitle">Reverse description:</div>
       <%= f.text_area :reverse_description, :disabled=>!@edit, :rows=>"8"   %>
+
      <b>Length:</b><br/>
-      <%= f.label 'Time (DOC hours)'  %>
+      <div class="rowtitle">Time (DOC hours)</div>
       <%= f.text_field :time, :disabled=>!@edit %>
-      <%= f.label 'Distance (km)'  %>
+
+      <div class="rowtitle">Distance (km)</div>
       <%= f.text_field :distance, :disabled=>!@edit, :readonly=>true %>
 
       <b>Normal conditions:</b><br/>
@@ -125,12 +138,12 @@
 
       <br/><br/>
       <div>
-        <%= f.label :winterdescription, "Winter notes" %>
+        <div class="rowtitle">Winter notes</div>
         <%= f.text_area :winterdescription, :disabled=>!@edit, :rows=>"8"   %>
       </div>
 
       <br/>
-      <%= f.label :links %>
+      <div class="rowtitle">Links</div>
       <%= f.text_area :links, :disabled=>!@edit, :rows=>"4"   %>
 
 

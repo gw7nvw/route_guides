@@ -1,7 +1,9 @@
 <div id="route_details">    
     <div class="expandrow">
     <div class="sectiontitle">
-      <%= @route.startplace.name+" to "+@route.endplace.name+" via "+@route.via %>
+      <%= link_to @route.startplace.name+" to "+@route.endplace.name+" via "+@route.via, 
+          @route, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
+
     </div>
  
     <div class="sectiontext">
@@ -10,20 +12,23 @@
     <%end %>
     <% if @route.time %>
       <%="("+@route.time.round(1).to_s+" DOC hours)"  %>
-      <br/><br/>
+      <br/>
+        <i><%= "GPX info source: "+@route.datasource %></i>
+      <br/>
+      <br/>
     <% end %>
     </div>
     </div>
-
     <% if @route.description %>
       <% if @route.description.length > 0 %>
         <div class="expandrow">
           <div class="expandbuttons">
-            <img id='<%="forwards_r"+@route.id.to_s+"plus"%>' src="/assets/whiteplus.png" <%=%q[onclick=clickplus('forwards_r]+@route.id.to_s+%q[')]%> width=<%=(16*(1-@showForward)).to_s%>></img>
-            <img id='<%="forwards_r"+@route.id.to_s+"minus"%>' src="/assets/whiteminus.png" <%=%q[onclick=clickminus('forwards_r]+@route.id.to_s+%q[')]%> width=<%=(16*@showForward).to_s%>></img>
+            <img id='<%="forwards_r"+@route.id.to_s+"plus"%>' src="/assets/whiteplus.png" <%=%q[onclick=clickplus('forwards_r]+@route.id.to_s+%q[')]%> style='display:<%=if(@showForward==1) then "none" else "block" end%>'></img>
+            <img id='<%="forwards_r"+@route.id.to_s+"minus"%>' src="/assets/whiteminus.png" <%=%q[onclick=clickminus('forwards_r]+@route.id.to_s+%q[')]%> style='display:<%=if(@showForward==1) then "block" else "none" end%>'></img>
           </div>
           <div class="sectiontitle">  
-             <%= "From "+@route.startplace.name+" to "+@route.endplace.name+":"%></h2>
+             From <%= link_to @route.startplace.name,    @route.startplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
+             to <%= link_to @route.endplace.name,    @route.endplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %> 
           </div>
         </div>
         <div id='<%="forwards_r"+@route.id.to_s%>' class="sectiontext" style=<%=if (@showForward==1) then "display:block" else "display:none" end %> >
@@ -37,11 +42,12 @@
       <% if @route.reverse_description.length > 0 %>
         <div class="expandrow">
           <div class="expandbuttons">
-            <img id='<%="reverse_r"+@route.id.to_s+"plus"%>' src="/assets/whiteplus.png" <%=%q[onclick=clickplus('reverse_r]+@route.id.to_s+%q[')]%> width=<%=(16*(1-@showReverse)).to_s%>></img>
-            <img id='<%="reverse_r"+@route.id.to_s+"minus"%>' src="/assets/whiteminus.png" <%=%q[onclick=clickminus('reverse_r]+@route.id.to_s+%q[')]%> width=<%=(16*@showReverse).to_s%>></img>
+            <img id='<%="reverse_r"+@route.id.to_s+"plus"%>' src="/assets/whiteplus.png" <%=%q[onclick=clickplus('reverse_r]+@route.id.to_s+%q[')]%> style='display:<%=if(@showReverse==1) then "none" else "block" end%>'></img>
+            <img id='<%="reverse_r"+@route.id.to_s+"minus"%>' src="/assets/whiteminus.png" <%=%q[onclick=clickminus('reverse_r]+@route.id.to_s+%q[')]%> style='display:<%=if(@showReverse==1) then "block" else "none" end%>'></img>
           </div>
           <div class="sectiontitle">
-            <%= "From "+@route.endplace.name+" to "+@route.startplace.name+":"%>
+              From <%= link_to @route.endplace.name,    @route.endplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %> 
+              to <%= link_to @route.startplace.name,    @route.startplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
           </div>
         </div>
         <div id='<%="reverse_r"+@route.id.to_s%>' class="sectiontext" style=<%=if (@showReverse==1) then "display:block" else "display:none" end %>>
@@ -53,8 +59,9 @@
 
     <div class="expandrow">
       <div class="expandbuttons">
-        <img id='<%="conditions_r"+@route.id.to_s+"plus"%>' src="/assets/whiteplus.png" <%=%q[onclick=clickplus('conditions_r]+@route.id.to_s+%q[')]%> width=<%=(16*(1-@showConditions)).to_s%>></img>
-        <img id='<%="conditions_r"+@route.id.to_s+"minus"%>' src="/assets/whiteminus.png" <%=%q[onclick=clickminus('conditions_r]+@route.id.to_s+%q[')]%> width=<%=(16*@showConditions).to_s%>></img>
+        <img id='<%="conditions_r"+@route.id.to_s+"plus"%>' src="/assets/whiteplus.png" <%=%q[onclick=clickplus('conditions_r]+@route.id.to_s+%q[')]%> style='display:<%=if(@showConditions==1) then "none" else "block" end%>'></img>
+        <img id='<%="conditions_r"+@route.id.to_s+"minus"%>' src="/assets/whiteminus.png" <%=%q[onclick=clickminus('conditions_r]+@route.id.to_s+%q[')]%> style='display:<%=if(@showConditions==1) then "block" else "none" end%>'></img>
+
       </div>
       <div class="sectiontitle">
         Route conditions:
@@ -104,8 +111,8 @@
     <% if @route.links.length>0 %>
         <div class="expandrow">
           <div class="expandbuttons">
-            <img id='<%="links_r"+@route.id.to_s+"plus"%>' src="/assets/whiteplus.png" <%=%q[onclick=clickplus('links_r]+@route.id.to_s+%q[')]%> width=<%=(16*(1-@showLinks)).to_s%>></img>
-            <img id='<%="links_r"+@route.id.to_s+"minus"%>' src="/assets/whiteminus.png" <%=%q[onclick=clickminus('links_r]+@route.id.to_s+%q[')]%> width=<%=(16*(@showLinks)).to_s%>></img>
+            <img id='<%="links_r"+@route.id.to_s+"plus"%>' src="/assets/whiteplus.png" <%=%q[onclick=clickplus('links_r]+@route.id.to_s+%q[')]%> style='display:<%=if(@showLinks==1) then "none" else "block" end%>'></img>
+            <img id='<%="links_r"+@route.id.to_s+"minus"%>' src="/assets/whiteminus.png" <%=%q[onclick=clickminus('links_r]+@route.id.to_s+%q[')]%>  style='display:<%=if(@showLinks==1) then "block" else "none" end%>'></img>
           </div>
           <div class="sectiontitle">
             Further Information:

@@ -2,20 +2,18 @@
    <!-- Place title and add/remove buttons if in edit mode-->
    <div class="expandrow">
       <div class="sectiontitle">
-
-          <%=@place.name+" ("%>
-          <% if (@place.place_owner) %>
-              <%= @place.place_owner+" " %>
-          <% end %>
-          <%=@place.place_type+" )"%>
+          <% link_name=@place.name+"( "+ (if @place.place_owner then @place.place_owner+" " end) + 
+                 @place.place_type+" )" %>
+     
+          <%= link_to link_name, @place, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
       </div>
    </div>
 
    <!-- Place location and max/mix buttons -->
    <div class="expandrow">
       <div class="expandbuttons">
-         <img id='<%="forwards_p"+@place.id.to_s+"plus"%>' src="/assets/whiteplus.png" <%=%q[onclick=clickplus('forwards_p]+@place.id.to_s+%q[')]%> width=<%=(16*(1-@showForward)).to_s%>></img>
-         <img id='<%="forwards_p"+@place.id.to_s+"minus"%>' src="/assets/whiteminus.png" <%=%q[onclick=clickminus('forwards_p]+@place.id.to_s+%q[')]%> width=<%=(16*(@showForward)).to_s%>></img>
+         <img id='<%="forwards_p"+@place.id.to_s+"plus"%>' src="/assets/whiteplus.png" <%=%q[onclick=clickplus('forwards_p]+@place.id.to_s+%q[')]%> style='display:<%=if(@showForward==1) then "none" else "block" end%>'></img>
+         <img id='<%="forwards_p"+@place.id.to_s+"minus"%>' src="/assets/whiteminus.png" <%=%q[onclick=clickminus('forwards_p]+@place.id.to_s+%q[')]%> style='display:<%=if(@showForward==1) then "block" else "none" end%>'></img>
       </div>
       <div class="sectiontitle" style="font-weight:normal">
          <%= "NZTM2000: "+@x.to_i.to_s+", "+@y.to_i.to_s %>
@@ -36,8 +34,8 @@
       <% if @place.links.length>0 %>
          <div class="expandrow">
             <div class="expandbuttons">
-               <img id='<%="links_p"+@place.id.to_s+"plus"%>' src="/assets/whiteplus.png" <%=%q[onclick=clickplus('links_p]+@place.id.to_s+%q[')]%> width=<%=(16*(1-@showLinks)).to_s%>></img>
-               <img id='<%="links_p"+@place.id.to_s+"minus"%>' src="/assets/whiteminus.png" <%=%q[onclick=clickminus('links_p]+@place.id.to_s+%q[')]%> width=<%=(16*(@showLinks)).to_s%>></img>
+               <img id='<%="links_p"+@place.id.to_s+"plus"%>' src="/assets/whiteplus.png" <%=%q[onclick=clickplus('links_p]+@place.id.to_s+%q[')]%> style='display:<%=if(@showLinks==1) then "none" else "block" end%>'></img>
+               <img id='<%="links_p"+@place.id.to_s+"minus"%>' src="/assets/whiteminus.png" <%=%q[onclick=clickminus('links_p]+@place.id.to_s+%q[')]%> style='display:<%=if(@showLinks==1) then "block" else "none" end%>'></img>
             </div>
             <div class="sectiontitle">
                Further information:

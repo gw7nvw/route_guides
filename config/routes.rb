@@ -11,6 +11,9 @@ resources :trips
 
 root 'static_pages#home'
   match '/redisplay', to: 'places#redisplay',    via:'get'
+  match '/trips/move', to: 'trips#move', via: 'post'
+  match '/wishlist', to: 'trips#wishlist', via: 'get'
+  match '/currenttrip', to: 'trips#currenttrip', via: 'get'
   match '/redisplay', to: 'places#redisplay',    via:'post'
   match '/signup',  to: 'users#new',            via: 'get'
   match '/signin',  to: 'sessions#new',         via: 'get'

@@ -142,6 +142,15 @@ p {
         margin-bottom: 10px;
 }
 
+.selectedrow {
+        background-color: #d6ffd6;
+
+}
+
+.cutrow {
+
+        background-color: #d6d6d6;
+}
 .diff_label
 {
         float: left;
@@ -182,6 +191,11 @@ p {
         float: left;
 }
 
+.rightbuttons {
+        width: 25px;
+        float: right;
+}
+
 .expandbuttons {
         width: 25px;
         float: left;
@@ -196,6 +210,21 @@ p {
         float: left;
         width: 100%;
         margin-left: 25px;
+}
+
+.rowtitle {
+        width: 25%;
+        margin-top: 1px;
+        float: left;
+        font-size: 1.2em;
+        letter-spacing: -1px;
+        font-weight: bold;
+        color: $grayLight;
+}
+
+.rowtext {
+        float: left;
+        width: 75%;
 }
 
 .sectiontitle {
