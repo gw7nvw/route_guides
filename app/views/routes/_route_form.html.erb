@@ -7,8 +7,12 @@
       <div class="expandrow">
          <% if @edit %> 
            <div class="expandbuttons">
-              <img id="startplaceplus" src="/assets/add.png" onclick="route_selectStartPlace()" width="16" style="display:block"></img>
-              <img id="startplacetick" src="/assets/tick.png" onclick="route_selectNothing()" width="16" style="display:none"></img> 
+              <span title="Select start place from map">
+                 <img id="startplaceplus" src="/assets/add.png" onclick="route_selectStartPlace()" width="16" style="display:block"></img>
+              </span>
+              <span title="Confirm selection">
+                 <img id="startplacetick" src="/assets/tick.png" onclick="route_selectNothing()" width="16" style="display:none"></img> 
+              </span>
            </div>
          <% end %>
          <div class="rowtitle">From:</div>
@@ -20,8 +24,12 @@
       <div class="expandrow">
          <% if @edit %> 
            <div class="expandbuttons">
-              <img id="endplaceplus" src="/assets/add.png" onclick="route_selectEndPlace()" width="16" style="display:block"></img>
-              <img id="endplacetick" src="/assets/tick.png" onclick="route_selectNothing()" width="16" style="display:none"></img>
+              <span title="Select end place from map">
+                 <img id="endplaceplus" src="/assets/add.png" onclick="route_selectEndPlace()" width="16" style="display:block"></img>
+              </span>
+              <span title="Confirm selection">
+                 <img id="endplacetick" src="/assets/tick.png" onclick="route_selectNothing()" width="16" style="display:none"></img>
+              </span>
            </div>
          <% end %>
          <div class="rowtitle">To:</div>
@@ -37,8 +45,13 @@
       <div class="expandrow"> 
          <% if @edit %> 
            <div class="expandbuttons">
-              <img id="locationplus" src="/assets/add.png" onclick="route_selectLocation()" width="16" style="display:block"></img>
-              <img id="locationtick" src="/assets/tick.png" onclick="route_endSelectLocation()" width="16" style="display:none"></img>
+              <span title="Draw route on map">
+                 <img id="locationplus" src="/assets/add.png" onclick="route_selectLocation()" width="16" style="display:block"></img>
+              </span>
+              <span title="Confirm drawn route">
+
+                 <img id="locationtick" src="/assets/tick.png" onclick="route_endSelectLocation()" width="16" style="display:none"></img>
+              </span>
             </div>
          <% end %>
          <div class="rowtitle">Route points:</div>
