@@ -43,6 +43,10 @@ class UsersController < ApplicationController
       @user.role=Role.find_by(:name => 'user')
 
       if @user.save
+        # resave trip with userID
+        @trip.createdBy = @user
+        @trip.save
+
         # clear the security question coz we're tidy kiwis 
         session[:id1]=nil
         session[:id2]=nil

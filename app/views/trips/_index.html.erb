@@ -9,10 +9,32 @@
 </script>
 
   <ul class="places">
+   <% if @trips %>
     <% @trips.each do |trip| %>
+      <% if  signed_in? and trip.id==@current_user.currenttrip_id %>
+         <div class="selectedrow">
+      <% else %>
+         <div>
+      <% end %>
       <li>
-        <%= link_to trip.id.to_s+". "+trip.createdBy.name+" - "+trip.name, trip, remote: true, :id => 'trip_link_'+trip.id.to_s, :onclick => "linkHandler('trip_link_"+trip.id.to_s+"')" %></li>
+       <%= form_tag '/trips/move', :remote=> true, :method=> 'post'%>
+
+         <input type="hidden" name="selected_id" value='<%=trip.id%>' /> 
+         <% if signed_in? %>
+            <% if trip.createdBy_id == @current_user.id %> 
+               <%= submit_tag "Select as current",  :type => :image, :src => '/assets/tick.png', :style => 'margin-bottom:0;border:none',  id: "selectCurrent", onclick: "linkHandler('selectCurrent')"  %> 
+            <% end %>
+         <% end %>
+
+       <%= link_to trip.id.to_s+". "+trip.createdBy.name+" - "+trip.name, trip, remote: true, :id => 'trip_link_'+trip.id.to_s, :onclick => "linkHandler('trip_link_"+trip.id.to_s+"')" %></br>
+       <%= trip.lengthmin%> to <%= trip.lengthmax%> days | 
+       <%= number_with_precision(trip.distance, :precision => 2) %> km | 
+       <%= number_with_precision(trip.walkingtime, :precision => 1) %> hrs
+       </form>
       </li>
+      </div>
     <% end %>
+    </form>
+   <% end %>
   </ul>
 

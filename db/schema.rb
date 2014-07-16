@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140712091524) do
+ActiveRecord::Schema.define(version: 20140716084244) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -121,6 +121,7 @@ ActiveRecord::Schema.define(version: 20140712091524) do
     t.spatial  "location",            limit: {:srid=>4326, :type=>"line_string"}
     t.decimal  "time"
     t.decimal  "distance"
+    t.string   "datasource"
   end
 
   create_table "routes", force: true do |t|
@@ -144,6 +145,7 @@ ActiveRecord::Schema.define(version: 20140712091524) do
     t.spatial  "location",            limit: {:srid=>4326, :type=>"line_string"}
     t.decimal  "time"
     t.decimal  "distance"
+    t.string   "datasource"
   end
 
   create_table "routetypes", force: true do |t|
@@ -196,6 +198,9 @@ ActiveRecord::Schema.define(version: 20140712091524) do
     t.integer  "createdBy_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.float    "lengthmin"
+    t.float    "lengthmax"
+    t.boolean  "published"
   end
 
   create_table "users", force: true do |t|

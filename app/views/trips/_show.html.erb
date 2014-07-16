@@ -12,99 +12,152 @@
          <%  if(signed_in? and ((@trip.createdBy_id == current_user.id) or (@current_user.role==Role.find_by( :name => 'root')))) %>
             <div class="expandbuttons">
                 <%= form_for @trip, remote: true do |f| %>
-                   <%= f.submit "edit", :type => :image, :src => '/assets/pencil_edit.png', :style => 'margin-bottom:0',onclick: "linkHandler('editbutton')", id:  "editbutton" %>
+                   <%= f.submit "edit", :type => :image, :src => '/assets/pencil_edit.png', :style => 'margin-bottom:0;border:none',onclick: "linkHandler('editbutton')", id:  "editbutton" %>
                 <% end %>
             </div>
          <% end %>
-         <div class="sectiontitle">
-             Trip: <%=@trip.name%>
+         <%  if(signed_in? and ((@trip.createdBy_id != current_user.id) )) %>
+            <div class="expandbuttons">
+                <%= form_for @trip, remote: true do |f| %>
+                   <%= submit_tag "Make my own copy", :type => :image, :src => '/assets/copy.png', :style => 'margin-bottom:0;border:none'  %>
+                <% end %>
+            </div>
+         <% end %>
+
+         <div class="rowtitle" <% if (signed_in?) %>  <% end %> >
+            Trip:
          </div>
-      </div> 
-      <p>
-         <%=simple_format(@trip.description).html_safe%>
+         <div class="sectiontitle" > 
+            <%= link_to @trip.name, @trip, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
+         </div>
+      </div>
+         <% if (@trip.lengthmin) and (@trip.lengthmin>0) or (@trip.lengthmax) and (@trip.lengthmax>0) %>
+           <div class="expandrow"><div class="rowtitle">Length:</div>
+           <div class="rowtext">
+              <% if (@trip.lengthmin) and (@trip.lengthmin>0)  %>
+                 From <%=@trip.lengthmin%> 
+              <% end %>
+              <% if (@trip.lengthmax) and (@trip.lengthmax>0)  %>
+                 up to <%=@trip.lengthmax %>
+              <% end %>
+              days
+           </div></div>
+         <% end %>
+       <% if (@trip.distance) %>
+            <div class="expandrow"><div class="rowtitle">Distance:</div><div class="rowtext"> <%= number_with_precision(@trip.distance, :precision => 2) %> km</div></div>
+       <% end %>
+       <% if @trip.walkingtime %>
+             <div class="expandrow"><div class="rowtitle">Walking time:</div><div class="rowtext"> <%= @trip.walkingtime %> DOC hours </div></div>
+       <% end %>
+       <p>
+            <%=simple_format(@trip.description).html_safe%>
       </p>
    <% else %>
 
       <%= form_for @trip, remote: true do |f| %>
          <div class="expandrow">
             <div class="expandbuttons">
-               <%= f.submit "Save", :type => :image, :src => '/assets/tick.png', :style => 'margin-bottom:0',onclick: "linkHandler('editbutton')", id:  "editbutton" %>
+               <%= f.submit "Save", :type => :image, :src => '/assets/save.png', :style => 'margin-bottom:0;border:none',onclick: "linkHandler('editbutton')", id:  "editbutton" %>
             </div>
-            <div class="sectiontitle">
+            <div class="rightbuttons">
+               <%= submit_tag "Delete",  :type => :image, :src => '/assets/trash.png', :style => 'margin-bottom:0;border:none'  %>
+            </div>
+         </div>
+         <div class="expandrow">
+            <div class="rowtitle">
+               Trip:
+            </div>
+            <div class="rowtext">
                <%= f.text_field :name %>
-            </div>  
+            </div>
+         </div>
+         <div class="expandrow">
+            <div class="rowtitle">
+               Length (days):
+            </div>
+            <div class="rowtext">
+               <%= f.text_field :lengthmin, :style => "width:20%" %> to <%= f.text_field :lengthmax, :style => "width:20%" %>
+            </div>
+         </div>
+         <% if (@trip.distance) %>
+            <div class="expandrow"><div class="rowtitle">Distance:</div><div class="rowtext"> <%= number_with_precision(@trip.distance, :precision => 2) %> km</div></div>
+         <% end %>
+         <% if @trip.walkingtime %>
+             <div class="expandrow"><div class="rowtitle">Walking time:</div><div class="rowtext"> <%= @trip.walkingtime %> DOC hours </div></div>
+         <% end %>
+         <div class="expandrow">
+            <div class="rowtitle">
+               Published:
+            </div>
+            <div class="rowtext">
+               <%= f.check_box :published %>
+            </div>
+         </div>
+         <div class="expandrow">
+            <div class="sectiontitle"><br/>
+                Description:
+            </div>
          </div>
          <p>
-            <%= f.label :description %>
             <%= f.text_area :description, :rows => "8" %>
          </p>
       <% end %>
    <% end %>
 
+<%= form_tag '/trips/move', :remote=> true, :id => "moveForm", :name=> 'moveForm', :method=> 'post'%>
+     <input type="hidden" name="cutFrom"  /> 
+     <input type="hidden" name="pasteAfter" /> 
+     <input type="hidden" name="id", value=<%=@trip.id.to_s%>>
 
-   <% @totalcount=@trip.trip_details.count %>
-   <% @count = 0 %>
-   <% @trip.trip_details.order(:order).each do |td| %>
-   <div class="hrline">
-      <hr noshade size="4">
-   </div>
-   <div class="expandrow">
-         <% if @edit %>
-            <%= form_for @trip, remote: true do |f| %>
-               <%= f.hidden_field :td, value: td.id %>
-               <% @count=@count+1 %>
-               <% if @count>1 %>
-                  <%= f.submit "top", :type => :image, :src => '/assets/green-go-top.png', :style => 'margin-bottom:0' %>
-                  <%= f.submit "up", :type => :image, :src => '/assets/green-go-up.png', :style => 'margin-bottom:0' %>
-               <% else %>
-                   <%= f.submit "top", :type => :image, :src => '/assets/grey-go-top.png', :style => 'margin-bottom:0', :disabled => 'disabled' %>
-                  <%= f.submit "up", :type => :image, :src => '/assets/grey-go-up.png', :style => 'margin-bottom:0', :disabled => 'disabled' %>
-               <% end%>
 
-               <% if @count<@totalcount %>
-                  <%= f.submit "down", :type => :image, :src => '/assets/green-go-down.png', :style => 'margin-bottom:0' %>
-                  <%= f.submit "bottom", :type => :image, :src => '/assets/green-go-bottom.png', :style => 'margin-bottom:0' %>
-               <% else %>
-                  <%= f.submit "down", :type => :image, :src => '/assets/grey-go-down.png', :style => 'margin-bottom:0', :disabled => 'disabled'  %>
-                  <%= f.submit "bottom", :type => :image, :src => '/assets/grey-go-bottom.png', :style => 'margin-bottom:0', :disabled => 'disabled'  %>
+      <% @trip.trip_details.order(:order).each do |td| %>
+         <div class="hrline">
+            <hr noshade size="4">
+         </div>
+         <div class="expandrow">
+            <% if @edit %>
+                  <div class="cutbutton"> <%= submit_tag "cut"+td.id.to_s, :id => "cutItem", :type => :image, :src => '/assets/cut.png', :style => 'margin-bottom:0;border:none', :onclick => "cutItem("+td.id.to_s+"); return false;" %> </div>
+                  <div class="pastebutton"  id='pasteItem<%=td.id.to_s%>'style="display:none"> <%= submit_tag "paste"+td.id.to_s, :id => "pasteItem", :type => :image, :src => '/assets/big-insert.png', :style => 'margin-bottom:0;border:none' %> </div>
+                  <div class="deletebutton" id='deleteItem<%=td.id.to_s%>' style="display:none"> <%= submit_tag  "delete",  :type => :image, :src => '/assets/trash.png', :style => 'margin-bottom:0;border:none' %> </div>
 
-               <% end%>
-               <%= f.submit "X", :type => :image, :src => '/assets/red-x.png', :style => 'margin-bottom:0' %>
+
             <% end %>
-         <% end %>
-   </div>
-  <% 
-      #convert show boolean to int
-      @showForward=if(td.showForward) then 1 else 0 end
-      @showReverse=if(td.showReverse) then 1 else 0 end
-      @showConditions=if(td.showConditions) then 1 else 0 end
-      @showLinks=if(td.showLinks) then 1 else 0 end
-  %>
-  <% if td.place %>
-    <% @place=td.place %>
-    <%     
-       wgs84_proj4 = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
-       nztm_proj4 = '+proj=tmerc +lat_0=0 +lon_0=173 +k=0.9996 +x_0=1600000 +y_0=10000000 +ellps=GRS80 +towg'
-
-       wgs=RGeo::CoordSys::Proj4.new(wgs84_proj4)
-       nztm=RGeo::CoordSys::Proj4.new(nztm_proj4)
+         </div>
+         <% 
+            #convert show boolean to int
+            @showForward=if(td.showForward) then 1 else 0 end
+            @showReverse=if(td.showReverse) then 1 else 0 end
+            @showConditions=if(td.showConditions) then 1 else 0 end
+            @showLinks=if(td.showLinks) then 1 else 0 end 
+         %>
+         <% if td.place  %>
+            <%
+               @place=td.place 
+               
+               wgs84_proj4 = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
+               nztm_proj4 = '+proj=tmerc +lat_0=0 +lon_0=173 +k=0.9996 +x_0=1600000 +y_0=10000000 +ellps=GRS80 +towg'
+               wgs=RGeo::CoordSys::Proj4.new(wgs84_proj4)
+               nztm=RGeo::CoordSys::Proj4.new(nztm_proj4)
    
-       xyarr=RGeo::CoordSys::Proj4::transform_coords(wgs,nztm,@place.location.x, @place.location.y)
-   
-       #convery location to readable format
-       @x=xyarr[0]
-       @y=xyarr[1]      
+               xyarr=RGeo::CoordSys::Proj4::transform_coords(wgs,nztm,@place.location.x, @place.location.y)
+         
+               #convery location to readable format
+               @x=xyarr[0]
+               @y=xyarr[1]      
+            %>
+            <%= render 'places/place_details' %> 
+        <% end %>
+        <% if td.route %>
+          <% if td.route_id >0 %>
+            <% @route=td.route %>
+            <%= render 'routes/route_details' %> 
+          <% end %>
+        <% end %>
+      <% end %>
+      <div class="hrline">
+         <hr noshade size="4">
+      </div>
 
-
-    %>
-    <%= render 'places/place_details' %>
-  <% end %>
-  <% if td.route %>
-    <% if td.route_id >0 %>
-    <% @route=td.route %>
-    <%= render 'routes/route_details' %>
-    <% end %>
-  <% end %>
-<% end %>
-
+      <div class="pastebutton" style="display:none"> <%= submit_tag "paste", :id => "pasteItem", :type => :image, :src => '/assets/big-insert.png', :style => 'margin-bottom:0;border:none' %> </div>
+   </form>
 </div>

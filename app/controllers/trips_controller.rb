@@ -1,8 +1,146 @@
 class TripsController < ApplicationController
- before_action :signed_in_user, only: [:edit, :update, :new, :create]
+ before_action :signed_in_user, only: [:edit, :update, :new, :create, :move, :wishlish]
 
 def index
-  @trips=Trip.all.order(:id)
+  if signed_in?  then @trips=Trip.where('"createdBy_id" = ? or published = true ',@current_user.id).order(:name)
+  else @trips=Trip.where(published: true).order(:name) 
+  end
+end
+
+def wishlist
+  current_user()
+
+  @trips=Trip.where('"createdBy_id" = ?',@current_user.id).order(:name)
+
+  render 'index'
+end
+
+def currenttrip
+  current_user()
+
+  params[:id]=@current_user.currenttrip_id
+  show()
+  @trip=Trip.find_by_id(@current_user.currenttrip_id)
+
+  render 'show'
+end
+
+def move
+   @edit=true
+      @route_types = Routetype.all
+      @gradients = Gradient.all
+      @alpines = Alpine.all
+      @rivers = River.all
+      @terrains = Terrain.all
+      @place_types = Place_type.all
+
+   @trip=Trip.find_by_id(params[:id])
+
+  if (params[:commit][0..5] == 'delete')
+     trip_details=TripDetail.find_by_id(params[:cutFrom])
+     if (trip_details)
+        if(trip_details.destroy)
+           flash[:success] = "Removed item from trip:"+params[:cutFrom]
+        end
+     else
+        flash[:error] = "Cannot find item to delete:"+params[:cutFrom]
+     end
+  end
+  if (params[:commit][0..4] == 'paste')
+     thistrip_details=TripDetail.find_by_id(params[:cutFrom])
+     above_id=params[:commit][5..-1]
+     order=1
+     logger.debug above_id
+     trip_details=TripDetail.where(trip_id: params[:id]).order(:order)
+     trip_details.each do |td|
+       if td.id == above_id.to_i then
+         thistrip_details.order=order
+         thistrip_details.save
+         order=order+1
+       end
+       if td.id != thistrip_details.id then
+         td.order=order
+         td.save
+         order=order+1
+       end
+     end
+     # if we pasted at bottom
+     if above_id=="" then
+         thistrip_details.order=order
+         thistrip_details.save
+     end
+  end
+
+   if (params[:commit] == 'Select as current')
+      @trip=Trip.find_by_id(params[:selected_id])
+
+      @current_user.currenttrip_id = @trip.id
+      @current_user.save
+
+      index=true
+   end
+
+   if (params[:commit] == 'Make my own copy')
+      old_trip=Trip.find_by_id(params[:selected_id])
+      @trip= old_trip.dup
+      @trip.createdBy_id=@current_user.id 
+      @trip.name = @current_user.name+"'s copy of "+@trip.name
+      @trip.save
+
+      old_trip.trip_details.each do |td|
+         new_td=td.dup
+         new_td.trip_id=@trip.id
+         new_td.save
+      end
+
+      @current_user.currenttrip_id = @trip.id
+      @current_user.save
+   end
+
+   if (params[:commit] == 'Delete')
+      trip=Trip.find_by_id(params[:selected_id])
+
+      # if we delete current trip, make a new one ...
+      if trip.id == @current_user.currenttrip_id
+        @trip=Trip.new()
+        @trip.createdBy_id=@current_user.id
+        @trip.name="Default" 
+        @trip.save
+        @current_user.currenttrip_id = @trip.id
+        @current_user.save
+      end
+
+      trip.destroy
+      index=true
+   end
+
+   if index==true 
+      index()
+      render 'index'
+   else
+      render 'show'
+   end
+end
+
+
+def new
+  @trip=Trip.new()
+  @trip.createdBy_id=@current_user.id
+  @trip.name="Default"
+  @trip.save
+  @current_user.currenttrip_id = @trip.id
+  @current_user.save
+
+  @route_types = Routetype.all
+  @gradients = Gradient.all
+  @alpines = Alpine.all
+  @rivers = River.all
+  @terrains = Terrain.all
+  @place_types = Place_type.all
+  @edit=true
+
+  render 'show'
+
 end
 
 def show
@@ -38,11 +176,14 @@ def update
      @trip=Trip.find_by_id(params[:id])
      @trip.name=params[:trip]['name']
      @trip.description=params[:trip]['description']
+     @trip.lengthmin=params[:trip]['lengthmin'].to_f
+     @trip.lengthmax=params[:trip]['lengthmax'].to_f
+     @trip.published=params[:trip]['published']
      @trip.save
      @edit=false
   end 
 
-  if (params[:commit] == 'X')
+  if (params[:commit] == 'delete')
      trip_details=TripDetail.find_by_id(params[:trip]['td'])
      if (trip_details)
         if(trip_details.destroy)
@@ -53,58 +194,78 @@ def update
      end
   end
 
-  if (params[:commit] == 'up')
-     td=TripDetail.find_by_id(params[:trip]['td'])
-     prev_td=TripDetail.where(trip_id: td.trip_id).where('"order" < ?',td.order).order(:order).last()
+  if (params[:commit] == 'cut' )
+  # implement non-java fallback for cut here.
 
-     if (td and prev_td)
-        temp=td.order
-        td.order=prev_td.order
-        prev_td.order=temp
-        td.save
-        prev_td.save 
+
+  end
+  if (params[:commit] == 'move')
+     thistrip_details=TripDetail.find_by_id(params[:moveForm]['cutFrom'])
+     above_id=params[:moveForm]['pasteBelow']
+     order=1
+     trip_details=TripDetail.find_by(:trip_id => params[:id]).order(:order)
+     # loop through all items, reordering, and insert above the requested slot
+     trip_details.each do |td|
+       if td.id == above_id then
+         thistrip_details.order=order
+         thistrip_details.save
+         order=order+1
+       end 
+       if td.id != thistrip_details.id then
+         td.order=order
+         td.save
+       end
+       order=order+1
+     end 
+     # and handle paste below all
+     if above_id=="" then 
+         thistrip_details.order=1
+         thistrip_details.save
      end
   end
 
-  if (params[:commit] == 'down')
-     td=TripDetail.find_by_id(params[:trip]['td'])
-     next_td=TripDetail.where(trip_id: td.trip_id).where('"order" > ?',td.order).order(:order).first()
+   if (params[:commit] == 'Make my own copy')
+      old_trip=Trip.find_by_id(params[:id])
+      @trip= old_trip.dup
+      @trip.createdBy_id=@current_user.id
+      @trip.name = @current_user.name+"'s copy of "+@trip.name
+      @trip.save
+      params[:id]=@trip.id
+      old_trip.trip_details.each do |td|
+         new_td=td.dup
+         new_td.trip_id=@trip.id
+         new_td.save
+      end
 
-     if (td and next_td)
-        temp=td.order
-        td.order=next_td.order
-        next_td.order=temp
-        td.save
-        next_td.save
-     end
-  end
+      @current_user.currenttrip_id = @trip.id
+      @current_user.save
+   end
 
-  if (params[:commit] == 'top')
-     td=TripDetail.find_by_id(params[:trip]['td'])
-     first_td=TripDetail.where(trip_id: td.trip_id).order(:order).first()
+   if (params[:commit] == 'Delete')
+      trip=Trip.find_by_id(params[:id])
 
-     if (td and first_td)
-        td.order=first_td.order-1
-        td.save
-     end
-  end
+      # if we delete current trip, make a new one ...
+      if trip.id == @current_user.currenttrip_id
+        @trip=Trip.new()
+        @trip.createdBy_id=@current_user.id
+        @trip.name="Default"
+        @trip.save
+        @current_user.currenttrip_id = @trip.id
+        @current_user.save
+      end
 
-  if (params[:commit] == 'bottom')
-     td=TripDetail.find_by_id(params[:trip]['td'])
-     last_td=TripDetail.where(trip_id: td.trip_id).order(:order).last()
+      trip.destroy
+      index()
+      render 'index'
+   else
 
-     if (td and last_td)
-        td.order=last_td.order+1
-        td.save
-     end
-  end
-
-  if (params[:commit] == 'edit')
-     edit()
-     render 'edit' 
-  else
-     show()
-     render 'show'
-  end
+      if (params[:commit] == 'edit')
+         edit()
+         render 'edit' 
+          else
+         show()
+         render 'show'
+      end
+   end
 end
 end

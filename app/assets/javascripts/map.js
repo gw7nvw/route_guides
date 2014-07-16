@@ -27,6 +27,8 @@ var autoPlacesOff = false;
 var placesStale=false;
 var routesStale=false;
 var tripsStale=false;
+var itemToCut;
+var positionToPaste;
 
 function init(){
   if(typeof(map_map)=='undefined') {
@@ -277,24 +279,24 @@ function add_click_to_select_controller() {
 
     trigger: function(e) {
        /*naviagte to selection */
-// window.location.replace(document.getElementById('selected').innerHTML);
-//      $('#right_panel').load(document.getElementById('selected').innerHTML);
-      document.getElementById("page_status").innerHTML = 'Loading ...'
+      if(document.selectform.selecttype.value.length>0) {
+        document.getElementById("page_status").innerHTML = 'Loading ...'
 
-      $.ajax({
-        beforeSend: function (xhr){ 
-          xhr.setRequestHeader("Content-Type","application/javascript");
-          xhr.setRequestHeader("Accept","text/javascript");
-        }, 
-        type: "GET", 
-        timeout: 15000,
-        url: document.selectform.selecttype.value+document.selectform.select.value,
-        complete: function() {
-            /* complete also fires when error ocurred, so only clear if no error has been shown */
-            document.getElementById("page_status").innerHTML = '';
-        }
-
-      });
+        $.ajax({
+          beforeSend: function (xhr){ 
+            xhr.setRequestHeader("Content-Type","application/javascript");
+            xhr.setRequestHeader("Accept","text/javascript");
+          }, 
+          type: "GET", 
+          timeout: 15000,
+          url: document.selectform.selecttype.value+document.selectform.select.value,
+          complete: function() {
+              /* complete also fires when error ocurred, so only clear if no error has been shown */
+              document.getElementById("page_status").innerHTML = '';
+          }
+  
+        });
+      }
     }
   });
 }
@@ -729,8 +731,8 @@ function route_init() {
 
 function route_selectStartPlace() {
   route_selectNothing();
-  document.getElementById("startplaceplus").width=0;
-  document.getElementById("startplacetick").width=16;
+  document.getElementById("startplaceplus").style.display="none";
+  document.getElementById("startplacetick").style.display="block";
  
   deactivate_all_click();
   click_to_copy_start_point.activate();
@@ -738,8 +740,8 @@ function route_selectStartPlace() {
 
 function route_selectEndPlace() { 
   route_selectNothing();
-  document.getElementById("endplaceplus").width=0;
-  document.getElementById("endplacetick").width=16;
+  document.getElementById("endplaceplus").style.display="none";
+  document.getElementById("endplacetick").style.display="block";
  
 
   deactivate_all_click();
@@ -749,8 +751,8 @@ function route_selectEndPlace() {
 
 function route_selectLocation() {
   route_selectNothing();
-  document.getElementById("locationplus").width=0;
-  document.getElementById("locationtick").width=16;
+  document.getElementById("locationplus").style.display="none";
+  document.getElementById("locationtick").style.display="block";
   vectorLayer.destroyFeatures(); 
   deactivate_all_click();
   activate_draw();
@@ -776,12 +778,12 @@ function route_endSelectLocation() {
   route_selectNothing();
 }
 function route_selectNothing() {
-  document.getElementById("startplaceplus").width=16;
-  document.getElementById("startplacetick").width=0;
-  document.getElementById("endplaceplus").width=16;
-  document.getElementById("endplacetick").width=0;
-  document.getElementById("locationplus").width=16;
-  document.getElementById("locationtick").width=0;
+  document.getElementById("startplaceplus").style.display="block";
+  document.getElementById("startplacetick").style.display="none";
+  document.getElementById("endplaceplus").style.display="block";
+  document.getElementById("endplacetick").style.display="none";
+  document.getElementById("locationplus").style.display="block";
+  document.getElementById("locationtick").style.display="none";
 
   /* resisplay all point / lines from from */ 
   vectorLayer.destroyFeatures();
@@ -820,15 +822,15 @@ function linkHandler(entity_name) {
 }
    function clickplus(divname) {
      document.getElementById(divname).style.display = 'block';
-     document.getElementById(divname+"plus").width=0;
-     document.getElementById(divname+"minus").width=16;
+     document.getElementById(divname+"plus").style.display="none";
+     document.getElementById(divname+"minus").style.display="block";
    }
 
 
    function clickminus(divname) {
      document.getElementById(divname).style.display = 'none';
-     document.getElementById(divname+"plus").width=16;
-     document.getElementById(divname+"minus").width=0;
+     document.getElementById(divname+"plus").style.display="block";
+     document.getElementById(divname+"minus").style.display="none";
    }
 
    function updatePlace(buttonName) {
@@ -847,3 +849,35 @@ function linkHandler(entity_name) {
 
    }
 
+   function cutItem(itemId) {
+      document.moveForm.cutFrom.value = itemId;
+      var buttonArray = document.getElementsByClassName("pastebutton");
+
+      for(var i = (buttonArray.length - 1); i >= 0; i--)
+      {
+          buttonArray[i].style.display = "block";
+      }
+
+      var cutArray = document.getElementsByClassName("cutbutton");
+
+      for(i = (cutArray.length - 1); i >= 0; i--)
+      {
+          cutArray[i].style.display = "none";
+      }
+      deleteArray = document.getElementsByClassName("deletebutton");
+
+      for(i = (deleteArray.length - 1); i >= 0; i--)
+      {
+          deleteArray[i].style.display = "none";
+      }
+
+      // enable the one delete and disable the paste
+      document.getElementById("deleteItem"+itemId).style.display = 'block';
+      document.getElementById("pasteItem"+itemId).style.display = 'none';
+
+      return false;
+   }
+
+   function pasteItem(orderNo) {
+     document.moveForm.pasteAfter.value = orderNo;
+   }
