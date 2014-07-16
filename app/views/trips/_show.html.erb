@@ -12,14 +12,18 @@
          <%  if(signed_in? and ((@trip.createdBy_id == current_user.id) or (@current_user.role==Role.find_by( :name => 'root')))) %>
             <div class="expandbuttons">
                 <%= form_for @trip, remote: true do |f| %>
-                   <%= f.submit "edit", :type => :image, :src => '/assets/pencil_edit.png', :style => 'margin-bottom:0;border:none',onclick: "linkHandler('editbutton')", id:  "editbutton" %>
+                   <span title="Edit">
+                       <%= f.submit "edit", :type => :image, :src => '/assets/pencil_edit.png', :style => 'margin-bottom:0;border:none',onclick: "linkHandler('editbutton')", id:  "editbutton" %>
+                   </span>
                 <% end %>
             </div>
          <% end %>
          <%  if(signed_in? and ((@trip.createdBy_id != current_user.id) )) %>
             <div class="expandbuttons">
                 <%= form_for @trip, remote: true do |f| %>
-                   <%= submit_tag "Make my own copy", :type => :image, :src => '/assets/copy.png', :style => 'margin-bottom:0;border:none'  %>
+                   <span title="Make a personal copy I can edit">
+                       <%= submit_tag "Make my own copy", :type => :image, :src => '/assets/copy.png', :style => 'margin-bottom:0;border:none'  %>
+                   </span>
                 <% end %>
             </div>
          <% end %>
@@ -57,10 +61,14 @@
       <%= form_for @trip, remote: true do |f| %>
          <div class="expandrow">
             <div class="expandbuttons">
-               <%= f.submit "Save", :type => :image, :src => '/assets/save.png', :style => 'margin-bottom:0;border:none',onclick: "linkHandler('editbutton')", id:  "editbutton" %>
+               <span title="Save trip">
+                  <%= f.submit "Save", :type => :image, :src => '/assets/save.png', :style => 'margin-bottom:0;border:none',onclick: "linkHandler('editbutton')", id:  "editbutton" %>
+               </span>
             </div>
             <div class="rightbuttons">
-               <%= submit_tag "Delete",  :type => :image, :src => '/assets/trash.png', :style => 'margin-bottom:0;border:none'  %>
+               <span title="Delete trip">
+                  <%= submit_tag "Delete",  :type => :image, :src => '/assets/trash.png', :style => 'margin-bottom:0;border:none'  %>
+               </span>
             </div>
          </div>
          <div class="expandrow">
@@ -116,9 +124,15 @@
          </div>
          <div class="expandrow">
             <% if @edit %>
+               <span title="Cut following section and ...">
                   <div class="cutbutton"> <%= submit_tag "cut"+td.id.to_s, :id => "cutItem", :type => :image, :src => '/assets/cut.png', :style => 'margin-bottom:0;border:none', :onclick => "cutItem("+td.id.to_s+"); return false;" %> </div>
+               </span>
+               <span title="... paste cut section here">
                   <div class="pastebutton"  id='pasteItem<%=td.id.to_s%>'style="display:none"> <%= submit_tag "paste"+td.id.to_s, :id => "pasteItem", :type => :image, :src => '/assets/big-insert.png', :style => 'margin-bottom:0;border:none' %> </div>
+               </span>
+               <span title="...delete cut section">
                   <div class="deletebutton" id='deleteItem<%=td.id.to_s%>' style="display:none"> <%= submit_tag  "delete",  :type => :image, :src => '/assets/trash.png', :style => 'margin-bottom:0;border:none' %> </div>
+               </span>
 
 
             <% end %>
@@ -157,7 +171,8 @@
       <div class="hrline">
          <hr noshade size="4">
       </div>
-
-      <div class="pastebutton" style="display:none"> <%= submit_tag "paste", :id => "pasteItem", :type => :image, :src => '/assets/big-insert.png', :style => 'margin-bottom:0;border:none' %> </div>
+      <span title="... paste cut section here">
+         <div class="pastebutton" style="display:none"> <%= submit_tag "paste", :id => "pasteItem", :type => :image, :src => '/assets/big-insert.png', :style => 'margin-bottom:0;border:none' %> </div>
+      </span>
    </form>
 </div>
