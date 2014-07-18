@@ -9,7 +9,26 @@ class Place < ActiveRecord::Base
   validates :y, presence: true
   validates :projn, presence: true
 
+  before_save :default_values
 
   # But use a geographic implementation for the :lonlat column.
   set_rgeo_factory_for_column(:location, RGeo::Geographic.spherical_factory(:srid => 4326, :proj4=> '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'))
+
+def firstcreated_at
+     t=Place.find_by_sql ["select min(pd.created_at) id from place_instances pd 
+                where pd.place_id = ?", self.id]
+     t.first.try(:id)
+
+end
+
+def revision_number
+     t=Place.find_by_sql ["select count(id) id from place_instances ri 
+                 where ri.place_id = ? and ri.updated_at <= ?",self.id, self.updated_at]
+     t.first.try(:id)
+end
+
+  def default_values
+    self.created_at ||= self.updated_at
+  end
+
 end

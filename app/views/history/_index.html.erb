@@ -1,0 +1,23 @@
+<% provide(:title, 'History') %>
+<% @title=" | History" %>
+<%= render 'flash' %>
+
+<script>
+   update_title('<%=@title%>'); 
+   document.getElementById("page_status").innerHTML = '';
+   reset_map_controllers();
+</script>
+  <%=link_to @item.name, @item, remote: true, :id => 'item_link', :onclick =>  "linkHandler('item_link')"%>
+
+  <ul class="history">
+    <% if @item_instances %>
+       <% @item_instances.each do |item| %>
+         <li>
+           <%= link_to "Version-"+item.revision_number.to_s, '/history/'+params[:id]+'-'+item.id.to_s, remote: true, :id => 'item_link_'+item.id.to_s, :onclick => "linkHandler('item_link_"+item.id.to_s+"'). " %></li>
+           Created by: <%= link_to item.createdBy.name, '/users/'+item.createdBy_id.to_s, remote: true%> on <%=item.updated_at%>. 
+ 
+         </li>
+       <% end %>
+     <% end %>
+  </ul>
+

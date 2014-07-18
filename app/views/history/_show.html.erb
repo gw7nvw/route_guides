@@ -1,0 +1,24 @@
+<% provide(:title, "History | "+@itemType) %>
+<% @title=" | History | "+@itemType %>
+<%= render 'flash' %>
+<script> 
+   update_title('<%=@title%>'); 
+   document.getElementById("page_status").innerHTML = '';
+</script>
+      <%="Historic version of "+@itemType+" "+@item.id.to_s+", version "+@item_instance.revision_number.to_s+"/"+@item.revision_number.to_s+" from "+@item_instance.created_at.to_s%>
+<% if @itemType == 'place' %>
+   <div id='place_details'>
+      <%= render 'places/place_details' %>
+   </div>
+<% end %>
+<% if @itemType == 'route' %>
+   <div id='place_details'>
+      <%= render 'routes/route_details' %>
+   </div>
+<% end %>
+<%= form_for  @item, :url => '/history/'+params[:id], :html => {:name => 'historyform'}, remote: true  do |f| %>
+        <%= f.submit "Make current", class: "btn btn-large btn-primary", name: "current", onclick: "linkHandler('makeCurrent')", id: "makeCurrent" %>
+        <%=  link_to "History", '/history/'+@itemType+"-"+@item.id.to_s, class: "btn btn-large btn-primary",  remote: true, onclick: "linkHandler('histbutton')", id:  "histbutton"  %>
+</form>
+<% end %>
+

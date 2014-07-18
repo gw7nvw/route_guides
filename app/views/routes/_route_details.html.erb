@@ -1,8 +1,12 @@
 <div id="route_details">    
     <div class="expandrow">
     <div class="sectiontitle">
-      <%= link_to @route.startplace.name+" to "+@route.endplace.name+" via "+@route.via, 
+     <% if !@history %>
+        <%= link_to @route.startplace.name+" to "+@route.endplace.name+" via "+@route.via, 
           @route, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
+      <% else %>
+        <%=@route.startplace.name+" to "+@route.endplace.name+" via "+@route.via %>
+     <% end %>
 
     </div>
  
@@ -126,7 +130,8 @@
 
    <small> 
      <% if @route.createdBy_id %>
-       Created by: <%= link_to @route.createdBy.name, '/users/'+@route.createdBy_id.to_s, remote: true%> on <%=@route.created_at%>. Last updated: <%=@route.updated_at%>
+       Created by: <%= link_to @route.createdBy.name, '/users/'+@route.createdBy_id.to_s, remote: true%> on <%=@route.firstcreated_at%>. Last updated: <%=@route.updated_at%>
+<%= link_to "View history", '/history/route-'+@route.id.to_s, remote: true, :id => 'history', :onclick =>"linkHandler('history')" %>
      <% end %>
    </small>
 

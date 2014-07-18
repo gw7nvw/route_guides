@@ -31,5 +31,20 @@ class Route < ActiveRecord::Base
 
   def default_values
     self.datasource ||= 'drawn on map'
+    self.created_at ||= self.updated_at
   end
+
+def firstcreated_at
+     t=Route.find_by_sql ["select min(rd.created_at) id from route_instances rd 
+                where rd.route_id = ?", self.id]
+     t.first.try(:id)
+
+end
+
+def revision_number
+     t=Route.find_by_sql ["select count(id) id from route_instances ri 
+                 where ri.route_id = ? and ri.updated_at <= ?",self.id, self.updated_at]
+     t.first.try(:id)
+end
+
 end

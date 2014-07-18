@@ -1,6 +1,8 @@
 class User < ActiveRecord::Base
   has_many :places, class_name: "Place", foreign_key: "createdBy_id"
+  has_many :routeInstances, class_name: "Route", foreign_key: "createdBy_id"
   has_many :routes, class_name: "Route", foreign_key: "createdBy_id"
+  has_many :placeInstances, class_name: "Place", foreign_key: "createdBy_id"
   belongs_to :role
   validates :role, presence: true
 
