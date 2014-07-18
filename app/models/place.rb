@@ -8,7 +8,7 @@ class Place < ActiveRecord::Base
   validates :x, presence: true
   validates :y, presence: true
   validates :projn, presence: true
-
+ 
   before_save :default_values
 
   # But use a geographic implementation for the :lonlat column.
@@ -30,5 +30,15 @@ end
   def default_values
     self.created_at ||= self.updated_at
   end
+
+def adjoiningRoutes
+   t=Place.find_by_sql ["select *  from routes where startplace_id = ? or endplace_id = ?",self.id, self.id]
+end
+
+def trips
+   t=Place.find_by_sql ["select distinct t.* from trips t
+       inner join trip_details td on td.trip_id = t.id
+       where td.place_id = ? and t.published=true",self.id]
+end
 
 end
