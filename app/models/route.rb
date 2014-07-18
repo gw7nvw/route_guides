@@ -47,4 +47,14 @@ def revision_number
      t.first.try(:id)
 end
 
+def adjoiningRoutes
+   t=Route.find_by_sql ["select distinct *  from routes r 
+       where (startplace_id = ? or endplace_id = ? or startplace_id = ? or endplace_id = ?) and id <> ?",self.startplace_id, self.startplace_id, self.endplace_id, self.endplace_id, self.id]
+end
+
+def trips
+   t=Route.find_by_sql ["select distinct t.* from trips t
+       inner join trip_details td on td.trip_id = t.id
+       where td.route_id = ? and t.published=true",self.id]
+end
 end
