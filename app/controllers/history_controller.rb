@@ -1,4 +1,5 @@
 class HistoryController < ApplicationController
+ before_action :signed_in_user, only: [:update]
 
 def update
      current_user()
@@ -16,21 +17,26 @@ def update
        # create new instance
        pi=PlaceInstance.find_by_id(itemVersion).dup
        pi.createdBy_id=@current_user.id
+       pi.updated_at=Time.new()
        pi.save
 
        #@copy to place 
        place=Place.find_by_id(itemId)
-       place.name=pi.name
-       place.description=pi.description
-       place.x=pi.x
-       place.y=pi.y
-       place.projn=pi.projn
-       place.altitude=pi.altitude
-       place.createdBy_id=pi.createdBy_id
+       place.update(pi.attributes.except('id', 'place_id'))
        place.save
+
     end
 
-    if @itemType == "route"
+   if @itemType == "route"
+       ri=RouteInstance.find_by_id(itemVersion).dup
+       ri.createdBy_id=@current_user.id
+       ri.updated_at=Time.new()
+       ri.save
+
+       route=Route.find_by_id(itemId)
+       route.update(ri.attributes.except('id', 'route_id'))
+       route.save
+ 
   
     end
   end
