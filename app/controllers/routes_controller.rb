@@ -108,6 +108,7 @@ end
     if (params[:save])
 
       @route = Route.find_by_id(params[:id])
+      @route.updated_at=Time.new()
       prepare_route_vars()
   
       @route_instance=RouteInstance.new(@route.attributes)
@@ -155,13 +156,6 @@ end
    end
 end
 
-def prepare_route_vars()
-    @route_types = Routetype.all
-    @gradients = Gradient.all
-    @alpines = Alpine.all
-    @rivers = River.all
-    @terrains = Terrain.all
-end
 
   private
   def route_params

@@ -4,8 +4,13 @@
       <div class="sectiontitle">
           <% link_name=@place.name+"( "+ (if @place.place_owner then @place.place_owner+" " end) + 
                  @place.place_type+" )" %>
+          <% if !@history %>
      
-          <%= link_to link_name, @place, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
+             <%= link_to link_name, @place, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
+          <% else %>
+             <%=link_name%>
+          <% end %>
+
       </div>
    </div>
 
@@ -50,7 +55,8 @@
    <!-- Place author details (if any) -->
     <% if @place.createdBy_id %>
        <small color="greyLight">
-	  Created by: <%= link_to @place.createdBy.name, '/users/'+@place.createdBy_id.to_s, remote: true%> on <%=@place.created_at%>. Last updated: <%=@place.updated_at%>
+	  Created by: <%= link_to @place.createdBy.name, '/users/'+@place.createdBy_id.to_s, remote: true%> on <%=@place.firstcreated_at%>. Last updated: <%=@place.updated_at%> 
+          <%= link_to "View history", '/history/place-'+@place.id.to_s, remote: true, :id => 'history', :onclick =>"linkHandler('history')" %>
        </small>
     <% end %>
 

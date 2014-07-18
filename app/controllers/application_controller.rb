@@ -9,5 +9,12 @@ class ApplicationController < ActionController::Base
       redirect_to signin_url, notice: "Please sign in." unless signed_in?
     end
 
+def prepare_route_vars()
+    @route_types = Routetype.all
+    @gradients = Gradient.all
+    @alpines = Alpine.all
+    @rivers = River.all
+    @terrains = Terrain.all
+end
 
 end

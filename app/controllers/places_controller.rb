@@ -141,6 +141,7 @@ end
           @edit=true
           render 'edit'
        end
+    
        @place.name= place_params[:name]
        @place.description = place_params[:description]
        @place.x = place_params[:x].to_f
@@ -152,6 +153,7 @@ end
        @place.place_type = place_params[:place_type]
        @place.place_owner = place_params[:place_owner]
        @place.links = place_params[:links]
+       @place.updated_at = Time.new()
 
        @place_instance=PlaceInstance.new(@place.attributes)
 

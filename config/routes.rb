@@ -5,6 +5,7 @@ resources :sessions, only: [:new, :create, :destroy]
 resources :places
 resources :maps, only: [:index]
 resources :trips
+resources :history, only: [:index, :show, :update]
 #controller :places do
 #    post 'places/:id' => :redisplay
 #end
