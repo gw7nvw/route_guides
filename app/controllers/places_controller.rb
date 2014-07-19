@@ -15,12 +15,39 @@ end
 
     @place = Place.new(place_params)
 
-    x=place_params[:x].to_f
-    y=place_params[:y].to_f
+    #recalculate location from passed x,y params
+    if(place_params[:x] and place_params[:x].length>0) then @place.x=place_params[:x].to_f end
+    if(place_params[:y] and place_params[:y].length>0) then @place.y=place_params[:y].to_f end
+    @place.altitude = place_params[:altitude].to_i
 
-    @place.location='POINT('+place_params[:location]+')'
+    if(@place.x and @place.y)
+       wgs84_proj4 = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
+       nztm_proj4 = '+proj=tmerc +lat_0=0 +lon_0=173 +k=0.9996 +x_0=1600000 +y_0=10000000 +ellps=GRS80 +towg'
+
+       wgs=RGeo::CoordSys::Proj4.new(wgs84_proj4)
+       nztm=RGeo::CoordSys::Proj4.new(nztm_proj4)
+
+       xyarr=RGeo::CoordSys::Proj4::transform_coords(nztm,wgs,@place.x,@place.y)
+
+       params[:location]=xyarr[0].to_s+" "+xyarr[1].to_s
+       @place.location='POINT('+params[:location]+')'
+
+       #if altitude is not entered, calculate it from map 
+
+       if place_params[:altitude].to_i == 0
+         #get alt from map if it is blank or 0
+         altArr=Place.find_by_sql ["
+            select ST_Value(rast, ST_GeomFromText(?,4326))  id
+               from dem100
+               where ST_Intersects(rast,ST_GeomFromText(?,4326));",
+               'POINT('+params[:location]+')',
+               'POINT('+params[:location]+')']
+         @place.altitude=altArr.first.try(:id).to_i
+       end
+    end
+
+    #revision control
     @place.createdBy_id = @current_user.id #current_user.id
-
     @place_instance=PlaceInstance.new(@place.attributes)
     # but doesn;t handle location ... so
 
@@ -28,14 +55,15 @@ end
       @place_instance.place_id=@place.id
       if @place_instance.save     
         flash[:success] = "New place added, id:"+@place.id.to_s
+        @id=@place.id
         #refresh variables
         show()
-
+      
         #render show panel
         render 'show'
 
       else
-# Handle a successful save.
+# Handle an unsuccessful save.
       flash[:error] = "Error creating instance"
       @place_types = Place_type.all.order(:name)
       @edit=true
@@ -58,8 +86,10 @@ end
     @showConditions=0
     @showLinks=1
 
+    if !@id then @id=params[:id] end
+
     @edit=false
-    if( @place = Place.find_by_id(params[:id]))
+    if( @place = Place.find_by_id(@id))
     then 
     wgs84_proj4 = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
     nztm_proj4 = '+proj=tmerc +lat_0=0 +lon_0=173 +k=0.9996 +x_0=1600000 +y_0=10000000 +ellps=GRS80 +towg'
@@ -141,23 +171,44 @@ end
           @edit=true
           render 'edit'
        end
-    
-       @place.name= place_params[:name]
-       @place.description = place_params[:description]
-       @place.x = place_params[:x].to_f
-       @place.y = place_params[:y].to_f
-       @place.projn = place_params[:projn]
+
+
+       @place.update(place_params)
+
+       #don;t trust passed location, calculate from X, Y as they ar ewhat user sees/provides
+       if(place_params[:x] and place_params[:x].length>0) then @place.x=place_params[:x].to_f end
+       if(place_params[:y] and place_params[:y].length>0) then @place.y=place_params[:y].to_f end
        @place.altitude = place_params[:altitude].to_i
-       @place.location='POINT('+place_params[:location]+')'
-       @place.createdBy_id = @current_user.id
-       @place.place_type = place_params[:place_type]
-       @place.place_owner = place_params[:place_owner]
-       @place.links = place_params[:links]
+
+       if(@place.x and @place.y)
+          wgs84_proj4 = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
+          nztm_proj4 = '+proj=tmerc +lat_0=0 +lon_0=173 +k=0.9996 +x_0=1600000 +y_0=10000000 +ellps=GRS80 +towg'
+
+          wgs=RGeo::CoordSys::Proj4.new(wgs84_proj4)
+          nztm=RGeo::CoordSys::Proj4.new(nztm_proj4)
+   
+          xyarr=RGeo::CoordSys::Proj4::transform_coords(nztm,wgs,@place.x,@place.y)
+   
+          params[:location]=xyarr[0].to_s+" "+xyarr[1].to_s
+          @place.location='POINT('+params[:location]+')'
+
+          #get alt from map if it is blank or 0
+          if place_params[:altitude].to_i == 0
+            altArr=Place.find_by_sql ["
+               select ST_Value(rast, ST_GeomFromText(?,4326))  id
+                  from dem100
+                  where ST_Intersects(rast,ST_GeomFromText(?,4326));",
+                  'POINT('+place_params[:location]+')',
+                  'POINT('+place_params[:location]+')']
+            @place.altitude=altArr.first.try(:id).to_i
+          end
+       end
+
+       #timestanps
        @place.updated_at = Time.new()
 
        @place_instance=PlaceInstance.new(@place.attributes)
-
-
+       #do not inherit id from parent ... use NIL to creat our own
        @place_instance.id=nil
 
        if @place.save

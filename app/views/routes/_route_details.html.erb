@@ -74,34 +74,34 @@
     <div id='<%="conditions_r"+@route.id.to_s%>' class="sectiontext" style=<%=if (@showConditions==1) then "display:block" else "display:none" end %>>
       <p>
           <div class="diff_label">Route Type:</div> <%=@route.routetype.name%>
-          <%="(difficulty: "+(@route.routetype_id-@route_types.minimum(:id)+1).to_s+"/"+(@route_types.maximum(:id)-@route_types.minimum(:id)+1).to_s+")"%><br/>
+          <%="(difficulty: "+(@route.routetype_id-@route_types.minimum(:id)).to_s+"/"+(@route_types.maximum(:id)-@route_types.minimum(:id)).to_s+")"%><br/>
           <i><%=@route.routetype.description%></i>
       </p>
       <p>
           <div class="diff_label">Gradient:</div> <%=@route.gradient.name%>
-          <%="(difficulty: "+(@route.gradient_id-@gradients.minimum(:id)+1).to_s+"/"+(@gradients.maximum(:id)-@gradients.minimum(:id)+1).to_s+")"%><br/>
+          <%="(difficulty: "+(@route.gradient_id-@gradients.minimum(:id)).to_s+"/"+(@gradients.maximum(:id)-@gradients.minimum(:id)).to_s+")"%><br/>
         <i><%=@route.gradient.description%></i>
       </p>
       <p>
           <div class="diff_label">Terrain:</div> <%=@route.terrain.name%>
-          <%="(difficulty: "+(@route.terrain_id-@terrains.minimum(:id)+1).to_s+"/"+(@terrains.maximum(:id)-@terrains.minimum(:id)+1).to_s+")"%><br/>
+          <%="(difficulty: "+(@route.terrain_id-@terrains.minimum(:id)).to_s+"/"+(@terrains.maximum(:id)-@terrains.minimum(:id)).to_s+")"%><br/>
         <i><%=@route.terrain.description%></i>
       </p>
       <p>
           <div class="diff_label">Alpine:</div> <%=@route.alpinesummer.name%>
-          <%="(difficulty: "+(@route.alpinesummer_id-@alpines.minimum(:id)+1).to_s+"/"+(@alpines.maximum(:id)-@alpines.minimum(:id)+1).to_s+")"%><br/>
+          <%="(difficulty: "+(@route.alpinesummer_id-@alpines.minimum(:id)).to_s+"/"+(@alpines.maximum(:id)-@alpines.minimum(:id)).to_s+")"%><br/>
         <i><%=@route.alpinesummer.description%></i>
       </p>
       <p>
           <div class="diff_label">Rivers:</div> <%=@route.river.name%>
-          <%="(difficulty: "+(@route.river_id-@rivers.minimum(:id)+1).to_s+"/"+(@rivers.maximum(:id)-@rivers.minimum(:id)+1).to_s+")"%><br/>
+          <%="(difficulty: "+(@route.river_id-@rivers.minimum(:id)).to_s+"/"+(@rivers.maximum(:id)-@rivers.minimum(:id)).to_s+")"%><br/>
         <i><%=@route.river.description%></i>
       </p>
 
     <div class="sectiontitle">Winter conditions:</div></br>
     <p>
           <div class="diff_label">Alpine:</div> <%=@route.alpinewinter.name%>
-          <%="(difficulty: "+(@route.alpinewinter_id-@alpines.minimum(:id)+1).to_s+"/"+(@alpines.maximum(:id)-@alpines.minimum(:id)+1).to_s+")"%><br/>
+          <%="(difficulty: "+(@route.alpinewinter_id-@alpines.minimum(:id)).to_s+"/"+(@alpines.maximum(:id)-@alpines.minimum(:id)).to_s+")"%><br/>
       <i><%=@route.alpinewinter.description%></i>
     </p>
     <p>
@@ -131,7 +131,9 @@
    <small> 
      <% if @route.createdBy_id %>
        Created by: <%= link_to @route.createdBy.name, '/users/'+@route.createdBy_id.to_s, remote: true%> on <%=@route.firstcreated_at%>. Last updated: <%=@route.updated_at%>
-<%= link_to "View history", '/history/route-'+@route.id.to_s, remote: true, :id => 'history', :onclick =>"linkHandler('history')" %>
+<% if !@history%>
+   <%= link_to "View history", '/history/route-'+@route.id.to_s, remote: true, :id => 'history', :onclick =>"linkHandler('history')" %>
+<% end %>
      <% end %>
    </small>
 

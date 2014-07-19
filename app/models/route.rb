@@ -26,7 +26,7 @@ class Route < ActiveRecord::Base
 
   before_save { |route| route.name = route.startplace.name + " to " + route.endplace.name + " via " + route.via }
   before_save :default_values
-  set_rgeo_factory_for_column(:location, RGeo::Geographic.spherical_factory(:srid => 4326, :proj4=> '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'))
+  set_rgeo_factory_for_column(:location, RGeo::Geographic.spherical_factory(:srid => 4326, :proj4=> '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs', :has_z_coordinate => true))
 
 
   def default_values

@@ -56,7 +56,9 @@
     <% if @place.createdBy_id %>
        <small color="greyLight">
 	  Created by: <%= link_to @place.createdBy.name, '/users/'+@place.createdBy_id.to_s, remote: true%> on <%=@place.firstcreated_at%>. Last updated: <%=@place.updated_at%> 
-          <%= link_to "View history", '/history/place-'+@place.id.to_s, remote: true, :id => 'history', :onclick =>"linkHandler('history')" %>
+          <% if !@history %>
+             <%= link_to "View history", '/history/place-'+@place.id.to_s, remote: true, :id => 'history', :onclick =>"linkHandler('history')" %>
+          <% end %>
        </small>
     <% end %>
 
