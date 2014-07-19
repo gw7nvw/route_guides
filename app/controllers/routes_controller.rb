@@ -1,5 +1,6 @@
 class RoutesController < ApplicationController
 
+#get altitude from DEM if not set
  before_action :signed_in_user, only: [:edit, :update, :new, :create]
 
 def index
@@ -110,12 +111,36 @@ end
       @route = Route.find_by_id(params[:id])
       @route.updated_at=Time.new()
       prepare_route_vars()
-  
+
+ 
       @route_instance=RouteInstance.new(@route.attributes)
       @route_instance.createdBy_id = @current_user.id #current_user.id
       # but doesn;t handle location ... so
 
       if @route.update(route_params)
+         #check for alt data
+          totalAlt=0
+          @route.location.points.each do |p|
+            totalAlt+=p.z
+          end
+          #none present? then calculate
+          if totalAlt==0 then
+            linestr="LINESTRING("
+            @route.location.points.each do |p|
+               if linestr.length>11 then linestr+="," end
+               #get alt from map if it is blank or 0
+               altArr=Place.find_by_sql ["
+                  select ST_Value(rast, ST_GeomFromText(?,4326))  id
+                     from dem100
+                     where ST_Intersects(rast,ST_GeomFromText(?,4326));",
+                     'POINT('+p.x.to_s+' '+p.y.to_s+')',
+                     'POINT('+p.x.to_s+' '+p.y.to_s+')']
+
+               linestr+=p.x.to_s+" "+p.y.to_s+" "+altArr.first.try(:id).to_s
+            end
+            @route.location=linestr+")"
+            @route.save
+        end
         @route_instance.route_id=@route.id
         @route_instance.id = nil
         if @route_instance.save

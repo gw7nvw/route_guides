@@ -11,18 +11,23 @@
     </div>
  
     <div class="sectiontext">
-    <% if @route.distance %>
-      <%= "Distance: "+@route.distance.round(1).to_s+" km " %>
-    <%end %>
-    <% if @route.time %>
-      <%="("+@route.time.round(1).to_s+" DOC hours)"  %>
-      <br/>
+       <% if @route.distance %>
+         <%= "Distance: "+@route.distance.round(1).to_s+" km " %>
+       <%end %>
+       <% if @route.time %>
+         <%="("+@route.time.round(1).to_s+" DOC hours)"  %>
+         <br/>
+       <% end %>
+       <% if @route.location %>
+         <%= "Altitude - Max: "+@route.maxalt.to_s+"m  Min: "+@route.minalt.to_s+"m  Gain: "+@route.altgain.to_s+"m  Loss: "+@route.altloss.to_s+"m" %>
+       <%end %><br/>
         <i><%= "GPX info source: "+@route.datasource %></i>
       <br/>
       <br/>
-    <% end %>
     </div>
-    </div>
+
+    <div class="sectiontext">
+
     <% if @route.description %>
       <% if @route.description.length > 0 %>
         <div class="expandrow">
