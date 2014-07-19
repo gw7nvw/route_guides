@@ -32,6 +32,7 @@ class Route < ActiveRecord::Base
   def default_values
     self.datasource ||= 'drawn on map'
     self.created_at ||= self.updated_at
+
   end
 
 def firstcreated_at
@@ -56,5 +57,43 @@ def trips
    t=Route.find_by_sql ["select distinct t.* from trips t
        inner join trip_details td on td.trip_id = t.id
        where td.route_id = ? and t.published=true",self.id]
+end
+
+def maxalt
+   alt=0
+   self.location.points.each do |p|
+       if(p.z)>alt then alt=p.z end
+   end
+   alt 
+end
+
+def minalt
+   alt=9999
+   self.location.points.each do |p|
+       if(p.z)<alt then alt=p.z end
+   end
+   alt
+end
+
+def altgain
+   alt=0
+   lastalt=self.location.points.first.z
+   self.location.points.each do |p|
+       if(p.z)>lastalt then alt+=p.z-lastalt end
+       lastalt=p.z
+   end
+   alt
+
+end
+
+def altloss
+   alt=0
+   lastalt=self.location.points.first.z
+   self.location.points.each do |p|
+       if(p.z)<lastalt then alt+=lastalt-p.z end
+       lastalt=p.z
+   end
+   alt
+
 end
 end
