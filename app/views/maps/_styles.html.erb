@@ -1,0 +1,69 @@
+<script>
+style_pt_default = {strokeColor: "red", strokeOpacity: "0.7", strokeWidth: 3, cursor: "pointer", pointRadius: 4, fillColor: "red", graphicName: "circle", title: '${name}'};
+
+var sty = OpenLayers.Util.applyDefaults(style_pt_default, OpenLayers.Feature.Vector.style["default"]);
+pt_styleMap = new OpenLayers.StyleMap({
+            'default': sty,
+            'select': {strokeColor: "pink", fillColor: "pink"}
+        });
+
+<% pts=PlaceType.all %>
+
+<% pts.each do |pt| %>
+  <%="style_"+pt.name%> = OpenLayers.Util.extend({}, layer_style);
+  <%="style_"+pt.name%>.strokeColor = '<%=pt.color%>';
+  <%="style_"+pt.name%>.fillColor = '<%=pt.color%>';
+  <%="style_"+pt.name%>.graphicName = '<%=pt.graphicName%>';
+  <%="style_"+pt.name%>.pointRadius = <%=pt.pointRadius%>;
+  <%="style_"+pt.name%>.strokeWidth = 3;
+  <%="style_"+pt.name%>.rotation = 0;
+  <%="style_"+pt.name%>.strokeLinecap = "butt";
+
+    pt_styleMap.styles['default'].addRules([
+        new OpenLayers.Rule({
+            filter: new OpenLayers.Filter.Comparison({
+            type: OpenLayers.Filter.Comparison.EQUAL_TO, property: "place_type", value: '<%=pt.name%>'
+            }),
+            symbolizer: <%="style_"+pt.name%>
+        }),
+        new OpenLayers.Rule({
+            elseFilter: true
+        })
+    ]);
+
+<% end %>
+
+style_rt_default = {strokeColor: "red", strokeOpacity: "0.7", strokeWidth: 3, cursor: "pointer", fillColor: "darkred", strokeDashstyle: "solid", title: '${name}', };
+
+var sty = OpenLayers.Util.applyDefaults(style_rt_default, OpenLayers.Feature.Vector.style["default"]);
+rt_styleMap = new OpenLayers.StyleMap({
+            'default': sty,
+            'select': {strokeColor: "darkred", fillColor: "darkred", strokeDashstyle: "solid"}
+        });
+
+<% rts=Routetype.all %>
+
+<% rts.each do |rt| %>
+  <%="style_"+rt.code%> = OpenLayers.Util.extend({}, layer_style);
+  <%="style_"+rt.code%>.strokeColor = '<%=rt.linecolor%>';
+  <%="style_"+rt.code%>.fillColor = '<%=rt.linecolor%>';
+  <%="style_"+rt.code%>.strokeWidth = 2;
+  <%="style_"+rt.code%>.strokeLinecap = "butt";
+  <%="style_"+rt.code%>.rotation = 0;
+  <%="style_"+rt.code%>.strokeDashstyle = '<%=rt.linetype%>';
+
+    rt_styleMap.styles['default'].addRules([
+        new OpenLayers.Rule({
+            filter: new OpenLayers.Filter.Comparison({
+            type: OpenLayers.Filter.Comparison.EQUAL_TO, property: "routetype_id", value: '<%=rt.id.to_s%>'
+            }),
+            symbolizer: <%="style_"+rt.code%>
+        }),
+        new OpenLayers.Rule({
+            elseFilter: true
+        })
+    ]);
+
+<% end %>
+
+</script>

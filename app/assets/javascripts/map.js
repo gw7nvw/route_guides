@@ -1,32 +1,33 @@
-
 var map_map;
-
-            // we want opaque external graphics and non-opaque internal graphics
-
 var vectorLayer;
+var places_layer;
+var routes_layer;
 var renderer;
 
 var layer_style;
-var click_to_select;
-var click_to_copy_start_point;
-var click_to_copy_end_point;
-var click_to_create;
-var star_blue;
-var style_hut;
-var style_pt_default;
 var pt_styleMap;
-var select;
-var draw;
+var rt_styleMap;
+var style_pt_default;
+var style_rt_default;
 var star_purple;
 var star_red;
 var star_green;
 var star_blue;
 var line_red;
+
+var select;
+var click_to_select_all;
+var click_to_copy_start_point;
+var click_to_copy_end_point;
+var click_to_create;
+var draw;
+
 var statusMessage = 0;
 var autoPlacesOff = false;
 var placesStale=false;
 var routesStale=false;
 var tripsStale=false;
+
 var itemToCut;
 var positionToPaste;
 
@@ -36,6 +37,7 @@ function init(){
     /* explicityly define the projections we will use */
     Proj4js.defs["EPSG:2193"] = "+proj=tmerc +lat_0=0 +lon_0=173 +k=0.9996 +x_0=1600000 +y_0=10000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs";
     Proj4js.defs["EPSG:900913"] = "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_defs";
+    Proj4js.defs["EPSG:27200"] = "+proj=nzmg +lat_0=-41 +lon_0=173 +x_0=2510000 +y_0=6023150 +ellps=intl +datum=nzgd49 +units=m +no_defs";
 
     /* define our point styles */
     create_styles();
@@ -56,7 +58,7 @@ function init(){
     layer_style.graphicOpacity = 1;
 
     var extent = new OpenLayers.Bounds(18842642.180088, -5791195.9326324, 19729515.150218,  -4476561.4562925);
-    var test_g_wmts_layer = new OpenLayers.Layer.WMTS({
+    var basemap_layer = new OpenLayers.Layer.WMTS({
         name: "nztopomaps.com",
         url: "http://routeguides.co.nz/mapcache/wmts/",
         layer: 'test',
@@ -64,8 +66,6 @@ function init(){
         format: 'image/png',
         style: 'default',
         gutter:0,buffer:0,isBaseLayer:true,transitionEffect:'resize',
-      /*  resolutions:[156543.03392804099712520838,78271.51696402048401068896,39135.75848201022745342925,19567.87924100512100267224,9783.93962050256050133612,4891.96981025128025066806,2445.98490512564012533403,1222.99245256282006266702,611.49622628141003133351,305.74811314070478829308,152.87405657035250783338,76.43702828517623970583,38.21851414258812695834,19.10925707129405992646,9.55462853564703173959,4.77731426782351586979,2.38865713391175793490,1.19432856695587897633,0.59716428347793950593],*/
-        /*zoomOffset:0,*/
         resolutions:[2445.98490512564012533403,1222.99245256282006266702,611.49622628141003133351,305.74811314070478829308,152.87405657035250783338,76.43702828517623970583,38.21851414258812695834,19.10925707129405992646,9.55462853564703173959],
         zoomOffset:6,
         units:"m",
@@ -76,44 +76,9 @@ function init(){
     );
 
     places_layer_add();
+    routes_layer_add();
 
-    routes_layer = new OpenLayers.Layer.Vector("routes", {
-                    strategies: [new OpenLayers.Strategy.BBOX()],
-                    protocol: new OpenLayers.Protocol.WFS({
-                        url:  "http://routeguides.co.nz/cgi-bin/mapserv?map=/ms4w/apps/matts_app/htdocs/routes.map",
-                        featureType: "routes",
-                        extractAttributes: true
-                    }),
-                    styleMap: pt_styleMap
-                });
-
- //callback after a layer has been loaded in openlayers
-    routes_layer.events.register("loadend", routes_layer, function() {
-           tooltip_routes();
-    });
-            
-   /* copy selected feature to div */
-    routes_layer.events.on({
-        'featureselected': function(feature) {
-             var f = routes_layer.selectedFeatures.pop();
-             document.selectform.select.value = f.attributes.id;
-             document.selectform.selectname.value = f.attributes.name;
-             document.selectform.selectx.value = f.geometry.x;
-             document.selectform.selecty.value = f.geometry.y;
-             document.selectform.selecttype.value = "/routes/";
-
-           },
-           'featureunselected': function(feature) {
-             document.selectform.select.value = "";
-             document.selectform.selectname.value = "";
-             document.selectform.selectx.value = "";
-             document.selectform.selecty.value = "";
-             document.selectform.selecttype.value = "";
-
-           }
-    });
-
-    map_map.addLayer(test_g_wmts_layer);
+    map_map.addLayer(basemap_layer);
     map_map.addLayer(places_layer);
     map_map.addLayer(routes_layer);
 
@@ -126,15 +91,8 @@ function init(){
     map_map.addControl(select);
     select.activate();
 
-   //callback for moveend event - fix tooltips
-    map_map.events.register("moveend", map_map, function() {
- //       tooltip_routes();
-        tooltip_places();
-    });
-
-    //callback for moveend event - fix tooltips
+    //callback for moveend event 
     map_map.events.register("zoomend", map_map, function() {
-   //     tooltip_routes();
        var x = map_map.getZoom();
         
         if( x > 9) {
@@ -143,7 +101,7 @@ function init(){
         if( x < 0) {
             map_map.zoomTo(0);
         }
-        // hide places above 7 zoom (too much data).  Turn back on if we drop beloiw 
+        // hide places above 7 zoom (too much data).  Turn back on if we drop below 
         if( x < 2) {
             places_layer.setVisibility(false);
             autoPlacesOff=true;
@@ -152,7 +110,6 @@ function init(){
                 places_layer.setVisibility(true);
             }
        }
-        tooltip_places();
     });
 
     vectorLayer = new OpenLayers.Layer.Vector("Current feature", {
@@ -163,7 +120,7 @@ function init(){
     map_map.addLayer(vectorLayer);
 
    /* arrange layer order */
-//   map_map.setLayerIndex(test_g_wmts_layer,100);
+//   map_map.setLayerIndex(basemap_layer,100);
  //  map_map.setLayerIndex(places_layer,200);
   // map_map.setLayerIndex(routes_layer,300);
    //map_map.setLayerIndex(vector_layer,400);
@@ -171,9 +128,9 @@ function init(){
    //map_map.redraw();
 
     /* create click controllers*/
-    add_click_to_select_controller();
-    click_to_select = new OpenLayers.Control.Click();
-    map_map.addControl(click_to_select);
+    add_click_to_select_all_controller();
+    click_to_select_all = new OpenLayers.Control.Click();
+    map_map.addControl(click_to_select_all);
 
     add_click_to_copy_start_point();
     click_to_copy_start_point = new OpenLayers.Control.Click();
@@ -190,7 +147,7 @@ function init(){
     add_draw_controller();
 
     /* by default, activate only xclick_to_select */
-    click_to_select.activate();
+    click_to_select_all.activate();
 
     // hide places below 2 zoom (too much data).  Turn back on if we drop beloiw 
     if( map_map.getZoom() < 2) {
@@ -238,13 +195,45 @@ function places_layer_add() {
 
            }
     });
- //callback after a layer has been loaded in openlayers
-    places_layer.events.register("loadend", places_layer, function() { 
-           tooltip_places();
+}
+
+function routes_layer_add() {
+
+    routes_layer = new OpenLayers.Layer.Vector("routes", {
+                    strategies: [new OpenLayers.Strategy.BBOX()],
+                    protocol: new OpenLayers.Protocol.WFS({
+                        url:  "http://routeguides.co.nz/cgi-bin/mapserv?map=/ms4w/apps/matts_app/htdocs/routes.map",
+                        featureType: "routes",
+                        extractAttributes: true
+                    }),
+                    styleMap: rt_styleMap
+                });
+
+            
+   /* copy selected feature to div */
+    routes_layer.events.on({
+        'featureselected': function(feature) {
+             var f = routes_layer.selectedFeatures.pop();
+             document.selectform.select.value = f.attributes.id;
+             document.selectform.selectname.value = f.attributes.name;
+             document.selectform.selectx.value = f.geometry.x;
+             document.selectform.selecty.value = f.geometry.y;
+             document.selectform.selecttype.value = "/routes/";
+
+           },
+           'featureunselected': function(feature) {
+             document.selectform.select.value = "";
+             document.selectform.selectname.value = "";
+             document.selectform.selectx.value = "";
+             document.selectform.selecty.value = "";
+             document.selectform.selecttype.value = "";
+
+           }
     });
 }
+
 function deactivate_all_click() {
-    if(typeof(click_to_select)!='undefined') click_to_select.deactivate();
+    if(typeof(click_to_select_all)!='undefined') click_to_select_all.deactivate();
     if(typeof(click_to_create)!='undefined') click_to_create.deactivate();
     if(typeof(click_to_copy_start_point)!='undefined') click_to_copy_start_point.deactivate();
     if(typeof(click_to_copy_end_point)!='undefined') click_to_copy_end_point.deactivate();
@@ -252,7 +241,21 @@ function deactivate_all_click() {
 
 }
 
-function add_click_to_select_controller() {
+
+function activate_draw() {
+   vectorLayer.destroyFeatures;
+   deactivate_all_click();
+   draw.activate();
+}
+
+function activate_select_all() {
+
+   deactivate_all_click();
+   click_to_select_all.activate();
+}
+
+
+function add_click_to_select_all_controller() {
   OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {
      defaultHandlerOptions: {
          'single': true,
@@ -300,106 +303,23 @@ function add_click_to_select_controller() {
     }
   });
 }
+
+
+
  function reset_map_controllers() {
 
     if(typeof(map_map)!='undefined') {
 
       /* disable click */
-      if(click_to_create.active) {
-        deactivate_all_click();
-        click_to_select.activate();
-      }
+      deactivate_all_click();
+      click_to_select_all.activate();
 
-     /* disable current layer */
-     vectorLayer.destroyfeatures();
+      /* disable current layer */
+      vectorLayer.destroyFeatures();
+
    }
  }
 
-/* tooltip functionality */
- function tooltip_places(){
-            
-            var tooltips = document.getElementsByTagName("title");
-            var tooltip = document.getElementById("tooltip");
-
-          for (var i = 0; i < tooltips.length; i++) {
-            tooltips.item(i).parentNode.addEventListener('mouseover', function(e) {
-              showTip(this,xy(e));
-            }, true);
-            tooltips.item(i).parentNode.addEventListener('mouseout', function() {
-              hideTip(this);
-            }, true);
-          }
-
-          function showTip(element,pos) {
-            
-            var title = element.attributes.title.value; //many different ways to grab this
-            var offset = 7;
-            var top = pos[1]+offset+'px';
-            var left = pos[0]+offset+'px';
-            tooltip.style.top = top;
-            tooltip.style.left = left;
-            tooltip.textContent = title;
-            tooltip.style.display = 'block';
-          }
-
-          function hideTip(element) {
-            tooltip.style.display = 'none';
-          }
-
-          function xy(e) {
-            if (!e) var e = window.event;
-            if (e.pageX || e.pageY) {
-              return [e.pageX,e.pageY]
-            } else if (e.clientX || e.clientY) {
-              return [e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft,e.clientY + document.body.scrollTop + document.documentElement.scrollTop];
-            }
-            return [0,0]
-          }
-
-        }
-
-/* tooltip functionality */
- function tooltip_routes(){
-
-            var tooltips = document.getElementsByTagName("title");
-            var tooltip = document.getElementById("tooltip");
-
-          for (var i = 0; i < tooltips.length; i++) {
-            tooltips.item(i).parentNode.addEventListener('mouseover', function(e) {
-              showTip(this,xy(e));
-            }, true);
-            tooltips.item(i).parentNode.addEventListener('mouseout', function() {
-              hideTip(this);
-            }, true);
-          }
-
-          function showTip(element,pos) {
-
-            var title = element.attributes.title.value; //many different ways to grab this
-            var offset = 7;
-            var top = pos[1]+offset+'px';
-            var left = pos[0]+offset+'px';
-            tooltip.style.top = top;
-            tooltip.style.left = left;
-            tooltip.textContent = title;
-            tooltip.style.display = 'block';
-          }
-
-          function hideTip(element) {
-            tooltip.style.display = 'none';
-          }
-
-          function xy(e) {
-            if (!e) var e = window.event;
-            if (e.pageX || e.pageY) {
-              return [e.pageX,e.pageY]
-            } else if (e.clientX || e.clientY) {
-              return [e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft,e.clientY + document.body.scrollTop + document.documentElement.scrollTop];
-            }
-            return [0,0]
-          }
-
-        }
 
 function add_click_to_copy_start_point() {
 
@@ -428,16 +348,17 @@ function add_click_to_copy_start_point() {
     },
 
     trigger: function(e) {
-      document.routeform.route_startplace_id.value=document.selectform.select.value;
-      document.routeform.route_startplace_name.value=document.selectform.selectname.value;
-
-      /* get x,y of place, transform to WGS and write to form */
-      var mapProj =  map_map.projection;
-      var dstProj =  new OpenLayers.Projection("EPSG:4326");
- 
-      var thisPoint = new OpenLayers.Geometry.Point(document.selectform.selectx.value, document.selectform.selecty.value).transform(mapProj,dstProj);
-      document.routeform.route_startplace_location.value='POINT('+thisPoint.x+" "+thisPoint.y+')';
-
+      if(document.selectform.selecttype.value == "/places/") {
+        document.routeform.route_startplace_id.value=document.selectform.select.value;
+        document.routeform.route_startplace_name.value=document.selectform.selectname.value;
+  
+        /* get x,y of place, transform to WGS and write to form */
+        var mapProj =  map_map.projection;
+        var dstProj =  new OpenLayers.Projection("EPSG:4326");
+   
+        var thisPoint = new OpenLayers.Geometry.Point(document.selectform.selectx.value, document.selectform.selecty.value).transform(mapProj,dstProj);
+        document.routeform.route_startplace_location.value='POINT('+thisPoint.x+" "+thisPoint.y+')';
+      }
     }
   });
 }
@@ -470,16 +391,17 @@ function add_click_to_copy_end_point() {
     },
 
     trigger: function(e) {
-      document.routeform.route_endplace_id.value=document.selectform.select.value;
-      document.routeform.route_endplace_name.value=document.selectform.selectname.value;
+      if(document.selectform.selecttype.value == "/places/") {
+        document.routeform.route_endplace_id.value=document.selectform.select.value;
+        document.routeform.route_endplace_name.value=document.selectform.selectname.value;
 
-      /* get x,y of place, transform to WGS and write to form */
-      var mapProj =  map_map.projection;
-      var dstProj =  new OpenLayers.Projection("EPSG:4326");
+        /* get x,y of place, transform to WGS and write to form */
+        var mapProj =  map_map.projection;
+        var dstProj =  new OpenLayers.Projection("EPSG:4326");
 
-      var thisPoint = new OpenLayers.Geometry.Point(document.selectform.selectx.value, document.selectform.selecty.value).transform(mapProj,dstProj);
-      document.routeform.route_endplace_location.value='POINT('+thisPoint.x+" "+thisPoint.y+')';
-
+        var thisPoint = new OpenLayers.Geometry.Point(document.selectform.selectx.value, document.selectform.selecty.value).transform(mapProj,dstProj);
+        document.routeform.route_endplace_location.value='POINT('+thisPoint.x+" "+thisPoint.y+')';
+      }
     }
   });
 }
@@ -520,7 +442,7 @@ function add_click_to_create_controller() {
 
        document.placeform.place_x.value=thisPoint.x;
        document.placeform.place_y.value=thisPoint.y;
-       document.placeform.place_projn.value=dstProj;
+       document.placeform.place_projection_id.value=dstProj.projCode.substr(5);
 
        /* convert to WGS84 and writ to location */
        var dstProj =  new OpenLayers.Projection("EPSG:4326");
@@ -539,29 +461,44 @@ function add_click_to_create_controller() {
   });
 }
 
+function add_draw_controller () {
+
+  draw = new OpenLayers.Control.DrawFeature(
+      vectorLayer, OpenLayers.Handler.Path
+  );
+  map_map.addControl(draw);
+
+  OpenLayers.Event.observe(document, "keydown", function(evt) {
+    var handled = false;
+    switch (evt.keyCode) {
+        case 90: // z
+            if (evt.metaKey || evt.ctrlKey) {
+                draw.undo();
+                handled = true;
+            }
+            break;
+        case 89: // y
+            if (evt.metaKey || evt.ctrlKey) {
+                draw.redo();
+                handled = true;
+            }
+            break;
+        case 27: // esc
+            draw.cancel();
+            handled = true;
+            break;
+    }
+    if (handled) {
+        OpenLayers.Event.stop(evt);
+    }
+});
+}
+
+
 /* manually define styles -will need to replace this with somwthing that gets from place_types
 in database eventually ... */
 
 function create_styles() {
-    style_pt_default = {strokeColor: "red", strokeOpacity: "0.7", strokeWidth: 3, cursor: "pointer", pointRadius: 4, fillColor: "red", graphicName: "circle", title: '${name}'};
-
-    var sty = OpenLayers.Util.applyDefaults(style_pt_default, OpenLayers.Feature.Vector.style["default"]);
-    pt_styleMap = new OpenLayers.StyleMap({
-            'default': sty,
-            'select': {strokeColor: "pink", fillColor: "pink"}
-        });
-    pt_styleMap.styles['default'].addRules([
-        new OpenLayers.Rule({
-            filter: new OpenLayers.Filter.Comparison({
-            type: OpenLayers.Filter.Comparison.EQUAL_TO, property: "place_type", value: "Hut"
-            }),
-            symbolizer: {strokeColor: "blue", fillColor: "blue"}
-        }),
-        new OpenLayers.Rule({
-            elseFilter: true
-        })
-    ]);
-
   star_blue = OpenLayers.Util.extend({}, layer_style);
   star_blue.strokeColor = "blue";
   star_blue.fillColor = "blue";
@@ -605,127 +542,101 @@ function create_styles() {
 
 }
 
-function update_title(title) {
-  document.getElementById('logo').innerHTML='Route Guides'+title;
 
-}
-
-function add_draw_controller () {
-
-  draw = new OpenLayers.Control.DrawFeature(
-      vectorLayer, OpenLayers.Handler.Path
-  );
-  map_map.addControl(draw);
-
-  OpenLayers.Event.observe(document, "keydown", function(evt) {
-    var handled = false;
-    switch (evt.keyCode) {
-        case 90: // z
-            if (evt.metaKey || evt.ctrlKey) {
-                draw.undo();
-                handled = true;
-            }
-            break;
-        case 89: // y
-            if (evt.metaKey || evt.ctrlKey) {
-                draw.redo();
-                handled = true;
-            }
-            break;
-        case 27: // esc
-            draw.cancel();
-            handled = true;
-            break;
-    }
-    if (handled) {
-        OpenLayers.Event.stop(evt);
-    }
-});
-}
-
-
-function activate_draw() {
-   vectorLayer.destroyFeatures;
-   deactivate_all_click();
-   draw.activate();
-}
-
-function place_init() {
+// SET UP MAP VECTORLAYER FOR THE SPECIFIC SCREENS
+function place_init(plloc, keep) {
 
   if (typeof(map_map)=='undefined') init();
 
-  vectorLayer.destroyFeatures();
+  if ((keep==0) && (typeof(vectorLayer)!='undefined')) vectorLayer.destroyFeatures();
 
-  /* get location from form */
-  var x = document.placeform.place_x.value;
-  var y = document.placeform.place_y.value;
-  var proj = document.placeform.place_projn.value;
-
-  /*convert to map projectiob */
-  var srcProj =  new OpenLayers.Projection("EPSG:2193");
+  var srcProj =  new OpenLayers.Projection("EPSG:4326");
   var mapProj =  new OpenLayers.Projection("EPSG:900913");
-  var thisPoint = new OpenLayers.Geometry.Point(x, y).transform(srcProj, mapProj);
 
-  /*add to map */
-  var point = new OpenLayers.Geometry.Point(thisPoint.x,thisPoint.y)
-  var pointFeature = new OpenLayers.Feature.Vector(point,null,star_purple);
-  vectorLayer.addFeatures(pointFeature);
+  if(plloc!="") {
 
-  /* turn on click to get coords */
-  if(!document.placeform.place_x.disabled) {
-     deactivate_all_click();
-     click_to_create.activate();
+    /* read location from form */
+    feaWGS = new OpenLayers.Format.WKT().read(plloc);
+
+    /*convert to map projectiob */
+    geomMap = feaWGS.geometry.transform(srcProj, mapProj);
+    pointFeature = new OpenLayers.Feature.Vector(geomMap,null,star_purple);
+
+    /*add to map */
+    vectorLayer.addFeatures(pointFeature);
+
   }
 }
 
-function route_init() {
-    if (typeof(map_map)=='undefined') init();
+function route_init(startloc, endloc, rtline, keep) {
+  if (typeof(map_map)=='undefined') init();
 
-  vectorLayer.destroyFeatures();
+  if ((keep==0) && (typeof(vectorLayer)!='undefined')) vectorLayer.destroyFeatures();
 
   var srcProj =  new OpenLayers.Projection("EPSG:4326");
   var mapProj =  new OpenLayers.Projection("EPSG:900913");
   /* add start point */
 
-  if(document.routeform.route_startplace_location.value!="") {
-  /* read location from form */
-  var feaWGS = new OpenLayers.Format.WKT().read(document.routeform.route_startplace_location.value);
+  if(startloc!="") {
+    /* read location from form */
+    var feaWGS = new OpenLayers.Format.WKT().read(startloc);
 
-  /*convert to map projectiob */
-  var geomMap = feaWGS.geometry.transform(srcProj, mapProj); 
-  var pointFeature = new OpenLayers.Feature.Vector(geomMap,null,star_green);
+    /*convert to map projectiob */
+    var geomMap = feaWGS.geometry.transform(srcProj, mapProj); 
+    var pointFeature = new OpenLayers.Feature.Vector(geomMap,null,star_green);
 
-  /*add to map */
-  vectorLayer.addFeatures(pointFeature);
-}
+    /*add to map */
+    vectorLayer.addFeatures(pointFeature);
+  }
   /* add end point */
-  if(document.routeform.route_endplace_location.value!="") {
-
-  /* read location from form */
-  feaWGS = new OpenLayers.Format.WKT().read(document.routeform.route_endplace_location.value);
-
-  /*convert to map projectiob */
-  geomMap = feaWGS.geometry.transform(srcProj, mapProj);
-  pointFeature = new OpenLayers.Feature.Vector(geomMap,null,star_red);
-
-  /*add to map */
-  vectorLayer.addFeatures(pointFeature);
-}
+  if(endloc!="") {
+  
+    /* read location from form */
+    feaWGS = new OpenLayers.Format.WKT().read(endloc);
+  
+    /*convert to map projectiob */
+    geomMap = feaWGS.geometry.transform(srcProj, mapProj);
+    pointFeature = new OpenLayers.Feature.Vector(geomMap,null,star_red);
+  
+    /*add to map */
+    vectorLayer.addFeatures(pointFeature);
+  }
 
 
   /* add route */
-  if(document.routeform.route_location.value!="") {
+  if(rtline!="") {
 
-  /* read location from form */
-  feaWGS = new OpenLayers.Format.WKT().read(document.routeform.route_location.value);
+    /* read location from form */
+    feaWGS = new OpenLayers.Format.WKT().read(rtline);
 
-  /*convert to map projectiob */
-  geomMap = feaWGS.geometry.transform(srcProj, mapProj);
-  var lineFeature = new OpenLayers.Feature.Vector(geomMap,null,line_red);
+    /*convert to map projectiob */
+    geomMap = feaWGS.geometry.transform(srcProj, mapProj);
+    var lineFeature = new OpenLayers.Feature.Vector(geomMap,null,line_red);
 
-  /*add to map */
-  vectorLayer.addFeatures(lineFeature);
+    /*add to map */
+    vectorLayer.addFeatures(lineFeature);
+  }
+
 }
+
+function place_selectPlace() {
+  place_selectNothing();
+  document.getElementById("placeplus").style.display="none";
+  document.getElementById("placetick").style.display="block";
+
+  vectorLayer.destroyFeatures();
+  deactivate_all_click();
+  click_to_create.activate();
+}
+
+function place_selectNothing() {
+  document.getElementById("placeplus").style.display="block";
+  document.getElementById("placetick").style.display="none";
+
+  /* resisplay all point / lines from from */
+
+  deactivate_all_click();
+
 
 }
 
@@ -777,6 +688,7 @@ function route_endSelectLocation() {
 
   route_selectNothing();
 }
+
 function route_selectNothing() {
   document.getElementById("startplaceplus").style.display="block";
   document.getElementById("startplacetick").style.display="none";
@@ -790,9 +702,14 @@ function route_selectNothing() {
 
   deactivate_all_click();
 
-  route_init();
+  route_init(document.routeform.route_startplace_location.value,
+              document.routeform.route_endplace_location.value,
+              document.routeform.route_location.value, 0);
+
 
 }
+
+// MISCELANEOUS PAGE EVENT HANDLING THAT HAVE NOTHING TO DO WITH THE MAP
 
 function linkHandler(entity_name) {
     /* close the dropdown */
@@ -881,3 +798,8 @@ function linkHandler(entity_name) {
    function pasteItem(orderNo) {
      document.moveForm.pasteAfter.value = orderNo;
    }
+
+   function update_title(title) {
+     document.getElementById('logo').innerHTML='Route Guides'+title;
+
+}

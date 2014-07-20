@@ -1,14 +1,14 @@
 class Place < ActiveRecord::Base
   has_many :placeInstances
   belongs_to :createdBy, class_name: "User"
+  belongs_to :projection
   validates :createdBy, :presence => true
 
   validates :name, presence: true
   validates :location, presence: true
   validates :x, presence: true
   validates :y, presence: true
-  validates :projn, presence: true
- 
+  validates :projection, presence: true 
   before_save :default_values
 
   # But use a geographic implementation for the :lonlat column.

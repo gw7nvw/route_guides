@@ -1,33 +1,6 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <style>
-html, body {
-        height: 100%;
-        width: 100%;
-        border: 0px;
-        margin: 0px;
-        padding: 0px;
-}
-
-#map_map {
-        width: calc(100% - 2px);
-        height: calc(100% - 62px);
-        border: 0px;
-        margin: 0px;
-        margin-top: 100px;
-        margin-left: 20px;
-        padding: 0px;
-}
-            #tooltip{
-                position:absolute; 
-                z-index:10000; 
-                background-color:#FFFFFF;
-                display:none;
-                padding:5px;
-            }
-
-</style>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <script src="/assets/OpenLayers.js"></script>
@@ -41,7 +14,9 @@ html, body {
     <%= javascript_include_tag "application", "data-turbolinks-track" => true %>
     <%= csrf_meta_tags %>
     <%= render 'layouts/shim' %> 
-<meta name="google-site-verification" content="KIylIchG3986annyXGfxBNJ-qMOJCDG2tdcuUMFPoO0" />
+    <meta name="google-site-verification" content="KIylIchG3986annyXGfxBNJ-qMOJCDG2tdcuUMFPoO0" />
+    <%= render '/maps/styles' %>
+
 </head>
 <body onload='<%=@init_name%>'>
     <%= render 'layouts/header' %>

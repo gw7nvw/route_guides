@@ -5,36 +5,41 @@
 <script> 
    update_title('<%=@title%>'); 
    document.getElementById("page_status").innerHTML = '';
+   reset_map_controllers();
+
+   // clear any existing map features
+   if (typeof(vectorLayer)!='undefined') vectorLayer.destroyFeatures();
+
 </script>
 
 
 <%= render 'shared/error_messages' %>
 <%= render 'routes/route_details' %>
-   <div class="expandrow" style="margin-top:12px">
+   <div class="erow" style="margin-top:12px">
      <div class="sectiontitle">
         Routes connecting with this one:
      </div>
    </div>
    <% @route.adjoiningRoutes.each do |r|%>
-     <div class="expandrow">
+     <div class="erow">
         <div class="sectiontext">
            <li>
-              <%=  link_to r.name, '/routes/'+r.id.to_s, remote: true, onclick: %q[linkHandler('r]+r.id.to_s+%q[)], id:  'r'+r.id.to_s  %>
+              <%=  link_to r.name, '/routes/'+r.id.to_s, remote: true, onclick: %q[linkHandler('r]+r.id.to_s+%q[')], id:  'r'+r.id.to_s  %>
            </li>
         </div>
      </div>
    <% end %>
 
-   <div class="expandrow" style="margin-top:12px">
+   <div class="erow" style="margin-top:12px">
      <div class="sectiontitle">
         Trips passing through here:
      </div>
    </div>
    <% @route.trips.each do |r|%>
-     <div class="expandrow">
+     <div class="erow">
         <div class="sectiontext">
            <li>
-              <%=  link_to r.name+" by "+r.createdBy.name, '/trips/'+r.id.to_s, remote: true, onclick: %q[linkHandler('r]+r.id.to_s+%q[)], id:  'r'+r.id.to_s  %>
+              <%=  link_to r.name+" by "+r.createdBy.name, '/trips/'+r.id.to_s, remote: true, onclick: %q[linkHandler('r]+r.id.to_s+%q[')], id:  'r'+r.id.to_s  %>
            </li>
         </div>
      </div>
@@ -51,7 +56,6 @@
     <% end %>
 
 <script>
-  route_init();
 
   /* specify map click mode */
 //  deactivate_all_click();

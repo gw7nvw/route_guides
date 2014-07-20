@@ -2,49 +2,24 @@ class PlacesController < ApplicationController
  before_action :signed_in_user, only: [:edit, :update, :new, :create]
 
 def new
-@edit=true
+    @edit=true
     @place=Place.new
-    @place_types = Place_type.all.order(:name)
-  end
+    # default preojection is NZTM2000
+    @place.projection_id=2193
+end
 
 def index
     @places = Place.all.order(:name)
 end
-  def create
+
+
+
+def create
 
 
     @place = Place.new(place_params)
 
-    #recalculate location from passed x,y params
-    if(place_params[:x] and place_params[:x].length>0) then @place.x=place_params[:x].to_f end
-    if(place_params[:y] and place_params[:y].length>0) then @place.y=place_params[:y].to_f end
-    @place.altitude = place_params[:altitude].to_i
-
-    if(@place.x and @place.y)
-       wgs84_proj4 = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
-       nztm_proj4 = '+proj=tmerc +lat_0=0 +lon_0=173 +k=0.9996 +x_0=1600000 +y_0=10000000 +ellps=GRS80 +towg'
-
-       wgs=RGeo::CoordSys::Proj4.new(wgs84_proj4)
-       nztm=RGeo::CoordSys::Proj4.new(nztm_proj4)
-
-       xyarr=RGeo::CoordSys::Proj4::transform_coords(nztm,wgs,@place.x,@place.y)
-
-       params[:location]=xyarr[0].to_s+" "+xyarr[1].to_s
-       @place.location='POINT('+params[:location]+')'
-
-       #if altitude is not entered, calculate it from map 
-
-       if place_params[:altitude].to_i == 0
-         #get alt from map if it is blank or 0
-         altArr=Place.find_by_sql ["
-            select ST_Value(rast, ST_GeomFromText(?,4326))  id
-               from dem100
-               where ST_Intersects(rast,ST_GeomFromText(?,4326));",
-               'POINT('+params[:location]+')',
-               'POINT('+params[:location]+')']
-         @place.altitude=altArr.first.try(:id).to_i
-       end
-    end
+    convert_location_params()
 
     #revision control
     @place.createdBy_id = @current_user.id #current_user.id
@@ -63,64 +38,39 @@ end
         render 'show'
 
       else
-# Handle an unsuccessful save.
-      flash[:error] = "Error creating instance"
-      @place_types = Place_type.all.order(:name)
-      @edit=true
-      render 'new'
+        # Handle an unsuccessful save.
+        flash[:error] = "Error creating instance"
+        @edit=true
+        render 'new'
       end
     else
       flash[:error] = "Error creating place"
-      @place_types = Place_type.all.order(:name)
       @edit=true
       render 'new'
     end
   end
 
-  def show
-    @place_types = Place_type.all.order(:name)
 
+
+  def show
     # default visibility 
     @showForward=1
-    @showReverse=0
-    @showConditions=0
+    @showReverse=1
+    @showConditions=1
     @showLinks=1
 
     if !@id then @id=params[:id] end
 
     @edit=false
-    if( @place = Place.find_by_id(@id))
-    then 
-    wgs84_proj4 = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
-    nztm_proj4 = '+proj=tmerc +lat_0=0 +lon_0=173 +k=0.9996 +x_0=1600000 +y_0=10000000 +ellps=GRS80 +towg'
-
-    wgs=RGeo::CoordSys::Proj4.new(wgs84_proj4)
-    nztm=RGeo::CoordSys::Proj4.new(nztm_proj4)
-
-    xyarr=RGeo::CoordSys::Proj4::transform_coords(wgs,nztm,@place.location.x, @place.location.y)
-    #convery location to readable format
-    @x=xyarr[0]
-    @y=xyarr[1]
-
-#      xstr = @place.location.x.to_s
-#      ystr = @place.location.y.to_s
-
-#      @place.location = xstr+" "+ystr
-
-    #show
-    else
+    if( !(@place = Place.find_by_id(@id))) then 
     #place does not exist - return to home
-    redirect_to root_url
+       redirect_to root_url
     end    
-  
- #   respond_to do |format|
- #       format.js
- #   end
-
   end
 
+
+
   def edit
-    @place_types = Place_type.all.order(:name)
     @edit=true
     if( @place = Place.find_by_id(params[:id]))
     #show
@@ -138,6 +88,7 @@ end
  
  
   def update
+    #add to trip
     if (params[:add]) 
       @trip=Trip.find_by_id(@current_user.currenttrip)
       @trip_details = TripDetail.new
@@ -164,10 +115,10 @@ end
       render 'show'
     end
 
+    # Save current place
     if (params[:save]) 
        if( !@place = Place.find_by_id(params[:id]))
           #tried to update a nonexistant place
-          @place_types = Place_type.all.order(:name) 
           @edit=true
           render 'edit'
        end
@@ -175,34 +126,7 @@ end
 
        @place.update(place_params)
 
-       #don;t trust passed location, calculate from X, Y as they ar ewhat user sees/provides
-       if(place_params[:x] and place_params[:x].length>0) then @place.x=place_params[:x].to_f end
-       if(place_params[:y] and place_params[:y].length>0) then @place.y=place_params[:y].to_f end
-       @place.altitude = place_params[:altitude].to_i
-
-       if(@place.x and @place.y)
-          wgs84_proj4 = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
-          nztm_proj4 = '+proj=tmerc +lat_0=0 +lon_0=173 +k=0.9996 +x_0=1600000 +y_0=10000000 +ellps=GRS80 +towg'
-
-          wgs=RGeo::CoordSys::Proj4.new(wgs84_proj4)
-          nztm=RGeo::CoordSys::Proj4.new(nztm_proj4)
-   
-          xyarr=RGeo::CoordSys::Proj4::transform_coords(nztm,wgs,@place.x,@place.y)
-   
-          params[:location]=xyarr[0].to_s+" "+xyarr[1].to_s
-          @place.location='POINT('+params[:location]+')'
-
-          #get alt from map if it is blank or 0
-          if place_params[:altitude].to_i == 0
-            altArr=Place.find_by_sql ["
-               select ST_Value(rast, ST_GeomFromText(?,4326))  id
-                  from dem100
-                  where ST_Intersects(rast,ST_GeomFromText(?,4326));",
-                  'POINT('+place_params[:location]+')',
-                  'POINT('+place_params[:location]+')']
-            @place.altitude=altArr.first.try(:id).to_i
-          end
-       end
+       convert_location_params()
 
        #timestanps
        @place.updated_at = Time.new()
@@ -221,13 +145,11 @@ end
            # Handle an unsuccessful save.
            flash[:error] = "Error creating instance"
            @edit=true
-           @place_types = Place_type.all.order(:name)
            render 'edit'
          end
        else
          flash[:error] = "Error saving place"
          @edit=true
-         @place_types = Place_type.all.order(:name)
          render 'edit'
        end
     end
@@ -273,8 +195,40 @@ end
 
   private 
   def place_params
-    params.require(:place).permit(:name, :place_type, :place_owner, :description, :location, :altitude, :x, :y, :projn, :links)
+    params.require(:place).permit(:name, :place_type, :place_owner, :description, :location, :altitude, :x, :y, :projection_id, :links)
   end
 
+  def convert_location_params
+    #recalculate location from passed x,y params
+    if(place_params[:x] and place_params[:x].length>0) then @place.x=place_params[:x].to_f end
+    if(place_params[:y] and place_params[:y].length>0) then @place.y=place_params[:y].to_f end
+    @place.altitude = place_params[:altitude].to_i
 
+    if(@place.x and @place.y)
+       # convert to WGS84 (EPSG4326) fro database 
+       fromproj4s= @place.projection.proj4
+       toproj4s=  Projection.find_by_id(4326).proj4
+
+       fromproj=RGeo::CoordSys::Proj4.new(fromproj4s)
+       toproj=RGeo::CoordSys::Proj4.new(toproj4s)
+
+       xyarr=RGeo::CoordSys::Proj4::transform_coords(fromproj,toproj,@place.x,@place.y)
+
+       params[:location]=xyarr[0].to_s+" "+xyarr[1].to_s
+       @place.location='POINT('+params[:location]+')'
+
+       #if altitude is not entered, calculate it from map 
+
+       if place_params[:altitude].to_i == 0
+         #get alt from map if it is blank or 0
+         altArr=Place.find_by_sql ["
+            select ST_Value(rast, ST_GeomFromText(?,4326))  id
+               from dem100
+               where ST_Intersects(rast,ST_GeomFromText(?,4326));",
+               'POINT('+params[:location]+')',
+               'POINT('+params[:location]+')']
+         @place.altitude=altArr.first.try(:id).to_i
+       end
+    end
+  end
 end

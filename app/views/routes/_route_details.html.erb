@@ -1,5 +1,13 @@
 <div id="route_details">    
-    <div class="expandrow">
+  <div class="erow">
+    <%  if(signed_in? and !@trip) %>
+       <div class="leftbuttons">
+          <span title="Edit">
+              <%=  link_to image_tag("/assets/pencil_edit.png", :border=>0, :class => 'dock-item'), '/routes/'+@route.id.to_s+'/edit', remote: true, onclick: "linkHandler('editbutton')", id:  "editbutton"  %>
+          </span>
+       </div>
+    <% end %>
+
     <div class="sectiontitle">
      <% if !@history %>
         <%= link_to @route.startplace.name+" to "+@route.endplace.name+" via "+@route.via, 
@@ -19,28 +27,26 @@
          <br/>
        <% end %>
        <% if @route.location %>
-         <%= "Altitude - Max: "+@route.maxalt.to_s+"m  Min: "+@route.minalt.to_s+"m  Gain: "+@route.altgain.to_s+"m  Loss: "+@route.altloss.to_s+"m" %>
+         <%= "Altitude - Max: "+@route.maxalt.to_i.to_s+"m  Min: "+@route.minalt.to_i.to_s+"m"+
+              "  Gain: "+@route.altgain.to_i.to_s+"m  Loss: "+@route.altloss.to_i.to_s+"m"+
+              "  Gradient: "+((@route.altgain+@route.altloss)*45/(@route.distance*1000)).to_i.to_s+" deg"%>
        <%end %><br/>
         <i><%= "GPX info source: "+@route.datasource %></i>
       <br/>
       <br/>
     </div>
-
-    <div class="sectiontext">
+ </div>
 
     <% if @route.description %>
       <% if @route.description.length > 0 %>
-        <div class="expandrow">
-          <div class="expandbuttons">
-            <img id='<%="forwards_r"+@route.id.to_s+"plus"%>' src="/assets/whiteplus.png" <%=%q[onclick=clickplus('forwards_r]+@route.id.to_s+%q[')]%> style='display:<%=if(@showForward==1) then "none" else "block" end%>'></img>
-            <img id='<%="forwards_r"+@route.id.to_s+"minus"%>' src="/assets/whiteminus.png" <%=%q[onclick=clickminus('forwards_r]+@route.id.to_s+%q[')]%> style='display:<%=if(@showForward==1) then "block" else "none" end%>'></img>
-          </div>
+        <div class="erow">
+          <%=render :partial => 'expand_buttons',  :locals => {:expName => "fw_r"+@route.id.to_s, :initialSt => @showForward} %>
           <div class="sectiontitle">  
              From <%= link_to @route.startplace.name,    @route.startplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
              to <%= link_to @route.endplace.name,    @route.endplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %> 
           </div>
         </div>
-        <div id='<%="forwards_r"+@route.id.to_s%>' class="sectiontext" style=<%=if (@showForward==1) then "display:block" else "display:none" end %> >
+        <div id='<%="fw_r"+@route.id.to_s%>' class="sectiontext" style=<%=if (@showForward==1) then "display:block" else "display:none" end %> >
           <%= simple_format(@route.description).html_safe %>
         </div>
       <% end %>
@@ -49,34 +55,27 @@
 
     <% if @route.reverse_description %>
       <% if @route.reverse_description.length > 0 %>
-        <div class="expandrow">
-          <div class="expandbuttons">
-            <img id='<%="reverse_r"+@route.id.to_s+"plus"%>' src="/assets/whiteplus.png" <%=%q[onclick=clickplus('reverse_r]+@route.id.to_s+%q[')]%> style='display:<%=if(@showReverse==1) then "none" else "block" end%>'></img>
-            <img id='<%="reverse_r"+@route.id.to_s+"minus"%>' src="/assets/whiteminus.png" <%=%q[onclick=clickminus('reverse_r]+@route.id.to_s+%q[')]%> style='display:<%=if(@showReverse==1) then "block" else "none" end%>'></img>
-          </div>
+        <div class="erow">
+          <%=render :partial => 'expand_buttons',  :locals => {:expName => "rv_r"+@route.id.to_s, :initialSt => @showReverse} %>
           <div class="sectiontitle">
               From <%= link_to @route.endplace.name,    @route.endplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %> 
               to <%= link_to @route.startplace.name,    @route.startplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
           </div>
         </div>
-        <div id='<%="reverse_r"+@route.id.to_s%>' class="sectiontext" style=<%=if (@showReverse==1) then "display:block" else "display:none" end %>>
+        <div id='<%="rv_r"+@route.id.to_s%>' class="sectiontext" style=<%=if (@showReverse==1) then "display:block" else "display:none" end %>>
            <%= simple_format(@route.reverse_description).html_safe %>
         </div>
       <% end %>
     <% end %>
 
 
-    <div class="expandrow">
-      <div class="expandbuttons">
-        <img id='<%="conditions_r"+@route.id.to_s+"plus"%>' src="/assets/whiteplus.png" <%=%q[onclick=clickplus('conditions_r]+@route.id.to_s+%q[')]%> style='display:<%=if(@showConditions==1) then "none" else "block" end%>'></img>
-        <img id='<%="conditions_r"+@route.id.to_s+"minus"%>' src="/assets/whiteminus.png" <%=%q[onclick=clickminus('conditions_r]+@route.id.to_s+%q[')]%> style='display:<%=if(@showConditions==1) then "block" else "none" end%>'></img>
-
-      </div>
+    <div class="erow">
+      <%=render :partial => 'expand_buttons',  :locals => {:expName => "cn_r"+@route.id.to_s, :initialSt => @showConditions} %>
       <div class="sectiontitle">
         Route conditions:
       </div>
     </div>
-    <div id='<%="conditions_r"+@route.id.to_s%>' class="sectiontext" style=<%=if (@showConditions==1) then "display:block" else "display:none" end %>>
+    <div id='<%="cn_r"+@route.id.to_s%>' class="sectiontext" style=<%=if (@showConditions==1) then "display:block" else "display:none" end %>>
       <p>
           <div class="diff_label">Route Type:</div> <%=@route.routetype.name%>
           <%="(difficulty: "+(@route.routetype_id-@route_types.minimum(:id)).to_s+"/"+(@route_types.maximum(:id)-@route_types.minimum(:id)).to_s+")"%><br/>
@@ -118,15 +117,12 @@
    
   <% if @route.links %>
     <% if @route.links.length>0 %>
-        <div class="expandrow">
-          <div class="expandbuttons">
-            <img id='<%="links_r"+@route.id.to_s+"plus"%>' src="/assets/whiteplus.png" <%=%q[onclick=clickplus('links_r]+@route.id.to_s+%q[')]%> style='display:<%=if(@showLinks==1) then "none" else "block" end%>'></img>
-            <img id='<%="links_r"+@route.id.to_s+"minus"%>' src="/assets/whiteminus.png" <%=%q[onclick=clickminus('links_r]+@route.id.to_s+%q[')]%>  style='display:<%=if(@showLinks==1) then "block" else "none" end%>'></img>
-          </div>
-          <div class="sectiontitle">
+        <div class="erow">
+          <%=render :partial => 'expand_buttons',  :locals => {:expName => "lk_r"+@route.id.to_s, :initialSt => @showLinks} %>
+           <div class="sectiontitle">
             Further Information:
           </div>
-          <div id='<%="links_r"+@route.id.to_s%>' class="sectiontext" style=<%=if (@showLinks==1) then "display:block" else "display:none" end %>>
+          <div id='<%="lk_r"+@route.id.to_s%>' class="sectiontext" style=<%=if (@showLinks==1) then "display:block" else "display:none" end %>>
             <%= @route.links %>
           </div>
         </div>
@@ -143,3 +139,9 @@
    </small>
 
 </div>
+
+<script>
+
+ route_init('<%=@route.startplace.location%>', '<%=@route.endplace.location%>', '<%=@route.location%>', 1);
+
+</script>
