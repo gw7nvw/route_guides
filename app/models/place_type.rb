@@ -1,4 +1,4 @@
-class Place_type < ActiveRecord::Base
+class PlaceType < ActiveRecord::Base
 
   validates :name, presence: true
 

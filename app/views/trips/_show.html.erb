@@ -5,12 +5,14 @@
 <script> 
    update_title('<%=@title%>'); 
    document.getElementById("page_status").innerHTML = '';
+   reset_map_controllers();
+
 </script>
 <div id='place_details'>
    <% if !@edit %>
-      <div class="expandrow">
+      <div class="erow">
          <%  if(signed_in? and ((@trip.createdBy_id == current_user.id) or (@current_user.role==Role.find_by( :name => 'root')))) %>
-            <div class="expandbuttons">
+            <div class="leftbuttons">
                 <%= form_for @trip, remote: true do |f| %>
                    <span title="Edit">
                        <%= f.submit "edit", :type => :image, :src => '/assets/pencil_edit.png', :style => 'margin-bottom:0;border:none',onclick: "linkHandler('editbutton')", id:  "editbutton" %>
@@ -19,7 +21,7 @@
             </div>
          <% end %>
          <%  if(signed_in? and ((@trip.createdBy_id != current_user.id) )) %>
-            <div class="expandbuttons">
+            <div class="leftbuttons">
                 <%= form_for @trip, remote: true do |f| %>
                    <span title="Make a personal copy I can edit">
                        <%= submit_tag "Make my own copy", :type => :image, :src => '/assets/copy.png', :style => 'margin-bottom:0;border:none'  %>
@@ -36,7 +38,7 @@
          </div>
       </div>
          <% if (@trip.lengthmin) and (@trip.lengthmin>0) or (@trip.lengthmax) and (@trip.lengthmax>0) %>
-           <div class="expandrow"><div class="rowtitle">Length:</div>
+           <div class="erow"><div class="rowtitle">Length:</div>
            <div class="rowtext">
               <% if (@trip.lengthmin) and (@trip.lengthmin>0)  %>
                  From <%=@trip.lengthmin%> 
@@ -48,10 +50,10 @@
            </div></div>
          <% end %>
        <% if (@trip.distance) %>
-            <div class="expandrow"><div class="rowtitle">Distance:</div><div class="rowtext"> <%= number_with_precision(@trip.distance, :precision => 2) %> km</div></div>
+            <div class="erow"><div class="rowtitle">Distance:</div><div class="rowtext"> <%= number_with_precision(@trip.distance, :precision => 2) %> km</div></div>
        <% end %>
        <% if @trip.walkingtime %>
-             <div class="expandrow"><div class="rowtitle">Walking time:</div><div class="rowtext"> <%= @trip.walkingtime %> DOC hours </div></div>
+             <div class="erow"><div class="rowtitle">Walking time:</div><div class="rowtext"> <%= @trip.walkingtime %> DOC hours </div></div>
        <% end %>
        <p>
             <%=simple_format(@trip.description).html_safe%>
@@ -59,8 +61,8 @@
    <% else %>
 
       <%= form_for @trip, remote: true do |f| %>
-         <div class="expandrow">
-            <div class="expandbuttons">
+         <div class="erow">
+            <div class="leftbuttons">
                <span title="Save trip">
                   <%= f.submit "Save", :type => :image, :src => '/assets/save.png', :style => 'margin-bottom:0;border:none',onclick: "linkHandler('editbutton')", id:  "editbutton" %>
                </span>
@@ -71,7 +73,7 @@
                </span>
             </div>
          </div>
-         <div class="expandrow">
+         <div class="erow">
             <div class="rowtitle">
                Trip:
             </div>
@@ -79,7 +81,7 @@
                <%= f.text_field :name %>
             </div>
          </div>
-         <div class="expandrow">
+         <div class="erow">
             <div class="rowtitle">
                Length (days):
             </div>
@@ -88,12 +90,12 @@
             </div>
          </div>
          <% if (@trip.distance) %>
-            <div class="expandrow"><div class="rowtitle">Distance:</div><div class="rowtext"> <%= number_with_precision(@trip.distance, :precision => 2) %> km</div></div>
+            <div class="erow"><div class="rowtitle">Distance:</div><div class="rowtext"> <%= number_with_precision(@trip.distance, :precision => 2) %> km</div></div>
          <% end %>
          <% if @trip.walkingtime %>
-             <div class="expandrow"><div class="rowtitle">Walking time:</div><div class="rowtext"> <%= @trip.walkingtime %> DOC hours </div></div>
+             <div class="erow"><div class="rowtitle">Walking time:</div><div class="rowtext"> <%= @trip.walkingtime %> DOC hours </div></div>
          <% end %>
-         <div class="expandrow">
+         <div class="erow">
             <div class="rowtitle">
                Published:
             </div>
@@ -101,7 +103,7 @@
                <%= f.check_box :published %>
             </div>
          </div>
-         <div class="expandrow">
+         <div class="erow">
             <div class="sectiontitle"><br/>
                 Description:
             </div>
@@ -122,7 +124,7 @@
          <div class="hrline">
             <hr noshade size="4">
          </div>
-         <div class="expandrow">
+         <div class="erow">
             <% if @edit %>
                <span title="Cut following section and ...">
                   <div class="cutbutton"> <%= submit_tag "cut"+td.id.to_s, :id => "cutItem", :type => :image, :src => '/assets/cut.png', :style => 'margin-bottom:0;border:none', :onclick => "cutItem("+td.id.to_s+"); return false;" %> </div>

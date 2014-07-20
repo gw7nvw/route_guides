@@ -32,7 +32,7 @@ def move
       @alpines = Alpine.all
       @rivers = River.all
       @terrains = Terrain.all
-      @place_types = Place_type.all
+      @place_types = PlaceType.all
 
    @trip=Trip.find_by_id(params[:id])
 
@@ -136,7 +136,7 @@ def new
   @alpines = Alpine.all
   @rivers = River.all
   @terrains = Terrain.all
-  @place_types = Place_type.all
+  @place_types = PlaceType.all
   @edit=true
 
   render 'show'
@@ -150,7 +150,7 @@ def show
       @alpines = Alpine.all
       @rivers = River.all
       @terrains = Terrain.all
-      @place_types = Place_type.all
+      @place_types = PlaceType.all
 end
 
 def edit
@@ -165,7 +165,7 @@ def edit
   @alpines = Alpine.all
   @rivers = River.all
   @terrains = Terrain.all
-  @place_types = Place_type.all
+  @place_types = PlaceType.all
   @edit=true
 end
 

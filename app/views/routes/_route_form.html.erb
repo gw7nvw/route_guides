@@ -1,12 +1,11 @@
 <div id='route_details'>
-  <div>
      <%= form_for  @route, :html => {:name => 'routeform'}, :remote => 'true'  do |f| %>
       <%= render 'shared/error_messages' %>
 
       
-      <div class="expandrow">
+      <div class="erow">
          <% if @edit %> 
-           <div class="expandbuttons">
+           <div class="leftbuttons">
               <span title="Select start place from map">
                  <img id="startplaceplus" src="/assets/add.png" onclick="route_selectStartPlace()" width="16" style="display:block"></img>
               </span>
@@ -21,9 +20,9 @@
       <input disabled="disabled" id="route_startplace_name" name="route[startplace_name]" type="text" <%if @route.startplace %>value='<%=@route.startplace.name%>'<%end%>>
       <input  type="hidden" id="route_startplace_location" name="route[startplace_location]" type="text" <%if @route.startplace %>value='<%=@route.startplace.location%>'<%end%>>
 
-      <div class="expandrow">
+      <div class="erow">
          <% if @edit %> 
-           <div class="expandbuttons">
+           <div class="leftbuttons">
               <span title="Select end place from map">
                  <img id="endplaceplus" src="/assets/add.png" onclick="route_selectEndPlace()" width="16" style="display:block"></img>
               </span>
@@ -42,9 +41,9 @@
       <div class="rowtitle">Via:</div>
       <%= f.text_field :via, :disabled=>!@edit %>
 
-      <div class="expandrow"> 
+      <div class="erow"> 
          <% if @edit %> 
-           <div class="expandbuttons">
+           <div class="leftbuttons">
               <span title="Draw route on map">
                  <img id="locationplus" src="/assets/add.png" onclick="route_selectLocation()" width="16" style="display:block"></img>
               </span>
@@ -168,8 +167,8 @@
 
       <% else %>
         <%=  link_to "Edit", '/routes/'+@route.id.to_s+'/edit', class: "btn btn-large btn-primary", remote: true %>
-      <% end %>
         <%= f.submit "Add to trip", class: "btn btn-large btn-primary", :disabled => @current_user, name: "add" %>
+      <% end %>
 
     <% end %>
   </div>
@@ -181,9 +180,12 @@
 </small>
 <script>
 
-route_init();
+<% if (@route.startplace and @route.endplace and @route.location) %>
+    route_init('<%=@route.startplace.location%>', '<%=@route.endplace.location%>', '<%=@route.location%>', 0);
+ 
+<% end %>
 
-/*    reset_map_controllers(); */
+
 var routeType = [<%= raw @route_types.to_json %>];
 var gradient = [<%= raw @gradients.to_json %>];
 var terrain = [<%= raw @terrains.to_json %>];
@@ -261,9 +263,9 @@ document.routeform.alpinewinter.value = <%=@route.alpinewinter_id || 1%>;
 /* specify map click mode */
 deactivate_all_click();
 
-/* turn on click_to_select if in edit mode */
+/* turn on click_to_select if not in edit mode */
 <% if !@edit %>
-   click_to_select.activate();
+   click_to_select_all.activate();
 <% end %>
 
 </script>

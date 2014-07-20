@@ -4,42 +4,47 @@
 <script> 
    update_title('<%=@title%>'); 
    document.getElementById("page_status").innerHTML = '';
+   // clear any existing map features and reset hover if map exists
+   if(typeof(vectorLayer)!='undefined') {
+    reset_map_controllers();
+   }
+
 </script>
 <div id='place_details'>
    <%= render 'places/place_details' %>
 
-   <div class="expandrow" style="margin-top:12px">
+   <div class="erow" style="margin-top:12px">
      <div class="sectiontitle">
         Routes leading to / from here:
      </div>
    </div>
    <% @place.adjoiningRoutes.each do |r|%>
-     <div class="expandrow">
+     <div class="erow">
         <div class="sectiontext"> 
            <li>
-              <%=  link_to r.name, '/routes/'+r.id.to_s, remote: true, onclick: %q[linkHandler('r]+r.id.to_s+%q[)], id:  'r'+r.id.to_s  %>
+              <%=  link_to r.name, '/routes/'+r.id.to_s, remote: true, onclick: %q[linkHandler('r]+r.id.to_s+%q[')], id:  'r'+r.id.to_s  %>
            </li>
         </div>
      </div>
    <% end %>
-</div>
-   <div class="expandrow" style="margin-top:12px">
+
+   <div class="erow" style="margin-top:12px">
      <div class="sectiontitle">
         Trips passing through here:
      </div>
    </div>
    <% @place.trips.each do |r|%>
-     <div class="expandrow">
+     <div class="erow">
         <div class="sectiontext"> 
            <li>
-              <%=  link_to r.name+" by "+r.createdBy.name, '/trips/'+r.id.to_s, remote: true, onclick: %q[linkHandler('r]+r.id.to_s+%q[)], id:  'r'+r.id.to_s  %>
+              <%=  link_to r.name+" by "+r.createdBy.name, '/trips/'+r.id.to_s, remote: true, onclick: %q[linkHandler('r]+r.id.to_s+%q[')], id:  'r'+r.id.to_s  %>
            </li>
         </div>
      </div>
    <% end %>
-</div>
-<%= form_for  @place, :html => {:name => 'placeform'}, remote: true  do |f| %>
-      <%= f.hidden_field :projn, :disabled=>!@edit %>
+
+   <%= form_for  @place, :html => {:name => 'placeform'}, remote: true  do |f| %>
+      <%= f.hidden_field :projection_id, :disabled=>!@edit %>
 
       <%= f.hidden_field :x, :disabled=>!@edit, :size => 8 %>
 
@@ -49,10 +54,9 @@
         <%=  link_to "Edit", '/places/'+@place.id.to_s+'/edit', class: "btn btn-large btn-primary",  remote: true, onclick: "linkHandler('editbutton')", id:  "editbutton"  %>
         <%= f.submit "Add to trip", class: "btn btn-large btn-primary", name: "add", onclick: "linkHandler('addbutton')", id: "addbutton" %>
      <% end %>
-<% end %>
+   <% end %>
+</div>
 <script>
-/*    reset_map_controllers(); */
-    place_init();
 
     /* relad places layer if we've been asked to */
     if(placesStale) {
@@ -60,4 +64,3 @@
        placesStale=false;
     }
 </script>
-

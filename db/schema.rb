@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140718182525) do
+ActiveRecord::Schema.define(version: 20140719222358) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -24,6 +24,9 @@ ActiveRecord::Schema.define(version: 20140718182525) do
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+# Could not dump table "dem100" because of following StandardError
+#   Unknown type 'raster' for column 'rast'
 
   create_table "doc_huts", primary_key: "gid", force: true do |t|
     t.string  "status",     limit: 40
@@ -47,15 +50,15 @@ ActiveRecord::Schema.define(version: 20140718182525) do
     t.text     "description"
     t.float    "x"
     t.float    "y"
-    t.string   "projn"
     t.integer  "altitude"
     t.integer  "createdBy_id"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "place_type",   limit: 20
-    t.string   "place_owner",  limit: 20
-    t.spatial  "location",     limit: {:srid=>4326, :type=>"point"}
+    t.string   "place_type",    limit: 20
+    t.string   "place_owner",   limit: 20
+    t.spatial  "location",      limit: {:srid=>4326, :type=>"point"}
     t.text     "links"
+    t.integer  "projection_id"
   end
 
   create_table "place_types", force: true do |t|
@@ -74,15 +77,24 @@ ActiveRecord::Schema.define(version: 20140718182525) do
     t.text     "description"
     t.float    "x"
     t.float    "y"
-    t.string   "projn"
     t.integer  "altitude"
     t.integer  "createdBy_id"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "place_type",   limit: 20
-    t.string   "place_owner",  limit: 20
-    t.spatial  "location",     limit: {:srid=>4326, :type=>"point"}
+    t.string   "place_type",    limit: 20
+    t.string   "place_owner",   limit: 20
+    t.spatial  "location",      limit: {:srid=>4326, :type=>"point"}
     t.text     "links"
+    t.integer  "projection_id"
+  end
+
+  create_table "projections", force: true do |t|
+    t.string   "name"
+    t.string   "proj4"
+    t.string   "wkt"
+    t.integer  "epsg"
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "rivers", force: true do |t|
@@ -154,6 +166,9 @@ ActiveRecord::Schema.define(version: 20140718182525) do
     t.integer  "difficulty"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "code"
+    t.string   "linecolor"
+    t.string   "linetype"
   end
 
   create_table "securityoperators", force: true do |t|
