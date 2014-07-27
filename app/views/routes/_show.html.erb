@@ -49,10 +49,6 @@
       <input  type="hidden" id="route_startplace_location" name="route[startplace_location]" type="text" <%if @route.startplace %>value='<%=@route.startplace.location%>'<%end%>>
       <input  type="hidden" id="route_endplace_location" name="route[endplace_location]" type="text" <%if @route.endplace %>value='<%=@route.endplace.location%>'<%end%>>
       <%= f.hidden_field :location, :readonly=>true %>
-      <% if signed_in? %>
-         <%=  link_to "Edit", '/routes/'+@route.id.to_s+'/edit', class: "btn btn-large btn-primary", remote: true, onclick: "linkHandler('editbutton')", id:  "editbutton"   %>
-         <%= f.submit "Add to trip", class: "btn btn-large btn-primary", name: "add", onclick: "linkHandler('addbutton')", id:  "addbutton" %>
-      <% end %>
     <% end %>
 
 <script>

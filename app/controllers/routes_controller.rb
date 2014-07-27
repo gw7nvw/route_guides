@@ -82,13 +82,37 @@ end
   end
 
   def update
-    if (params[:add])
+    @route = Route.find_by_id(params[:id])
+    logger.debug params[:id]
+
+    add=false
+    if (params[:addfw])
       @trip=Trip.find_by_id(@current_user.currenttrip)
       @trip_details = TripDetail.new
+      @trip_details.showForward=true;
+      @trip_details.showReverse=false;
+      @trip_details.is_reverse=false
+      add=true
+    end
+
+    if (params[:addrv])
+      @trip=Trip.find_by_id(@current_user.currenttrip)
+      @trip_details = TripDetail.new
+      #for reverse trips, show the reverse directions if present, or the f/w ones if not
+      if (@route.reverse_description and @route.reverse_description.length>0) then
+        @trip_details.showForward=true;
+        @trip_details.showReverse=false;
+      else
+        @trip_details.showForward=false;
+        @trip_details.showReverse=true;
+      end
+      @trip_details.is_reverse=true
+      add=true
+    end
+
+    if (add)
       @trip_details.trip = @trip
       @trip_details.route_id = params[:id]
-      @trip_details.showForward=true;
-      @trip_details.showReverse=true;
       @trip_details.showConditions=false;
       @trip_details.showLinks=false;
 
@@ -98,17 +122,15 @@ end
         @trip_details.order = 1
       end
       @trip_details.save
-
       flash[:success]="Added route to trip"
 
-      params[:id]=@trip.id
+#      params[:id]=@trip.id
       show()
       render 'show'
     end
 
     if (params[:save])
 
-      @route = Route.find_by_id(params[:id])
       @route.updated_at=Time.new()
       prepare_route_vars()
 
@@ -200,7 +222,8 @@ end
        :links,
        :location,
        :time,
-       :distance)
+       :distance,
+       :datasource)
   end
 
 end

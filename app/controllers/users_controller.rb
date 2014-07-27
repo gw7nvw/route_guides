@@ -1,10 +1,15 @@
 class UsersController < ApplicationController
-  before_action :signed_in_user, only: [:edit, :update, :show] 
+  before_action :signed_in_user, only: [:edit, :update] 
+  def index
+    @users=User.all
+  end
+
   def show
-    if(!(@user = User.find_by_id(params[:id]))) 
+    if(!(@user = User.where(name: params[:id]).first)) 
       redirect_to '/'
     end
   end
+
 
   def new
     @user = User.new
@@ -54,7 +59,7 @@ class UsersController < ApplicationController
 
         sign_in @user
         flash[:success] = "Welcome to the Route Guides"
-        redirect_to @user
+        redirect_to '/users/'+@user.name
       else
         new()
         render 'new'
@@ -63,9 +68,9 @@ class UsersController < ApplicationController
   end
 
   def edit
-    @user = User.find(params[:id])
+    @user = User.where(name: params[:id])
     if((@user.id!=@current_user.id) and (@current_user.role!=Role.find_by( :name => 'root')))
-      redirect_to @user
+        redirect_to '/users/'+@user.name
     end
   end
 
@@ -75,7 +80,7 @@ class UsersController < ApplicationController
       flash[:success] = "User details updated"
 
       # Handle a successful update.
-      redirect_to @user
+      redirect_to '/users/'+@user.name
     else
       render 'edit'
     end

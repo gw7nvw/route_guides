@@ -1,0 +1,11 @@
+<% provide(:title, "Report | New") %>
+<% @title=" | Report | New" %>
+<%= render 'flash' %>
+
+<script> 
+   update_title('<%=@title%>'); 
+   document.getElementById("page_status").innerHTML = '';
+</script>
+<%= render 'reports/report_form' %>
+
+

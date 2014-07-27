@@ -1,6 +1,7 @@
 RouteGuides::Application.routes.draw do
 resources :users
 resources :routes
+resources :reports
 resources :sessions, only: [:new, :create, :destroy]
 resources :places
 resources :maps, only: [:index]

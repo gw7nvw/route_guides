@@ -803,3 +803,50 @@ function linkHandler(entity_name) {
      document.getElementById('logo').innerHTML='Route Guides'+title;
 
 }
+   function WKTtoGPX() {
+
+     var wktp = new OpenLayers.Format.WKT();
+     var gpxp = new OpenLayers.Format.GPX();
+
+     var fea = wktp.read(document.routeform.route_location.value);
+     document.routeform.gpxfield.value=gpxp.write(fea[0]);
+}
+   function GPXtoWKT() {
+     var gpxProj =  new OpenLayers.Projection("EPSG:4326");
+     var distProj =  new OpenLayers.Projection("EPSG:2193");
+
+
+     var wktp = new OpenLayers.Format.WKT();
+     var gpxp = new OpenLayers.Format.GPX();
+
+     if (document.routeform.gpxfield.value) {
+       var fea = gpxp.read(document.routeform.gpxfield.value);
+       if (fea.length>0) {
+         document.routeform.route_location.value=wktp.write(fea[0]);
+
+         var lineGeomMeterProj = fea[0].geometry.transform(gpxProj,distProj);
+         document.routeform.route_distance.value=lineGeomMeterProj.getLength()/1000;
+         document.routeform.route_datasource.value="Uploaded from GPS";
+       }
+     }
+}
+
+   function enableGpx() {
+     document.getElementById("gpxplus").style.display="none";
+     document.getElementById("gpxtick").style.display="block";
+     document.getElementById("gpxfield").style.display="block";
+}
+
+   function copyGpx() {
+     
+     GPXtoWKT();
+     document.getElementById("gpxplus").style.display="block";
+     document.getElementById("gpxtick").style.display="none";
+     document.getElementById("gpxfield").style.display="none";
+
+     // redraw map
+     route_init(document.routeform.route_startplace_location.value,
+              document.routeform.route_endplace_location.value,
+              document.routeform.route_location.value, 0);
+
+}

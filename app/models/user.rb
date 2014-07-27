@@ -1,5 +1,7 @@
 class User < ActiveRecord::Base
   has_many :places, class_name: "Place", foreign_key: "createdBy_id"
+  has_many :reports, class_name: "Report", foreign_key: "createdBy_id"
+  has_many :trips, class_name: "Trip", foreign_key: "createdBy_id"
   has_many :routeInstances, class_name: "Route", foreign_key: "createdBy_id"
   has_many :routes, class_name: "Route", foreign_key: "createdBy_id"
   has_many :placeInstances, class_name: "Place", foreign_key: "createdBy_id"
@@ -7,6 +9,7 @@ class User < ActiveRecord::Base
   validates :role, presence: true
 
   before_save { self.email = email.downcase }
+  before_save { self.name = name.downcase }
   before_create :create_remember_token
 
   validates :name,  presence: true, length: { maximum: 50 },

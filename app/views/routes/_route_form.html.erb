@@ -41,12 +41,13 @@
       <div class="rowtitle">Via:</div>
       <%= f.text_field :via, :disabled=>!@edit %>
 
+      <%= f.hidden_field :datasource %> 
       <div class="erow"> 
          <% if @edit %> 
            <div class="leftbuttons">
               <span title="Draw route on map">
-                 <img id="locationplus" src="/assets/add.png" onclick="route_selectLocation()" width="16" style="display:block"></img>
               </span>
+                 <img id="locationplus" src="/assets/add.png" onclick="route_selectLocation()" width="16" style="display:block"></img>
               <span title="Confirm drawn route">
 
                  <img id="locationtick" src="/assets/tick.png" onclick="route_endSelectLocation()" width="16" style="display:none"></img>
@@ -55,6 +56,23 @@
          <% end %>
          <div class="rowtitle">Route points:</div>
       <%= f.text_field :location, :readonly=>true %>
+   
+      <div class="erow">
+         <% if @edit %>
+           <div class="leftbuttons">
+              <span title="Paste a GPX file">
+              </span>
+                 <img id="gpxplus" src="/assets/add.png" onclick="enableGpx()" width="16" style="display:block"></img>
+              <span title="Confirm uploaded route">
+
+                 <img id="gpxtick" src="/assets/tick.png" onclick="copyGpx()" width="16" style="display:none"></img>
+              </span>
+            </div>
+         <% end %>
+         <div class="rowtitle">Paste a GPX file:</div>
+      <div class="erow">
+        <textarea id="gpxfield" name="gpxfield" type="text" style="display:none" rows="8"></textarea>
+      </div>
 
       <div class="rowtitle">Description:</div>
       <%= f.text_area :description, :disabled=>!@edit, :rows=>"8"   %>
@@ -175,7 +193,7 @@
 </div>
 <small> 
 <% if @route.createdBy_id %>
-  Created by: <%= link_to @route.createdBy.name, '/users/'+@route.createdBy_id.to_s, remote: true%> on <%=@route.created_at%>. Last updated: <%=@route.updated_at%>
+  Created by: <%= link_to @route.createdBy.name, '/users/'+@route.createdBy.name, remote: true%> on <%=@route.created_at%>. Last updated: <%=@route.updated_at%>
 <% end %>
 </small>
 <script>

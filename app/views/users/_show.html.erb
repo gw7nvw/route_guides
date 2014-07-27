@@ -6,8 +6,20 @@
    update_title('<%=@title%>'); 
    document.getElementById("page_status").innerHTML = '';
 </script>
-User:  <%= @user.name %><br/>
-<%     if((@user.id==@current_user.id) or (@current_user.role==Role.find_by( :name => 'root'))) %>
-  Email: <%= @user.email %><br/>
-  <%=  link_to "Edit", '/users/'+@user.id.to_s+'/edit', class: "btn btn-large btn-primary", remote: true %>
+<div class="sectiontitle">
+<%= @user.name %><br/><br/>
+</div>
+<%     if(signed_in? and ((@user.id==@current_user.id) or (@current_user.role==Role.find_by( :name => 'root')))) %>
+ <div class="erow">
+     Email: <%= @user.email %>
+  <%=  link_to "Edit", '/users/'+@user.id.to_s+'/edit', class: "btn btn-small btn-primary", remote: true %><br/><br/>
+
+ </div>
 <%end%>
+<% @reports = @user.reports %>
+<%= render 'reports/index_details' %>
+
+<div class="erow">&nbsp;</div>
+
+<% @trips = @user.trips.select{ |trip| trip.published }  %>
+<%= render 'trips/index_details' %>

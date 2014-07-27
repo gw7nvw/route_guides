@@ -8,8 +8,16 @@
         </div>
           <nav>
             <ul class="nav pull-right" id="menus">
-              <li><%= link_to "Home",    root_path, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %></li>
-              <li><%= link_to "About",   about_path, remote:true, remote: true, :id => 'about_link', :onclick => "linkHandler('about_link')"  %></li>
+              <li id="fat-menu" class="dropdown">
+              <a href="<%=root_path%>", class="dropdown-toggle" data-toggle="dropdown">
+                   Home <b class="caret"></b>
+                </a>
+                <ul class="dropdown-menu">
+                  <li><%= link_to 'Home', root_path, remote: true, :id => 'home_link', :onclick => "linkHandler('homes_link')"  %></li>
+                  <li><%= link_to "About", about_path, remote: true, :id => 'about_link', :onclick => "linkHandler('about_link')"  %></li>
+                </ul>
+              </li>
+
               <li id="fat-menu" class="dropdown">
               <a href="<%=places_path%>", class="dropdown-toggle" data-toggle="dropdown">
                    Places <b class="caret"></b>
@@ -21,7 +29,7 @@
               </li>
 
               <li id="fat-menu" class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+              <a href="<%=routes_path%>" class="dropdown-toggle" data-toggle="dropdown">
                    Routes <b class="caret"></b>
                 </a>
                 <ul class="dropdown-menu">
@@ -31,7 +39,7 @@
               </li>
 
 	      <li id="fat-menu" class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+              <a href="<%=trips_path%>" class="dropdown-toggle" data-toggle="dropdown">
                    Trips <b class="caret"></b>
                 </a>
                 <ul class="dropdown-menu">
@@ -39,23 +47,36 @@
                   <li><%= link_to "Add", new_trip_path,  remote: true,  :id => 'new_trip_link', :onclick => "linkHandler('new_trip_link')" %></li>
                 </ul>
               </li>
-              
+  
+              <li id="fat-menu" class="dropdown">
+              <a href="<%=reports_path%>" class="dropdown-toggle" data-toggle="dropdown">
+                   Stories <b class="caret"></b>
+                </a>
+                <ul class="dropdown-menu">
+                  <li><%= link_to "Search", reports_path,  remote: true,  :id => 'report_link', :onclick => "linkHandler('report_link')" %></li>
+                  <li><%= link_to "Add", new_report_path,  remote: true,  :id => 'new_report_link', :onclick => "linkHandler('new_report_link')" %></li>
+                </ul>
+              </li>
+
+              <li id="fat-menu" class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                   Users <b class="caret"></b>
+                </a>
+                <ul class="dropdown-menu">
+                  <li><%= link_to "Search", users_path,  remote: true,  :id => 'user_link', :onclick => "linkHandler('user_link')" %></li>
+                </ul>
+              </li>
+
+            
               <% if signed_in? %>
               <li id="fat-menu" class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                   <b>My Trip</b> <b class="caret"></b>
+                   <b>Me</b> <b class="caret"></b>
                 </a>
                 <ul class="dropdown-menu">
-                  <% if @current_user.currenttrip %> <li><%= link_to "Current",  currenttrip_path,  remote: true,  :id => 'my_trip_link', :onclick => "linkHandler('my_trip_link')"  %></li> <% end %>
+                  <% if @current_user.currenttrip %> <li><%= link_to "Current trip",  currenttrip_path,  remote: true,  :id => 'my_trip_link', :onclick => "linkHandler('my_trip_link')"  %></li> <% end %>
                   <li><%= link_to "Wishlist", wishlist_path,  remote: true,  :id => 'trips_link', :onclick => "linkHandler('trips_link')" %></li>
-                </ul>
-             </li>
-              
-                <li id="fat-menu" class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                   Account <b class="caret"></b>
-                </a>
-                <ul class="dropdown-menu">
+                  <li class="divider"></li>
                   <li><%= link_to "Profile", current_user, remote: true %></li>
                   <li><%= link_to "Settings", '#' %></li>
                   <li class="divider"></li>
