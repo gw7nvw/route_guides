@@ -10,8 +10,13 @@
 
     <div class="sectiontitle">
      <% if !@history %>
+        <% if @reverse %>
+        <%= link_to @route.endplace.name+" to "+@route.startplace.name+" via "+@route.via, 
+          @route, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
+        <% else %>
         <%= link_to @route.startplace.name+" to "+@route.endplace.name+" via "+@route.via, 
           @route, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
+        <% end %>
       <% else %>
         <%=@route.startplace.name+" to "+@route.endplace.name+" via "+@route.via %>
      <% end %>
@@ -27,9 +32,15 @@
          <br/>
        <% end %>
        <% if @route.location %>
-         <%= "Altitude - Max: "+@route.maxalt.to_i.to_s+"m  Min: "+@route.minalt.to_i.to_s+"m"+
+         <% if @reverse %>
+           <%= "Altitude - Max: "+@route.maxalt.to_i.to_s+"m  Min: "+@route.minalt.to_i.to_s+"m"+
+              "  Gain: "+@route.altloss.to_i.to_s+"m  Loss: "+@route.altgain.to_i.to_s+"m"+
+              "  Gradient: "+((@route.altgain+@route.altloss)*45/(@route.distance*1000)).to_i.to_s+" deg"%>
+         <% else %>
+           <%= "Altitude - Max: "+@route.maxalt.to_i.to_s+"m  Min: "+@route.minalt.to_i.to_s+"m"+
               "  Gain: "+@route.altgain.to_i.to_s+"m  Loss: "+@route.altloss.to_i.to_s+"m"+
               "  Gradient: "+((@route.altgain+@route.altloss)*45/(@route.distance*1000)).to_i.to_s+" deg"%>
+         <% end %>
        <%end %><br/>
         <i><%= "GPX info source: "+@route.datasource %></i>
       <br/>
@@ -37,36 +48,45 @@
     </div>
  </div>
 
-    <% if @route.description %>
-      <% if @route.description.length > 0 %>
         <div class="erow">
           <%=render :partial => 'expand_buttons',  :locals => {:expName => "fw_r"+@route.id.to_s, :initialSt => @showForward} %>
           <div class="sectiontitle">  
-             From <%= link_to @route.startplace.name,    @route.startplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
-             to <%= link_to @route.endplace.name,    @route.endplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %> 
+            <% if (!@trip) %>
+               <%= form_for  @route, :html => {:name => 'routeform'}, remote: true  do |f| %>
+                 From <%= link_to @route.startplace.name,    @route.startplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
+                 to <%= link_to @route.endplace.name,    @route.endplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %> 
+                 <%= f.submit "Add to trip", class: "btn btn-small btn-primary", name: "addfw", onclick: "linkHandler('addbutton')", id:  "addbutton" %>  
+               <% end %>
+             <% else %>
+               From <%= link_to @route.startplace.name,    @route.startplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
+               to <%= link_to @route.endplace.name,    @route.endplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %> 
+             <% end %>
           </div>
         </div>
         <div id='<%="fw_r"+@route.id.to_s%>' class="sectiontext" style=<%=if (@showForward==1) then "display:block" else "display:none" end %> >
           <%= simple_format(@route.description).html_safe %>
         </div>
-      <% end %>
-    <% end %>
 
 
-    <% if @route.reverse_description %>
-      <% if @route.reverse_description.length > 0 %>
         <div class="erow">
           <%=render :partial => 'expand_buttons',  :locals => {:expName => "rv_r"+@route.id.to_s, :initialSt => @showReverse} %>
           <div class="sectiontitle">
+             <% if (!@trip) %>
+               <%= form_for  @route, :html => {:name => 'routeform'}, remote: true  do |f| %>
+                 From <%= link_to @route.endplace.name,    @route.endplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %> 
+                 to <%= link_to @route.startplace.name,    @route.startplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
+                 <%= f.submit "Add to trip", class: "btn btn-small btn-primary", name: "addrv", onclick: "linkHandler('addbutton')", id:  "addbutton" %>
+               <% end %>
+           <% else %>
               From <%= link_to @route.endplace.name,    @route.endplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %> 
               to <%= link_to @route.startplace.name,    @route.startplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
+           <% end %>
+
           </div>
         </div>
         <div id='<%="rv_r"+@route.id.to_s%>' class="sectiontext" style=<%=if (@showReverse==1) then "display:block" else "display:none" end %>>
            <%= simple_format(@route.reverse_description).html_safe %>
         </div>
-      <% end %>
-    <% end %>
 
 
     <div class="erow">
@@ -131,7 +151,7 @@
 
    <small> 
      <% if @route.createdBy_id %>
-       Created by: <%= link_to @route.createdBy.name, '/users/'+@route.createdBy_id.to_s, remote: true%> on <%=@route.firstcreated_at%>. Last updated: <%=@route.updated_at%>
+       Created by: <%= link_to @route.createdBy.name, '/users/'+@route.createdBy.name, remote: true%> on <%=@route.firstcreated_at%>. Last updated: <%=@route.updated_at%>
 <% if !@history%>
    <%= link_to "View history", '/history/route-'+@route.id.to_s, remote: true, :id => 'history', :onclick =>"linkHandler('history')" %>
 <% end %>

@@ -1,0 +1,10 @@
+<% provide(:title, 'Reports') %>
+<% @title=" | Reports" %>
+<%= render 'flash' %>
+<script>
+   update_title('<%=@title%>');
+   reset_map_controllers();
+   document.getElementById("page_status").innerHTML = '';
+</script>
+
+<%= render 'index_details' %>

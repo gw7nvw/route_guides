@@ -166,6 +166,7 @@
         <% if td.route %>
           <% if td.route_id >0 %>
             <% @route=td.route %>
+            <% @reverse=td.is_reverse %>
             <%= render 'routes/route_details' %> 
           <% end %>
         <% end %>

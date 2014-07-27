@@ -1,0 +1,46 @@
+  <script type="text/javascript">
+//<![CDATA[
+   bkLib.onDomLoaded(startEdit);
+
+function startEdit() {
+   nicEditors.allTextAreas();
+  init();
+}
+  //]]>
+ </script>
+<div id='report_details'>
+  <div>
+     <%= form_for  @report, :remote=> true, :html => {:name => 'reportform'}  do |f| %>
+      <%= render 'shared/error_messages' %>
+
+      <%= f.label :name %>
+      <%= f.text_field :name, :disabled=>!@edit %>
+
+      <%= f.label :description %>
+      <div id="editPanel"></div>
+      <span id="descrSpan">
+         <%= f.text_area :description, :disabled=>!@edit, :rows=>"8"   %>
+      </span>
+
+      <br/>
+      <% if @edit %>
+        <%= f.submit "Save", class: "btn btn-large btn-primary", name: "save", onclick: "linkHandler('savebutton')", id:  "savebutton" %>
+        <%     if((@report.createdBy_id==@current_user.id) or (@current_user.role==Role.find_by( :name => 'root'))) %>
+           <%= f.submit "Delete", class: "btn btn-large btn-primary", name: "delete", onclick: "linkHandler('deletebutton')", id:  "deletebutton" %>
+        <% end %>
+
+      <% else %>
+        <%=  link_to "Edit", '/reports/'+@report.id.to_s+'/edit', class: "btn btn-large btn-primary", remote: true %>
+        <%= f.submit "Add to trip", class: "btn btn-large btn-primary", :disabled => @current_user, name: "add" %>
+      <% end %>
+    <% end %>
+  </div>
+</div>
+<% if @report.createdBy_id %>
+  Created by: <%= link_to @report.createdBy.name, '/users/'+@report.createdBy.name, remote: true%> on <%=@report.created_at%>. Last updated: <%=@report.updated_at%>
+<% end %>
+
+<script>
+  startEdit();
+</script>
+
