@@ -54,9 +54,9 @@ ActiveRecord::Schema.define(version: 20140727021318) do
     t.integer  "createdBy_id"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.spatial  "location",      limit: {:srid=>4326, :type=>"point"}
     t.string   "place_type",    limit: 20
     t.string   "place_owner",   limit: 20
+    t.spatial  "location",      limit: {:srid=>4326, :type=>"point"}
     t.text     "links"
     t.integer  "projection_id"
   end
@@ -81,9 +81,9 @@ ActiveRecord::Schema.define(version: 20140727021318) do
     t.integer  "createdBy_id"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.spatial  "location",      limit: {:srid=>4326, :type=>"point"}
     t.string   "place_type",    limit: 20
     t.string   "place_owner",   limit: 20
+    t.spatial  "location",      limit: {:srid=>4326, :type=>"point"}
     t.text     "links"
     t.integer  "projection_id"
   end
@@ -107,9 +107,8 @@ ActiveRecord::Schema.define(version: 20140727021318) do
   end
 
   create_table "report_links", force: true do |t|
-    t.integer  "place_id"
-    t.integer  "route_id"
-    t.integer  "trip_id"
+    t.integer  "item_id"
+    t.string   "item_type"
     t.integer  "report_id"
     t.datetime "created_at"
     t.datetime "updated_at"

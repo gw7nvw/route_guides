@@ -151,7 +151,7 @@
 
    <small> 
      <% if @route.createdBy_id %>
-       Created by: <%= link_to @route.createdBy.name, '/users/'+@route.createdBy.name, remote: true%> on <%=@route.firstcreated_at%>. Last updated: <%=@route.updated_at%>
+       Created by: <%= link_to @route.createdBy.name.capitalize, '/users/'+@route.createdBy.name, remote: true%> on <%=@route.firstcreated_at%>. Last updated: <%=@route.updated_at%>
 <% if !@history%>
    <%= link_to "View history", '/history/route-'+@route.id.to_s, remote: true, :id => 'history', :onclick =>"linkHandler('history')" %>
 <% end %>

@@ -27,6 +27,20 @@ def update
 
     end
 
+    if @itemType=="report"
+       # create new instance
+       pi=ReportInstance.find_by_id(itemVersion).dup
+       pi.createdBy_id=@current_user.id
+       pi.updated_at=Time.new()
+       pi.save
+
+       #@copy to place 
+       report=Report.find_by_id(itemId)
+       report.update(pi.attributes.except('id', 'report_id'))
+       report.save
+
+    end
+
    if @itemType == "route"
        ri=RouteInstance.find_by_id(itemVersion).dup
        ri.createdBy_id=@current_user.id
@@ -57,6 +71,15 @@ def show
   if itemVersion then @itemVersion=itemVersion.to_i end
  
   
+  if @itemType=="report"
+     if @itemId and @itemId>0 then 
+          @item=Report.find_by_id(@itemId)  
+          @item_instances=ReportInstance.where("report_id = ?",@itemId).order(:updated_at)
+     end
+     if @itemVersion and @itemVersion>0 then @report=ReportInstance.find_by_id(@itemVersion) end
+     @item_instance = @report
+  end
+
   if @itemType=="place"
      if @itemId and @itemId>0 then 
           @item=Place.find_by_id(@itemId)  

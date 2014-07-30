@@ -6,6 +6,11 @@
    document.getElementById("page_status").innerHTML = '';
 </script>
       <%="Historic version of "+@itemType+" "+@item.id.to_s+", revision "+@item_instance.revision_number.to_s+"/"+@item.revision_number.to_s+" from "+@item_instance.created_at.to_s%>
+<% if @itemType == 'report' %>
+   <div id='place_details'>
+      <%= render 'reports/report_details' %>
+   </div>
+<% end %>
 <% if @itemType == 'place' %>
    <div id='place_details'>
       <%= render 'places/place_details' %>

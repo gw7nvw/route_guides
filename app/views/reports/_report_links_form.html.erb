@@ -1,0 +1,79 @@
+      <div class="erow">
+        <div class="sectiontitle">
+          This story talks about ... 
+        </div>
+      </div>
+
+      <div class="erow">
+        <div class="leftbuttons">
+              <span title="Select place from map">
+                 <img id="placeplus" src="/assets/add.png" onclick="report_selectPlace()" width="16" style="display:block"></img>
+              </span>
+              <span title="Confirm selection">
+                <%= submit_tag  "confirmPlace",  :type => :image, :src => '/assets/tick.png', :style => 'margin-bottom:0;border:none;display:none',  :onclick => "report_confirmPlace()", :id => "placetick" %> 
+              </span>
+        </div>
+        <div class="rowtitle">Places: </div>
+      </div>
+      <input type="text" name="placeName" disabled="disabed"/>
+
+      <% @report.reportLinks.select{|link| link.item_type=='place'}.each do |rl| %>
+        <div class="erow">
+          <div class="rowtext" style="margin-left:24px">
+            <%= rl.child.name %>
+          </div>
+          <div class="rightbuttons"> <%= submit_tag  "delete"+rl.id.to_s,  :type => :image, :src => '/assets/trash.png', :style => 'margin-bottom:0;border:none' %> </div>
+        </div>
+      <% end %>
+
+      <div class="erow">
+        <div class="leftbuttons">
+              <span title="Select route from map">
+                 <img id="routeplus" src="/assets/add.png" onclick="report_selectRoute()" width="16" style="display:block"></img>
+              </span>
+              <span title="Confirm selection">
+                 <%= submit_tag  "confirmRoute",  :type => :image, :src => '/assets/tick.png', :style => 'margin-bottom:0;border:none;display:none',  :onclick => "report_confirmRoute()", :id => "routetick" %> 
+              </span>
+        </div>
+        <div class="rowtitle">Routes: </div>
+      </div>
+      <input type="text" name="routeName" disabled="disabed"/>
+
+      <% @report.reportLinks.select{|link| link.item_type=='route'}.each do |rl| %>
+        <div class="erow">
+          <div class="rowtext" style="margin-left:24px">
+            <%= rl.child.name %>
+          </div>
+          <div class="rightbuttons"> <%= submit_tag  "delete"+rl.id.to_s,  :type => :image, :src => '/assets/trash.png', :style => 'margin-bottom:0;border:none' %> </div>
+        </div>
+      <% end %>
+
+      <div class="erow">
+        <div class="leftbuttons">
+              <span title="Select trip from dropdown">
+                 <img id="tripplus" src="/assets/add.png" onclick="report_selectTrip()" width="16" style="display:block"></img>
+              </span>
+              <span title="Confirm selection">
+                 <%= submit_tag  "confirmTrip",  :type => :image, :src => '/assets/tick.png', :style => 'margin-bottom:0;border:none;display:none',  :onclick => "report_confirmTrip()", :id => "triptick" %> 
+              </span>
+        </div>
+        <div class="rowtitle">Trips: </div>
+      </div>
+
+      <div class="erow">
+        <% if  @report.id %>
+          <%=  collection_select( :report_link, :trip_id, Trip.where(published: true).order(:name), :id, :name, {:include_blank => 'None'}, {:disabled => true, :id => "tripSelect"}) %>
+        <% end %>
+      </div>
+
+      <% @report.reportLinks.select{|link| link.item_type=='trip'}.each do |rl| %>
+        <div class="erow">
+          <div class="rowtext" style="margin-left:24px">
+            <%= rl.child.name %>
+          </div>
+          <div class="rightbuttons"> <%= submit_tag  "delete"+rl.id.to_s,  :type => :image, :src => '/assets/trash.png', :style => 'margin-bottom:0;border:none' %> </div>
+        </div>
+      <% end %>
+
+
+

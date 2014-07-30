@@ -16,9 +16,20 @@
 <%= render 'shared/error_messages' %>
 <%= render 'reports/report_details' %>
 
-<%= form_for  @report, :html => {:name => 'reportform'}, remote: true  do |f| %>
-      <% if signed_in? %>
-         <%=  link_to "Edit", '/reports/'+@report.id.to_s+'/edit', class: "btn btn-large btn-primary", remote: true, onclick: "linkHandler('editbutton')", id:  "editbutton"   %>
-      <% end %>
-    <% end %>
+   <div class="erow">
+      <div class="sectiontitle">
+        Links:
+      </div>
+   </div>
+
+   <% @report.reportLinks.each do |rl| %>
+      <div class="erow" style="margin-left:25px">
+        <div class="rowtitle" >
+          <%= rl.item_type.capitalize+": "%>
+        </div>
+        <div class="rowtext">
+          <%= link_to rl.child.name, rl.child, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
+        </div>
+      </div>
+   <% end %>
 

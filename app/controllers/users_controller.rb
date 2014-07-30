@@ -68,14 +68,14 @@ class UsersController < ApplicationController
   end
 
   def edit
-    @user = User.where(name: params[:id])
+    @user = User.where(name: params[:id]).first
     if((@user.id!=@current_user.id) and (@current_user.role!=Role.find_by( :name => 'root')))
         redirect_to '/users/'+@user.name
     end
   end
 
   def update
-    @user = User.find(params[:id])
+    @user = User.find_by_id(params[:id])
     if @user.update_attributes(user_params)
       flash[:success] = "User details updated"
 

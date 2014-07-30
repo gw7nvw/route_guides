@@ -7,12 +7,12 @@
    document.getElementById("page_status").innerHTML = '';
 </script>
 <div class="sectiontitle">
-<%= @user.name %><br/><br/>
+<%= @user.name.capitalize %><br/><br/>
 </div>
 <%     if(signed_in? and ((@user.id==@current_user.id) or (@current_user.role==Role.find_by( :name => 'root')))) %>
  <div class="erow">
      Email: <%= @user.email %>
-  <%=  link_to "Edit", '/users/'+@user.id.to_s+'/edit', class: "btn btn-small btn-primary", remote: true %><br/><br/>
+  <%=  link_to "Edit", '/users/'+@user.name+'/edit', class: "btn btn-small btn-primary", remote: true %><br/><br/>
 
  </div>
 <%end%>

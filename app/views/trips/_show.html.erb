@@ -178,4 +178,20 @@
          <div class="pastebutton" style="display:none"> <%= submit_tag "paste", :id => "pasteItem", :type => :image, :src => '/assets/big-insert.png', :style => 'margin-bottom:0;border:none' %> </div>
       </span>
    </form>
+
+   <div class="erow" style="margin-top:12px">
+     <div class="sectiontitle">
+        Stories about this trip:
+     </div>
+   </div>
+   <% @trip.reports.each do |r|%>
+     <div class="erow">
+        <div class="sectiontext">
+           <li>
+              <%=  link_to r.name+" by "+r.createdBy.name.capitalize, '/reports/'+r.id.to_s, remote: true, onclick: %q[linkHandler('r]+r.id.to_s+%q[')], id:  'r'+r.id.to_s  %>
+           </li>
+        </div>
+     </div>
+   <% end %>
+
 </div>

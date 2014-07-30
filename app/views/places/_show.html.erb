@@ -37,7 +37,23 @@
      <div class="erow">
         <div class="sectiontext"> 
            <li>
-              <%=  link_to r.name+" by "+r.createdBy.name, '/trips/'+r.id.to_s, remote: true, onclick: %q[linkHandler('r]+r.id.to_s+%q[')], id:  'r'+r.id.to_s  %>
+              <%=  link_to r.name+" by "+r.createdBy.name.capitalize, '/trips/'+r.id.to_s, remote: true, onclick: %q[linkHandler('r]+r.id.to_s+%q[')], id:  'r'+r.id.to_s  %>
+           </li>
+        </div>
+     </div>
+   <% end %>
+
+
+   <div class="erow" style="margin-top:12px">
+     <div class="sectiontitle">
+        Stories about this place:
+     </div>
+   </div>
+   <% @place.reports.each do |r|%>
+     <div class="erow">
+        <div class="sectiontext">
+           <li>
+              <%=  link_to r.name+" by "+r.createdBy.name.capitalize, '/reports/'+r.id.to_s, remote: true, onclick: %q[linkHandler('r]+r.id.to_s+%q[')], id:  'r'+r.id.to_s  %>
            </li>
         </div>
      </div>
@@ -50,10 +66,6 @@
 
       <%= f.hidden_field :y, :disabled=>!@edit, :size => 8 %>
   
-      <% if signed_in? %> 
-        <%=  link_to "Edit", '/places/'+@place.id.to_s+'/edit', class: "btn btn-large btn-primary",  remote: true, onclick: "linkHandler('editbutton')", id:  "editbutton"  %>
-        <%= f.submit "Add to trip", class: "btn btn-large btn-primary", name: "add", onclick: "linkHandler('addbutton')", id: "addbutton" %>
-     <% end %>
    <% end %>
 </div>
 <script>

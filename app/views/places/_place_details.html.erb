@@ -14,8 +14,14 @@
           <% link_name=@place.name+"( "+ (if @place.place_owner then @place.place_owner+" " end) + 
                  @place.place_type+" )" %>
           <% if !@history %>
-     
-             <%= link_to link_name, @place, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
+            <% if (!@trip) %>
+               <%= form_for  @place, :html => {:name => 'placeform'}, remote: true  do |f| %>
+                 <%= link_to link_name, @place, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
+                 <%= f.submit "Add to trip", class: "btn btn-small btn-primary", name: "add", onclick: "linkHandler('addbutton')", id:  "addbutton" %>
+               <% end %>
+             <% else %>
+               <%= link_to link_name, @place, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %> 
+             <% end %>
           <% else %>
              <%=link_name%>
           <% end %>
@@ -70,7 +76,7 @@
    <!-- Place author details (if any) -->
     <% if @place.createdBy_id %>
        <small color="greyLight">
-	  Created by: <%= link_to @place.createdBy.name, '/users/'+@place.createdBy.name, remote: true%> on <%=@place.firstcreated_at%>. Last updated: <%=@place.updated_at%> 
+	  Created by: <%= link_to @place.createdBy.name.capitalize, '/users/'+@place.createdBy.name, remote: true%> on <%=@place.firstcreated_at%>. Last updated: <%=@place.updated_at%> 
           <% if !@history %>
              <%= link_to "View history", '/history/place-'+@place.id.to_s, remote: true, :id => 'history', :onclick =>"linkHandler('history')" %>
           <% end %>
