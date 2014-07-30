@@ -193,7 +193,7 @@
 </div>
 <small> 
 <% if @route.createdBy_id %>
-  Created by: <%= link_to @route.createdBy.name, '/users/'+@route.createdBy.name, remote: true%> on <%=@route.created_at%>. Last updated: <%=@route.updated_at%>
+  Created by: <%= link_to @route.createdBy.name.capitalize, '/users/'+@route.createdBy.name, remote: true%> on <%=@route.created_at%>. Last updated: <%=@route.updated_at%>
 <% end %>
 </small>
 <script>

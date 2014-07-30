@@ -30,7 +30,9 @@ class Route < ActiveRecord::Base
 
 
   def default_values
-    self.datasource ||= 'drawn on map'
+    if !self.datasource or self.datasource.length<1 then
+        self.datasource = 'drawn on map'
+    end
     self.created_at ||= self.updated_at
 
   end
@@ -57,6 +59,12 @@ def trips
    t=Route.find_by_sql ["select distinct t.* from trips t
        inner join trip_details td on td.trip_id = t.id
        where td.route_id = ? and t.published=true",self.id]
+end
+
+def reports
+   r=Report.find_by_sql ["select distinct r.* from reports r
+        inner join report_links rl on rl.report_id = r.id
+        where rl.item_type='route' and rl.item_id=?",self.id]
 end
 
 def maxalt
@@ -96,4 +104,5 @@ def altloss
    alt
 
 end
+
 end

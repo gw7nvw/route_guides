@@ -6,4 +6,5 @@
 User-Agent: *
 Disallow: */edit
 Disallow: */new
+Disallow: */history/*
 Host: www.routeguides.co.nz

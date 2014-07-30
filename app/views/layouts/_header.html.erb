@@ -77,7 +77,7 @@
                   <% if @current_user.currenttrip %> <li><%= link_to "Current trip",  currenttrip_path,  remote: true,  :id => 'my_trip_link', :onclick => "linkHandler('my_trip_link')"  %></li> <% end %>
                   <li><%= link_to "Wishlist", wishlist_path,  remote: true,  :id => 'trips_link', :onclick => "linkHandler('trips_link')" %></li>
                   <li class="divider"></li>
-                  <li><%= link_to "Profile", current_user, remote: true %></li>
+                  <li><%= link_to "Profile", '/users/'+current_user.name, remote: true %></li>
                   <li><%= link_to "Settings", '#' %></li>
                   <li class="divider"></li>
                   <li>

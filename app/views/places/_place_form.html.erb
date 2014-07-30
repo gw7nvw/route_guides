@@ -61,7 +61,7 @@
   </div>
 </div>
 <% if @place.createdBy_id %>
-  Created by: <%= link_to @place.createdBy.name, '/users/'+@place.createdBy.name, remote: true%> on <%=@place.created_at%>. Last updated: <%=@place.updated_at%>
+  Created by: <%= link_to @place.createdBy.name.capitalize, '/users/'+@place.createdBy.name, remote: true%> on <%=@place.created_at%>. Last updated: <%=@place.updated_at%>
 <% end %>
 
 

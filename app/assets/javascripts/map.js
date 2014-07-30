@@ -18,8 +18,10 @@ var line_red;
 var select;
 var click_to_select_all;
 var click_to_copy_start_point;
+var click_to_copy_report_link;
 var click_to_copy_end_point;
 var click_to_create;
+var link_item_type="test";
 var draw;
 
 var statusMessage = 0;
@@ -132,6 +134,10 @@ function init(){
     click_to_select_all = new OpenLayers.Control.Click();
     map_map.addControl(click_to_select_all);
 
+    add_click_to_copy_report_link();
+    click_to_copy_report_link = new OpenLayers.Control.Click();
+    map_map.addControl(click_to_copy_report_link);
+
     add_click_to_copy_start_point();
     click_to_copy_start_point = new OpenLayers.Control.Click();
     map_map.addControl(click_to_copy_start_point);
@@ -234,6 +240,7 @@ function routes_layer_add() {
 
 function deactivate_all_click() {
     if(typeof(click_to_select_all)!='undefined') click_to_select_all.deactivate();
+    if(typeof(click_to_copy_report_link)!='undefined') click_to_copy_report_link.deactivate();
     if(typeof(click_to_create)!='undefined') click_to_create.deactivate();
     if(typeof(click_to_copy_start_point)!='undefined') click_to_copy_start_point.deactivate();
     if(typeof(click_to_copy_end_point)!='undefined') click_to_copy_end_point.deactivate();
@@ -359,6 +366,48 @@ function add_click_to_copy_start_point() {
         var thisPoint = new OpenLayers.Geometry.Point(document.selectform.selectx.value, document.selectform.selecty.value).transform(mapProj,dstProj);
         document.routeform.route_startplace_location.value='POINT('+thisPoint.x+" "+thisPoint.y+')';
       }
+    }
+  });
+}
+
+function add_click_to_copy_report_link() {
+
+  OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {
+     defaultHandlerOptions: {
+         'single': true,
+         'double': true,
+         'pixelTolerance': 0,
+         'stopSingle': false,
+         'stopDouble': false
+     },
+
+
+    initialize: function(options) {
+       this.handlerOptions = OpenLayers.Util.extend(
+           {}, this.defaultHandlerOptions
+       );
+       OpenLayers.Control.prototype.initialize.apply(
+           this, arguments
+       );
+       this.handler = new OpenLayers.Handler.Click(
+           this, {
+               'click': this.trigger
+           }, this.handlerOptions
+       );
+    },
+
+    trigger: function(e) {
+        if (link_item_type == '/routes/' && document.selectform.selecttype.value == "/routes/")  {
+           document.getElementsByName("routeName")[0].value=document.selectform.selectname.value;
+           document.getElementsByName("itemId")[0].value=document.selectform.select.value;
+           document.getElementsByName("itemType")[0].value='route';
+        }
+
+        if (link_item_type == '/places/' && document.selectform.selecttype.value == "/places/")  {
+           document.getElementsByName("placeName")[0].value=document.selectform.selectname.value;
+           document.getElementsByName("itemId")[0].value=document.selectform.select.value;
+           document.getElementsByName("itemType")[0].value='place';
+        }
     }
   });
 }
@@ -708,6 +757,69 @@ function route_selectNothing() {
 
 
 }
+function report_selectPlace() {
+  document.getElementById("placeplus").style.display="none";
+  document.getElementById("placetick").style.display="block";
+  document.selectform.select.value='';
+  document.selectform.selectname.value='';
+  link_item_type='/places/';
+
+  deactivate_all_click();
+  click_to_copy_report_link.activate();
+
+}
+
+function report_confirmPlace() {
+  document.getElementById("placeplus").style.display="block";
+  document.getElementById("placetick").style.display="none";
+  
+  deactivate_all_click();
+}
+
+function report_selectRoute() {
+  document.getElementById("routeplus").style.display="none";
+  document.getElementById("routetick").style.display="block";
+  document.selectform.select.value='';
+  document.selectform.selectname.value='';
+  link_item_type='/routes/';
+
+  deactivate_all_click();
+  click_to_copy_report_link.activate();
+
+}
+
+function report_confirmRoute() {
+  document.getElementById("routeplus").style.display="block";
+  document.getElementById("routetick").style.display="none";
+  
+  deactivate_all_click();
+}
+
+function report_selectTrip() {
+  document.getElementById("tripplus").style.display="none";
+  document.getElementById("triptick").style.display="block";
+  document.getElementById("tripSelect").disabled=false;
+
+  document.selectform.select.value='';
+  document.selectform.selectname.value='';
+
+ document.getElementsByName("itemId")[0].value='';
+  document.getElementsByName("itemType")[0].value='';
+}
+
+function report_confirmTrip() {
+  document.getElementById("tripplus").style.display="block";
+  document.getElementById("triptick").style.display="none";
+  document.getElementById("tripSelect").disabled=true;
+
+  document.getElementsByName("itemId")[0].value=document.getElementById("tripSelect").options.selectedIndex;
+  document.getElementsByName("itemType")[0].value='trip';
+
+  
+}
+
+
+// MISCELANEOUS PAGE EVENT HANDLING THAT HAVE NOTHING TO DO WITH THE MAP
 
 // MISCELANEOUS PAGE EVENT HANDLING THAT HAVE NOTHING TO DO WITH THE MAP
 

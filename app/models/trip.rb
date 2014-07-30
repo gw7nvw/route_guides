@@ -20,4 +20,10 @@ def walkingtime
 
 end
 
+def reports
+   r=Report.find_by_sql ["select distinct r.* from reports r
+        inner join report_links rl on rl.report_id = r.id
+        where rl.item_type='trip' and rl.item_id=?",self.id]
+end
+
 end

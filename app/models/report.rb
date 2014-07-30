@@ -1,5 +1,6 @@
 class Report < ActiveRecord::Base
   has_many :reportInstances
+  has_many :reportLinks
   belongs_to :createdBy, class_name: "User"
   validates :createdBy, :presence => true
 
