@@ -3,9 +3,23 @@ class RoutesController < ApplicationController
 #get altitude from DEM if not set
  before_action :signed_in_user, only: [:edit, :update, :new, :create]
 
-def index
+  def index
     @routes = Route.all.order(:name)
-end
+  end
+
+  def search
+     @trip=true
+     prepare_route_vars()
+
+  end
+
+  def find
+     @trip=true
+     @route_ids=routes_from_to(params[:route_startplace_id].to_i, params[:route_endplace_id].to_i)
+     prepare_route_vars()
+
+     render 'search'
+  end
 
   def new
     @edit=true
@@ -203,6 +217,62 @@ end
    end
 end
 
+  def routes_from_to(placea, placeb)
+  maxLegCount=20
+
+  if (here=Place.find_by_id(placea))
+  validDest=Array.new
+  placeSoFar=[]
+  routeSoFar=[]
+  placeSoFar[0]=[here.id]
+  routeSoFar[0]=[]
+  goodPath=[]
+  goodRoute=[]
+  destFound=1
+  legCount=0
+  goodPathCount=0
+
+  while destFound>0 and legCount<maxLegCount do
+
+    legCount+=1
+    loopCount=0
+    nextPlaceSoFar=[]
+    nextRouteSoFar=[]
+    placeSoFar.each do |thisPath|
+
+      #get latets place added to list
+      here=Place.find_by_id(thisPath[0])
+      destFound=0
+
+      #add each route to hash
+      here.adjoiningRoutes.each do |ar|
+        if ar.endplace_id==here.id then nextDest=ar.startplace_id
+        else nextDest=ar.endplace_id
+        end
+
+        if nextDest==placeb then
+                goodPath[goodPathCount]=[nextDest]+thisPath
+                goodRoute[goodPathCount]=[ar.id]+routeSoFar[loopCount]
+                goodPathCount+=1
+        else
+          if !thisPath.include? nextDest then
+                nextRouteSoFar[destFound]=[ar.id]+routeSoFar[loopCount]
+                nextPlaceSoFar[destFound]=[nextDest]+thisPath
+                destFound+=1
+          end
+        end
+      end #end of 'each adjoining route' for thisPlace
+      loopCount+=1
+    end # end of for each flace so far
+    #replace placesSpFar with new list of latest destinatons found
+    placeSoFar=nextPlaceSoFar
+    routeSoFar=nextRouteSoFar
+  end #end of while we get results & don;t exceed max hop count
+
+  goodRoute
+  end
+
+end
 
   private
   def route_params
