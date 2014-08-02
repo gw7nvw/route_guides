@@ -246,17 +246,21 @@ end
 
       #add each route to hash
       here.adjoiningRoutes.each do |ar|
-        if ar.endplace_id==here.id then nextDest=ar.startplace_id
-        else nextDest=ar.endplace_id
+        if ar.endplace_id==here.id then 
+          nextDest=ar.startplace_id
+          direction=-1
+        else 
+          nextDest=ar.endplace_id
+          direction=1
         end
 
         if nextDest==placeb then
                 goodPath[goodPathCount]=[nextDest]+thisPath
-                goodRoute[goodPathCount]=[ar.id]+routeSoFar[loopCount]
+                goodRoute[goodPathCount]=[direction*ar.id]+routeSoFar[loopCount]
                 goodPathCount+=1
         else
           if !thisPath.include? nextDest then
-                nextRouteSoFar[destFound]=[ar.id]+routeSoFar[loopCount]
+                nextRouteSoFar[destFound]=[direction*ar.id]+routeSoFar[loopCount]
                 nextPlaceSoFar[destFound]=[nextDest]+thisPath
                 destFound+=1
           end
