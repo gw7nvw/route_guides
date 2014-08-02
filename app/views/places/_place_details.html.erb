@@ -1,6 +1,8 @@
 <div class="place_details">
+   <% if !@itemNumber then @itemNumber=1 else @itemNumber+=1 end %>
    <!-- Place title and add/remove buttons if in edit mode-->
    <div class="erow">
+          <%=render :partial => 'expand_buttons',  :locals => {:expName => "place"+@itemNumber.to_s, :initialSt => (if @hideAll then 0 else 1 end)} %>
       <%  if(signed_in? and !@trip) %>
          <div class="leftbuttons">
             <span title="Edit">
@@ -42,8 +44,9 @@
    %>
 
    <!-- Place location and max/mix buttons -->
-   <div class="erow">
-      <%=render :partial => 'expand_buttons',  :locals => {:expName => "fw_p"+@place.id.to_s, :initialSt => @showForward} %>
+<div id='place<%=@itemNumber.to_s%>' style='display:<%=if @hideAll then "none" else "block" end%>'>
+   <div class="subrow">
+      <%=render :partial => 'expand_buttons',  :locals => {:expName => "fw_p"+@itemNumber.to_s, :initialSt => @showForward} %>
       <div class="sectiontitle" style="font-weight:normal">
          <%= "NZTM2000: "+x.to_i.to_s+", "+y.to_i.to_s %>
          <% if @place.altitude %>
@@ -53,7 +56,7 @@
    </div>
 
    <!-- Place location in collapsable diiv -->
-   <div id='<%="fw_p"+@place.id.to_s%>' class="sectiontext" style=<%=if (@showForward==1) then "display:block" else "display:none" end %>>
+   <div id='<%="fw_p"+@itemNumber.to_s%>' class="sectiontext" style=<%=if (@showForward==1) then "display:block" else "display:none" end %>>
          <%= simple_format(@place.description).html_safe %>
    </div>
 
@@ -61,13 +64,13 @@
    <!-- Place links (f any) and max/mix buttons -->
    <% if (@place.links) %>
       <% if @place.links.length>0 %>
-         <div class="erow">
-            <%=render :partial => 'expand_buttons',  :locals => {:expName => "lk_p"+@place.id.to_s, :initialSt => @showLinks} %>
+         <div class="subrow">
+            <%=render :partial => 'expand_buttons',  :locals => {:expName => "lk_p"+@itemNumber.to_s, :initialSt => @showLinks} %>
             <div class="sectiontitle">
                Further information:
             </div>
           </div>
-          <div id='<%="lk_p"+@place.id.to_s%>' class="sectiontext" style=<%=if (@showLinks==1) then "display:block" else "display:none" end %>>
+          <div id='<%="lk_p"+@itemNumber.to_s%>' class="sectiontext" style=<%=if (@showLinks==1) then "display:block" else "display:none" end %>>
               <p><%=@place.links %><br/></p>
           </div>
        <% end %>
@@ -83,6 +86,7 @@
        </small>
     <% end %>
 
+</div>
 </div>
 
 <script>

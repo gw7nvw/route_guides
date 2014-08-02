@@ -1,0 +1,93 @@
+<% provide(:title, 'Search') %>
+<% @title=" | Search" %>
+<%= render 'flash' %>
+
+<script>
+   update_title('<%=@title%>'); 
+   document.getElementById("page_status").innerHTML = '';
+   reset_map_controllers();
+</script>
+
+
+    <%= form_tag '/routes/find', :name => 'routeform', :remote => true, :method => 'post' %>
+
+      <div class="erow">
+        <div class="leftbuttons">
+              <span title="Select start place from map">
+                 <img id="startplaceplus" src="/assets/add.png" onclick="route_selectStartPlace()" width="16" style="display:block"></img>
+              </span>
+              <span title="Confirm selection">
+                 <img id="startplacetick" src="/assets/tick.png" onclick="route_selectNothing()" width="16" style="display:none"></img>
+              </span>
+        </div>
+        <div class="rowtitle">From:</div>
+        <div class="rowtext">     
+          <input type="text" name="route_startplace_name" disabled="disabled"/>
+        </div>
+      </div>
+      <input type="hidden" name="route_startplace_id"/>
+      <input type="hidden" name="route_startplace_location"/>
+      <div class="erow">
+        <div class="leftbuttons">
+              <span title="Select end place from map">
+                 <img id="endplaceplus" src="/assets/add.png" onclick="route_selectEndPlace()" width="16" style="display:block"></img>
+              </span>
+              <span title="Confirm selection">
+                 <img id="endplacetick" src="/assets/tick.png" onclick="route_selectNothing()" width="16" style="display:none"></img>
+        </div>    
+        <div class="rowtitle">To:</div>    
+        <div class="rowtext">   
+          <input type="text" name="route_endplace_name" disabled="disabled"/>
+        </div>
+      </div>
+      <input type="hidden" name="route_endplace_id"/>
+      <input type="hidden" name="route_endplace_location"/>
+      <input type="hidden" name="route_location"/>
+       <div id="locationplus"></div>
+       <div id="locationtick"></div>
+       
+      <%= submit_tag "Find", :id => "find", :onclick => "linkHandler('find')" %>
+
+    </form>
+      
+<% if @route_ids %>
+  <% @route_ids.each do |rt_list| %>
+     <div class="erow">
+        <div class="hrline">
+           <hr noshade size="4">
+        </div>
+     </div>
+
+     <% 
+        distance=0
+        time=0
+        altgain=0
+        altloss=0
+        minalt=99999
+        maxalt=0
+     %>
+
+     <% rt_list.reverse.each do |rt_id| %>
+       <% @route=Route.find_by_id(rt_id) 
+          if(@route.distance) then distance+=@route.distance end
+          if(@route.time) then time+=@route.time end
+          if(@route.altgain) then altgain=altgain+@route.altgain end
+          if(@route.altloss) then altloss=altloss+@route.altloss end
+          if(@route.maxalt>maxalt) then maxalt=@route.maxalt end
+          if(@route.minalt<minalt) then minalt=@route.minalt end
+          @hideAll=1 %>
+       <%=render 'route_details'%> 
+     <% end %>
+     <%= distance.round(1).to_s+" km " %>
+     <%="("+time.round(1).to_s+" DOC hours)"  %>
+     <%= "Alt: "+minalt.to_i.to_s+"m to "+maxalt.to_i.to_s+"m ("+
+              "  +"+altgain.to_i.to_s+"m  -"+altloss.to_i.to_s+"m)" %>
+     <% if distance>0 %>
+           <%="  "+((altgain+altloss)*45/(distance*1000)).to_i.to_s+" deg"%>
+     <% end %>
+  <% end %>
+  <% if(@route_ids.count==0) %>
+    No routes found ...
+  <% end %>
+<% end %>
+

@@ -14,6 +14,8 @@ resources :history, only: [:index, :show, :update]
 root 'static_pages#home'
   match '/redisplay', to: 'places#redisplay',    via:'get'
   match '/trips/move', to: 'trips#move', via: 'post'
+  match '/routes/find', to: 'routes#find', via: 'post'
+  match 'search', to: 'routes#search', via: 'get'
   match '/wishlist', to: 'trips#wishlist', via: 'get'
   match '/currenttrip', to: 'trips#currenttrip', via: 'get'
   match '/redisplay', to: 'places#redisplay',    via:'post'

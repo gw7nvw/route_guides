@@ -745,7 +745,6 @@ function route_selectNothing() {
   document.getElementById("endplacetick").style.display="none";
   document.getElementById("locationplus").style.display="block";
   document.getElementById("locationtick").style.display="none";
-
   /* resisplay all point / lines from from */ 
   vectorLayer.destroyFeatures();
 

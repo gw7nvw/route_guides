@@ -69,26 +69,33 @@ end
 
 def maxalt
    alt=0
-   self.location.points.each do |p|
+   if(self.location) then
+     self.location.points.each do |p|
        if(p.z)>alt then alt=p.z end
+     end
    end
    alt 
 end
 
 def minalt
    alt=9999
-   self.location.points.each do |p|
+   if(self.location) then
+     self.location.points.each do |p|
        if(p.z)<alt then alt=p.z end
+     end
+    alt
+   else 0
    end
-   alt
 end
 
 def altgain
    alt=0
-   lastalt=self.location.points.first.z
-   self.location.points.each do |p|
-       if(p.z)>lastalt then alt+=p.z-lastalt end
-       lastalt=p.z
+   if(self.location) then
+     lastalt=self.location.points.first.z
+     self.location.points.each do |p|
+         if(p.z)>lastalt then alt+=p.z-lastalt end
+         lastalt=p.z
+     end
    end
    alt
 
@@ -96,10 +103,12 @@ end
 
 def altloss
    alt=0
-   lastalt=self.location.points.first.z
-   self.location.points.each do |p|
+   if(self.location) then
+     lastalt=self.location.points.first.z
+     self.location.points.each do |p|
        if(p.z)<lastalt then alt+=lastalt-p.z end
        lastalt=p.z
+     end
    end
    alt
 
