@@ -228,14 +228,15 @@ end
   routeSoFar[0]=[]
   goodPath=[]
   goodRoute=[]
-  destFound=1
+  totalDestFound=1
   legCount=0
   goodPathCount=0
 
-  while destFound>0 and legCount<maxLegCount do
+  while totalDestFound>0 and legCount<maxLegCount do
 
     legCount+=1
     loopCount=0
+    totalDestFound=0
     nextPlaceSoFar=[]
     nextRouteSoFar=[]
     placeSoFar.each do |thisPath|
@@ -263,6 +264,7 @@ end
                 nextRouteSoFar[destFound]=[direction*ar.id]+routeSoFar[loopCount]
                 nextPlaceSoFar[destFound]=[nextDest]+thisPath
                 destFound+=1
+                totalDestFound+=1
           end
         end
       end #end of 'each adjoining route' for thisPlace

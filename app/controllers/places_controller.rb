@@ -53,6 +53,7 @@ def create
 
 
   def show
+    prepare_route_vars()
     # default visibility 
     @showForward=1
     @showReverse=1

@@ -1,0 +1,42 @@
+
+     <% 
+        distance=0
+        time=0
+        altgain=0
+        altloss=0
+        minalt=99999
+        maxalt=0
+     %>
+
+     <% @rt_list.reverse.each do |rt_id| %>
+       <% if rt_id>0 then 
+            @reverse=false
+          else
+            rt_id=-rt_id
+            @reverse=true
+          end
+          @route=Route.find_by_id(rt_id) 
+          if(@route.distance) then distance+=@route.distance end
+          if(@route.time) then time+=@route.time end
+          if(@reverse) then
+            if(@route.altgain) then altloss=altloss+@route.altgain end
+            if(@route.altloss) then altgain=altgain+@route.altloss end
+          else
+            if(@route.altgain) then altgain=altgain+@route.altgain end
+            if(@route.altloss) then altloss=altloss+@route.altloss end
+          end
+          if(@route.maxalt>maxalt) then maxalt=@route.maxalt end
+          if(@route.minalt<minalt) then minalt=@route.minalt end
+          @hideAll=1 %>
+       <%=render '/routes/route_details'%> 
+     <% end %>
+     <div class="subrow">
+     <%= distance.round(1).to_s+" km " %>
+     <%="("+time.round(1).to_s+" DOC hours)"  %>
+     <%= "Alt: "+minalt.to_i.to_s+"m to "+maxalt.to_i.to_s+"m ("+
+              "  +"+altgain.to_i.to_s+"m  -"+altloss.to_i.to_s+"m)" %>
+     <% if distance>0 %>
+           <%="  "+((altgain+altloss)*45/(distance*1000)).to_i.to_s+" deg"%>
+     <% end %>
+     </div>
+
