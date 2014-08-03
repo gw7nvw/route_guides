@@ -4,14 +4,15 @@
 # Examples:
 #
 #   cities = City.create([{ name: 'Chicago' }, { name: 'Copenhagen' }])"
-#PlaceType.create(name: "Hut", description: "Back country huti open for public use", color: "blue", graphicName: "circle", pointRadius: 4, url: nil)
-#PlaceType.create(name: "Campsite", description: "Official campsite", color: "cyan", graphicName: "triangle", pointRadius: 4, url: nil)
-#PlaceType.create(name: "Campspot", description: "A viable informal camp spot", color: "green", graphicName: "triangle", pointRadius: 3, url: nil)
-#PlaceType.create(name: "Summit", description: "A peak", color: "#b26b00", graphicName: "star", pointRadius: 3, url: nil)
-#PlaceType.create(name: "Pass", description: "A trampable pass, col or saddle", color: "#333300", graphicName: "star", pointRadius: 3, url: nil)
-#PlaceType.create(name: "Locality", description: "A town, station, or other inhabited locality", color: "black", graphicName: "square", pointRadius: 3, url: nil)
-#PlaceType.create(name: "Roadend", description: "The point a track leaves a vehicular road", color: "#1a1a1a", graphicName: "square", pointRadius: 3, url: nil)
-#PlaceType.create(name: "Other", description: "Other location forming the start / end of a route", color: "#00003d", graphicName: "square", pointRadius: 3, url: nil)
+#PlaceType.create(name: "Hut", description: "Back country huti open for public use", color: "blue", graphicName: "circle", pointRadius: 4, url: nil, isDest: true)
+#PlaceType.create(name: "Campsite", description: "Official campsite", color: "cyan", graphicName: "triangle", pointRadius: 4, url: nil, isDest: true)
+#PlaceType.create(name: "Campspot", description: "A viable informal camp spot", color: "green", graphicName: "triangle", pointRadius: 3, url: nil, isDest: true)
+#PlaceType.create(name: "Summit", description: "A peak", color: "#b26b00", graphicName: "star", pointRadius: 3, url: nil, isDest: true)
+#PlaceType.create(name: "Pass", description: "A trampable pass, col or saddle", color: "#333300", graphicName: "star", pointRadius: 3, url: nil, isDest: false)
+#PlaceType.create(name: "Locality", description: "A town, station, or other inhabited locality", color: "black", graphicName: "square", pointRadius: 3, url: nil, isDest: true)
+#PlaceType.create(name: "Roadend", description: "The point a track leaves a vehicular road", color: "#1a1a1a", graphicName: "square", pointRadius: 3, url: nil, isDest: true)
+#PlaceType.create(name: "Other", description: "Other location forming the start / end of a route", color: "#00003d", graphicName: "square", pointRadius: 3, url: nil, isDest: false)
+PlaceType.create(name: "Junction", description: "Track or route junction", color: "#00003d", graphicName: "square", pointRadius: 3, url: nil, isDest: false)
 #
 #
 #Routetype.create(code: "unk", name: "Unknown", description: "Not specified",difficulty: 0, linecolor: "#660066", linetype: "solid")
@@ -90,9 +91,9 @@
 #Role.create(name: "moderator")
 #Role.create(name: "root")
 
-Projection.create(id: 2193, name: "NZTM2000", proj4: "+proj=tmerc +lat_0=0 +lon_0=173 +k=0.9996 +x_0=1600000 +y_0=10000000 +ellps=GRS80 +towg", wkt: "", epsg: 2193)
-Projection.create(id: 4326, name: "WGS84", proj4: "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs", wkt: "", epsg: 4326)
-Projection.create(id: 27200, name: "NZMG49", proj4: "+proj=nzmg +lat_0=-41 +lon_0=173 +x_0=2510000 +y_0=6023150 +ellps=intl +datum=nzgd49 +units=m +no_defs", wkt: "", epsg: 27200)
-Projection.create(id: 900913, name: "GOOGLE", proj4: "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_defs", wkt: "", epsg: 900913)
+#Projection.create(id: 2193, name: "NZTM2000", proj4: "+proj=tmerc +lat_0=0 +lon_0=173 +k=0.9996 +x_0=1600000 +y_0=10000000 +ellps=GRS80 +towg", wkt: "", epsg: 2193)
+#Projection.create(id: 4326, name: "WGS84", proj4: "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs", wkt: "", epsg: 4326)
+#Projection.create(id: 27200, name: "NZMG49", proj4: "+proj=nzmg +lat_0=-41 +lon_0=173 +x_0=2510000 +y_0=6023150 +ellps=intl +datum=nzgd49 +units=m +no_defs", wkt: "", epsg: 27200)
+#Projection.create(id: 900913, name: "GOOGLE", proj4: "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_defs", wkt: "", epsg: 900913)
 
 ###   Mayor.create(name: 'Emanuel', city: cities.first)

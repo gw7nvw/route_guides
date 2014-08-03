@@ -12,22 +12,41 @@
 </script>
 <div id='place_details'>
    <%= render 'places/place_details' %>
+     <div class="erow">
+        <div class="hrline">
+           <hr noshade size="4">
+        </div>
+     </div>
 
    <div class="erow" style="margin-top:12px">
      <div class="sectiontitle">
-        Routes leading to / from here:
+        Places you can go from here:
      </div>
    </div>
-   <% @place.adjoiningRoutes.each do |r|%>
+   <% @trip=true %>
+   <% @place.adjoiningPlaces.each do |ap|%>
      <div class="erow">
-        <div class="sectiontext"> 
-           <li>
-              <%=  link_to r.name, '/routes/'+r.id.to_s, remote: true, onclick: %q[linkHandler('r]+r.id.to_s+%q[')], id:  'r'+r.id.to_s  %>
-           </li>
+        <div class="hrline">
+           <hr noshade size="2">
         </div>
      </div>
-   <% end %>
+     <div class="erow">
+        <div class="sectiontitle">
+              <% nextplace=Place.find_by_id(ap[:place]) %>
+              <%=  link_to nextplace.name, '/places/'+nextplace.id.to_s, remote: true, onclick: %q[linkHandler('p]+nextplace.id.to_s+%q[')], id:  'p'+nextplace.id.to_s  %>
+        </div>
+        <% @rt_list=ap[:route] %>
+        <%= render '/routes/search_details' %>
+     </div>
 
+   <% end %>
+   <% @trip=false %>
+
+   <div class="erow">
+      <div class="hrline">
+         <hr noshade size="4">
+      </div>
+   </div>
    <div class="erow" style="margin-top:12px">
      <div class="sectiontitle">
         Trips passing through here:
@@ -43,6 +62,11 @@
      </div>
    <% end %>
 
+     <div class="erow">
+        <div class="hrline">
+           <hr noshade size="4">
+        </div>
+     </div>
 
    <div class="erow" style="margin-top:12px">
      <div class="sectiontitle">
