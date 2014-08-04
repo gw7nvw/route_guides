@@ -1,4 +1,8 @@
 var map_map;
+var mapBounds = new OpenLayers.Bounds(  545967,  3739728,  2507647, 6699370);
+var mapMinZoom = 5;
+var mapMaxZoom = 15;
+
 var vectorLayer;
 var places_layer;
 var routes_layer;
@@ -33,6 +37,9 @@ var tripsStale=false;
 var itemToCut;
 var positionToPaste;
 
+OpenLayers.IMAGE_RELOAD_ATTEMPTS = 3;
+OpenLayers.Util.onImageLoadErrorColor = "transparent";
+
 function init(){
   if(typeof(map_map)=='undefined') {
 
@@ -40,16 +47,20 @@ function init(){
     Proj4js.defs["EPSG:2193"] = "+proj=tmerc +lat_0=0 +lon_0=173 +k=0.9996 +x_0=1600000 +y_0=10000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs";
     Proj4js.defs["EPSG:900913"] = "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_defs";
     Proj4js.defs["EPSG:27200"] = "+proj=nzmg +lat_0=-41 +lon_0=173 +x_0=2510000 +y_0=6023150 +ellps=intl +datum=nzgd49 +units=m +no_defs";
+    Proj4js.defs["ESPG:4326"] = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs '
 
     /* define our point styles */
     create_styles();
 
-    map_map = new OpenLayers.Map( 'map_map', {
-            displayProjection: new OpenLayers.Projection("EPSG:2193"),
-            projection: new OpenLayers.Projection("EPSG:900913"),
-            numZoomLevels: null, minZoomLevel: 6, maxZoomLevel: 14 
-    } );
-
+    var options = {
+      projection: new OpenLayers.Projection("EPSG:2193"),
+      displayProjection: new OpenLayers.Projection("EPSG:2193"),
+      units: "m",
+      maxResolution: 156543.0339,
+      maxExtent: new OpenLayers.Bounds(-20037508, -20037508, 20037508, 20037508.34)
+ //       maxExtent: new OpenLayers.Bounds(545967,  3739728,  2507647, 6699370)
+    };
+    map_map = new OpenLayers.Map('map_map', options);
 
 
     renderer = OpenLayers.Util.getParameters(window.location.href).renderer;
@@ -59,23 +70,18 @@ function init(){
     layer_style.fillOpacity = 0.2;
     layer_style.graphicOpacity = 1;
 
-    var extent = new OpenLayers.Bounds(18842642.180088, -5791195.9326324, 19729515.150218,  -4476561.4562925);
-    var basemap_layer = new OpenLayers.Layer.WMTS({
-        name: "nztopomaps.com",
-        url: "http://routeguides.co.nz/mapcache/wmts/",
-        layer: 'test',
-        matrixSet: 'g',
-        format: 'image/png',
-        style: 'default',
-        gutter:0,buffer:0,isBaseLayer:true,transitionEffect:'resize',
-        resolutions:[2445.98490512564012533403,1222.99245256282006266702,611.49622628141003133351,305.74811314070478829308,152.87405657035250783338,76.43702828517623970583,38.21851414258812695834,19.10925707129405992646,9.55462853564703173959],
-        zoomOffset:6,
-        units:"m",
-        maxExtent: new OpenLayers.Bounds(-20037508.342789,-20037508.342789,20037508.342789,20037508.342789),
-        projection: new OpenLayers.Projection("EPSG:900913".toUpperCase()),
-        sphericalMercator: true
-      }
-    );
+//    var extent = new OpenLayers.Bounds(-20037508, -20037508, 20037508, 20037508.34)
+    var extent=new OpenLayers.Bounds(545967,  3739728,  2507647, 6699370);
+
+    var basemap_layer =  new OpenLayers.Layer.TMS( "TMS Overlay", "",
+        {    //url: '/routeguides.co.nz/ms4w/apps/matts_app/date/nztm/',
+             type: 'png', 
+             getURL: overlay_getTileURL,
+// alpha: true, 
+             isBaseLayer: true,
+             tileOrigin: new OpenLayers.LonLat(0,-20037508)
+         });
+
 
     places_layer_add();
     routes_layer_add();
@@ -97,14 +103,14 @@ function init(){
     map_map.events.register("zoomend", map_map, function() {
        var x = map_map.getZoom();
         
-        if( x > 9) {
-            map_map.zoomTo(9);
+        if( x > 15) {
+            map_map.zoomTo(15);
         }
-        if( x < 0) {
-            map_map.zoomTo(0);
+        if( x < 5) {
+            map_map.zoomTo(5);
         }
         // hide places above 7 zoom (too much data).  Turn back on if we drop below 
-        if( x < 2) {
+        if( x < 8) {
             places_layer.setVisibility(false);
             autoPlacesOff=true;
        } else {
@@ -117,7 +123,7 @@ function init(){
     vectorLayer = new OpenLayers.Layer.Vector("Current feature", {
                 style: layer_style,
                 renderers: renderer,
-                projection: new OpenLayers.Projection("EPSG:900913".toUpperCase())
+                projection: new OpenLayers.Projection("EPSG:2193".toUpperCase())
             });
     map_map.addLayer(vectorLayer);
 
@@ -155,6 +161,8 @@ function init(){
     /* by default, activate only xclick_to_select */
     click_to_select_all.activate();
 
+    map_map.zoomToExtent( mapBounds.transform(map_map.displayProjection, map_map.projection ) );
+    map_map.zoomTo(5);
     // hide places below 2 zoom (too much data).  Turn back on if we drop beloiw 
     if( map_map.getZoom() < 2) {
         places_layer.setVisibility(false);
@@ -600,7 +608,7 @@ function place_init(plloc, keep) {
   if ((keep==0) && (typeof(vectorLayer)!='undefined')) vectorLayer.destroyFeatures();
 
   var srcProj =  new OpenLayers.Projection("EPSG:4326");
-  var mapProj =  new OpenLayers.Projection("EPSG:900913");
+  var mapProj =  new OpenLayers.Projection("EPSG:2193");
 
   if(plloc!="") {
 
@@ -623,7 +631,7 @@ function route_init(startloc, endloc, rtline, keep) {
   if ((keep==0) && (typeof(vectorLayer)!='undefined')) vectorLayer.destroyFeatures();
 
   var srcProj =  new OpenLayers.Projection("EPSG:4326");
-  var mapProj =  new OpenLayers.Projection("EPSG:900913");
+  var mapProj =  new OpenLayers.Projection("EPSG:2193");
   /* add start point */
 
   if(startloc!="") {
@@ -961,3 +969,21 @@ function linkHandler(entity_name) {
               document.routeform.route_location.value, 0);
 
 }
+
+function overlay_getTileURL(bounds) {
+    var res = this.map.getResolution();
+    var x = Math.round((bounds.left - this.maxExtent.left) / (res * this.tileSize.w));
+    var y = Math.round((bounds.bottom - this.tileOrigin.lat ) / (res * this.tileSize.h));
+    var z = this.map.getZoom();
+    if (this.map.baseLayer.name == 'Virtual Earth Roads' || this.map.baseLayer.name == 'Virtual Earth Aerial' || this.map.baseLayer.name == 'Virtual Earth Hybrid') {
+       z = z + 1;
+    }
+    if (mapBounds.intersectsBounds( bounds ) && z >= mapMinZoom && z <= mapMaxZoom ) {
+       //console.log( this.url + z + "/" + x + "/" + y + "." + this.type);
+        return '/ms4w/apps/matts_app/data/nztm/' + z + "/" + x + "/" + y + "." + this.type;
+    } else {
+        return "http://www.maptiler.org/img/none.png";
+    }
+
+}  
+
