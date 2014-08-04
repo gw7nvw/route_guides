@@ -1,4 +1,4 @@
- @import "bootstrap"; 
+@import "bootstrap"; 
 @import "slider";
 
 /* mixins, variables, etc. */
@@ -13,14 +13,6 @@ $grayLighter: #eee;
 $grayMediumLight: #eaeaea;
 
 /* universal */
-
-html, body {
-        height: 100%;
-        width: 100%;
-        border: 0px;
-        margin: 0px;
-        padding: 0px;
-}
 
 
 
@@ -168,6 +160,14 @@ p {
         margin-bottom: 10px;
 }
 
+html, body {
+        height: 100%;
+        width: 100%;
+        border: 0px;
+        margin: 0px;
+        padding: 0px;
+}
+
 .selectedrow {
         background-color: #d6ffd6;
 
@@ -245,12 +245,6 @@ p {
         margin-left: 25px;
 }
 
-.sectiontext {
-        float: left;
-        width: 100%;
-        margin-left: 25px;
-}
-
 .rowtitle {
         width: 25%;
         margin-top: 1px;
@@ -260,6 +254,7 @@ p {
         font-weight: bold;
         color: $grayLight;
 }
+
 
 .rowtext {
         float: left;
@@ -274,14 +269,21 @@ p {
         font-weight: bold;
         color: $grayLight;
 }
+.sectiontitle-bold {
+        margin-top: 1px;
+        float: left;
+        font-size: 1.2em;
+        letter-spacing: -1px;
+        font-weight: bold;
+        color: $grayLight;
+}
 
+#links_section > .erow > #route_details > .erow > .sectiontitle {
+        font-weight: normal;
+}
 
-html, body {
-        height: 100%;
-        width: 100%;
-        border: 0px;
-        margin: 0px;
-        padding: 0px;
+#links_section > .erow > .sectiontitle {
+        font-weight: normal;
 }
 
 #map_map {
