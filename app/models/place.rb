@@ -46,8 +46,10 @@ def adjoiningPlaces
   validDest=Array.new
    placeSoFar=[]
   routeSoFar=[]
+  urlSoFar=[]
   placeSoFar[0]=[self.id]
   routeSoFar[0]=[]
+  urlSoFar[0]=""
   goodPath=[]
   goodRoute=[]
   destFound=1
@@ -60,11 +62,12 @@ def adjoiningPlaces
     loopCount=0
     nextPlaceSoFar=[]
     nextRouteSoFar=[]
+    nextUrlSoFar=[]
+    destFound=0
     placeSoFar.each do |thisPath|
 
       #get latets place added to list
       here=Place.find_by_id(thisPath[0])
-      destFound=0
       totalFound=0
 
       #add each route to hash
@@ -79,12 +82,13 @@ def adjoiningPlaces
 
         if nextDest.placeType.isDest and !thisPath.include? nextDest.id then
                 goodPath[goodPathCount]=[nextDest.id]+thisPath
-                goodRoute[goodPathCount]={:place => nextDest.id, :route=>[direction*ar.id]+routeSoFar[loopCount]}
+                goodRoute[goodPathCount]={:place => nextDest.id, :route=>[direction*ar.id]+routeSoFar[loopCount], :url=>urlSoFar[loopCount]+'_r'+(direction*ar.id).to_s}
                 goodPathCount+=1 
                 totalFound+=1     
         else
           if !thisPath.include? nextDest.id then
                 nextRouteSoFar[destFound]=[direction*ar.id]+routeSoFar[loopCount]
+                nextUrlSoFar[destFound]=urlSoFar[loopCount]+'_r'+(direction*ar.id).to_s
                 nextPlaceSoFar[destFound]=[nextDest.id]+thisPath
                 destFound+=1
                 totalFound+=1
@@ -94,7 +98,7 @@ def adjoiningPlaces
       # if this was a stub route, add it even if it didn;t end at a destination
       if totalFound==0  and routeSoFar[loopCount].count>0 then
                 goodPath[goodPathCount]=thisPath
-                goodRoute[goodPathCount]={:place => here.id, :route => routeSoFar[loopCount]}
+                goodRoute[goodPathCount]={:place => here.id, :route => routeSoFar[loopCount], :url => urlSoFar[loopCount]}
                 goodPathCount+=1
       end
       loopCount+=1
@@ -102,6 +106,7 @@ def adjoiningPlaces
     #replace placesSpFar with new list of latest destinatons found
     placeSoFar=nextPlaceSoFar
     routeSoFar=nextRouteSoFar
+    urlSoFar=nextUrlSoFar
   end #end of while we get results & don;t exceed max hop count
 
   goodRoute

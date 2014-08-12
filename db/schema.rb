@@ -54,9 +54,9 @@ ActiveRecord::Schema.define(version: 20140803012310) do
     t.integer  "createdBy_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.spatial  "location",      limit: {:srid=>4326, :type=>"point"}
     t.string   "place_type",    limit: 20
     t.string   "place_owner",   limit: 20
-    t.spatial  "location",      limit: {:srid=>4326, :type=>"point"}
     t.text     "links"
     t.integer  "projection_id"
   end
@@ -82,9 +82,9 @@ ActiveRecord::Schema.define(version: 20140803012310) do
     t.integer  "createdBy_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.spatial  "location",      limit: {:srid=>4326, :type=>"point"}
     t.string   "place_type",    limit: 20
     t.string   "place_owner",   limit: 20
-    t.spatial  "location",      limit: {:srid=>4326, :type=>"point"}
     t.text     "links"
     t.integer  "projection_id"
   end

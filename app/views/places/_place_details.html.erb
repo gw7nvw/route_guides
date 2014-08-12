@@ -13,8 +13,8 @@
       <% end %>
 
       <div class="sectiontitle">
-          <% link_name=@place.name+"( "+ (if @place.place_owner then @place.place_owner+" " end) + 
-                 @place.place_type+" )" %>
+          <% link_name=@place.name+" ("+ (if @place.place_owner then @place.place_owner+" " end) + 
+                 @place.place_type+") " %>
           <% if !@history %>
             <% if (!@trip) %>
                <%= form_for  @place, :html => {:name => 'placeform'}, remote: true  do |f| %>
@@ -61,32 +61,29 @@
    </div>
 
 
+  <div class="erow"> 
    <!-- Place links (f any) and max/mix buttons -->
    <% if (@place.links) %>
       <% if @place.links.length>0 %>
-         <div class="subrow">
-            <%=render :partial => 'expand_buttons',  :locals => {:expName => "lk_p"+@itemNumber.to_s, :initialSt => @showLinks} %>
-            <div class="sectiontitle">
-               Further information:
-            </div>
-          </div>
-          <div id='<%="lk_p"+@itemNumber.to_s%>' class="sectiontext" style=<%=if (@showLinks==1) then "display:block" else "display:none" end %>>
+         <%=render :partial => 'info_buttons',  :locals => {:expName => "lk_p"+@itemNumber.to_s, :initialSt => @showLinks} %>
+          <div id='<%="lk_p"+@itemNumber.to_s%>' class="sectiontext25" style=<%=if (@showLinks==1) then "display:block" else "display:none" end %>>
               <p><%=@place.links %><br/></p>
           </div>
        <% end %>
     <% end %>
 
-   <!-- Place author details (if any) -->
-    <% if @place.createdBy_id %>
-       <small color="greyLight">
-	  Created by: <%= link_to @place.createdBy.name.capitalize, '/users/'+@place.createdBy.name, remote: true%> on <%=@place.firstcreated_at%>. Last updated: <%=@place.updated_at%> 
-          <% if !@history %>
-             <%= link_to "View history", '/history/place-'+@place.id.to_s, remote: true, :id => 'history', :onclick =>"linkHandler('history')" %>
-          <% end %>
-       </small>
-    <% end %>
-
-</div>
+   <div class="sectiontext25">
+      <!-- Place author details (if any) -->
+       <% if @place.createdBy_id %>
+          <small color="greyLight">
+      	     Created by: <%= link_to @place.createdBy.name.capitalize, '/users/'+@place.createdBy.name, remote: true%> on <%=@place.firstcreated_at%>. Last updated: <%=@place.updated_at%> 
+             <% if !@history %>
+                <%= link_to "View history", '/history/place-'+@place.id.to_s, remote: true, :id => 'history', :onclick =>"linkHandler('history')" %>
+             <% end %>
+          </small>
+       <% end %>
+    </div>
+  </div>
 </div>
 
 <script>

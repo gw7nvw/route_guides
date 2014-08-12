@@ -27,10 +27,66 @@ class RoutesController < ApplicationController
     prepare_route_vars()
   end
 
-  def create
+  def many
+  @items=params[:route].split('_')[1..-1]
+    current_user()
+    @trip=Trip.find_by_id(@current_user.currenttrip)
+    @items.each do |item|
+      itemno=item[1..-1].to_i
+      if item[0]=='p' then
+        @trip_details = TripDetail.new
+        @trip_details.showForward=true;
+        @trip_details.showReverse=false;
+        @trip_details.is_reverse=false
+        @trip_details.trip = @trip
+        @trip_details.place_id = itemno
+        @trip_details.showConditions=false;
+        @trip_details.showLinks=false;
+      end
+      if item[0]=='r' then
+        if itemno<0 then
+            itemno=-itemno
+            route=Route.find_by_id(itemno)
+            @trip_details = TripDetail.new
+            if (route.reverse_description and route.reverse_description.length>0) then
+              @trip_details.showForward=false;
+              @trip_details.showReverse=true;
+            else
+              @trip_details.showForward=true;
+              @trip_details.showReverse=false;
+            end
+            @trip_details.is_reverse=true
+        else
+            @trip_details = TripDetail.new
+            @trip_details.showForward=true;
+            @trip_details.showReverse=false;
+            @trip_details.is_reverse=false
+        end
+
+        @trip_details.trip = @trip
+        @trip_details.route_id = itemno
+        @trip_details.showConditions=false;
+        @trip_details.showLinks=false;
+      end
+      if(@trip.trip_details.max)
+        @trip_details.order = @trip.trip_details.max.id+1
+      else
+        @trip_details.order = 1
+      end
+        @trip_details.save
+      flash[:success]="Added route to trip"
+
+    end 
+
+   
+   @id=params[:route]
+   show()
+ end
+ def create
     @route = Route.new(route_params)    
     prepare_route_vars()
     @route.createdBy_id = @current_user.id #current_user.id
+    route_add_altitude()
     @route_instance=RouteInstance.new(@route.attributes)
     # but doesn;t handle location ... so
 
@@ -42,7 +98,7 @@ class RoutesController < ApplicationController
         @edit=false
         @showForward=1
         @showReverse=1
-        @showConditions=1
+        @showConditions=0
         @showLinks=1
 
         render 'show'
@@ -61,13 +117,53 @@ class RoutesController < ApplicationController
  
   end 
 
-  def show
+def show
+    prepare_route_vars()
+    if !@id then @id=params[:id] end
+    if @id[0]!="_" then
+       show_single()
+    else
+      @items=@id.split('_')[1..-1]
+
+      @showForward=1
+      @showReverse=1
+      @showConditions=0
+      @showLinks=0
+      @url=@id
+ 
+      if @items.first[0]=='p' then @startplace=Place.find_by_id(@items.first[1..-1].to_i) end
+      if @items.first[0]=='r' then  routeId=@items.first[1..-1].to_i
+        if routeId<0 then
+             route=Route.find_by_id(-routeId)
+             @startplace=Place.find_by_id(route.endplace_id)
+        else
+             route=Route.find_by_id(routeId)
+             @startplace=Place.find_by_id(route.startplace_id)
+        end
+      end
+      if @items.last[0]=='p' then @endplace=Place.find_by_id(@items.last[1..-1].to_i) end
+      if @items.last[0]=='r' then  routeId=@items.last[1..-1].to_i
+        if routeId<0 then
+             route=Route.find_by_id(-routeId)
+             @endplace=Place.find_by_id(route.startplace_id)
+        else
+             route=Route.find_by_id(routeId)
+             @endplace=Place.find_by_id(route.endplace_id)
+        end
+      end
+
+      render '/routes/show_many'
+    end
+end
+
+
+  def show_single
     @edit=false
 
     # default visibility 
     @showForward=1
     @showReverse=1
-    @showConditions=1
+    @showConditions=0
     @showLinks=1
 
     if( @route = Route.find_by_id(params[:id]))
@@ -75,8 +171,6 @@ class RoutesController < ApplicationController
       if(@route.location)
         @route.location=@route.location.as_text
       end
-      prepare_route_vars()
-
     else
       redirect_to root_url
     end
@@ -114,11 +208,11 @@ class RoutesController < ApplicationController
       @trip_details = TripDetail.new
       #for reverse trips, show the reverse directions if present, or the f/w ones if not
       if (@route.reverse_description and @route.reverse_description.length>0) then
-        @trip_details.showForward=true;
-        @trip_details.showReverse=false;
-      else
         @trip_details.showForward=false;
         @trip_details.showReverse=true;
+      else
+        @trip_details.showForward=true;
+        @trip_details.showReverse=false;
       end
       @trip_details.is_reverse=true
       add=true
@@ -154,29 +248,8 @@ class RoutesController < ApplicationController
       # but doesn;t handle location ... so
 
       if @route.update(route_params)
-         #check for alt data
-          totalAlt=0
-          @route.location.points.each do |p|
-            totalAlt+=p.z
-          end
-          #none present? then calculate
-          if totalAlt==0 then
-            linestr="LINESTRING("
-            @route.location.points.each do |p|
-               if linestr.length>11 then linestr+="," end
-               #get alt from map if it is blank or 0
-               altArr=Place.find_by_sql ["
-                  select ST_Value(rast, ST_GeomFromText(?,4326))  id
-                     from dem100
-                     where ST_Intersects(rast,ST_GeomFromText(?,4326));",
-                     'POINT('+p.x.to_s+' '+p.y.to_s+')',
-                     'POINT('+p.x.to_s+' '+p.y.to_s+')']
-
-               linestr+=p.x.to_s+" "+p.y.to_s+" "+altArr.first.try(:id).to_s
-            end
-            @route.location=linestr+")"
-            @route.save
-        end
+        route_add_altitude()
+        @route.save
         @route_instance.route_id=@route.id
         @route_instance.id = nil
         if @route_instance.save
@@ -215,6 +288,31 @@ class RoutesController < ApplicationController
         render 'edit'
       end
    end
+end
+
+def route_add_altitude
+  #check for alt data
+  totalAlt=0
+  @route.location.points.each do |p|
+    totalAlt+=p.z
+  end
+  #none present? then calculate
+  #if totalAlt==0 then
+    linestr="LINESTRING("
+    @route.location.points.each do |p|
+       if linestr.length>11 then linestr+="," end
+       #get alt from map if it is blank or 0
+       altArr=Dem30.find_by_sql ["
+          select ST_Value(rast, ST_GeomFromText(?,4326))  rid
+             from dem30s
+             where ST_Intersects(rast,ST_GeomFromText(?,4326));",
+             'POINT('+p.x.to_s+' '+p.y.to_s+')',
+             'POINT('+p.x.to_s+' '+p.y.to_s+')']
+
+       linestr+=p.x.to_s+" "+p.y.to_s+" "+altArr.first.try(:rid).to_s
+    end
+    @route.location=linestr+")"
+  #end
 end
 
   def routes_from_to(placea, placeb)
@@ -261,8 +359,8 @@ end
                 goodPathCount+=1
         else
           if !thisPath.include? nextDest then
-                nextRouteSoFar[destFound]=[direction*ar.id]+routeSoFar[loopCount]
-                nextPlaceSoFar[destFound]=[nextDest]+thisPath
+                nextRouteSoFar[totalDestFound]=[direction*ar.id]+routeSoFar[loopCount]
+                nextPlaceSoFar[totalDestFound]=[nextDest]+thisPath
                 destFound+=1
                 totalDestFound+=1
           end
