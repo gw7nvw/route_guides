@@ -63,3 +63,54 @@ production:
   database: route_guides_production2
 
 
+dem100:
+#  adapter: mysql2
+#  encoding: utf8
+#  database: route_guides_production
+#  pool: 5
+#  username: root
+#  password: littledog
+#  socket: /var/run/mysqld/mysqld.sock
+  adapter: postgis
+  encoding: unicode
+  postgis_extension: postgis      # default is postgis
+  schema_search_path: public,postgis
+  pool: 5
+  username: route_guides_production
+  password: littledog
+  database: dem100
+
+dem30:
+#  adapter: mysql2
+#  encoding: utf8
+#  database: route_guides_production
+#  pool: 5
+#  username: root
+#  password: littledog
+#  socket: /var/run/mysqld/mysqld.sock
+  adapter: postgis
+  encoding: unicode
+  postgis_extension: postgis      # default is postgis
+  schema_search_path: public,postgis
+  pool: 5
+  username: route_guides_production
+  password: littledog
+  database: dem30
+
+dem15:
+#  adapter: mysql2
+#  encoding: utf8
+#  database: route_guides_production
+#  pool: 5
+#  username: root
+#  password: littledog
+#  socket: /var/run/mysqld/mysqld.sock
+  adapter: postgis
+  encoding: unicode
+  postgis_extension: postgis      # default is postgis
+  schema_search_path: public,postgis
+  pool: 5
+  username: route_guides_production
+  password: littledog
+  database: dem15
+

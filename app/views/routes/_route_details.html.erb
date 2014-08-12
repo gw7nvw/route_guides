@@ -1,171 +1,185 @@
 <div id="route_details">    
    <% if !@itemNumber then @itemNumber=1 else @itemNumber+=1 end %>
    <div class="erow">
-          <%=render :partial => 'expand_buttons',  :locals => {:expName => "route"+@itemNumber.to_s, :initialSt => (if @hideAll then 0 else 1 end)} %>
-    <%  if(signed_in? and !@trip) %>
-       <div class="leftbuttons">
-          <span title="Edit">
-              <%=  link_to image_tag("/assets/pencil_edit.png", :border=>0, :class => 'dock-item'), '/routes/'+@route.id.to_s+'/edit', remote: true, onclick: "linkHandler('editbutton')", id:  "editbutton"  %>
-          </span>
-       </div>
-    <% end %>
+      <%=render :partial => 'expand_buttons',  :locals => {:expName => "route"+@itemNumber.to_s, :initialSt => (if @hideAll then 0 else 1 end)} %>
+      <%  if(signed_in? and !@trip) %>
+         <div class="leftbuttons">
+            <span title="Edit">
+               <%=  link_to image_tag("/assets/pencil_edit.png", :border=>0, :class => 'dock-item'), '/routes/'+@route.id.to_s+'/edit', remote: true, onclick: "linkHandler('editbutton')", id:  "editbutton"  %>
+            </span>
+         </div>
+      <% end %>
 
-    <div class="sectiontitle">
-     <% if !@history %>
-        <% if @reverse %>
-        <%= link_to @route.endplace.name+" to "+@route.startplace.name+" via "+@route.via, 
-          @route, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
-        <% else %>
-        <%= link_to @route.startplace.name+" to "+@route.endplace.name+" via "+@route.via, 
-          @route, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
-        <% end %>
-      <% else %>
-        <%=@route.startplace.name+" to "+@route.endplace.name+" via "+@route.via %>
-     <% end %>
-
-    </div>
-  </div>
-<div id='route<%=@itemNumber.to_s%>' style='display:<%=if @hideAll then "none" else "block" end%>'>
-  <div class="subrow">
-       <% if @route.distance %>
-         <%= "Distance: "+@route.distance.round(1).to_s+" km " %>
-       <%end %>
-       <% if @route.time %>
-         <%="("+@route.time.round(1).to_s+" DOC hours)"  %>
-         <br/>
-       <% end %>
-       <% if @route.location %>
-         <% if @reverse %>
-           <%= "Altitude - Max: "+@route.maxalt.to_i.to_s+"m  Min: "+@route.minalt.to_i.to_s+"m"+
-              "  Gain: "+@route.altloss.to_i.to_s+"m  Loss: "+@route.altgain.to_i.to_s+"m" %>
+      <div class="sectiontitle25">
+         <% if !@history %>
+            <% if @reverse %>
+               <%= link_to @route.endplace.name+" to "+@route.startplace.name+" via "+@route.via, 
+                  @route, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
+            <% else %>
+               <%= link_to @route.startplace.name+" to "+@route.endplace.name+" via "+@route.via, 
+                  @route, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
+            <% end %>
          <% else %>
-           <%= "Altitude - Max: "+@route.maxalt.to_i.to_s+"m  Min: "+@route.minalt.to_i.to_s+"m"+
-              "  Gain: "+@route.altgain.to_i.to_s+"m  Loss: "+@route.altloss.to_i.to_s+"m" %>
+            <%=@route.startplace.name+" to "+@route.endplace.name+" via "+@route.via %>
          <% end %>
-         <% if @route.distance>0 %>
-           <%="  Gradient: "+((@route.altgain+@route.altloss)*45/(@route.distance*1000)).to_i.to_s+" deg"%>
-         <% end %>
-       <%end %><br/>
-        <i><%= "GPX info source: "+@route.datasource %></i>
-      <br/>
-      <br/>
- </div>
 
-        <div class="subrow">
-          <%=render :partial => 'expand_buttons',  :locals => {:expName => "fw_r"+@itemNumber.to_s, :initialSt => @showForward} %>
-          <div class="sectiontitle">  
-            <% if (!@trip) %>
-               <%= form_for  @route, :html => {:name => 'routeform'}, remote: true  do |f| %>
+      </div>
+   </div>
+   <div id='route<%=@itemNumber.to_s%>' style='display:<%=if @hideAll then "none" else "block" end%>'>
+      <div class="subrow">
+         <%=render :partial => 'expand_buttons',  :locals => {:expName => "cn_r"+@itemNumber.to_s, :initialSt => @showConditions} %>
+         <% if @route.distance %>
+            <%= "Distance: "+@route.distance.round(1).to_s+" km  " %>
+         <%end %>
+         <% if @route.routetype.name!='Unknown'%>
+            <%=@route.routetype.name%>
+         <% end %>
+         <% if @route.terrain.name!='Unknown'%>
+            <%=" - "+@route.terrain.name+" terrain"%><br/> 
+         <% end %>
+         <% if @route.time %>
+            <%="("+@route.time.round(1).to_s+" DOC hours)"  %>
+         <% end %>
+         <% if @route.location %>
+            <% if @reverse %>
+               <br/><%= "Altitude - Max: "+@route.maxalt.to_i.to_s+"m  Min: "+@route.minalt.to_i.to_s+"m"+
+                  "  Gain: "+@route.altloss.to_i.to_s+"m  Loss: "+@route.altgain.to_i.to_s+"m" %>
+            <% else %>
+               <%= "Altitude - max: "+@route.maxalt.to_i.to_s+"m  min: "+@route.minalt.to_i.to_s+"m"+
+                  "  gain: "+@route.altgain.to_i.to_s+"m  loss: "+@route.altloss.to_i.to_s+"m" %>
+            <% end %>
+            <% if @route.distance>0 %>
+               <%="  gradient: "+(Math.tan((@route.altgain+@route.altloss)/(@route.distance*1000))*180/Math::PI).to_i.to_s+" deg"%>
+            <% end %>
+            <% if @route.gradient.name!='Unknown'%>
+               <%="("+@route.gradient.name+")"%>
+            <% end %>
+         <% end %><br/>
+         Skills:  
+         <% if @route.alpinesummer.name!='Unknown' and @route.alpinesummer.name!='None' %>
+            <%=@route.alpinesummer.name%><%=" ("+(@route.alpinesummer_id-@alpines.minimum(:id)).to_s+"/"+(@alpines.maximum(:id)-@alpines.minimum(:id)).to_s+") "%> 
+         <% end %>
+         <% if @route.river.name!='Unknown' and @route.river.name!='None' %>
+            <%=" - "+@route.river.name%>
+            <%=" ("+(@route.river_id-@rivers.minimum(:id)).to_s+"/"+(@rivers.maximum(:id)-@rivers.minimum(:id)).to_s+") "%>
+         <% end %>
+         <% if @route.alpinewinter.name!='Unknown' and @route.alpinewinter.name!='None' %>
+            Winter - <%=@route.alpinewinter.name%>
+            <%=" ("+(@route.alpinewinter_id-@alpines.minimum(:id)).to_s+"/"+(@alpines.maximum(:id)-@alpines.minimum(:id)).to_s+")"%>
+         <% end %>
+         <br/><i><%= "GPX info source: "+@route.datasource %></i>
+      </div>
+    <div id='<%="cn_r"+@itemNumber.to_s%>' class="sectiontext" style=<%=if (@showConditions==1) then "display:block" else "display:none" end %>>
+       <p>
+          <div class="diff_label">Route Type:</div> <%=@route.routetype.name%>
+          <%="("+(@route.routetype_id-@route_types.minimum(:id)).to_s+"/"+(@route_types.maximum(:id)-@route_types.minimum(:id)).to_s+")"%><br/>
+          <i><%=@route.routetype.description%></i>
+       </p>
+       <p>
+          <div class="diff_label">Gradient:</div> <%=@route.gradient.name%>
+          <%="(difficulty: "+(@route.gradient_id-@gradients.minimum(:id)).to_s+"/"+(@gradients.maximum(:id)-@gradients.minimum(:id)).to_s+")"%><br/>
+          <i><%=@route.gradient.description%></i>
+       </p>
+       <p>
+          <div class="diff_label">Terrain:</div> <%=@route.terrain.name%>
+          <%="(difficulty: "+(@route.terrain_id-@terrains.minimum(:id)).to_s+"/"+(@terrains.maximum(:id)-@terrains.minimum(:id)).to_s+")"%><br/>
+          <i><%=@route.terrain.description%></i>
+       </p>
+       <p>
+          <div class="diff_label">Alpine:</div> <%=@route.alpinesummer.name%>
+          <%="(difficulty: "+(@route.alpinesummer_id-@alpines.minimum(:id)).to_s+"/"+(@alpines.maximum(:id)-@alpines.minimum(:id)).to_s+")"%><br/>
+          <i><%=@route.alpinesummer.description%></i>
+       </p>
+       <p>
+          <div class="diff_label">Rivers:</div> <%=@route.river.name%>
+          <%="(difficulty: "+(@route.river_id-@rivers.minimum(:id)).to_s+"/"+(@rivers.maximum(:id)-@rivers.minimum(:id)).to_s+")"%><br/>
+          <i><%=@route.river.description%></i>
+       </p>
+
+       <div class="sectiontitle">Winter conditions:</div></br>
+       <p>
+          <div class="diff_label">Alpine:</div> <%=@route.alpinewinter.name%>
+          <%="(difficulty: "+(@route.alpinewinter_id-@alpines.minimum(:id)).to_s+"/"+(@alpines.maximum(:id)-@alpines.minimum(:id)).to_s+")"%><br/>
+          <i><%=@route.alpinewinter.description%></i>
+       </p>
+       <p>
+          <%= simple_format(@route.winterdescription).html_safe %>
+       </p>
+    </div>
+    <br/>&nbsp;
+    <div class="subrow">
+       <div class="leftbuttons">
+          <img id='switch' src="/assets/switch.png" <%=%q[onclick=clickswitch(']+@itemNumber.to_s+%q[')]%>></img>
+       </div>
+       <div id='<%="fw_t"+@itemNumber.to_s%>' class="sectiontitle" style=<%=if (@showForward==1) then "display:block" else "display:none" end %>>  
+          <% if (!@trip) %>
+             <%= form_for  @route, :html => {:name => 'routeform'}, remote: true  do |f| %>
                  From <%= link_to @route.startplace.name,    @route.startplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
                  to <%= link_to @route.endplace.name,    @route.endplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %> 
                  <%= f.submit "Add to trip", class: "btn btn-small btn-primary", name: "addfw", onclick: "linkHandler('addbutton')", id:  "addbutton" %>  
-               <% end %>
-             <% else %>
-               From <%= link_to @route.startplace.name,    @route.startplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
-               to <%= link_to @route.endplace.name,    @route.endplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %> 
              <% end %>
-          </div>
-        </div>
-        <div id='<%="fw_r"+@itemNumber.to_s%>' class="sectiontext" style=<%=if (@showForward==1) then "display:block" else "display:none" end %> >
+          <% else %>
+             From <%= link_to @route.startplace.name,    @route.startplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
+             to <%= link_to @route.endplace.name,    @route.endplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %> 
+          <% end %>
+       </div>
+       <div id='<%="fw_r"+@itemNumber.to_s%>' class="sectiontext" style=<%=if (@showForward==1) then "display:block" else "display:none" end %> >
+          <% if @reverse %>
+             <p style='color:red'>Note: Described in the reverse direction to your journey</p>
+          <% end %>
           <%= simple_format(@route.description).html_safe %>
-        </div>
+       </div>
 
 
-        <div class="subrow">
-          <%=render :partial => 'expand_buttons',  :locals => {:expName => "rv_r"+@itemNumber.to_s, :initialSt => @showReverse} %>
-          <div class="sectiontitle">
-             <% if (!@trip) %>
-               <%= form_for  @route, :html => {:name => 'routeform'}, remote: true  do |f| %>
+       <div id='<%="rv_t"+@itemNumber.to_s%>' class="sectiontitle" style=<%=if (@showForward!=1) then "display:block" else "display:none" end %>>
+          <% if (!@trip) %>
+             <%= form_for  @route, :html => {:name => 'routeform'}, remote: true  do |f| %>
                  From <%= link_to @route.endplace.name,    @route.endplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %> 
                  to <%= link_to @route.startplace.name,    @route.startplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
                  <%= f.submit "Add to trip", class: "btn btn-small btn-primary", name: "addrv", onclick: "linkHandler('addbutton')", id:  "addbutton" %>
-               <% end %>
-           <% else %>
-              From <%= link_to @route.endplace.name,    @route.endplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %> 
-              to <%= link_to @route.startplace.name,    @route.startplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
-           <% end %>
+             <% end %>
+          <% else %>
+             From <%= link_to @route.endplace.name,    @route.endplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %> 
+             to <%= link_to @route.startplace.name,    @route.startplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
+          <% end %>
 
           </div>
-        </div>
-        <div id='<%="rv_r"+@itemNumber.to_s%>' class="sectiontext" style=<%=if (@showReverse==1) then "display:block" else "display:none" end %>>
+        <div id='<%="rv_r"+@itemNumber.to_s%>' class="sectiontext" style=<%=if (@showForward!=1) then "display:block" else "display:none" end %>>
+          <% if !@reverse %>
+             <p style='color:red'>Note: Described in the reverse direction to your journey</p>
+          <% end %>
            <%= simple_format(@route.reverse_description).html_safe %>
         </div>
-
-
-    <div class="subrow">
-      <%=render :partial => 'expand_buttons',  :locals => {:expName => "cn_r"+@itemNumber.to_s, :initialSt => @showConditions} %>
-      <div class="sectiontitle">
-        Route conditions:
-      </div>
-    </div>
-    <div id='<%="cn_r"+@itemNumber.to_s%>' class="sectiontext" style=<%=if (@showConditions==1) then "display:block" else "display:none" end %>>
-      <p>
-          <div class="diff_label">Route Type:</div> <%=@route.routetype.name%>
-          <%="(difficulty: "+(@route.routetype_id-@route_types.minimum(:id)).to_s+"/"+(@route_types.maximum(:id)-@route_types.minimum(:id)).to_s+")"%><br/>
-          <i><%=@route.routetype.description%></i>
-      </p>
-      <p>
-          <div class="diff_label">Gradient:</div> <%=@route.gradient.name%>
-          <%="(difficulty: "+(@route.gradient_id-@gradients.minimum(:id)).to_s+"/"+(@gradients.maximum(:id)-@gradients.minimum(:id)).to_s+")"%><br/>
-        <i><%=@route.gradient.description%></i>
-      </p>
-      <p>
-          <div class="diff_label">Terrain:</div> <%=@route.terrain.name%>
-          <%="(difficulty: "+(@route.terrain_id-@terrains.minimum(:id)).to_s+"/"+(@terrains.maximum(:id)-@terrains.minimum(:id)).to_s+")"%><br/>
-        <i><%=@route.terrain.description%></i>
-      </p>
-      <p>
-          <div class="diff_label">Alpine:</div> <%=@route.alpinesummer.name%>
-          <%="(difficulty: "+(@route.alpinesummer_id-@alpines.minimum(:id)).to_s+"/"+(@alpines.maximum(:id)-@alpines.minimum(:id)).to_s+")"%><br/>
-        <i><%=@route.alpinesummer.description%></i>
-      </p>
-      <p>
-          <div class="diff_label">Rivers:</div> <%=@route.river.name%>
-          <%="(difficulty: "+(@route.river_id-@rivers.minimum(:id)).to_s+"/"+(@rivers.maximum(:id)-@rivers.minimum(:id)).to_s+")"%><br/>
-        <i><%=@route.river.description%></i>
-      </p>
-
-    <div class="sectiontitle">Winter conditions:</div></br>
-    <p>
-          <div class="diff_label">Alpine:</div> <%=@route.alpinewinter.name%>
-          <%="(difficulty: "+(@route.alpinewinter_id-@alpines.minimum(:id)).to_s+"/"+(@alpines.maximum(:id)-@alpines.minimum(:id)).to_s+")"%><br/>
-      <i><%=@route.alpinewinter.description%></i>
-    </p>
-    <p>
-        <%= simple_format(@route.winterdescription).html_safe %>
-    </p>
-  </div>
-
-
+     </div>
    
-  <% if @route.links %>
-    <% if @route.links.length>0 %>
-        <div class="subrow">
-          <%=render :partial => 'expand_buttons',  :locals => {:expName => "lk_r"+@itemNumber.to_s, :initialSt => @showLinks} %>
-           <div class="sectiontitle">
-            Further Information:
-          </div>
-          <div id='<%="lk_r"+@itemNumber.to_s%>' class="sectiontext" style=<%=if (@showLinks==1) then "display:block" else "display:none" end %>>
-            <%= @route.links %>
-          </div>
-        </div>
+     <div class="erow">
+     <% if @route.links %>
+        <% if @route.links.length>0 %>
+              <%=render :partial => 'info_buttons',  :locals => {:expName => "lk_r"+@itemNumber.to_s, :initialSt => @showLinks} %>
+              <div id='<%="lk_r"+@itemNumber.to_s%>' class="sectiontext25" style=<%=if (@showLinks==1) then "display:block" else "display:none" end %>>
+                 <%= @route.links %><br/>
+              </div>
+        <% end %>
      <% end %>
-   <% end %>
-
-   <small> 
-     <% if @route.createdBy_id %>
-       Created by: <%= link_to @route.createdBy.name.capitalize, '/users/'+@route.createdBy.name, remote: true%> on <%=@route.firstcreated_at%>. Last updated: <%=@route.updated_at%>
-<% if !@history%>
-   <%= link_to "View history", '/history/route-'+@route.id.to_s, remote: true, :id => 'history', :onclick =>"linkHandler('history')" %>
-<% end %>
-     <% end %>
-   </small>
-
-</div>
+     <div class="sectiontext25">
+        <small> 
+           <% if @route.createdBy_id %>
+              Created by: <%= link_to @route.createdBy.name.capitalize, '/users/'+@route.createdBy.name, remote: true%> on <%=@route.firstcreated_at%>. Last updated: <%=@route.updated_at%>
+              <% if !@history%>
+                 <%= link_to "View history", '/history/route-'+@route.id.to_s, remote: true, :id => 'history', :onclick =>"linkHandler('history')" %>
+              <% end %>
+           <% end %>
+        </small>
+     </div>
+   </div>
+   </div>
 </div>
 
+<% if !@dontMark %>
 <script>
 
  route_init('<%=@route.startplace.location%>', '<%=@route.endplace.location%>', '<%=@route.location%>', 1);
 
 </script>
+
+<% end %>

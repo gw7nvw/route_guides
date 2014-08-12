@@ -746,6 +746,8 @@ function route_endSelectLocation() {
   route_selectNothing();
 }
 
+
+
 function route_selectNothing() {
   document.getElementById("startplaceplus").style.display="block";
   document.getElementById("startplacetick").style.display="none";
@@ -819,7 +821,8 @@ function report_confirmTrip() {
   document.getElementById("triptick").style.display="none";
   document.getElementById("tripSelect").disabled=true;
 
-  document.getElementsByName("itemId")[0].value=document.getElementById("tripSelect").options.selectedIndex;
+  var selIndex=document.getElementById("tripSelect").options.selectedIndex;
+  document.getElementsByName("itemId")[0].value=document.getElementById("tripSelect").options[selIndex].value
   document.getElementsByName("itemType")[0].value='trip';
 
   
@@ -867,6 +870,20 @@ function linkHandler(entity_name) {
      document.getElementById(divname).style.display = 'none';
      document.getElementById(divname+"plus").style.display="block";
      document.getElementById(divname+"minus").style.display="none";
+   }
+
+   function clickswitch(divname) {
+     if (document.getElementById('fw_r'+divname).style.display == 'block') {
+       document.getElementById('fw_r'+divname).style.display = 'none';
+       document.getElementById('rv_r'+divname).style.display = 'block';
+       document.getElementById('fw_t'+divname).style.display = 'none';
+       document.getElementById('rv_t'+divname).style.display = 'block';
+     } else {
+       document.getElementById('fw_r'+divname).style.display = 'block';
+       document.getElementById('rv_r'+divname).style.display = 'none';
+       document.getElementById('fw_t'+divname).style.display = 'block';
+       document.getElementById('rv_t'+divname).style.display = 'none';
+     }
    }
 
    function updatePlace(buttonName) {

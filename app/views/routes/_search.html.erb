@@ -17,7 +17,7 @@
                  <img id="startplaceplus" src="/assets/add.png" onclick="route_selectStartPlace()" width="16" style="display:block"></img>
               </span>
               <span title="Confirm selection">
-                 <img id="startplacetick" src="/assets/tick.png" onclick="route_selectNothing()" width="16" style="display:none"></img>
+                 <img id="startplacetick" src="/assets/tick.png" onclick="route_selectEndPlace()" width="16" style="display:none"></img>
               </span>
         </div>
         <div class="rowtitle">From:</div>
@@ -49,20 +49,26 @@
       <%= submit_tag "Find", :id => "find", :onclick => "linkHandler('find')" %>
 
     </form>
-<% if @route_ids %>
-  <% @route_ids.each do |rt_list| %>
-     <% @rt_list=rt_list %>
-     <div class="erow">
-        <div class="hrline">
-           <hr noshade size="4">
-        </div>
-     </div>
-     
-     <%= render '/routes/search_details' %> 
-
-  <% end %>
-  <% if(@route_ids.count==0) %>
-    No routes found ...
-  <% end %>
-<% end %>
-
+<div id="links_section">
+  <div class="erow">
+    <% if @route_ids %>
+      <% @route_ids.each do |rt_list| %>
+         <% @rt_list=rt_list %>
+         <div class="erow">
+            <div class="hrline">
+               <hr noshade size="4">
+            </div>
+         </div>
+         
+         <%= render '/routes/search_details' %> 
+  
+      <% end %>
+      <% if(@route_ids.count==0) %>
+        No routes found ...
+      <% end %>
+    <% end %>
+  </div>
+</div>
+<script>
+  route_selectStartPlace()
+</script>

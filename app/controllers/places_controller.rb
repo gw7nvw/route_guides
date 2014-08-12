@@ -1,3 +1,4 @@
+
 class PlacesController < ApplicationController
  before_action :signed_in_user, only: [:edit, :update, :new, :create]
 
@@ -222,13 +223,14 @@ end
 
        if place_params[:altitude].to_i == 0
          #get alt from map if it is blank or 0
-         altArr=Place.find_by_sql ["
-            select ST_Value(rast, ST_GeomFromText(?,4326))  id
-               from dem100
+         altArr=Dem30.find_by_sql ["
+            select ST_Value(rast, ST_GeomFromText(?,4326))  rid
+               from dem30s
                where ST_Intersects(rast,ST_GeomFromText(?,4326));",
                'POINT('+params[:location]+')',
                'POINT('+params[:location]+')']
-         @place.altitude=altArr.first.try(:id).to_i
+
+         @place.altitude=altArr.first.try(:rid).to_i
        end
     end
   end

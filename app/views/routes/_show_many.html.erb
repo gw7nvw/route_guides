@@ -1,0 +1,159 @@
+<% provide(:title, 'Route | '+@startplace.name+' to '+@endplace.name) %>
+<% @title=' | Route | '+@startplace.name+' to '+@endplace.name %>
+<%= render 'flash' %>
+
+<script>
+   update_title('<%=@title%>'); 
+   document.getElementById("page_status").innerHTML = '';
+   reset_map_controllers();
+</script>
+
+
+<% if @items %>
+  <%= form_tag '/routes/many', :remote=> true, :name => "AddMany", :name=> 'listForm', :method=> 'post'%>
+    <div class="erow">
+      <div class="sectiontitle">
+        <%=  link_to @startplace.name+' to '+@endplace.name, '/routes/'+@url, remote: true, onclick: %q[linkHandler('r]+@url+%q[')], id:  'r'+@url  %>
+        <input type="hidden" name="route" value='<%=@url%>' />
+        <%= submit_tag  "Add to trip", id: "Add Many", class: "btn btn-small btn-primary", remote: true, id: "add", onclick: "linkHandler('add')" %>      
+      </div>
+    </div>
+  </form>
+
+  <%
+     distance=0
+     time=0
+     altgain=0
+     altloss=0
+     minalt=99999
+     maxalt=0
+     rt_arr=[]
+  %>
+
+  <% @items.reverse.each do |rt_str| %>
+    <% 
+       if rt_str[0]=='r' then 
+         rt_id=rt_str[1..-1].to_i
+         rt_arr=rt_arr+[rt_id]
+         if rt_id>0 then
+           reverse=false
+         else
+           rt_id=-rt_id
+           reverse=true
+         end
+         route=Route.find_by_id(rt_id)
+         if(route.distance) then distance+=route.distance end
+         if(route.time) then time+=route.time end
+         if(reverse) then
+           if(route.altgain) then altloss=altloss+route.altgain end
+           if(route.altloss) then altgain=altgain+route.altloss end
+         else
+           if(route.altgain) then altgain=altgain+route.altgain end
+           if(route.altloss) then altloss=altloss+route.altloss end
+         end
+         if(route.maxalt>maxalt) then maxalt=route.maxalt end
+         if(route.minalt<minalt) then minalt=route.minalt end
+       end
+     %> 
+    <% end %>
+  <% if distance %>
+    <%= "Distance: "+distance.round(1).to_s+" km " %>
+  <%end %>
+  <% if time %>
+    <%="("+time.round(1).to_s+" DOC hours)"  %>
+    <br/>
+  <% end %>
+
+  <%= "Altitude - Max: "+maxalt.to_i.to_s+"m  Min: "+minalt.to_i.to_s+"m"+
+     "  Gain: "+altgain.to_i.to_s+"m  Loss: "+altloss.to_i.to_s+"m" %>
+  <% if distance>0 %>
+    <%="  Gradient: "+(Math.tan((altgain+altloss)/(distance*1000))*180/Math::PI).to_i.to_s+" deg"%>
+  <% end %>
+  <br/>
+
+  <% @trip=true %>
+  <% @items.each do |item| %>
+     <% if item[0]=='p' then @place=Place.find_by_id(item[1..-1].to_i)  %>
+
+       <% @showForward=1 %>
+       <%= render '/places/place_details' %> 
+
+     <%  end %>
+     <%  if item[0]=='r' then routeId=item[1..-1].to_i%>
+       <% if routeId<0 then 
+            routeId = - routeId
+            @reverse=1
+            @showForward=0
+            @showReverse=1
+          else
+            @showForward=1
+            @showReverse=0
+          end
+          @route=Route.find_by_id(routeId) %>
+       <%= render '/routes/route_details' %> 
+     <% end %>
+  <% end %>
+  <% @trip=false %>
+<% end %>
+
+<div class="erow">
+   <div class="hrline">
+      <hr noshade size="4">
+   </div>
+</div>
+<div id="links_section">
+   <div class="erow" style="margin-top:12px">
+     <div class="sectiontitle-bold">
+        Routes adjoining this one:
+     </div>
+   </div>
+   <% 
+      @trip=true 
+      @dontMark=true 
+      rt_reverse=[]
+      rt_arr.each do |ar| 
+        rt_reverse+=[-ar] 
+      end 
+   %>
+   <% @startplace.adjoiningPlaces.each do |ap|   %>
+     <% if ap[:route]-rt_arr != [] and ap[:route]-rt_reverse != [] then # only routes niot included in current one ... %>
+       <div class="erow">
+          <div class="hrline">
+             <hr noshade size="2">
+          </div>
+       </div>
+       <div class="erow">
+          <div class="sectiontitle">
+                <% nextplace=Place.find_by_id(ap[:place]) %>
+                <%=  link_to @startplace.name, '/places/'+@startplace.id.to_s, remote: true, onclick: %q[linkHandler('p]+@startplace.id.to_s+%q[')], id:  'p'+@startplace.id.to_s  %>
+                <%= ' to ' %>
+                <%=  link_to nextplace.name, '/places/'+nextplace.id.to_s, remote: true, onclick: %q[linkHandler('p]+nextplace.id.to_s+%q[')], id:  'p'+nextplace.id.to_s  %>
+          </div>
+          <% @rt_list=ap[:route] %>
+          <%= render '/routes/search_details' %>
+       </div>
+     <% end %>
+   <% end %>
+   <% @endplace.adjoiningPlaces.each do |ap|%>
+     <% if ap[:route]-rt_arr != [] and ap[:route]-rt_reverse != [] then # only routes niot included in current one ... %>
+       <div class="erow">
+          <div class="hrline">
+             <hr noshade size="2">
+          </div>
+       </div>
+       <div class="erow">
+          <div class="sectiontitle">
+                <% nextplace=Place.find_by_id(ap[:place]) %>
+                <%=  link_to @endplace.name, '/places/'+@endplace.id.to_s, remote: true, onclick: %q[linkHandler('p]+@endplace.id.to_s+%q[')], id:  'p'+@endplace.id.to_s  %>
+                <%= ' to ' %>
+                <%=  link_to nextplace.name, '/places/'+nextplace.id.to_s, remote: true, onclick: %q[linkHandler('p]+nextplace.id.to_s+%q[')], id:  'p'+nextplace.id.to_s  %>
+          </div>
+          <% @rt_list=ap[:route] %>
+          <%= render '/routes/search_details' %>
+       </div>
+     <% end %>
+   <% end %>
+
+   <% @trip=false %>
+   <% @dontMark=false %>
+
