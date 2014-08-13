@@ -28,23 +28,21 @@
    <div id='route<%=@itemNumber.to_s%>' style='display:<%=if @hideAll then "none" else "block" end%>'>
       <div class="subrow">
          <%=render :partial => 'expand_buttons',  :locals => {:expName => "cn_r"+@itemNumber.to_s, :initialSt => @showConditions} %>
-         <div class="sectiontext25">
          <% if @route.distance %>
             <%= "Distance: "+@route.distance.round(1).to_s+" km  " %>
          <%end %>
+         <% if @route.routetype.name!='Unknown'%>
+            <%=@route.routetype.name%>
+         <% end %>
+         <% if @route.terrain.name!='Unknown'%>
+            <%=" - "+@route.terrain.name+" terrain"%><br/> 
+         <% end %>
          <% if @route.time %>
             <%="("+@route.time.round(1).to_s+" DOC hours)"  %>
          <% end %>
-         <% if @route.routetype.name!='Unknown'%>
-            <%=" - "+@route.routetype.name%>
-         <% end %>
-         <% if @route.terrain.name!='Unknown'%>
-            <%=" - "+@route.terrain.name+" terrain"%>
-         <% end %>
          <% if @route.location %>
-            <br/>
             <% if @reverse %>
-               <%= "Altitude - Max: "+@route.maxalt.to_i.to_s+"m  Min: "+@route.minalt.to_i.to_s+"m"+
+               <br/><%= "Altitude - Max: "+@route.maxalt.to_i.to_s+"m  Min: "+@route.minalt.to_i.to_s+"m"+
                   "  Gain: "+@route.altloss.to_i.to_s+"m  Loss: "+@route.altgain.to_i.to_s+"m" %>
             <% else %>
                <%= "Altitude - max: "+@route.maxalt.to_i.to_s+"m  min: "+@route.minalt.to_i.to_s+"m"+
@@ -71,8 +69,6 @@
          <% end %>
          <br/><i><%= "GPX info source: "+@route.datasource %></i>
       </div>
-    </div>
-    <div class="subrow">
     <div id='<%="cn_r"+@itemNumber.to_s%>' class="sectiontext" style=<%=if (@showConditions==1) then "display:block" else "display:none" end %>>
        <p>
           <div class="diff_label">Route Type:</div> <%=@route.routetype.name%>
@@ -110,7 +106,7 @@
           <%= simple_format(@route.winterdescription).html_safe %>
        </p>
     </div>
-    </div>
+    <br/>&nbsp;
     <div class="subrow">
        <div class="leftbuttons">
           <img id='switch' src="/assets/switch.png" <%=%q[onclick=clickswitch(']+@itemNumber.to_s+%q[')]%>></img>
