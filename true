@@ -1,5 +1,0 @@
-      invoke  active_record
-      create    db/migrate/20140616064403_create_places.rb
-      create    app/models/place.rb
-      invoke    rspec
-      create      spec/models/place_spec.rb
