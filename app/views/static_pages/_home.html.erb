@@ -14,9 +14,21 @@
     A repository for tramping knowledge
   <br/>
   <br/>
-  <br/>
-    This site is under construction.  Any data entered at this stage may be discarded.
-  <br/>
-    ... but feel free to play.
   </h2>
-
+ <ul class="places"> 
+    <li>
+   Explore the map. Zoom in to see places and detailed topomaps. Click on a place or route on the map to view information. 
+ </li>
+ <li>
+   <%= link_to 'Join the community',  'signup', remote:true,  remote: true, :id => 'signup', :onclick => "linkHandler('signup')" %>
+ - sign up and contribute your knowledge and experience: create your own routes, add to and correct existing routes, build your own trips and publish your own stories and trip reports.
+ </li>
+ <li>
+   Select a start and end place from the map and search for through routes between them:
+ <%= render '/routes/search' %>
+ </li>
+ </ul>
+  <% @reports=Report.all.order(:created_at).reverse[0..2] %>
+  <%= render 'reports/index_details' %>
+  <% @trips=Trip.where(published: true).order(:created_at).reverse[0..2] %>
+  <%= render 'trips/index_details' %>
