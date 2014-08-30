@@ -7,10 +7,22 @@ class Report < ActiveRecord::Base
   validates :name, presence: true
   validates :description, presence: true
 
-  def default_values
-    self.created_at ||= self.updated_at
+  before_save :default_values
+  after_save :create_new_instance
 
-  end
+def default_values
+    self.created_at ||= self.updated_at
+end
+
+def create_new_instance
+   reprt_instance=ReportInstance.new(self.attributes)
+   reprt_instance.report_id=self.id
+   reprt_instance.id=nil
+   reprt_instance.createdBy_id = self.updatedBy_id #current_user.id
+
+   reprt_instance.save
+end
+
 
 def firstcreated_at
      t=Report.find_by_sql ["select min(rd.created_at) id from report_instances rd 

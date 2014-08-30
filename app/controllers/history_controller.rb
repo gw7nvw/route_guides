@@ -15,40 +15,37 @@ def update
   if params[:current]=="Make current" 
     if @itemType=="place"
        # create new instance
-       pi=PlaceInstance.find_by_id(itemVersion).dup
-       pi.createdBy_id=@current_user.id
+       pi=PlaceInstance.find_by_id(itemVersion)
+       pi.updatedBy_id=@current_user.id
        pi.updated_at=Time.new()
-       pi.save
 
        #@copy to place 
        place=Place.find_by_id(itemId)
-       place.update(pi.attributes.except('id', 'place_id'))
+       place.attributes=pi.attributes.except('id', 'place_id')
        place.save
 
     end
 
     if @itemType=="report"
        # create new instance
-       pi=ReportInstance.find_by_id(itemVersion).dup
-       pi.createdBy_id=@current_user.id
+       pi=ReportInstance.find_by_id(itemVersion)
+       pi.updatedBy_id=@current_user.id
        pi.updated_at=Time.new()
-       pi.save
 
        #@copy to place 
        report=Report.find_by_id(itemId)
-       report.update(pi.attributes.except('id', 'report_id'))
+       report.attributes=pi.attributes.except('id', 'report_id')
        report.save
 
     end
 
    if @itemType == "route"
-       ri=RouteInstance.find_by_id(itemVersion).dup
-       ri.createdBy_id=@current_user.id
+       ri=RouteInstance.find_by_id(itemVersion)
+       ri.updatedBy_id=@current_user.id
        ri.updated_at=Time.new()
-       ri.save
 
        route=Route.find_by_id(itemId)
-       route.update(ri.attributes.except('id', 'route_id'))
+       route.attributes=ri.attributes.except('id', 'route_id')
        route.save
  
   
