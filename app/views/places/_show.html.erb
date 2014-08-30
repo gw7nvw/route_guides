@@ -25,7 +25,7 @@
    </div>
    <% @trip=true %>
    <% @dontMark=true %>
-   <% @place.adjoiningPlaces.each do |ap|%>
+   <% @place.adjoiningPlaces(nil,true,nil,nil,nil).each do |ap|%>
      <div class="erow">
         <div class="hrline">
            <hr noshade size="2">

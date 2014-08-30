@@ -13,7 +13,6 @@
   <h2>
     A repository for tramping knowledge
   <br/>
-  <br/>
   </h2>
  <ul class="places"> 
     <li>
@@ -28,7 +27,14 @@
  <%= render '/routes/search' %>
  </li>
  </ul>
+  <div class="erow">
+     <div class="sectiontitle">What's new:</div>
+  </div>
   <% @reports=Report.all.order(:created_at).reverse[0..2] %>
   <%= render 'reports/index_details' %>
   <% @trips=Trip.where(published: true).order(:created_at).reverse[0..2] %>
   <%= render 'trips/index_details' %>
+<br/>
+<div style="text-align:right">
+<small> <%= link_to 'Site Index', 'site_index', remote:true,  remote: true, :id => 'site_index', :onclick => "linkHandler('site_index')" %> </small></div>
+

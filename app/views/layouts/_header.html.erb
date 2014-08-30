@@ -34,7 +34,8 @@
                 </a>
                 <ul class="dropdown-menu">
                   <li><%= link_to "Search", '/search',  remote: true,  :id => 'routesrc_link', :onclick => "linkHandler('routesrc_link')"  %></li>
-                  <li><%= link_to "Browse", routes_path,  remote: true,  :id => 'routes_link', :onclick => "linkHandler('routes_link')"  %></li>
+                  <li><%= link_to "Routes", routes_path,  remote: true,  :id => 'routes_link', :onclick => "linkHandler('routes_link')"  %></li>
+                  <li><%= link_to "Legs", '/legs',  remote: true,  :id => 'routes_link', :onclick => "linkHandler('routes_link')"  %></li>
                   <li><%= link_to "Add", new_route_path, remote: true,  :id => 'new_route_link', :onclick => "linkHandler('new_route_link')"   %></li>
                 </ul>
               </li>

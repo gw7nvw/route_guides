@@ -1,0 +1,2 @@
+window.history.pushState(null, '', '/site_index/');
+$('#right_panel').html("<%= escape_javascript(render(:partial => 'routes/site_index')).html_safe %>");
