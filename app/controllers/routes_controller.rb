@@ -63,42 +63,43 @@ require "rexml/document"
   end
 
   def many
-  @items=params[:route].split('_')[1..-1]
+    @items=params[:route].split('_')[1..-1]
     current_user()
-    @trip=Trip.find_by_id(@current_user.currenttrip)
-    @items.each do |item|
-      itemno=item[1..-1].to_i
-      if item[0]=='p' then
-        @trip_details = TripDetail.new
-        @trip_details.showForward=true;
-        @trip_details.is_reverse=false
-        @trip_details.trip = @trip
-        @trip_details.place_id = itemno
-        @trip_details.showConditions=false;
-        @trip_details.showLinks=false;
+    if (!signed_in?) then 
+      redirect_to '/signin'
+    else
+      @trip=Trip.find_by_id(@current_user.currenttrip)
+      @items.each do |item|
+        itemno=item[1..-1].to_i
+        if item[0]=='p' then
+          @trip_details = TripDetail.new
+          @trip_details.showForward=true;
+          @trip_details.is_reverse=false
+          @trip_details.trip = @trip
+          @trip_details.place_id = itemno
+          @trip_details.showConditions=false;
+          @trip_details.showLinks=false;
+        end
+        if item[0]=='r' then
+          @trip_details = TripDetail.new
+          @trip_details.showForward=true;
+          @trip_details.is_reverse=false
+          @trip_details.trip = @trip
+          @trip_details.route_id = itemno
+          @trip_details.showConditions=false;
+          @trip_details.showLinks=false;
+        end
+        if(@trip.trip_details.max)
+          @trip_details.order = @trip.trip_details.max.id+1
+        else
+          @trip_details.order = 1
+        end
+          @trip_details.save
+        flash[:success]="Added route to trip"
       end
-      if item[0]=='r' then
-        @trip_details = TripDetail.new
-        @trip_details.showForward=true;
-        @trip_details.is_reverse=false
-        @trip_details.trip = @trip
-        @trip_details.route_id = itemno
-        @trip_details.showConditions=false;
-        @trip_details.showLinks=false;
-      end
-      if(@trip.trip_details.max)
-        @trip_details.order = @trip.trip_details.max.id+1
-      else
-        @trip_details.order = 1
-      end
-        @trip_details.save
-      flash[:success]="Added route to trip"
-
+      @id=params[:route]
+      show()
     end 
-
-   
-   @id=params[:route]
-   show()
  end
 
  def create
@@ -241,29 +242,33 @@ end
     end
 
     if (add)
-      trip=Trip.find_by_id(@current_user.currenttrip)
-      trip_details = TripDetail.new
-      if ((!route.description or route.description.length<1) and route.reverse_description and route.reverse_description.length>0) then
-        trip_details.showForward=false;
+      if (!signed_in?) then 
+        redirect_to '/signin'
       else
-        trip_details.showForward=true;
+        trip=Trip.find_by_id(@current_user.currenttrip)
+        trip_details = TripDetail.new
+        if ((!route.description or route.description.length<1) and route.reverse_description and route.reverse_description.length>0) then
+          trip_details.showForward=false;
+        else
+          trip_details.showForward=true;
+        end
+        trip_details.trip_id = trip.id
+        trip_details.route_id = route.id
+        trip_details.showConditions=false;
+        trip_details.showLinks=false;
+  
+        if(trip.trip_details.max)
+          trip_details.order = trip.trip_details.max.id+1
+        else
+          trip_details.order = 1
+        end
+        trip_details.save
+        flash[:success]="Added route to trip"
+  
+        @trip= trip=Trip.find_by_id(@current_user.currenttrip)
+        prepare_route_vars()
+        render '/trips/show'
       end
-      trip_details.trip_id = trip.id
-      trip_details.route_id = route.id
-      trip_details.showConditions=false;
-      trip_details.showLinks=false;
-
-      if(trip.trip_details.max)
-        trip_details.order = trip.trip_details.max.id+1
-      else
-        trip_details.order = 1
-      end
-      trip_details.save
-      flash[:success]="Added route to trip"
-
-      @trip= trip=Trip.find_by_id(@current_user.currenttrip)
-      prepare_route_vars()
-      render '/trips/show'
     end
 
     if (params[:save])
