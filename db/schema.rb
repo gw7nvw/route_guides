@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140825190530) do
+ActiveRecord::Schema.define(version: 20140830202208) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -56,6 +56,7 @@ ActiveRecord::Schema.define(version: 20140825190530) do
     t.spatial  "location",      limit: {:srid=>4326, :type=>"point"}
     t.text     "links"
     t.integer  "projection_id"
+    t.integer  "updatedBy_id"
   end
 
   create_table "place_types", force: true do |t|
@@ -84,6 +85,7 @@ ActiveRecord::Schema.define(version: 20140825190530) do
     t.spatial  "location",      limit: {:srid=>4326, :type=>"point"}
     t.text     "links"
     t.integer  "projection_id"
+    t.integer  "updatedBy_id"
   end
 
   create_table "projections", force: true do |t|
@@ -102,6 +104,7 @@ ActiveRecord::Schema.define(version: 20140825190530) do
     t.integer  "createdBy_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "updatedBy_id"
   end
 
   create_table "report_links", force: true do |t|
@@ -118,6 +121,7 @@ ActiveRecord::Schema.define(version: 20140825190530) do
     t.integer  "createdBy_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "updatedBy_id"
   end
 
   create_table "rivers", force: true do |t|
@@ -166,6 +170,7 @@ ActiveRecord::Schema.define(version: 20140825190530) do
     t.decimal  "distance"
     t.string   "datasource"
     t.spatial  "location",            limit: {:srid=>4326, :type=>"line_string", :has_z=>true}
+    t.integer  "updatedBy_id"
   end
 
   create_table "routes", force: true do |t|
@@ -190,6 +195,7 @@ ActiveRecord::Schema.define(version: 20140825190530) do
     t.decimal  "distance"
     t.string   "datasource"
     t.spatial  "location",            limit: {:srid=>4326, :type=>"line_string", :has_z=>true}
+    t.integer  "updatedBy_id"
   end
 
   add_index "routes", ["endplace_id"], :name => "index_routes_on_endplace_id"

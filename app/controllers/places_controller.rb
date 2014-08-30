@@ -24,26 +24,17 @@ def create
 
     #revision control
     @place.createdBy_id = @current_user.id #current_user.id
-    @place_instance=PlaceInstance.new(@place.attributes)
+    @place.updatedBy_id = @current_user.id #current_user.id
     # but doesn;t handle location ... so
 
     if @place.save
-      @place_instance.place_id=@place.id
-      if @place_instance.save     
-        flash[:success] = "New place added, id:"+@place.id.to_s
-        @id=@place.id
-        #refresh variables
-        show()
+      flash[:success] = "New place added, id:"+@place.id.to_s
+      @id=@place.id
+      #refresh variables
+      show()
       
-        #render show panel
-        render 'show'
-
-      else
-        # Handle an unsuccessful save.
-        flash[:error] = "Error creating instance"
-        @edit=true
-        render 'new'
-      end
+      #render show panel
+      render 'show'
     else
       flash[:error] = "Error creating place"
       @edit=true
@@ -126,29 +117,17 @@ def create
        end
 
 
-       @place.update(place_params)
-
+       @place.attributes=place_params
        convert_location_params()
 
        #timestanps
+       @place.updatedBy_id = @current_user.id #current_user.id
        @place.updated_at = Time.new()
 
-       @place_instance=PlaceInstance.new(@place.attributes)
-       #do not inherit id from parent ... use NIL to creat our own
-       @place_instance.id=nil
-
        if @place.save
-         @place_instance.place_id=@place.id
-         if @place_instance.save
-           flash[:success] = "Updated place, id:"+@place.id.to_s
-           show()
-           render 'show'
-         else
-           # Handle an unsuccessful save.
-           flash[:error] = "Error creating instance"
-           @edit=true
-           render 'edit'
-         end
+         flash[:success] = "Updated place, id:"+@place.id.to_s
+         show()
+         render 'show'
        else
          flash[:error] = "Error saving place"
          @edit=true

@@ -28,8 +28,10 @@ class Route < ActiveRecord::Base
   before_save :default_values
   before_save :handle_negatives_before_save
 
-  before_destroy :prune_route_index
+  after_save :create_new_instance
   after_save :regenerate_route_index
+
+  before_destroy :prune_route_index
 
   set_rgeo_factory_for_column(:location, RGeo::Geographic.spherical_factory(:srid => 4326, :proj4=> '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs', :has_z_coordinate => true))
 
@@ -83,6 +85,21 @@ def handle_negatives_before_save
       self
     end
 end
+
+def create_new_instance
+   if self.id<0 then
+       route=self.reverse
+   else route=self
+   end
+
+   route_instance=RouteInstance.new(route.attributes)
+   route_instance.route_id=route.id
+   route_instance.id=nil
+   route_instance.createdBy_id = route.updatedBy_id #current_user.id
+
+   route_instance.save
+end
+
 
 def firstcreated_at
      t=Route.find_by_sql ["select min(rd.created_at) id from route_instances rd 

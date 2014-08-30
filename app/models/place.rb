@@ -11,6 +11,8 @@ class Place < ActiveRecord::Base
   validates :y, presence: true
   validates :projection, presence: true 
   before_save :default_values
+  after_save :create_new_instance
+
 
   # But use a geographic implementation for the :lonlat column.
   set_rgeo_factory_for_column(:location, RGeo::Geographic.spherical_factory(:srid => 4326, :proj4=> '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'))
@@ -33,19 +35,33 @@ def revision_number
      t.first.try(:id)
 end
 
-  def default_values
+def default_values
     self.created_at ||= self.updated_at
-  end
+end
+
+def create_new_instance
+   place_instance=PlaceInstance.new(self.attributes)
+   place_instance.place_id=self.id
+   place_instance.id=nil
+   place_instance.createdBy_id = self.updatedBy_id #current_user.id
+
+   place_instance.save
+end
+
 
 def adjoiningRoutes
-   t=Route.find_by_sql ["select *  from routes where startplace_id = ? or endplace_id = ?",self.id, self.id]
+   t=Route.find_by_sql ["select *  from routes where startplace_id = ?", self.id]
+   t2=Route.find_by_sql ["select *  from routes where endplace_id = ?",self.id]
+   t2.each do |ti|
+     t=t+[ti.reverse]
+   end
+   t
 end
 
 def adjoiningPlaces(placeb, destOnly, maxHopCount, baseRoute, ignoreRoute)
   if !maxHopCount then maxHopCount=20 end
 
-  validDest=Array.new
-   placeSoFar=[]
+  placeSoFar=[]
   routeSoFar=[]
   urlSoFar=[]
   placeSoFar[0]=[self.id]
@@ -67,11 +83,8 @@ def adjoiningPlaces(placeb, destOnly, maxHopCount, baseRoute, ignoreRoute)
       if rs[0]=='r' then 
          thisRoute=rs[1..-1].to_i
          routeSoFar[0]=[thisRoute]+routeSoFar[0] 
-         if thisRoute>0 then 
-            placeSoFar[0]=[Route.find_by_id(thisRoute).endplace_id]+placeSoFar[0]
-         else 
-            placeSoFar[0]=[Route.find_by_id(-thisRoute).startplace_id]+placeSoFar[0]
-         end
+         #next place is route endplace
+         placeSoFar[0]=[Route.find_by_signed_id(thisRoute).endplace_id]+placeSoFar[0]
       end
     end
     hopCount=routeSoFar[0].count
@@ -82,9 +95,7 @@ def adjoiningPlaces(placeb, destOnly, maxHopCount, baseRoute, ignoreRoute)
          goodRoute[goodPathCount]={:place => nextDest.id, :route=>routeSoFar[0], :url=>urlSoFar[0]}
          goodPathCount+=1
     end
-
-
-  end
+  end #if baseRoute
 
 
   while placeCountThisHop>0 and hopCount<maxHopCount do
@@ -102,18 +113,12 @@ def adjoiningPlaces(placeb, destOnly, maxHopCount, baseRoute, ignoreRoute)
 
       #add each route to hash
       here.adjoiningRoutes.each do |ar|
-        if ar.id != ignoreRoute then
+        if ar.id.abs != ignoreRoute then
           matchedThisRoute=false
-          if ar.endplace_id==here.id then
-            nextDest=ar.startplace
-            direction=-1
-          else
-            nextDest=ar.endplace
-            direction=1
-          end
+          nextDest=ar.endplace
           if !thisPath.include? nextDest.id then
              if ((placeb and nextDest.id == placeb) or (!placeb and  pt.select { |pt| pt.name==nextDest.place_type }.first.isDest)) then
-                  goodRoute[goodPathCount]={:place => nextDest.id, :route=>[direction*ar.id]+routeSoFar[currentRouteIndex], :url=>urlSoFar[currentRouteIndex]+'_r'+(direction*ar.id).to_s}
+                  goodRoute[goodPathCount]={:place => nextDest.id, :route=>[ar.id]+routeSoFar[currentRouteIndex], :url=>urlSoFar[currentRouteIndex]+'_r'+ar.id.to_s}
                   goodPathCount+=1 
                   goodRoutesFromThisPlace+=1     
                   matchedThisRoute=true
@@ -121,8 +126,8 @@ def adjoiningPlaces(placeb, destOnly, maxHopCount, baseRoute, ignoreRoute)
   
              #only look beyond a destination if destOnly=false
              if matchedThisRoute==false or destOnly==false then
-                  nextRouteSoFar[placeCountThisHop]=[direction*ar.id]+routeSoFar[currentRouteIndex]
-                  nextUrlSoFar[placeCountThisHop]=urlSoFar[currentRouteIndex]+'_r'+(direction*ar.id).to_s
+                  nextRouteSoFar[placeCountThisHop]=[ar.id]+routeSoFar[currentRouteIndex]
+                  nextUrlSoFar[placeCountThisHop]=urlSoFar[currentRouteIndex]+'_r'+ar.id.to_s
                   nextPlaceSoFar[placeCountThisHop]=[nextDest.id]+thisPath
                   placeCountThisHop+=1
                   goodRoutesFromThisPlace+=1
@@ -130,6 +135,7 @@ def adjoiningPlaces(placeb, destOnly, maxHopCount, baseRoute, ignoreRoute)
           end
         end #if ignoreRoute
       end #end of 'each adjoining route' for thisPlace
+
       # if this was a stub route, we're not looking for a specific dest, 
       # add it even if it didn;t end at a destination
       if goodRoutesFromThisPlace==0 and !placeb and routeSoFar[currentRouteIndex].count>0 and !pt.select { |pt| pt.name==here.place_type }.first.isDest then
@@ -138,6 +144,7 @@ def adjoiningPlaces(placeb, destOnly, maxHopCount, baseRoute, ignoreRoute)
       end
       currentRouteIndex+=1
     end # end of for each flace so far
+
     #replace placesSpFar with new list of latest destinatons found
     placeSoFar=nextPlaceSoFar
     routeSoFar=nextRouteSoFar

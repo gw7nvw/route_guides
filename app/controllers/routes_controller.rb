@@ -71,7 +71,6 @@ require "rexml/document"
       if item[0]=='p' then
         @trip_details = TripDetail.new
         @trip_details.showForward=true;
-        @trip_details.showReverse=false;
         @trip_details.is_reverse=false
         @trip_details.trip = @trip
         @trip_details.place_id = itemno
@@ -81,9 +80,7 @@ require "rexml/document"
       if item[0]=='r' then
         @trip_details = TripDetail.new
         @trip_details.showForward=true;
-        @trip_details.showReverse=false;
         @trip_details.is_reverse=false
-
         @trip_details.trip = @trip
         @trip_details.route_id = itemno
         @trip_details.showConditions=false;
@@ -103,36 +100,26 @@ require "rexml/document"
    @id=params[:route]
    show()
  end
+
  def create
     @route = Route.new(route_params)    
     prepare_route_vars()
     @route.createdBy_id = @current_user.id #current_user.id
+    @route.updatedBy_id = @current_user.id #current_user.id
     route_add_altitude()
-    @route_instance=RouteInstance.new(@route.attributes)
     # but doesn;t handle location ... so
 
     if @route.save
-      @route_instance.route_id=@route.id
-      if @route_instance.save
-        flash[:success] = "New route added, id:"+@route.id.to_s
+      flash[:success] = "New route added, id:"+@route.id.to_s
 
 
-        @edit=false
-        @showForward=1
-        @showReverse=1
-        @showConditions=0
-        @showLinks=1
+      @edit=false
+      @showForward=1
+      @showConditions=0
+      @showLinks=1
 
-        render 'show'
-
-      else
-# Handle a successful save.
-#      flash[:error] = "Error creating instance"    
-      @edit=true
-      render 'new'
-      end
+      render 'show'
     else
-#      flash[:error] = "Error creating route"
       @edit=true
       render 'new'
     end
@@ -149,11 +136,11 @@ def show
       @items=@id.split('_')[1..-1]
 
       @showForward=1
-      @showReverse=1
       @showConditions=0
       @showLinks=0
       @url=@id
- 
+
+      #determine start and endplace opf combined route 
       if @items.first[0]=='p' then @startplace=Place.find_by_id(@items.first[1..-1].to_i) end
       if @items.first[0]=='r' then  routeId=@items.first[1..-1].to_i
         route=Route.find_by_signed_id(routeId)
@@ -164,6 +151,7 @@ def show
         route=Route.find_by_signed_id(routeId)
         if route then @endplace=Place.find_by_id(route.endplace_id) end
       end
+
       respond_to do |wants|
         wants.js do
           if @startplace and @endplace then
@@ -200,18 +188,17 @@ end
 
     # default visibility 
     @showForward=1
-    @showReverse=1
     @showConditions=0
     @showLinks=1
 
-    if( @route = Route.find_by_signed_id(params[:id]))
-    then
+    if( @route = Route.find_by_signed_id(params[:id])) then
       if(@route.location)
         @route.location=@route.location.as_text
       end
     else
       redirect_to root_url
     end
+
     respond_to do |wants|
       wants.html do
       end 
@@ -244,75 +231,56 @@ end
 
     add=false
     if (params[:addfw])
-      @trip=Trip.find_by_id(@current_user.currenttrip)
-      @trip_details = TripDetail.new
-      @trip_details.showForward=true;
-      @trip_details.showReverse=false;
-      @trip_details.is_reverse=false
+      route=@route
       add=true
     end
 
     if (params[:addrv])
-      @trip=Trip.find_by_id(@current_user.currenttrip)
-      @trip_details = TripDetail.new
-      #for reverse trips, show the reverse directions if present, or the f/w ones if not
-      if (@route.reverse_description and @route.reverse_description.length>0) then
-        @trip_details.showForward=false;
-        @trip_details.showReverse=true;
-      else
-        @trip_details.showForward=true;
-        @trip_details.showReverse=false;
-      end
-      @trip_details.is_reverse=true
+      route=@route.reverse
       add=true
     end
 
     if (add)
-      @trip_details.trip = @trip
-      @trip_details.route_id = params[:id]
-      @trip_details.showConditions=false;
-      @trip_details.showLinks=false;
-
-      if(@trip.trip_details.max)
-        @trip_details.order = @trip.trip_details.max.id+1
+      trip=Trip.find_by_id(@current_user.currenttrip)
+      trip_details = TripDetail.new
+      if ((!route.description or route.description.length<1) and route.reverse_description and route.reverse_description.length>0) then
+        trip_details.showForward=false;
       else
-        @trip_details.order = 1
+        trip_details.showForward=true;
       end
-      @trip_details.save
+      trip_details.trip_id = trip.id
+      trip_details.route_id = route.id
+      trip_details.showConditions=false;
+      trip_details.showLinks=false;
+
+      if(trip.trip_details.max)
+        trip_details.order = trip.trip_details.max.id+1
+      else
+        trip_details.order = 1
+      end
+      trip_details.save
       flash[:success]="Added route to trip"
 
-#      params[:id]=@trip.id
-      show()
-      render 'show'
+      @trip= trip=Trip.find_by_id(@current_user.currenttrip)
+      prepare_route_vars()
+      render '/trips/show'
     end
 
     if (params[:save])
 
-      @route.updated_at=Time.new()
       prepare_route_vars()
 
- 
-      @route_instance=RouteInstance.new(@route.attributes)
-      @route_instance.createdBy_id = @current_user.id #current_user.id
       # but doesn;t handle location ... so
 
-      if @route.update(route_params)
-        route_add_altitude()
-        @route.save
+      @route.attributes=route_params
+      route_add_altitude()
 
-        @route_instance.route_id=@route.id
-        @route_instance.id = nil
-        if @route_instance.save
-
+      @route.updated_at=Time.new()
+      @route.updatedBy_id = @current_user.id #current_user.id
+      if @route.save
           flash[:success] = "Route updated, id:"+@route.id.to_s
           show()
           render 'show'
-
-        else
-          flash[:error] = "Error creating instance"    
-          @edit=true
-          render 'edit'
-        end
       else
         flash[:error] = "Error creating route"
         @edit=true

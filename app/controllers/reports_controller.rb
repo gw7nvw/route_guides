@@ -27,27 +27,18 @@ def create
 
     #revision control
     @report.createdBy_id = @current_user.id #current_user.id
-    @report_instance=ReportInstance.new(@report.attributes)
+    @report.updatedBy_id = @current_user.id #current_user.id
     # but doesn;t handle location ... so
 
     if @report.save
-      @report_instance.report_id=@report.id
-      if @report_instance.save
-        flash[:success] = "New report added, id:"+@report.id.to_s
-        @edit=true
+      flash[:success] = "New report added, id:"+@report.id.to_s
+      @edit=true
 
-        #render edit panel to allow user to add links (can't do in create)
-        @id=@report.id
-        params[:id]=@id.to_s
-        edit()
-        render 'edit'
-
-      else
-        # Handle an unsuccessful save.
-        flash[:error] = "Error creating instance"
-        @edit=true
-        render 'new'
-      end
+      #render edit panel to allow user to add links (can't do in create)
+      @id=@report.id
+      params[:id]=@id.to_s
+      edit()
+      render 'edit'
     else
       flash[:error] = "Error creating report"
       @edit=true
@@ -60,17 +51,13 @@ def update
 
     @report = Report.find(params[:id])
 
-    @report.update(report_params)
+    @report.attributes=report_params
 
     #revision control
-    @report.createdBy_id = @current_user.id #current_user.id
-    @report_instance=ReportInstance.new(@report.attributes)
-    @report_instance.id=nil
-    # but doesn;t handle location ... so
+    @report.updatedBy_id = @current_user.id #current_user.id
+    @report.updated_at = Time.new()
 
     if @report.save
-      @report_instance.report_id=@report.id
-      if @report_instance.save
         flash[:success] = "New report added, id:"+@report.id.to_s
         @id=@report.id
         #refresh variables
@@ -78,19 +65,14 @@ def update
 
         #render show panel
         render 'show'
-
-      else
-        # Handle an unsuccessful save.
-        flash[:error] = "Error creating instance"
-        @edit=true
-        render 'new'
-      end
     else
       flash[:error] = "Error saving report"
       @edit=true
       render 'new'
     end
-end
+ end
+
+
  if (params[:delete])
 
          rls=ReportLink.where(report_id: params[:id])
