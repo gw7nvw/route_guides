@@ -11,22 +11,11 @@
 
      <% @rt_list.reverse.each do |rt_id| %>
        <% url+='_r'+rt_id.to_s 
-          if rt_id>0 then 
-            @reverse=false
-          else
-            rt_id=-rt_id
-            @reverse=true
-          end
-          @route=Route.find_by_id(rt_id) 
+          @route=Route.find_by_signed_id(rt_id) 
           if(@route.distance) then distance+=@route.distance end
           if(@route.time) then time+=@route.time end
-          if(@reverse) then
-            if(@route.altgain) then altloss=altloss+@route.altgain end
-            if(@route.altloss) then altgain=altgain+@route.altloss end
-          else
-            if(@route.altgain) then altgain=altgain+@route.altgain end
-            if(@route.altloss) then altloss=altloss+@route.altloss end
-          end
+          if(@route.altgain) then altgain=altgain+@route.altgain end
+          if(@route.altloss) then altloss=altloss+@route.altloss end
           if(@route.maxalt>maxalt) then maxalt=@route.maxalt end
           if(@route.minalt<minalt) then minalt=@route.minalt end
           @hideAll=1  %>

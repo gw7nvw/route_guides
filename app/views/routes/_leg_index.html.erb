@@ -1,0 +1,19 @@
+<% provide(:title, 'Routes') %>
+<% @title=" | Routes" %>
+<%= render 'flash' %>
+
+<script>
+   update_title('<%=@title%>'); 
+   document.getElementById("page_status").innerHTML = '';
+   reset_map_controllers();
+</script>
+
+  <ul class="places">
+    <% @routes.each do |route| %>
+      <li>
+        <%= link_to route.name, route, remote: true, :id => 'route_link_'+route.id.to_s, :onclick => "linkHandler('route_link_"+route.id.to_s+"')" %></li>
+ 
+      </li>
+    <% end %>
+  </ul>
+

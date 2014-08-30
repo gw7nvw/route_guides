@@ -163,11 +163,12 @@
             %>
             <%= render 'places/place_details' %> 
         <% end %>
-        <% if td.route %>
-          <% if td.route_id >0 %>
-            <% @route=td.route %>
-            <% @reverse=td.is_reverse %>
-            <%= render 'routes/route_details' %> 
+        <% if td.route_id %>
+          <% if td.route_id !=0 %>
+            <% @route=Route.find_by_signed_id(td.route_id) %>
+            <% if @route %>
+              <%= render 'routes/route_details' %> 
+            <% end %>
           <% end %>
         <% end %>
       <% end %>

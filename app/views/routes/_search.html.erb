@@ -1,5 +1,10 @@
-<% provide(:title, 'Search') %>
-<% @title=" | Search" %>
+<% if(@startplace and @endplace) %>
+     <% provide(:title, 'Search | '+@startplacename+" to "+@endplacename) %>
+     <% @title=" | Search | "+@startplacename+" to "+@endplacename %>
+<% else %>
+     <% provide(:title, 'Search') %> 
+     <% @title=" | Search" %>
+<% end %>
 <%= render 'flash' %>
 
 <script>
@@ -17,15 +22,15 @@
                  <img id="startplaceplus" src="/assets/add.png" onclick="route_selectStartPlace()" width="16" style="display:block"></img>
               </span>
               <span title="Confirm selection">
-                 <img id="startplacetick" src="/assets/tick.png" onclick="route_selectEndPlace()" width="16" style="display:none"></img>
+                 <img id="startplacetick" src="/assets/tick.png" onclick="route_selectNothing()" width="16" style="display:none"></img>
               </span>
         </div>
         <div class="rowtitle">From:</div>
         <div class="rowtext">     
-          <input type="text" name="route_startplace_name" disabled="disabled"/>
+          <input type="text" name="route_startplace_name" value='<%=@startplacename%>' disabled="disabled"/>
         </div>
       </div>
-      <input type="hidden" name="route_startplace_id"/>
+      <input type="hidden" name="route_startplace_id" value='<%=@startplace%>'/>
       <input type="hidden" name="route_startplace_location"/>
       <div class="erow">
         <div class="leftbuttons">
@@ -37,10 +42,10 @@
         </div>    
         <div class="rowtitle">To:</div>    
         <div class="rowtext">   
-          <input type="text" name="route_endplace_name" disabled="disabled"/>
+          <input type="text" name="route_endplace_name" value='<%=@endplacename%>' disabled="disabled"/>
         </div>
       </div>
-      <input type="hidden" name="route_endplace_id"/>
+      <input type="hidden" name="route_endplace_id" value='<%=@endplace%>'/>
       <input type="hidden" name="route_endplace_location"/>
       <input type="hidden" name="route_location"/>
        <div id="locationplus"></div>
@@ -53,7 +58,7 @@
   <div class="erow">
     <% if @route_ids %>
       <% @route_ids.each do |rt_list| %>
-         <% @rt_list=rt_list %>
+         <% @rt_list=rt_list[:route] %>
          <div class="erow">
             <div class="hrline">
                <hr noshade size="4">
@@ -69,6 +74,8 @@
     <% end %>
   </div>
 </div>
+<% if @searchNow %>
 <script>
   route_selectStartPlace()
 </script>
+<% end %>

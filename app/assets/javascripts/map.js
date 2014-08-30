@@ -937,7 +937,7 @@ function linkHandler(entity_name) {
 
    function update_title(title) {
      document.getElementById('logo').innerHTML='Route Guides'+title;
-
+     document.title = 'Route Guides'+title;
 }
    function WKTtoGPX() {
 

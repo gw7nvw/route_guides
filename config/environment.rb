@@ -3,3 +3,5 @@ require File.expand_path('../application', __FILE__)
 
 # Initialize the Rails application.
 RouteGuides::Application.initialize!
+Mime::Type.register "text/xml", :gpx
+
