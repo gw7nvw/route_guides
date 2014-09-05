@@ -1,5 +1,7 @@
 class TripsController < ApplicationController
  before_action :signed_in_user, only: [:edit, :update, :new, :create, :move, :wishlish]
+ before_action :touch_user
+
 
 def index
   if signed_in?  then @trips=Trip.where('"createdBy_id" = ? or published = true ',@current_user.id).order(:name)

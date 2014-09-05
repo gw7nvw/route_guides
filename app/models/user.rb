@@ -31,6 +31,13 @@ class User < ActiveRecord::Base
     Digest::SHA1.hexdigest(token.to_s)
   end
 
+  def touch
+    if self then
+      self.lastVisited=Time.new()
+      self.save
+    end
+  end
+
   private
 
     def create_remember_token

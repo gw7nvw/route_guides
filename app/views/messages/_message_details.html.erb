@@ -1,0 +1,23 @@
+     <% if (@show_message.fromUser.id == @current_user.id) %>
+           <p  style="text-align:right">
+              <small><%=@show_message.created_at.strftime("%Y/%m/%d %H:%M")%></small>
+              <b> <%=@show_message.toUser.name+" < "+@show_message.fromUser.name%> </b>
+           </p>
+     <% else %>
+           <p>
+             <b> <%=@show_message.fromUser.name+" > "+@show_message.toUser.name%> </b>
+             <small><%=@show_message.created_at.strftime("%Y/%m/%d %H:%M")%></small>
+           </p>
+     <% end %>
+
+
+     <%if (@show_message.fromUser.id == @current_user.id)%>
+             <p class="left-bubble">
+     <%else%>
+          <p class="right-bubble">
+     <% end %>
+            <b><%= @show_message.subject %></b><br/>
+            <% message=@show_message.message.html_safe%>
+            <%= h(message).gsub(/(?:\n\r?|\r\n?)/, '<br>').html_safe %>
+          </p>
+

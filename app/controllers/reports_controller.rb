@@ -1,5 +1,7 @@
 class ReportsController < ApplicationController
  before_action :signed_in_user, only: [:edit, :update, :new, :create]
+ before_action :touch_user
+
 
 def new
     @edit=true

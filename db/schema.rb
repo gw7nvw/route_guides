@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140830202208) do
+ActiveRecord::Schema.define(version: 20140902063537) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -37,6 +37,17 @@ ActiveRecord::Schema.define(version: 20140830202208) do
     t.string   "name"
     t.string   "description"
     t.integer  "difficulty"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "messages", force: true do |t|
+    t.string   "subject"
+    t.text     "message"
+    t.integer  "toUser_id"
+    t.integer  "fromUser_id"
+    t.integer  "forum_id"
+    t.boolean  "hasBeenRead"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -269,6 +280,7 @@ ActiveRecord::Schema.define(version: 20140830202208) do
     t.string   "remember_token"
     t.integer  "currenttrip_id"
     t.integer  "role_id"
+    t.datetime "lastVisited"
   end
 
   add_index "users", ["email"], :name => "index_users_on_email", :unique => true

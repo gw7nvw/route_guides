@@ -68,8 +68,8 @@ small {
 }
 
 p {
-  font-size: 1.1em;
-  line-height: 1.7em;
+  font-size: 0.9em;
+  line-height: 1.2em;
 }
 
 
@@ -215,6 +215,46 @@ html, body {
 .erow {
         width: 100%;
         float: left;
+}
+
+.left-bubble {
+	position:relative;
+	padding:5px;
+	margin:0em 0 0em;
+        margin-right:50px;
+	color:#000;
+	background:#99ccff; /* default background for browsers without gradient support */
+	/* css3 */
+	-webkit-border-radius:10px;
+	-moz-border-radius:10px;
+	border-radius:10px;
+}
+
+.right-bubble-blue {
+	position:relative;
+	padding:5px;
+	margin:0em 0 0em;
+        margin-left:50px;
+	color:#000;
+	background:#99ccff; /* default background for browsers without gradient support */
+	/* css3 */
+	-webkit-border-radius:10px;
+	-moz-border-radius:10px;
+	border-radius:10px;
+}
+
+
+.right-bubble {
+	position:relative;
+	padding:5px;
+	margin:0em 0 0em;
+        margin-left:50px;
+	color:#000;
+	background:#ffff99; /* default background for browsers without gradient support */
+	/* css3 */
+	-webkit-border-radius:10px;
+	-moz-border-radius:10px;
+	border-radius:10px;
 }
 
 .subrow {

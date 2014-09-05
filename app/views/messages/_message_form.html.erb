@@ -1,0 +1,27 @@
+<% if signed_in?%>
+<div id='place_details'>
+  <div>
+     <%= form_for  @message, :remote=> true, :html => {:name => 'messageform'}  do |f| %>
+      <%= render 'shared/error_messages' %>
+
+      <% if !@forum%>
+        <%= f.label :To %>
+        <%= collection_select( :message, :toUser_id, User.all.order(:name), :id, :name, {}, {:disabled => !@edit}) %>
+      <% end %>
+ 
+      <%= f.label :Subject %>
+      <%= f.text_field :subject, :disabled=>!@edit %>
+
+      <%= f.label :Message %>
+      <%= f.text_area :message, :disabled=>!@edit, :rows=>"8"   %>
+
+      <%= f.hidden_field :forum_id %>
+      <% if @edit %>
+        <%= f.submit "Send", class: "btn btn-large btn-primary", name: "save", onclick: "linkHandler('savebutton')", id:  "savebutton" %>
+      <% end %>
+    <% end %>
+  </div>
+</div>
+<% end %>
+
+

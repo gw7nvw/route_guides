@@ -1,0 +1,2 @@
+window.history.pushState(null, 'Route Guides | Messages', '/messages/<%=params[:id]%>');
+$('#right_panel').html("<%= escape_javascript(render(:partial => 'messages/show')).html_safe %>");
