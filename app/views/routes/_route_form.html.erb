@@ -6,11 +6,11 @@
       <div class="erow">
          <% if @edit %> 
            <div class="leftbuttons">
-              <span title="Select start place from map">
-                 <img id="startplaceplus" src="/assets/add.png" onclick="route_selectStartPlace()" width="16" style="display:block"></img>
+              <span title="Select an existing start place from map (use Add under Places to create a new one)">
+                 <img id="startplaceplus" src="/assets/add.png" onclick="route_selectStartPlace()" width="16" style="display:block">
               </span>
               <span title="Confirm selection">
-                 <img id="startplacetick" src="/assets/tick.png" onclick="route_selectNothing()" width="16" style="display:none"></img> 
+                 <img id="startplacetick" src="/assets/tick.png" onclick="route_selectNothing()" width="16" style="display:none">
               </span>
            </div>
          <% end %>
@@ -23,11 +23,11 @@
       <div class="erow">
          <% if @edit %> 
            <div class="leftbuttons">
-              <span title="Select end place from map">
-                 <img id="endplaceplus" src="/assets/add.png" onclick="route_selectEndPlace()" width="16" style="display:block"></img>
+              <span title="Select an existing end place from map (use Add under Places to create a new one)">
+                 <img id="endplaceplus" src="/assets/add.png" onclick="route_selectEndPlace()" width="16" style="display:block">
               </span>
               <span title="Confirm selection">
-                 <img id="endplacetick" src="/assets/tick.png" onclick="route_selectNothing()" width="16" style="display:none"></img>
+                 <img id="endplacetick" src="/assets/tick.png" onclick="route_selectNothing()" width="16" style="display:none">
               </span>
            </div>
          <% end %>
@@ -45,12 +45,11 @@
       <div class="erow"> 
          <% if @edit %> 
            <div class="leftbuttons">
-              <span title="Draw route on map">
+              <span title="Draw route on map (double-click last point to end, then click the tick to confirm)">
+                 <img id="locationplus" src="/assets/add.png" onclick="route_selectLocation()" width="16" style="display:block">
               </span>
-                 <img id="locationplus" src="/assets/add.png" onclick="route_selectLocation()" width="16" style="display:block"></img>
               <span title="Confirm drawn route">
-
-                 <img id="locationtick" src="/assets/tick.png" onclick="route_endSelectLocation()" width="16" style="display:none"></img>
+                 <img id="locationtick" src="/assets/tick.png" onclick="route_endSelectLocation()" width="16" style="display:none">
               </span>
             </div>
          <% end %>
@@ -61,11 +60,11 @@
          <% if @edit %>
            <div class="leftbuttons">
               <span title="Paste a GPX file">
+                 <img id="gpxplus" src="/assets/add.png" onclick="enableGpx()" width="16" style="display:block">
               </span>
-                 <img id="gpxplus" src="/assets/add.png" onclick="enableGpx()" width="16" style="display:block"></img>
               <span title="Confirm uploaded route">
 
-                 <img id="gpxtick" src="/assets/tick.png" onclick="copyGpx()" width="16" style="display:none"></img>
+                 <img id="gpxtick" src="/assets/tick.png" onclick="copyGpx()" width="16" style="display:none">
               </span>
             </div>
          <% end %>

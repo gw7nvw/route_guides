@@ -10,7 +10,7 @@
      %>
 
      <% @rt_list.reverse.each do |rt_id| %>
-       <% url+='_r'+rt_id.to_s 
+       <% url+='xr'+rt_id.to_s 
           @route=Route.find_by_signed_id(rt_id) 
           if(@route.distance) then distance+=@route.distance end
           if(@route.time) then time+=@route.time end

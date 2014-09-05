@@ -1,0 +1,28 @@
+<% provide(:title, 'Messages') %>
+<% @title=" | Messages" %>
+<%= render 'flash' %>
+<script>
+   update_title('<%=@title%>');
+   reset_map_controllers();
+   document.getElementById("page_status").innerHTML = '';
+</script>
+  <% if @threads %>
+    <% count=0%>
+    <% @threads.each do |thread| %>
+      <div class="erow">
+       <% if (thread.count>1)  %>
+           <% @show_message=thread.first %>
+           <!-- render 'message_details' --> 
+      <% end %>
+           <% @show_message=thread.last %>
+           <%= render 'message_details' %>
+       <p style="text-align:left"><%=link_to @counts[count][:id].to_s+" messages", '/messages/'+@counts[count][:otherUser_id].to_s%></p>
+         <div class="hrline">
+            <hr noshade size="4">
+         </div>
+       </div>
+
+       <% count+=1%>
+    <% end %>
+  <% end %>
+<%=render 'message_form'%>

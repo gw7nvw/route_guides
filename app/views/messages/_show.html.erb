@@ -1,0 +1,23 @@
+<% provide(:title, 'Messages') %>
+<% @title=" | Messages" %>
+<%= render 'flash' %>
+<script>
+   update_title('<%=@title%>');
+   reset_map_controllers();
+   document.getElementById("page_status").innerHTML = '';
+</script>
+  <% if @messages %>
+    <% @messages.each do |message| %>
+      <div class="erow">
+           <% @show_message=message %>
+           <%= render 'message_details' %>
+       </div>
+    <% end %>
+  <% end %>
+<div class="erow">
+ <div class="hrline">
+    <hr noshade size="4">
+ </div>
+<div>
+
+<%=render 'message_form'%>

@@ -40,6 +40,13 @@ var positionToPaste;
 OpenLayers.IMAGE_RELOAD_ATTEMPTS = 3;
 OpenLayers.Util.onImageLoadErrorColor = "transparent";
 
+/* keep trtack of current page, and trigger refresh if we 'pop'
+   a different page (back/forward buttons) */
+if (typeof(lastUrl)=='undefined')  var lastUrl=document.URL;
+window.onpopstate = function(event)  {
+  if (document.URL != lastUrl) location.reload();
+};
+
 function init(){
   if(typeof(map_map)=='undefined') {
 
@@ -180,7 +187,7 @@ function places_layer_add() {
     places_layer = new OpenLayers.Layer.Vector("Places", {
                     strategies: [new OpenLayers.Strategy.BBOX()],
                     protocol: new OpenLayers.Protocol.WFS({
-                        url:  "http://routeguides.co.nz/cgi-bin/mapserv?map=/ms4w/apps/matts_app/htdocs/places.map",
+                        url:  "/cgi-bin/mapserv?map=/ms4w/apps/matts_app/htdocs/places.map",
                         featureType: "places",
                         extractAttributes: true
                     }),
@@ -216,7 +223,7 @@ function routes_layer_add() {
     routes_layer = new OpenLayers.Layer.Vector("routes", {
                     strategies: [new OpenLayers.Strategy.BBOX()],
                     protocol: new OpenLayers.Protocol.WFS({
-                        url:  "http://routeguides.co.nz/cgi-bin/mapserv?map=/ms4w/apps/matts_app/htdocs/routes.map",
+                        url:  "/cgi-bin/mapserv?map=/ms4w/apps/matts_app/htdocs/routes.map",
                         featureType: "routes",
                         extractAttributes: true
                     }),
@@ -844,6 +851,8 @@ function linkHandler(entity_name) {
     $('#'+entity_name).bind('ajax:complete', function() {
         /* complete also fires when error ocurred, so only clear if no error has been shown */
          document.getElementById("page_status").innerHTML = '';
+         lastUrl=document.URL;
+
     });
 
     /* set timeoput and register handler */

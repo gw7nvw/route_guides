@@ -91,7 +91,7 @@
           <i><%=@route.river.description%></i>
        </p>
 
-       <div class="sectiontitle">Winter conditions:</div></br>
+       <div class="sectiontitle">Winter conditions:</div><br/>
        <p>
           <div class="diff_label">Alpine:</div> <%=@route.alpinewinter.name%>
           <%="(difficulty: "+(@route.alpinewinter_id-@alpines.minimum(:id)).to_s+"/"+(@alpines.maximum(:id)-@alpines.minimum(:id)).to_s+")"%><br/>
@@ -104,7 +104,7 @@
     </div>
     <div class="subrow">
        <div class="leftbuttons">
-          <img id='switch' src="/assets/switch.png" <%=%q[onclick=clickswitch(']+@itemNumber.to_s+%q[')]%>></img>
+          <img id='switch' src="/assets/switch.png" <%=%q[onclick=clickswitch(']+@itemNumber.to_s+%q[')]%>>
        </div>
        <div id='<%="fw_t"+@itemNumber.to_s%>' class="sectiontitle" style=<%=if (@showForward==1) then "display:block" else "display:none" end %>>  
           <% if (!@trip and !@history) %>
@@ -118,6 +118,7 @@
              to <%= link_to @route.endplace.name,    @route.endplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %> 
           <% end %>
        </div>
+       <% if (!@route.description or @route.description.length<2) then @showForward=0 end%>
        <div id='<%="fw_r"+@itemNumber.to_s%>' class="sectiontext" style=<%=if (@showForward==1) then "display:block" else "display:none" end %> >
            <p>
            <% if @route.description and @route.description.length>0 %>

@@ -3,6 +3,7 @@ require "rexml/document"
 
 #get altitude from DEM if not set
  before_action :signed_in_user, only: [:edit, :update, :new, :create]
+ before_action :touch_user
 
   def leg_index
     @routes = Route.all.order(:name)
@@ -63,7 +64,7 @@ require "rexml/document"
   end
 
   def many
-    @items=params[:route].split('_')[1..-1]
+    @items=params[:route].split('x')[1..-1]
     current_user()
     if (!signed_in?) then 
       redirect_to '/signin'
@@ -97,8 +98,9 @@ require "rexml/document"
           @trip_details.save
         flash[:success]="Added route to trip"
       end
-      @id=params[:route]
-      show()
+      @trip= trip=Trip.find_by_id(@current_user.currenttrip)
+      prepare_route_vars()
+      render '/trips/show'
     end 
  end
 
@@ -131,10 +133,10 @@ def show
     prepare_route_vars()
     routes=[]
     if !@id then @id=params[:id] end
-    if @id[0]!="_" then
+    if @id[0]!="x" then
        show_single()
     else
-      @items=@id.split('_')[1..-1]
+      @items=@id.split('x')[1..-1]
 
       @showForward=1
       @showConditions=0

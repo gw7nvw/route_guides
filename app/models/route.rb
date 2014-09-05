@@ -79,7 +79,7 @@ def default_values
   end
 
 def handle_negatives_before_save
-    if self.id<0 then
+    if self.id and self.id<0 then
       self.reverse
     else
       self
@@ -116,7 +116,7 @@ end
 
 def adjoiningRoutes
    t=Route.find_by_sql ["select distinct *  from routes r 
-       where (startplace_id = ? or endplace_id = ? or startplace_id = ? or endplace_id = ?) and id <> ?",self.startplace_id, self.startplace_id, self.endplace_id, self.endplace_id, self.id]
+       where (startplace_id = ? or endplace_id = ? or startplace_id = ? or endplace_id = ?) and id <> ?",self.startplace_id, self.startplace_id, self.endplace_id, self.endplace_id, self.id.abs]
 end
 
 def trips
@@ -183,7 +183,7 @@ def regenerate_route_index
   maxLegCount=20
 
   #delete old entries using this route
-  RouteIndex.where("url ~ ? or url ~ ?",'\_r[-]{0,1}'+self.id.to_s+'\_', '\_r[-]{0,1}'+self.id.to_s+'$').destroy_all
+  RouteIndex.where("url ~ ? or url ~ ?",'xr[-]{0,1}'+self.id.to_s+'x', 'xr[-]{0,1}'+self.id.to_s+'$').destroy_all
 
 
   #find all place-to-place routes of length < <maxhops-1> for the start or endplace
@@ -201,23 +201,30 @@ def regenerate_route_index
   rsar=[]
   startAffectedRoutes.each do |ar|
     rar=reverseRouteHash(ar)
-    rar[:url]=rar[:url]+"_r"+self.id.to_s
+    rar[:url]=rar[:url]+"xr"+self.id.to_s
     rar[:route]=[self.id]+rar[:route]
     rar[:place]=self.endplace.id
     rar[:startplace]=ar[:place]
     rsar=rsar+[rar]
   end
+  puts "Star"
+  puts startAffectedRoutes
+  puts rsar
 
   rear=[]
   endAffectedRoutes.each do |ar|
 
     rar=reverseRouteHash(ar)
-    rar[:url]=rar[:url]+"_r"+(-self.id).to_s
+    rar[:url]=rar[:url]+"xr"+(-self.id).to_s
     rar[:route]=[-self.id]+rar[:route]
     rar[:place]=self.startplace.id
     rar[:startplace]=ar[:place]
     rear=rear+[rar]
   end
+
+  puts "Ear"
+  puts endAffectedRoutes
+  puts rear
 
   allAR=rsar+rear
   #recalculate all routes from the route's startplace that go via us
@@ -227,13 +234,15 @@ def regenerate_route_index
 
     #regernarate routes from place using this route as base-route   
     newRoutes=place.adjoiningPlaces(nil,false,maxLegCount,ar[:url],nil)
-
+    puts "BNewroutes"
+    puts place.id
+    puts newRoutes
      
      newRoutes.each do |newRoute|
         endPlace_id=newRoute[:place]
         endPlace=Place.find_by_id(endPlace_id)
 
-        if RouteIndex.where("url = ?",newRoute[:url]).count==0 then
+        if RouteIndex.where("url = ?",newRoute[:url]).count==0 and place.id!=endPlace.id then
           ri=RouteIndex.new(:startplace_id => place.id, :endplace_id => endPlace.id, :isDest => endPlace.placeType.isDest, :url => newRoute[:url])
           ri.save
         end
@@ -242,46 +251,6 @@ def regenerate_route_index
   end
 end
 
-def regenerate_route_index_old
-
-  maxLegCount=20
-
-  #delete old entries using this route
-  RouteIndex.where("url like ? or url like ?",'%_r'+self.id.to_s+'_%', '%_r'+self.id.to_s).destroy_all
-  RouteIndex.where("url like ? or url like ?",'%_r-'+self.id.to_s+'_%', '%_r-'+self.id.to_s).destroy_all
-
-
-  place=self.startplace
-  #find all places within <maxhops> of here
-  affectedRoutes=[{:place => place.id}]+place.adjoiningPlaces(nil,false,maxLegCount-1, nil, nil)
-
-  #get unique on affected places
-  affectedPlaces=[place.id]
-  affectedRoutes.each do |ar|
-      if !affectedPlaces.include? ar[:place] then
-          affectedPlaces=affectedPlaces+[ar[:place]]
-     end
-  end 
-  #regenerate route index for each of them
-  affectedPlaces.each do |place_id|
-
-     place=Place.find_by_id(place_id)
-
-     newRoutes=place.adjoiningPlaces(nil,false,maxLegCount,nil,nil)
-
-     #update db for each
-     newRoutes.each do |newRoute|
-        endPlace_id=newRoute[:place]
-        endPlace=Place.find_by_id(endPlace_id)
-
-        if RouteIndex.where("url = ?",newRoute[:url]).count==0 then
-          ri=RouteIndex.new(:startplace_id => place.id, :endplace_id => endPlace.id, :isDest => endPlace.placeType.isDest, :url => newRoute[:url])
-          ri.save
-        end
-     end
-  end
-
-end
 
 def reverseRouteHash(routeHash)
    route=[]
@@ -289,7 +258,7 @@ def reverseRouteHash(routeHash)
    if routeHash[:route].count>0 then 
      routeHash[:route].each do |rt|
        route=[-rt]+route
-       url=url+"_r"+(-rt).to_s
+       url=url+"xr"+(-rt).to_s
      end
      #get endplace (remembering that we need to reverse the last leg direction first)
      rt=routeHash[:route].last
@@ -302,6 +271,6 @@ end
 
 def prune_route_index
   #delete old entries using this route
-  RouteIndex.where("url ~ ? or url ~ ?",'\_r[-]{0,1}'+self.id.abs.to_s+'\_', '\_r[-]{0,1}'+self.id.abs.to_s+'$').destroy_all
+  RouteIndex.where("url ~ ? or url ~ ?",'xr[-]{0,1}'+self.id.abs.to_s+'x', 'xr[-]{0,1}'+self.id.abs.to_s+'$').destroy_all
 end
 end

@@ -27,7 +27,7 @@
             <% end %>
          <% end %>
 
-       <%= link_to trip.id.to_s+". "+trip.createdBy.name.capitalize+" - "+trip.name, trip, remote: true, :id => 'trip_link_'+trip.id.to_s, :onclick => "linkHandler('trip_link_"+trip.id.to_s+"')" %></br>
+       <%= link_to trip.id.to_s+". "+trip.createdBy.name.capitalize+" - "+trip.name, trip, remote: true, :id => 'trip_link_'+trip.id.to_s, :onclick => "linkHandler('trip_link_"+trip.id.to_s+"')" %><br/>
        <%= trip.lengthmin%> to <%= trip.lengthmax%> days |
        <%= number_with_precision(trip.distance, :precision => 2) %> km |
        <%= number_with_precision(trip.walkingtime, :precision => 1) %> DOC hrs

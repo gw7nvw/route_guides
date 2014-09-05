@@ -7,12 +7,15 @@ resources :places
 resources :maps, only: [:index]
 resources :trips
 resources :history, only: [:index, :show, :update]
+resources :messages, only: [:index, :show, :update]
+resources :forums, only: [:index, :show, :update]
 #controller :places do
 #    post 'places/:id' => :redisplay
 #end
 
 root 'static_pages#home'
-  match '/redisplay', to: 'places#redisplay',    via:'get'
+  match '/messages', to: 'messages#update',    via:'post'
+  match '/forums', to: 'forums#update',    via:'post'
   match '/trips/move', to: 'trips#move', via: 'post'
   match '/routes/find', to: 'routes#find', via: 'post'
   match '/routes/many', to: 'routes#many', via: 'post'
