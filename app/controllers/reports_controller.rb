@@ -60,7 +60,7 @@ def update
     @report.updated_at = Time.new()
 
     if @report.save
-        flash[:success] = "New report added, id:"+@report.id.to_s
+        flash[:success] = "Report saved, id:"+@report.id.to_s
         @id=@report.id
         #refresh variables
         show()
@@ -92,7 +92,7 @@ def update
 
   end
 
-  #handles in javascript, so do nothing here as a fallback
+  #handled in javascript, so do nothing here as a fallback
  if (params[:select])
         @edit=true
       if (!@id) then @id=params[:id] end

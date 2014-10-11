@@ -7,8 +7,15 @@
    document.getElementById("page_status").innerHTML = '';
 </script>
 <div class="sectiontitle">
-<%= @user.name.capitalize %><br/><br/>
+<%= @user.name.capitalize %><br/>
+<br/>
+
 </div>
+ <div class="erow">
+     <% if (@user.firstName and @user.lastName) %> 
+       <%= @user.firstName.capitalize+" "+@user.lastName.capitalize %><br/>
+     <% end %>
+ </div>
 <%     if(signed_in? and ((@user.id==@current_user.id) or (@current_user.role==Role.find_by( :name => 'root')))) %>
  <div class="erow">
      Email: <%= @user.email %>

@@ -11,8 +11,13 @@
           <p class="right-bubble">
      <% end %>
             <b><%= @show_message.fromUser.name.capitalize+" >" %></b><br/>
-            <% message=@show_message.message.html_safe
-               if  message.length>255 then message=message[0..245]+"... (more)" end %>
-            <%= message.html_safe %>
+            <% message=@show_message.message.html_safe %>
+            <% if message.length>255 then  %>
+                  <%= message[0..245].html_safe %>
+                  <%= link_to "... (more)", '/forums/1/?thread='+URI.escape(@show_message.subject), remote: true%>
+            <% else %>
+                  <%= message.html_safe %>
+            <% end %>
+            
           </p>
 

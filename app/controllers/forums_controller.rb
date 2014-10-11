@@ -16,7 +16,7 @@ def show
       show_thread()
    else
       @index=true
-     threads=Message.find_by_sql ['select "subject" from messages where "toUser_id" is null  and subject is not null and forum_id = ? group by "subject"', @id]
+     threads=Message.find_by_sql ['select "subject" from messages where "toUser_id" is null  and subject is not null and forum_id = ? group by "subject" order by max(created_at) desc', @id]
 
      thisItem=0
      @threads=[]

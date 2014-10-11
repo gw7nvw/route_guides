@@ -5,60 +5,54 @@
 
       <div class="erow">
          <% if @edit %>
-          <%=render :partial => 'help_buttons',  :locals => {:expName => "helpname", :initialSt => 0} %>
-
+           <div class="leftbuttons">
+              <span title="Enter the name of the place.  For places of interest make this unique and identifiable.  
+For track junctions feel free to just put 'track junction'.">
+                 <img src="/assets/help-16.png">
+              </span>
+           </div>
          <% end %>
          <div class="sectiontitle25">Name:</div>
-      </div>
-      <div class="erow">
-        <div id="helpname" class="helptext" style="display:none">
-           Enter the name of the place.  For places of interest make this unique and identifiable.  <br/>
-           For track junctions feel free to just put 'track junction'
-        </div>
       </div>
       <%= f.text_field :name, :disabled=>!@edit %>
 
       <div class="erow">
          <% if @edit %>
-          <%=render :partial => 'help_buttons',  :locals => {:expName => "helptype", :initialSt => 0} %>
+           <div class="leftbuttons">
+              <span title="Select the type of place. If none suit, select 'Other'">
+                 <img src="/assets/help-16.png">  
+              </span>
+           </div>
          <% end %>
          <div class="sectiontitle25">Place Type:</div>
       </div>
-      <div class="erow">
-        <div id="helptype" class="helptext" style="display:none">
-          Select the type of place. If none suit, select 'Other'
-        </div>
-      </div>
-
 
       <%= collection_select( :place, :place_type, PlaceType.all.order(:name), :name, :name, {}, {:disabled => !@edit}) %>
 
       <div class="erow">
          <% if @edit %>
-          <%=render :partial => 'help_buttons',  :locals => {:expName => "helpowner", :initialSt => 0} %>
+           <div class="leftbuttons">
+              <span title="For huts and campsites, select the owner.
+For other places this can normally be left blank">
+                 <img src="/assets/help-16.png">   
+              </span>
+           </div>
          <% end %>
          <div class="sectiontitle25">Place Owner:</div>
-      </div>
-      <div class="erow">
-        <div id="helpowner" class="helptext" style="display:none">
-          For huts and campsites, select the owner.<br/>
-          For other places this can normally be left blank.
-        </div>
       </div>
       <%= f.text_field :place_owner, :disabled=>!@edit %>
 
       <div class="erow">
          <% if @edit %>
-          <%=render :partial => 'help_buttons',  :locals => {:expName => "helpdescription", :initialSt => 0} %>
+           <div class="leftbuttons">
+              <span title="Enter an optional description of the place.  
+For roadends, this could include directions of how to get here by road.
+However, do not put tramping directions here, they should be entered as a separate route">
+                 <img src="/assets/help-16.png">   
+              </span>
+           </div>
          <% end %>
          <div class="sectiontitle25">Description:</div>
-      </div>
-      <div class="erow">
-        <div id="helpdescription" class="helptext" style="display:none">
-          Enter an optional description of the place. <br/> 
-          For roadends, this could include directions of how to get here by road.<br/>
-          However, do not put tramping directions here, they should be entered as a separate route.
-        </div>
       </div>
       <%= f.text_area :description, :disabled=>!@edit, :rows=>"8"   %>
 
@@ -66,7 +60,22 @@
 
       <div class="erow">
          <% if @edit %>
-           <%=render :partial => 'help_buttons',  :locals => {:expName => "helplocation", :initialSt => 0} %>
+           <div class="leftbuttons">
+              <span title="Option A: enter the coordinates below. 
+(1) Select the correct projection from the dropdown.
+(2) Enter the x (longitude)
+(3) Enter the y (latitude)
+Note: NTZM, NZMG are in full 7 digit format, e.g. x=1399769, y=5209764
+
+Option B: Select the location from the map.
+(1) Click the green plus to enable selection from the map
+(2) Scroll the map to the desired location and zoom in as far as you can
+(3) Click once on the map at the location you want.
+---> The chosen location will be displayed below in NZTM format.
+(4) Turn off map selection by clicking the green tick.">
+                 <img src="/assets/help-16.png">
+              </span>
+           </div>
            <div class="leftbuttons">
               <span title="Click to select locstion from map">
                  <img id="placeplus" src="/assets/add.png" onclick="place_selectPlace()" width="16" style="display:block">
@@ -78,22 +87,6 @@
            </div>
          <% end %>
          <div class="sectiontitle50">Location:</div>
-      </div>
-      <div class="erow">
-        <div id="helplocation" class="helptext" style="display:none">
-          Option A: enter the coordinates in the fields below. <br/>
-          (1) Select the correct projection from the dropdown.<br/>
-          (2) Enter the x (longitude).<br/>
-          (3) Enter the y (latitude).<br/>
-          Note: NTZM, NZMG are in full 7 digit format, e.g. x=1399769, y=5209764.<br/>
-          <br/>
-          Option B: Select the location from the map.<br/>
-          (1) Click the green plus to enable selection from the map.<br/>
-          (2) Scroll the map to the desired location and zoom in as far as you can.<br/>
-          (3) Click once on the map at the location you want.<br/>
-          --- The chosen location will be displayed below in NZTM format.<br/>
-          (4) Turn off map selection by clicking the green tick.
-        </div>
       </div>
 
       <%= f.label :projection %>
@@ -107,29 +100,26 @@
 
       <div class="erow">
          <% if @edit %>
-          <%=render :partial => 'help_buttons',  :locals => {:expName => "helpaltitude", :initialSt => 0} %>
+           <div class="leftbuttons">
+              <span title="Enter the altitude in meters or leave blank and the system will obtain it from the map upon save">
+                 <img src="/assets/help-16.png">
+              </span>
+           </div>
          <% end %>
          <div class="sectiontitle25">Altitude (leave blank to calculate from map upon save):</div>
       </div>
-      <div class="erow">
-        <div id="helpaltitude" class="helptext" style="display:none">
-          Enter the altitude in meters or leave blank and the system will obtain it from the map upon save.
-        </div>
-      </div>
-
       <%= f.text_field :altitude, :disabled=>!@edit %>
 
-      <div class="erow">
+            <div class="erow">
          <% if @edit %>
-          <%=render :partial => 'help_buttons',  :locals => {:expName => "helplinks", :initialSt => 0} %>
+           <div class="leftbuttons">
+              <span title="Optionally, enter the addresses of external web pages with further information about this place.
+e.g. http://tramper.co.nz/13455">
+                 <img src="/assets/help-16.png">
+              </span>
+           </div>
          <% end %>
          <div class="sectiontitle25">Links:</div>
-      </div>
-      <div class="erow">
-        <div id="helplinks" class="helptext" style="display:none">
-          Optionally, enter the addresses of external web pages with further information about this place.<br/>
-          e.g. http://tramper.co.nz/13455
-        </div>
       </div>
       <%= f.text_area :links, :disabled=>!@edit, :rows=> "4" %>
       <br/>

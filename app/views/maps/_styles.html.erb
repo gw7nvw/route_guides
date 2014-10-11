@@ -10,21 +10,22 @@ pt_styleMap = new OpenLayers.StyleMap({
 <% pts=PlaceType.all %>
 
 <% pts.each do |pt| %>
-  <%="style_"+pt.name%> = OpenLayers.Util.extend({}, layer_style);
-  <%="style_"+pt.name%>.strokeColor = '<%=pt.color%>';
-  <%="style_"+pt.name%>.fillColor = '<%=pt.color%>';
-  <%="style_"+pt.name%>.graphicName = '<%=pt.graphicName%>';
-  <%="style_"+pt.name%>.pointRadius = <%=pt.pointRadius%>;
-  <%="style_"+pt.name%>.strokeWidth = 3;
-  <%="style_"+pt.name%>.rotation = 0;
-  <%="style_"+pt.name%>.strokeLinecap = "butt";
+  <%safe_name = pt.name.gsub(/\s+/, "")%>
+  <%="style_"+safe_name%> = OpenLayers.Util.extend({}, layer_style);
+  <%="style_"+safe_name%>.strokeColor = '<%=pt.color%>';
+  <%="style_"+safe_name%>.fillColor = '<%=pt.color%>';
+  <%="style_"+safe_name%>.graphicName = '<%=pt.graphicName%>';
+  <%="style_"+safe_name%>.pointRadius = <%=pt.pointRadius%>;
+  <%="style_"+safe_name%>.strokeWidth = 3;
+  <%="style_"+safe_name%>.rotation = 0;
+  <%="style_"+safe_name%>.strokeLinecap = "butt";
 
     pt_styleMap.styles['default'].addRules([
         new OpenLayers.Rule({
             filter: new OpenLayers.Filter.Comparison({
             type: OpenLayers.Filter.Comparison.EQUAL_TO, property: "place_type", value: '<%=pt.name%>'
             }),
-            symbolizer: <%="style_"+pt.name%>
+            symbolizer: <%="style_"+safe_name%>
         }),
         new OpenLayers.Rule({
             elseFilter: true

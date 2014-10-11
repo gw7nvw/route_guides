@@ -76,6 +76,9 @@ function init(){
     layer_style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
     layer_style.fillOpacity = 0.2;
     layer_style.graphicOpacity = 1;
+    layer_style.strokeWidth = 2;
+    layer_style.strokeColor = "red";
+    layer_style.fillColor = "red";
 
 //    var extent = new OpenLayers.Bounds(-20037508, -20037508, 20037508, 20037508.34)
     var extent=new OpenLayers.Bounds(545967,  3739728,  2507647, 6699370);
@@ -91,6 +94,8 @@ function init(){
 
 
     places_layer_add();
+    places_layer.setVisibility(false);
+
     routes_layer_add();
 
     map_map.addLayer(basemap_layer);

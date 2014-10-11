@@ -57,7 +57,7 @@
          <% end %>
          <% if @route.alpinewinter.name!='Unknown' and @route.alpinewinter.name!='None' %>
             Winter - <%=@route.alpinewinter.name%>
-            <%=" ("+(@route.alpinewinter_id-@alpines.minimum(:id)).to_s+"/"+(@alpines.maximum(:id)-@alpines.minimum(:id)).to_s+")"%>
+            <%=" ("+(@route.alpinewinter_id-@alpinews.minimum(:id)).to_s+"/"+(@alpinews.maximum(:id)-@alpinews.minimum(:id)).to_s+")"%>
          <% end %>
          <br/><i><%= link_to 'GPX info source:', '/routes/'+@route.id.to_s+'.gpx'%></i>
               <i><%= @route.datasource %></i>
@@ -94,7 +94,7 @@
        <div class="sectiontitle">Winter conditions:</div><br/>
        <p>
           <div class="diff_label">Alpine:</div> <%=@route.alpinewinter.name%>
-          <%="(difficulty: "+(@route.alpinewinter_id-@alpines.minimum(:id)).to_s+"/"+(@alpines.maximum(:id)-@alpines.minimum(:id)).to_s+")"%><br/>
+          <%="(difficulty: "+(@route.alpinewinter_id-@alpinews.minimum(:id)).to_s+"/"+(@alpinews.maximum(:id)-@alpinews.minimum(:id)).to_s+")"%><br/>
           <i><%=@route.alpinewinter.description%></i>
        </p>
        <p>

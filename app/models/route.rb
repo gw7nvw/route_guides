@@ -14,7 +14,7 @@ class Route < ActiveRecord::Base
   validates :alpinesummer, presence: true
   belongs_to :alpinesummer, class_name: "Alpine"
   validates :alpinewinter, presence: true
-  belongs_to :alpinewinter, class_name: "Alpine"
+  belongs_to :alpinewinter, class_name: "Alpinew"
   validates :river, presence: true
   belongs_to :river
 
