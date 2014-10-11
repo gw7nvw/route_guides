@@ -4,15 +4,18 @@
 # Examples:
 #
 #   cities = City.create([{ name: 'Chicago' }, { name: 'Copenhagen' }])"
-#PlaceType.create(name: "Hut", description: "Back country huti open for public use", color: "blue", graphicName: "circle", pointRadius: 4, url: nil, isDest: true)
-#PlaceType.create(name: "Campsite", description: "Official campsite", color: "cyan", graphicName: "triangle", pointRadius: 4, url: nil, isDest: true)
-#PlaceType.create(name: "Campspot", description: "A viable informal camp spot", color: "green", graphicName: "triangle", pointRadius: 3, url: nil, isDest: true)
-#PlaceType.create(name: "Summit", description: "A peak", color: "#b26b00", graphicName: "star", pointRadius: 3, url: nil, isDest: true)
-#PlaceType.create(name: "Pass", description: "A trampable pass, col or saddle", color: "#333300", graphicName: "star", pointRadius: 3, url: nil, isDest: false)
-#PlaceType.create(name: "Locality", description: "A town, station, or other inhabited locality", color: "black", graphicName: "square", pointRadius: 3, url: nil, isDest: true)
-#PlaceType.create(name: "Roadend", description: "The point a track leaves a vehicular road", color: "#1a1a1a", graphicName: "square", pointRadius: 3, url: nil, isDest: true)
-#PlaceType.create(name: "Other", description: "Other location forming the start / end of a route", color: "#00003d", graphicName: "square", pointRadius: 3, url: nil, isDest: false)
-PlaceType.create(name: "Junction", description: "Track or route junction", color: "#00003d", graphicName: "square", pointRadius: 3, url: nil, isDest: false)
+PlaceType.create(name: "Hut", description: "Back country hut open for public use", color: "blue", graphicName: "circle", pointRadius: 3, url: nil, isDest: true)
+PlaceType.create(name: "Campsite", description: "Official campsite", color: "cyan", graphicName: "circle", pointRadius: 3, url: nil, isDest: true)
+PlaceType.create(name: "Campspot", description: "A viable informal camp spot", color: "green", graphicName: "circle", pointRadius: 3, url: nil, isDest: true)
+PlaceType.create(name: "Summit", description: "A peak", color: "#b26b00", graphicName: "triangle", pointRadius: 3, url: nil, isDest: true)
+PlaceType.create(name: "Pass", description: "A trampable pass, col or saddle", color: "#333300", graphicName: "triangle", pointRadius: 3, url: nil, isDest: false)
+PlaceType.create(name: "Locality", description: "A town, station, or other inhabited locality", color: "black", graphicName: "square", pointRadius: 3, url: nil, isDest: true)
+PlaceType.create(name: "Roadend", description: "The point a track leaves a vehicular road", color: "#1a1a1a", graphicName: "square", pointRadius: 3, url: nil, isDest: true)
+PlaceType.create(name: "Other", description: "Other location forming the start / end of a route", color: "#00003d", graphicName: "square", pointRadius: 3, url: nil, isDest: false)
+PlaceType.create(name: "Junction", description: "Track or route junction", color: "#00003d", graphicName: "square", pointRadius: 2, url: nil, isDest: false)
+PlaceType.create(name: "Waterbody" , description: "Lake, river, stream, etc", color: "#000099", graphicName: "triangle", pointRadius: 3, url: nil, isDest: false)
+PlaceType.create(name: "Rockbiv" , description: "Natural shelter", color: "#414141", graphicName: "triangle", pointRadius: 3, url: nil, isDest: false)
+
 #
 #
 #Routetype.create(code: "unk", name: "Unknown", description: "Not specified",difficulty: 0, linecolor: "#660066", linetype: "solid")
@@ -48,6 +51,17 @@ PlaceType.create(name: "Junction", description: "Track or route junction", color
 #Alpine.create(name: "Prolonged scrambles", description: "Scramble, frequently on exposed ridges, spurs, faces", difficulty: 4)
 #Alpine.create(name: "Snow / ice", description: "Scramble with snow/ice sections, ice axe & crampons required",  difficulty: 7)
 #Alpine.create(name: "Mountaineering", description: "Mountaineering route - technical equipment & skills required", difficulty: 10)
+#Alpine.create(name: "Glacier travel required", description: "Glacier travel required", difficulty: 10)
+#
+##
+#Alpinew.create(name: "Unknown", description: "Not specified",difficulty: 0)
+#Alpinew.create(name: "None", description: "No alpine skills required", difficulty: 1)
+#Alpinew.create(name: "Snow/ice underfoot", description: "Snow/ice likely on track", difficulty: 2)
+#Alpinew.create(name: "Snow/ice underfoot, avalanche risk", description: "Snow/ice likely on track, tramp crosses avalance paths", difficulty: 4)
+#Alpinew.create(name: "Iceaxe/crampons", description: "Ice axe and crampons required in winter", difficulty: 5)
+#Alpinew.create(name: "Iceaxe/crampons, avalanche risk", description: "Ice axe and crampons required, crosses avalanche paths", difficulty: 6)
+#Alpinew.create(name: "High avalanche risk, snow/ice underfoot", description: "Snow/ice likely on track, high/prolonged avalanche risk", difficulty: 7)
+#Alpinew.create(name: "High avalanche risk, iceaxe/crampons", description: "Ice axe and crampons required, high/prolonged avalanche risk", difficulty: 10)
 #
 #River.create(name: "Unknown", description: "Not specified",difficulty: 0)
 #River.create(name: "None", description: "No unbridged river crossings", difficulty: 1)

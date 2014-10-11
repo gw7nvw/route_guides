@@ -1,0 +1,11 @@
+<div class="leftbuttons">
+   <span title="Click to show help">
+      <img id='<%=expName+"plus"%>' src="/assets/help-on.png" <%=%q[onclick=clickplus(']+expName+%q[')]%> 
+           style='display:<%=if(initialSt==1) then "none" else "block" end%>'>
+   </span>
+   <span title="Click to close help">
+      <img id='<%=expName+"minus"%>' src="/assets/help-off.png" <%=%q[onclick=clickminus(']+expName+%q[')]%> 
+           style='display:<%=if(initialSt==1) then "block" else "none" end%>'>
+   </span>
+</div>
+

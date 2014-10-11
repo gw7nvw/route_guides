@@ -22,6 +22,7 @@ class ApplicationController < ActionController::Base
     @route_types = Routetype.all
     @gradients = Gradient.all
     @alpines = Alpine.all
+    @alpinews = Alpinew.all
     @rivers = River.all
     @terrains = Terrain.all
   end

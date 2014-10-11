@@ -7,6 +7,8 @@ class User < ActiveRecord::Base
   has_many :placeInstances, class_name: "Place", foreign_key: "createdBy_id"
   belongs_to :role
   validates :role, presence: true
+  validates :firstName, presence: true
+  validates :lastName, presence: true
 
   before_save { self.email = email.downcase }
   before_save { self.name = name.downcase }

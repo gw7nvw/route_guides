@@ -11,8 +11,13 @@
           <p class="right-bubble">
      <% end %>
             <b><%= @show_message.subject %></b><br/>
-            <% message=@show_message.message.html_safe
-               if  message.length>255 then message=message[0..245]+"... (more)" end %>
-            <%= message.html_safe %>
+            <% message=@show_message.message.html_safe %>
+            <% if message.length>255 then  %>
+                  <%= message[0..245].html_safe %>
+                  <%= link_to "... (more)", '/messages/'+@count[:otherUser_id].to_s, remote: true%>
+            <% else %>
+                  <%= message.html_safe %>
+            <% end %>
+
           </p>
 

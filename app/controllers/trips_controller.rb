@@ -29,11 +29,7 @@ end
 
 def move
    @edit=true
-      @route_types = Routetype.all
-      @gradients = Gradient.all
-      @alpines = Alpine.all
-      @rivers = River.all
-      @terrains = Terrain.all
+      prepare_route_vars()
       @place_types = PlaceType.all
 
    @trip=Trip.find_by_id(params[:id])
@@ -133,11 +129,7 @@ def new
   @current_user.currenttrip_id = @trip.id
   @current_user.save
 
-  @route_types = Routetype.all
-  @gradients = Gradient.all
-  @alpines = Alpine.all
-  @rivers = River.all
-  @terrains = Terrain.all
+  prepare_route_vars()
   @place_types = PlaceType.all
   @edit=true
 
@@ -147,11 +139,7 @@ end
 
 def show
   @trip=Trip.find_by_id(params[:id])
-      @route_types = Routetype.all
-      @gradients = Gradient.all
-      @alpines = Alpine.all
-      @rivers = River.all
-      @terrains = Terrain.all
+      prepare_route_vars()
       @place_types = PlaceType.all
 end
 
@@ -162,11 +150,7 @@ def edit
     render 'show'
   end
 
-  @route_types = Routetype.all
-  @gradients = Gradient.all
-  @alpines = Alpine.all
-  @rivers = River.all
-  @terrains = Terrain.all
+  prepare_route_vars()
   @place_types = PlaceType.all
   @edit=true
 end

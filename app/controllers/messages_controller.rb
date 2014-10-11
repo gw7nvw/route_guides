@@ -6,7 +6,7 @@ def index
 
    @index=true
    if signed_in? then
-   userPairs=Message.find_by_sql ['select "fromUser_id", "toUser_id"  from messages where ("fromUser_id"=?  or "toUser_id"=?) and "toUser_id" is not null group by "fromUser_id", "toUser_id" ', @current_user.id.to_s, @current_user.id.to_s]
+   userPairs=Message.find_by_sql ['select "fromUser_id", "toUser_id"  from messages where ("fromUser_id"=?  or "toUser_id"=?) and "toUser_id" is not null group by "fromUser_id", "toUser_id" order by max(created_at) desc', @current_user.id.to_s, @current_user.id.to_s]
 
 #get unique user pairs
    users=[]

@@ -5,88 +5,233 @@
       
       <div class="erow">
          <% if @edit %> 
+           <%=render :partial => 'help_buttons',  :locals => {:expName => "rhelpstart", :initialSt => 0} %>
            <div class="leftbuttons">
-              <span title="Select an existing start place from map (use Add under Places to create a new one)">
+              <span title="Click to select a start place from the map">
                  <img id="startplaceplus" src="/assets/add.png" onclick="route_selectStartPlace()" width="16" style="display:block">
               </span>
-              <span title="Confirm selection">
+              <span title="Click to confirm selection">
                  <img id="startplacetick" src="/assets/tick.png" onclick="route_selectNothing()" width="16" style="display:none">
               </span>
            </div>
          <% end %>
-         <div class="rowtitle">From:</div>
+         <div class="sectiontitle50">From:</div>
       </div>
+      <div class="erow">
+        <div id="rhelpstart" class="helptext" style="display:none">
+          All routes must start and end at locations that have been added as 'places' in routeguides.co.nz. <br/>
+          <br/>
+          Option A: Select an existing start place from the map.<br/>
+          (1) Click the green plus to enable selection from the map.<br/>
+          (2) Scroll the map to the desired location and zoom in until you can see the place you wish to select.<br/>
+          (3) Click on an existing 'place' on the map.<br/>
+          --- The chosen place will be shown in the box below.<br/>
+          (4) Turn off map selection by clicking the green tick.<br/>
+          <br/>
+          Option B: Create a new start place.<br>
+          (1) One day you'll be able to do this here.  But for now you need to
+          use Places -&gt; Add to add start and end places before you can create a route.
+        </div>
+      </div>
+
       <%= f.hidden_field :startplace_id %> 
       <input disabled="disabled" id="route_startplace_name" name="route[startplace_name]" type="text" <%if @route.startplace %>value='<%=@route.startplace.name%>'<%end%>>
       <input  type="hidden" id="route_startplace_location" name="route[startplace_location]" type="text" <%if @route.startplace %>value='<%=@route.startplace.location%>'<%end%>>
 
       <div class="erow">
          <% if @edit %> 
+           <%=render :partial => 'help_buttons',  :locals => {:expName => "rhelpend", :initialSt => 0} %>
            <div class="leftbuttons">
-              <span title="Select an existing end place from map (use Add under Places to create a new one)">
+              <span title="Click to select a start place from the map">
                  <img id="endplaceplus" src="/assets/add.png" onclick="route_selectEndPlace()" width="16" style="display:block">
               </span>
-              <span title="Confirm selection">
+              <span title="Click to confirm selection">
                  <img id="endplacetick" src="/assets/tick.png" onclick="route_selectNothing()" width="16" style="display:none">
               </span>
            </div>
          <% end %>
-         <div class="rowtitle">To:</div>
+         <div class="sectiontitle50">To:</div>
+      </div>
+      <div class="erow">
+        <div id="rhelpend" class="helptext" style="display:none">
+          All routes must start and end at locations that have been added as 'places' in routeguides.co.nz. <br/>
+          <br/>
+          Option A: Select an existing end place from the map.<br/>
+          (1) Click the green plus to enable selection from the map.<br/>
+          (2) Scroll the map to the desired location and zoom in until you can see the place you wish to select.<br/>
+          (3) Click on an existing 'place' on the map.<br/>
+          --- The chosen place will be shown in the box below.<br/>
+          (4) Turn off map selection by clicking the green tick.<br/>
+          <br/>
+          Option B: Create a new end place.<br>
+          (1) One day you'll be able to do this here.  But for now you need to
+          use Places -&gt; Add to add start and end places before you can create a route.
+        </div>
       </div>
       <%= f.hidden_field :endplace_id %>
       <input disabled="disabled" id="route_endplace_name" name="route[endplace_name]" type="text"  <%if @route.endplace %>value='<%=@route.endplace.name%>'<%end%>>
       <input type="hidden" id="route_endplace_location" name="route[endplace_location]" type="text"  <%if @route.endplace %>value='<%=@route.endplace.location%>'<%end%>>
 
 
-      <div class="rowtitle">Via:</div>
+      <div class="erow">
+           <%=render :partial => 'help_buttons',  :locals => {:expName => "rhelpvia", :initialSt => 0} %>
+
+          <div class="sectiontitle25">Via:</div>
+      </div>
+      <div class="erow">
+        <div id="rhelpvia" class="helptext" style="display:none">
+          Enter a name for the route the segment you are adding takes.  This should be
+sufficient to differentiate it from other routes between the same two places. <br/>
+          E.g. 1: Via: Sidle track<br/>
+          E.g. 2: Via: North Huxley riverbed<br/>
+        </div>
+      </div>
+
       <%= f.text_field :via, :disabled=>!@edit %>
 
       <%= f.hidden_field :datasource %> 
       <div class="erow"> 
+         <%=render :partial => 'help_buttons',  :locals => {:expName => "rhelproute", :initialSt => 0} %>
+
          <% if @edit %> 
            <div class="leftbuttons">
-              <span title="Draw route on map (double-click last point to end, then click the tick to confirm)">
+              <span title="Click to draw route on map">
                  <img id="locationplus" src="/assets/add.png" onclick="route_selectLocation()" width="16" style="display:block">
               </span>
-              <span title="Confirm drawn route">
+              <span title="Click to confirm drawn route">
                  <img id="locationtick" src="/assets/tick.png" onclick="route_endSelectLocation()" width="16" style="display:none">
               </span>
             </div>
          <% end %>
-         <div class="rowtitle">Route points:</div>
+         <div class="sectiontitle50">Route points:</div>
+      </div>
+      <div class="erow">
+        <div id="rhelproute" class="helptext" style="display:none">
+          You can either draw the route on the map by hand, or you can upload it from a GPS using a GPX file.<br/>
+         <br>
+         Option A: Draw route on map:<br/>
+          (1) Click the green plus to enable drawing from the map.<br/>
+          (2) Scroll the map to the desired start location (the start place above) and zoom in to maximum zoom<br/>
+          (3) Click once to start drawing.  A blue circle will appear where you clicked.<br/>
+          (4) Click at each point along the route. A blue line will show the route you have drawn so far<br/>
+          --- You must draw the route in the same direction as you indicated with start and end places above - i.e. from start to end.<br/>
+          --- If you make a mistake, pressing ctrl+z will undo the latest point<br/>
+          --- If you need to scroll the map you can do so by dragging the map in any direction during editing<br/>
+          --- If you need to zoom the map you can do so with the mouse wheel during editing<br/>
+          --- Try to include points at high and low points along the route, as the altitude profile of the route will only be calculated where you draw points.<br/>
+          (5) When complete, double click to end drawing.  The line drawn will change colour to red.<br/>
+          (6) Turn off map drawing by clicking the green tick.<br/>
+          --- The route points will now be listed in the 'Route Points' box.
+          --- If you made a mistake or if you are editing an existing route, then simply repeat the above process and the new route will overwrite the old one. <br/>
+        </div>
+      </div>
+
       <%= f.text_field :location, :readonly=>true %>
    
       <div class="erow">
          <% if @edit %>
+         <%=render :partial => 'help_buttons',  :locals => {:expName => "rhelpgpx", :initialSt => 0} %>
+
            <div class="leftbuttons">
-              <span title="Paste a GPX file">
+              <span title="Click to open paste GPX dialog">
                  <img id="gpxplus" src="/assets/add.png" onclick="enableGpx()" width="16" style="display:block">
               </span>
-              <span title="Confirm uploaded route">
+              <span title="Click to process the GPX file pasted">
 
                  <img id="gpxtick" src="/assets/tick.png" onclick="copyGpx()" width="16" style="display:none">
               </span>
             </div>
          <% end %>
          <div class="rowtitle">Paste a GPX file:</div>
+      </div>
+      <div class="erow">
+        <div id="rhelpgpx" class="helptext" style="display:none">
+          You can either draw the route on the map by hand, or you can upload it from a GPS using a GPX file.<br/>
+         <br>
+         Option B: Paste a GPX file:<br/>
+          Note: The following method is a temporary implementation and will be replaced by drag-and-drop of the file in future<br/>
+          (1) Click the green plus to open the Paste GPX text box.<br/>
+          --- A new text area will be displayed under Paste GPX<br/>
+          (2) Open your GPX file in your favourite text editor (e.g. notepad)<br/>
+          (3) In the text editor, select the entire file and click copy<br/>
+          (4) Paste the copied text from the GPX file into the text area below<br/>
+          (5) Click the green tick to process the GPX file<br/>
+          --- If successful, the points from the GPX file will be listed under Route Points<br/>
+          --- The uploaded GPX route will be displayed on the map<br/>
+          --- Note: The GPX file must contain the route in the same direction as you indicated above - from start place to end place
+        </div>
+      </div>
+
       <div class="erow">
         <textarea id="gpxfield" name="gpxfield" type="text" style="display:none" rows="8"></textarea>
       </div>
 
-      <div class="rowtitle">Description:</div>
+      <div class="erow">
+         <%=render :partial => 'help_buttons',  :locals => {:expName => "rhelpdescription", :initialSt => 0} %>
+         <div class="sectiontitle25">Description:</div>
+      </div>
+      <div class="erow">
+        <div id="rhelpdescription" class="helptext" style="display:none">
+          Enter a description of the route, in the direction entrered above (i.e. as walked from the above start place to end place). 
+        </div>
+      </div>
+
       <%= f.text_area :description, :disabled=>!@edit, :rows=>"8"   %>
 
-      <div class="rowtitle">Reverse description:</div>
+      <div class="erow">
+         <%=render :partial => 'help_buttons',  :locals => {:expName => "rhelprevdescription", :initialSt => 0} %>
+         <div class="sectiontitle25">Reverse description:</div>
+      </div>
+
+      <div class="erow">
+        <div id="rhelprevdescription" class="helptext" style="display:none">
+          Optionally, enter a description of the route, in the reverse direction to that entrered above (i.e. as walked from the above end place to start place).  This will be displayed when people search for a route in the oppsite direction to the one you are creating. <br/>
+          <br/>
+          If the route is tricky, and you do not know what landmarks to look out for in the reverse direction then please leave this blank rather than guessing. If no reverse description is entered and a user requests travel from the 'endplace' to 'startplace' above, then the forward description will be displayed with a note warning that it describes the route in the opposite direction to travel.
+        </div>
+      </div>
+
       <%= f.text_area :reverse_description, :disabled=>!@edit, :rows=>"8"   %>
 
      <b>Length:</b><br/>
-      <div class="rowtitle">Time (DOC hours)</div>
-      <%= f.text_field :time, :disabled=>!@edit %>
+     <div class="erow">
+         <%=render :partial => 'help_buttons',  :locals => {:expName => "rhelphours", :initialSt => 0} %>
 
-      <div class="rowtitle">Distance (km)</div>
+         <div class="sectiontitle25">Time (DOC hours)</div>
+     </div>
+     <div class="erow">
+        <div id="rhelphours" class="helptext" style="display:none">
+          Enter the time taken to walk the route entered. <br/>
+          --- This should be the time that is shown on a DOC distance signpost (or should / would be shown if no accurate signpost exists). This is likely to differ from the time you took yourself. Please adjust your times accordingly based on how fast you walk compared to signposted DOC times.
+        </div>
+      </div>
+
+      <%= f.text_field :time, :disabled=>!@edit %>
+     <div class="erow">
+         <%=render :partial => 'help_buttons',  :locals => {:expName => "rhelpkms", :initialSt => 0} %>
+        <div class="rowtitle">Distance (km)</div>
+      </div>
+      <div class="erow">
+        <div id="rhelpkms" class="helptext" style="display:none">
+          This field shows the length of the route in kilometers. It is calculated from the drawn / uploaded route and cannot be edited manually.
+        </div>
+      </div>
+
       <%= f.text_field :distance, :disabled=>!@edit, :readonly=>true %>
 
-      <b>Normal conditions:</b><br/>
+      <div class="erow">
+         <%=render :partial => 'help_buttons',  :locals => {:expName => "rhelpnormal", :initialSt => 0} %>
+        <div class="rowtitle">Normal conditions:</div>
+      </div>
+
+      <div class="erow">
+        <div id="rhelpnormal" class="helptext" style="display:none">
+          Use the sliders to select the route type / difficulty / skills required for the trip described in normal (average rainfall, summer conditions). As you drag the slider, the meaning of each difficulty level will be displayed below.<br/>
+          <br/>
+          If you are unsure or don't know - please leave the setting at Unknown rather than guessing.
+        </div>
+      </div>
+
       <div class="difficulty">
           <div class="diff_label">Route Type</div>
           <div class="diff_name" id="rt_name"></div>
@@ -151,14 +296,26 @@
         <div class="diff_details" id="river_text"></div>
       </div>
 
-      <b>Winter conditions</b><br/>
+      <div class="erow">
+         <%=render :partial => 'help_buttons',  :locals => {:expName => "rhelpwinter", :initialSt => 0} %>
+        <div class="rowtitle">Winter conditions:</div>
+      </div>
+
+      <div class="erow">
+        <div id="rhelpwinter" class="helptext" style="display:none">
+          Use the sliders to select the route difficulty / skills required for the trip described in winter conditions assuming likely snowfall and weather. As you drag the slider, the meaning of each difficulty level will be displayed below. You can enter further details about the winter conditions in the text box below the sliders.<br/>
+          <br/>
+          If you are unsure or don't know - please leave the setting at Unknown rather than guessing.
+        </div>
+      </div>
+
       <div class="difficulty">
         <div class="diff_label">Alpine</div> 
         <div class="diff_name" id="alpw_name"></div>
         <%= f.text_field :alpinewinter_id, id: 'alpinewinter', type: 'text',
                          data: {'slider-id' => 'ex1Slider',
-                          'slider-min' => @alpines.minimum(:id),
-                          'slider-max' => @alpines.maximum(:id),
+                          'slider-min' => @alpinews.minimum(:id),
+                          'slider-max' => @alpinews.maximum(:id),
                           'slider-step' => '1',
                           'slider-value' => @route.alpinewinter_id || 1,
                           'slider-tooltip' => 'hide'  } %>
@@ -172,19 +329,32 @@
       </div>
 
       <br/>
-      <div class="rowtitle">Links</div>
+      <div class="erow">
+         <% if @edit %>
+          <%=render :partial => 'help_buttons',  :locals => {:expName => "rhelplinks", :initialSt => 0} %>
+         <% end %>
+         <div class="sectiontitle25">Links:</div>
+      </div>
+      <div class="erow">
+        <div id="rhelplinks" class="helptext" style="display:none">
+          Optionally, enter the addresses of external web pages with further information about this route.<br/>
+          e.g. http://tramper.co.nz/13455
+        </div>
+      </div>
+
       <%= f.text_area :links, :disabled=>!@edit, :rows=>"4"   %>
 
 
       <% if @edit %>
-        <%= f.submit "Save", class: "btn btn-large btn-primary", name: "save", onclick: "updateRoute('savebutton')", id:  "savebutton"  %>
+        <%= f.submit "Save", class: "btn btn-small btn-primary", name: "save", onclick: "updateRoute('savebutton')", id:  "savebutton"  %>
+        <%=  link_to "Cancel", '/routes/'+@route.id.to_s, class: "btn btn-small btn-primary", remote: true %>
         <%     if((@route.createdBy_id==@current_user.id) or (@current_user.role==Role.find_by( :name => 'root'))) %>
-           <%= f.submit "Delete", class: "btn btn-large btn-primary", name: "delete" %>
+           <%= f.submit "Delete", class: "btn btn-small btn-primary", name: "delete" %>
         <% end %>
 
       <% else %>
-        <%=  link_to "Edit", '/routes/'+@route.id.to_s+'/edit', class: "btn btn-large btn-primary", remote: true %>
-        <%= f.submit "Add to trip", class: "btn btn-large btn-primary", :disabled => @current_user, name: "add" %>
+        <%=  link_to "Edit", '/routes/'+@route.id.to_s+'/edit', class: "btn btn-small btn-primary", remote: true %>
+        <%= f.submit "Add to trip", class: "btn btn-small btn-primary", :disabled => @current_user, name: "add" %>
       <% end %>
 
     <% end %>
@@ -207,6 +377,7 @@ var routeType = [<%= raw @route_types.to_json %>];
 var gradient = [<%= raw @gradients.to_json %>];
 var terrain = [<%= raw @terrains.to_json %>];
 var alpine = [<%= raw @alpines.to_json %>];
+var alpinew = [<%= raw @alpinews.to_json %>];
 var river = [<%= raw @rivers.to_json %>];
 
 function rt_change() {
@@ -225,8 +396,8 @@ function river_change() {
     document.getElementById("river_text").innerHTML = river[0][riv_val.getValue()-1].description;
     document.getElementById("river_name").innerHTML = river[0][riv_val.getValue()-1].name;}
 function alpw_change() {
-    document.getElementById("alpw_text").innerHTML = alpine[0][alpw_val.getValue()-1].description;
-    document.getElementById("alpw_name").innerHTML = alpine[0][alpw_val.getValue()-1].name;}
+    document.getElementById("alpw_text").innerHTML = alpinew[0][alpw_val.getValue()-1].description;
+    document.getElementById("alpw_name").innerHTML = alpinew[0][alpw_val.getValue()-1].name;}
     
 
 var rt_val= $('#route_type').slider() 

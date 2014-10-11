@@ -5,7 +5,7 @@ class RouteInstance < ActiveRecord::Base
  belongs_to :gradient
  belongs_to :terrain
  belongs_to :alpinesummer, class_name: "Alpine"
- belongs_to :alpinewinter, class_name: "Alpine"
+ belongs_to :alpinewinter, class_name: "Alpinew"
  belongs_to :river
  belongs_to :startplace, class_name: "Place"
  belongs_to :endplace, class_name: "Place"
