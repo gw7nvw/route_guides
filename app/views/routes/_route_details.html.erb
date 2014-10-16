@@ -71,6 +71,11 @@
           <i><%=@route.routetype.description%></i>
        </p>
        <p>
+          <div class="diff_label">Route Importance:</div> <%=@route.importance.name%>
+          <%="("+(@route.importance_id-@importances.minimum(:id)+1).to_s+"/"+(@importances.maximum(:id)-@importances.minimum(:id)+1).to_s+")"%><br/>
+          <i><%=@route.importance.description%></i>
+       </p>
+       <p>
           <div class="diff_label">Gradient:</div> <%=@route.gradient.name%>
           <%="(difficulty: "+(@route.gradient_id-@gradients.minimum(:id)).to_s+"/"+(@gradients.maximum(:id)-@gradients.minimum(:id)).to_s+")"%><br/>
           <i><%=@route.gradient.description%></i>
@@ -106,6 +111,7 @@
        <div class="leftbuttons">
           <img id='switch' src="/assets/switch.png" <%=%q[onclick=clickswitch(']+@itemNumber.to_s+%q[')]%>>
        </div>
+       <% if (!@route.description or @route.description.length<2) then @showForward=0 end%>
        <div id='<%="fw_t"+@itemNumber.to_s%>' class="sectiontitle" style=<%=if (@showForward==1) then "display:block" else "display:none" end %>>  
           <% if (!@trip and !@history) %>
              <%= form_for  @route, :html => {:name => 'routeform'}, remote: true  do |f| %>
@@ -118,7 +124,6 @@
              to <%= link_to @route.endplace.name,    @route.endplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %> 
           <% end %>
        </div>
-       <% if (!@route.description or @route.description.length<2) then @showForward=0 end%>
        <div id='<%="fw_r"+@itemNumber.to_s%>' class="sectiontext" style=<%=if (@showForward==1) then "display:block" else "display:none" end %> >
            <p>
            <% if @route.description and @route.description.length>0 %>

@@ -6,6 +6,7 @@ var mapMaxZoom = 15;
 var vectorLayer;
 var places_layer;
 var routes_layer;
+var routes_simple_layer;
 var renderer;
 
 var layer_style;
@@ -97,10 +98,13 @@ function init(){
     places_layer.setVisibility(false);
 
     routes_layer_add();
+    routes_layer.setVisibility(false);
+    routes_simple_layer_add();
 
     map_map.addLayer(basemap_layer);
     map_map.addLayer(places_layer);
-    map_map.addLayer(routes_layer);
+  map_map.addLayer(routes_layer);
+    map_map.addLayer(routes_simple_layer);
 
     map_map.zoomToExtent(extent); 
     map_map.addControl(new OpenLayers.Control.LayerSwitcher());
@@ -124,11 +128,12 @@ function init(){
         // hide places above 7 zoom (too much data).  Turn back on if we drop below 
         if( x < 8) {
             places_layer.setVisibility(false);
-            autoPlacesOff=true;
+            routes_layer.setVisibility(false);
+            routes_simple_layer.setVisibility(true);
        } else {
-            if (autoPlacesOff==true) {
                 places_layer.setVisibility(true);
-            }
+                routes_layer.setVisibility(true);
+                routes_simple_layer.setVisibility(false);
        }
     });
 
@@ -176,14 +181,15 @@ function init(){
     map_map.zoomToExtent( mapBounds.transform(map_map.displayProjection, map_map.projection ) );
     map_map.zoomTo(5);
     // hide places below 2 zoom (too much data).  Turn back on if we drop beloiw 
-    if( map_map.getZoom() < 2) {
-        places_layer.setVisibility(false);
-        autoPlacesOff=true;
-   } else {
-        if (autoPlacesOff==true) {
-            places_layer.setVisibility(true);
-        }
-   }
+//    if( map_map.getZoom() < 2) {
+//        places_layer.setVisibility(false);
+//        routes_layer.setVisibility(false);
+////        routes_simple_layer.setVisibility(true);
+//   } else {
+//        places_layer.setVisibility(true);
+//        routes_layer.setVisibility(true);
+//        routes_simple_layer.setVisibility(false);
+//   }
 
   }
 }
@@ -221,6 +227,19 @@ function places_layer_add() {
 
            }
     });
+}
+
+function routes_simple_layer_add() {
+
+    routes_simple_layer = new OpenLayers.Layer.Vector("routes-simple", {
+                    strategies: [new OpenLayers.Strategy.BBOX()],
+                    protocol: new OpenLayers.Protocol.WFS({
+                        url:  "/cgi-bin/mapserv?map=/ms4w/apps/matts_app/htdocs/routes-simple.map",
+                        featureType: "routes-simple",
+                        extractAttributes: true
+                    }),
+                    styleMap: rt_styleMap
+                });
 }
 
 function routes_layer_add() {
@@ -716,6 +735,21 @@ function route_selectStartPlace() {
  
   deactivate_all_click();
   click_to_copy_start_point.activate();
+}
+
+function route_createStartPlace() {
+  route_selectNothing();
+  document.getElementById("route_form").style.display="none";
+  document.getElementById("place_form").style.display="block";
+  document.getElementById("placeheader").style.display="block";
+  document.getElementById("subtitle").innerHTML="Create new startplace for route<br/><br/>"
+}
+function route_closePlace() {
+  route_selectNothing();
+  document.getElementById("route_form").style.display="block";
+  document.getElementById("place_form").style.display="none";
+  document.getElementById("placeheader").style.display="none";
+  document.getElementById("subtitle").innerHTML="";
 }
 
 function route_selectEndPlace() { 

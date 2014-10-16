@@ -78,10 +78,10 @@ def adjoiningPlaces(placeb, destOnly, maxHopCount, baseRoute, ignoreRoute)
   #if a base route is supplied, use that as the start of our route search
   if baseRoute
     urlSoFar[0]=baseRoute
-    routeStr=baseRoute.split('x')[1..-1]
+    routeStr=baseRoute.split('x')[2..-1]
     routeStr.each do |rs|
       if rs[0]=='r' then 
-         thisRoute=rs[1..-1].to_i
+         thisRoute=rs[2..-1].to_i
          routeSoFar[0]=[thisRoute]+routeSoFar[0] 
          #next place is route endplace
          placeSoFar[0]=[Route.find_by_signed_id(thisRoute).endplace_id]+placeSoFar[0]
@@ -118,7 +118,7 @@ def adjoiningPlaces(placeb, destOnly, maxHopCount, baseRoute, ignoreRoute)
           nextDest=ar.endplace
           if !thisPath.include? nextDest.id then
              if ((placeb and nextDest.id == placeb) or (!placeb and  pt.select { |pt| pt.name==nextDest.place_type }.first.isDest)) then
-                  goodRoute[goodPathCount]={:place => nextDest.id, :route=>[ar.id]+routeSoFar[currentRouteIndex], :url=>urlSoFar[currentRouteIndex]+'xr'+ar.id.to_s}
+                  goodRoute[goodPathCount]={:place => nextDest.id, :route=>[ar.id]+routeSoFar[currentRouteIndex], :url=>urlSoFar[currentRouteIndex]+'xrv'+ar.id.to_s}
                   goodPathCount+=1 
                   goodRoutesFromThisPlace+=1     
                   matchedThisRoute=true
@@ -127,7 +127,7 @@ def adjoiningPlaces(placeb, destOnly, maxHopCount, baseRoute, ignoreRoute)
              #only look beyond a destination if destOnly=false
              if matchedThisRoute==false or destOnly==false then
                   nextRouteSoFar[placeCountThisHop]=[ar.id]+routeSoFar[currentRouteIndex]
-                  nextUrlSoFar[placeCountThisHop]=urlSoFar[currentRouteIndex]+'xr'+ar.id.to_s
+                  nextUrlSoFar[placeCountThisHop]=urlSoFar[currentRouteIndex]+'xrv'+ar.id.to_s
                   nextPlaceSoFar[placeCountThisHop]=[nextDest.id]+thisPath
                   placeCountThisHop+=1
                   goodRoutesFromThisPlace+=1

@@ -2,27 +2,35 @@
      <%= form_for  @route, :html => {:name => 'routeform'}, :remote => 'true'  do |f| %>
       <%= render 'shared/error_messages' %>
 
-      
+
+      <input type="hidden" name="url" value="<%=@url%>"/>
+ 
+
       <div class="erow">
          <% if @edit %> 
            <%=render :partial => 'help_buttons',  :locals => {:expName => "rhelpstart", :initialSt => 0} %>
            <div class="leftbuttons">
               <span title="Click to select a start place from the map">
-                 <img id="startplaceplus" src="/assets/add.png" onclick="route_selectStartPlace()" width="16" style="display:block">
+                 <img id="startplaceplus" src="/assets/select-point.png" onclick="route_selectStartPlace()" width="16" style="display:block">
               </span>
               <span title="Click to confirm selection">
                  <img id="startplacetick" src="/assets/tick.png" onclick="route_selectNothing()" width="16" style="display:none">
               </span>
            </div>
+           <div class="leftbuttons">
+              <span title="Click to create a new place">
+                 <img id="startplacecreate" src="/assets/add.png" onclick="route_createStartPlace()" width="16" style="display:block">
+              </span>
+           </div>
          <% end %>
-         <div class="sectiontitle50">From:</div>
+         <div class="sectiontitle75">From:</div>
       </div>
       <div class="erow">
         <div id="rhelpstart" class="helptext" style="display:none">
           All routes must start and end at locations that have been added as 'places' in routeguides.co.nz. <br/>
           <br/>
           Option A: Select an existing start place from the map.<br/>
-          (1) Click the green plus to enable selection from the map.<br/>
+          (1) Click the select icon (pointer and dot) to enable selection from the map.<br/>
           (2) Scroll the map to the desired location and zoom in until you can see the place you wish to select.<br/>
           (3) Click on an existing 'place' on the map.<br/>
           --- The chosen place will be shown in the box below.<br/>
@@ -42,8 +50,8 @@
          <% if @edit %> 
            <%=render :partial => 'help_buttons',  :locals => {:expName => "rhelpend", :initialSt => 0} %>
            <div class="leftbuttons">
-              <span title="Click to select a start place from the map">
-                 <img id="endplaceplus" src="/assets/add.png" onclick="route_selectEndPlace()" width="16" style="display:block">
+              <span title="Click to select an end place from the map">
+                 <img id="endplaceplus" src="/assets/select-point.png" onclick="route_selectEndPlace()" width="16" style="display:block">
               </span>
               <span title="Click to confirm selection">
                  <img id="endplacetick" src="/assets/tick.png" onclick="route_selectNothing()" width="16" style="display:none">
@@ -57,7 +65,7 @@
           All routes must start and end at locations that have been added as 'places' in routeguides.co.nz. <br/>
           <br/>
           Option A: Select an existing end place from the map.<br/>
-          (1) Click the green plus to enable selection from the map.<br/>
+          (1) Click the select icon (pointer and dot) to enable selection from the map.<br/>
           (2) Scroll the map to the desired location and zoom in until you can see the place you wish to select.<br/>
           (3) Click on an existing 'place' on the map.<br/>
           --- The chosen place will be shown in the box below.<br/>
@@ -96,7 +104,7 @@ sufficient to differentiate it from other routes between the same two places. <b
          <% if @edit %> 
            <div class="leftbuttons">
               <span title="Click to draw route on map">
-                 <img id="locationplus" src="/assets/add.png" onclick="route_selectLocation()" width="16" style="display:block">
+                 <img id="locationplus" src="/assets/draw.png" onclick="route_selectLocation()" width="16" style="display:block">
               </span>
               <span title="Click to confirm drawn route">
                  <img id="locationtick" src="/assets/tick.png" onclick="route_endSelectLocation()" width="16" style="display:none">
@@ -110,7 +118,7 @@ sufficient to differentiate it from other routes between the same two places. <b
           You can either draw the route on the map by hand, or you can upload it from a GPS using a GPX file.<br/>
          <br>
          Option A: Draw route on map:<br/>
-          (1) Click the green plus to enable drawing from the map.<br/>
+          (1) Click the draw icon (pencil and line) to enable drawing from the map.<br/>
           (2) Scroll the map to the desired start location (the start place above) and zoom in to maximum zoom<br/>
           (3) Click once to start drawing.  A blue circle will appear where you clicked.<br/>
           (4) Click at each point along the route. A blue line will show the route you have drawn so far<br/>
@@ -218,6 +226,29 @@ sufficient to differentiate it from other routes between the same two places. <b
       </div>
 
       <%= f.text_field :distance, :disabled=>!@edit, :readonly=>true %>
+
+      <div class="erow">
+         <%=render :partial => 'help_buttons',  :locals => {:expName => "rhelpimportance", :initialSt => 0} %>
+        <div class="rowtitle">Importance:</div>
+      </div>
+
+      <div class="erow">
+        <div id="rhelpimportance" class="helptext" style="display:none">
+          Use the sliders to select the relative importance of the route.  This is used when making suggestions for <b>through routes</b>, and is designed to prioroitise main tracks or ridgelines over informal (but viable) routes up interesting spurs, down challenging canyons, or to your favourite hunting spot!"
+        </div>
+      </div>
+      <div class="difficulty">
+          <div class="diff_label">Route Importance</div>
+          <div class="diff_name" id="importance_name"></div>
+            <%= f.text_field :importance_id, id: 'route_importance', type: 'text',
+                         data: {'slider-id' => 'ex1Slider',
+                          'slider-min' => @importances.minimum(:id),
+                          'slider-max' => @importances.maximum(:id),
+                          'slider-step' => '1',
+                          'slider-value' => @route.importance_id || 1,
+                          'slider-tooltip' => 'hide' } %>
+      </div>
+      <div class="diff_details" id="importance_text"></div>
 
       <div class="erow">
          <%=render :partial => 'help_buttons',  :locals => {:expName => "rhelpnormal", :initialSt => 0} %>
@@ -347,18 +378,20 @@ sufficient to differentiate it from other routes between the same two places. <b
 
       <% if @edit %>
         <%= f.submit "Save", class: "btn btn-small btn-primary", name: "save", onclick: "updateRoute('savebutton')", id:  "savebutton"  %>
-        <%=  link_to "Cancel", '/routes/'+@route.id.to_s, class: "btn btn-small btn-primary", remote: true %>
-        <%     if((@route.createdBy_id==@current_user.id) or (@current_user.role==Role.find_by( :name => 'root'))) %>
-           <%= f.submit "Delete", class: "btn btn-small btn-primary", name: "delete" %>
+        <% if @url %>
+          <%=  link_to "Cancel", '/routes/'+@viewurl, class: "btn btn-small btn-primary", remote: true %>
+        <% else %>
+          <%=  link_to "Cancel", '/routes/'+@route.id.to_s, class: "btn btn-small btn-primary", remote: true %>
+          <%     if((@route.createdBy_id==@current_user.id) or (@current_user.role==Role.find_by( :name => 'root'))) %>
+             <%= f.submit "Delete", class: "btn btn-small btn-primary", name: "delete" %>
+          <% end %>
         <% end %>
-
       <% else %>
         <%=  link_to "Edit", '/routes/'+@route.id.to_s+'/edit', class: "btn btn-small btn-primary", remote: true %>
         <%= f.submit "Add to trip", class: "btn btn-small btn-primary", :disabled => @current_user, name: "add" %>
       <% end %>
 
     <% end %>
-  </div>
 </div>
 <small> 
 <% if @route.createdBy_id %>
@@ -373,6 +406,7 @@ sufficient to differentiate it from other routes between the same two places. <b
 <% end %>
 
 
+var importance = [<%= raw @importances.to_json %>];
 var routeType = [<%= raw @route_types.to_json %>];
 var gradient = [<%= raw @gradients.to_json %>];
 var terrain = [<%= raw @terrains.to_json %>];
@@ -380,6 +414,9 @@ var alpine = [<%= raw @alpines.to_json %>];
 var alpinew = [<%= raw @alpinews.to_json %>];
 var river = [<%= raw @rivers.to_json %>];
 
+function importance_change() {
+    document.getElementById("importance_text").innerHTML = importance[0][importance_val.getValue()-1].description;
+    document.getElementById("importance_name").innerHTML = importance[0][importance_val.getValue()-1].name;}
 function rt_change() {
     document.getElementById("rt_text").innerHTML = routeType[0][rt_val.getValue()-1].description;
     document.getElementById("rt_name").innerHTML = routeType[0][rt_val.getValue()-1].name;}
@@ -399,6 +436,11 @@ function alpw_change() {
     document.getElementById("alpw_text").innerHTML = alpinew[0][alpw_val.getValue()-1].description;
     document.getElementById("alpw_name").innerHTML = alpinew[0][alpw_val.getValue()-1].name;}
     
+
+
+var importance_val= $('#route_importance').slider() 
+        .on('slide', importance_change)
+        .data('slider');
 
 var rt_val= $('#route_type').slider() 
         .on('slide', rt_change)
@@ -424,6 +466,8 @@ var alpw_val = $("#alpinewinter").slider()
         .data('slider');
 
 /* set initial values */
+importance_change();
+document.routeform.route_importance.value = <%=@route.importance_id || 1%>;
 rt_change();
 document.routeform.route_type.value = <%=@route.routetype_id || 1%>;
 gradient_change();

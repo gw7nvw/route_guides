@@ -6,6 +6,11 @@
    update_title('<%=@title%>'); 
    document.getElementById("page_status").innerHTML = '';
 </script>
-<%= render 'routes/route_form' %>
+<div id="place_form" style="display:none">
+   <% #render '/places/place_form' %> 
+</div>
+<div id="route_form" style="display:block">
+   <%= render '/routes/route_form' %>
+</div>
 
 

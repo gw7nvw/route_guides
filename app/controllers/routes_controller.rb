@@ -60,6 +60,8 @@ require "rexml/document"
   def new
     @edit=true
     @route = Route.new
+    @place = Place.new
+    @placeFromRoute=true
     prepare_route_vars()
   end
 
@@ -71,7 +73,7 @@ require "rexml/document"
     else
       @trip=Trip.find_by_id(@current_user.currenttrip)
       @items.each do |item|
-        itemno=item[1..-1].to_i
+        itemno=item[2..-1].to_i
         if item[0]=='p' then
           @trip_details = TripDetail.new
           @trip_details.showForward=true;
@@ -136,52 +138,33 @@ def show
     if @id[0]!="x" then
        show_single()
     else
-      @items=@id.split('x')[1..-1]
-
-      @showForward=1
-      @showConditions=0
-      @showLinks=0
-      @url=@id
-
-      #determine start and endplace opf combined route 
-      if @items.first[0]=='p' then @startplace=Place.find_by_id(@items.first[1..-1].to_i) end
-      if @items.first[0]=='r' then  routeId=@items.first[1..-1].to_i
-        route=Route.find_by_signed_id(routeId)
-        @startplace=Place.find_by_id(route.startplace_id)
-      end
-      if @items.last[0]=='p' then @endplace=Place.find_by_id(@items.last[1..-1].to_i) end
-      if @items.last[0]=='r' then  routeId=@items.last[1..-1].to_i
-        route=Route.find_by_signed_id(routeId)
-        if route then @endplace=Place.find_by_id(route.endplace_id) end
-      end
-
+      show_many()
       respond_to do |wants|
         wants.js do
-          if @startplace and @endplace then
+         # if @startplace and @endplace then
             render '/routes/show_many'
-          else 
-            redirect_to root_url
-          end
+         # else
+         #   redirect_to root_url
+         # end
         end
         wants.html do
-          if @startplace and @endplace then
+         # if @startplace and @endplace then
             render '/routes/show_many'
-          else 
-            redirect_to root_url
-          end
+         # else
+         #   redirect_to root_url
+         # end
         end
         wants.gpx do
           if(@startplace and @endplace)
             @items.each do |item|
-               if item[0]=='r' then routes=routes+[item[1..-1].to_i] end
-            end            
+               if item[0]=='r' then routes=routes+[item[2..-1].to_i] end
+            end
             xml = route_to_gpx(routes)
             response.headers['Content-Disposition'] = 'attachment; filename=' + (@startplace.name+' to '+@endplace.name).gsub(/[\\\/\s]/, '_') + '.gpx'
             render :xml => xml
           end
         end
-      end
-
+      end 
     end
 end
 
@@ -274,6 +257,9 @@ end
     end
 
     if (params[:save])
+       @url=params[:url]
+       @viewurl=@url.tr("e","v")
+
 
       prepare_route_vars()
 
@@ -285,9 +271,19 @@ end
       @route.updated_at=Time.new()
       @route.updatedBy_id = @current_user.id #current_user.id
       if @route.save
-          flash[:success] = "Route updated, id:"+@route.id.to_s
+        flash[:success] = "Route updated, id:"+@route.id.to_s
+        if @url and @url.include?('x')
+            #show routes screen
+            #get all data for show many
+            @id=@viewurl
+            show_many()
+
+            #show the show many screen
+            render '/routes/show_many'
+        else
           show()
           render 'show'
+        end
       else
         flash[:error] = "Error creating route"
         @edit=true
@@ -398,7 +394,8 @@ end
        :location,
        :time,
        :distance,
-       :datasource)
+       :datasource,
+       :importance_id)
   end
 
 end

@@ -34,7 +34,7 @@
   <% @items.reverse.each do |rt_str| %>
     <% 
        if rt_str[0]=='r' then 
-         rt_id=rt_str[1..-1].to_i
+         rt_id=rt_str[2..-1].to_i
          rt_arr=rt_arr+[rt_id]
          route=Route.find_by_signed_id(rt_id)
          if(route.distance) then distance+=route.distance end
@@ -63,18 +63,38 @@
 
   <% @trip=true %>
   <% @items.each do |item| %>
-     <% if item[0]=='p' then @place=Place.find_by_id(item[1..-1].to_i)  %>
+     <% if item[0]=='p' then @place=Place.find_by_id(item[2..-1].to_i)  %>
 
        <% @showForward=1 %>
-       <%= render '/places/place_details' %> 
+       <% if item[1]=="v" then %>
+         <%= render '/places/place_details' %> 
+       <% end %>
+       <% if item[1]=="e" then %>
+         <div id="place_form">
+           <%= render '/places/place_form' %> 
+         </div>
+       <% end %>
+       <% if item[1]=="s" then %>
+         <div id="place_form">
+           <%= render '/places/place_select' %> 
+         </div>
+       <% end %>
 
      <%  end %>
-     <%  if item[0]=='r' then routeId=item[1..-1].to_i%>
+     <%  if item[0]=='r' then routeId=item[2..-1].to_i%>
        <% 
           @showForward=1
           @showReverse=0
           @route=Route.find_by_signed_id(routeId) %>
-       <%= render '/routes/route_details' %> 
+       <% if item[1]=="v" then %>
+         <%= render '/routes/route_details' %> 
+       <% end %>
+       <% if item[1]=="e" then %>
+         <div id="route_form">
+           <%= render '/routes/route_form' %>
+         </div>
+       <% end %>
+
      <% end %>
   <% end %>
   <% @trip=false %>
