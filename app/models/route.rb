@@ -7,6 +7,7 @@ class Route < ActiveRecord::Base
   validates :via, presence: true
   validates :routetype, presence: true
   belongs_to :routetype
+  belongs_to :importance, class_name: "RouteImportance"
   validates :gradient, presence: true
   belongs_to :gradient
   validates :terrain, presence: true
@@ -183,7 +184,7 @@ def regenerate_route_index
   maxLegCount=20
 
   #delete old entries using this route
-  RouteIndex.where("url ~ ? or url ~ ?",'xr[-]{0,1}'+self.id.to_s+'x', 'xr[-]{0,1}'+self.id.to_s+'$').destroy_all
+  RouteIndex.where("url ~ ? or url ~ ?",'xrv[-]{0,1}'+self.id.to_s+'x', 'xrv[-]{0,1}'+self.id.to_s+'$').destroy_all
 
 
   #find all place-to-place routes of length < <maxhops-1> for the start or endplace
@@ -201,7 +202,7 @@ def regenerate_route_index
   rsar=[]
   startAffectedRoutes.each do |ar|
     rar=reverseRouteHash(ar)
-    rar[:url]=rar[:url]+"xr"+self.id.to_s
+    rar[:url]=rar[:url]+"xrv"+self.id.to_s
     rar[:route]=[self.id]+rar[:route]
     rar[:place]=self.endplace.id
     rar[:startplace]=ar[:place]
@@ -215,7 +216,7 @@ def regenerate_route_index
   endAffectedRoutes.each do |ar|
 
     rar=reverseRouteHash(ar)
-    rar[:url]=rar[:url]+"xr"+(-self.id).to_s
+    rar[:url]=rar[:url]+"xrv"+(-self.id).to_s
     rar[:route]=[-self.id]+rar[:route]
     rar[:place]=self.startplace.id
     rar[:startplace]=ar[:place]
@@ -258,7 +259,7 @@ def reverseRouteHash(routeHash)
    if routeHash[:route].count>0 then 
      routeHash[:route].each do |rt|
        route=[-rt]+route
-       url=url+"xr"+(-rt).to_s
+       url=url+"xrv"+(-rt).to_s
      end
      #get endplace (remembering that we need to reverse the last leg direction first)
      rt=routeHash[:route].last
@@ -271,6 +272,6 @@ end
 
 def prune_route_index
   #delete old entries using this route
-  RouteIndex.where("url ~ ? or url ~ ?",'xr[-]{0,1}'+self.id.abs.to_s+'x', 'xr[-]{0,1}'+self.id.abs.to_s+'$').destroy_all
+  RouteIndex.where("url ~ ? or url ~ ?",'xrv[-]{0,1}'+self.id.abs.to_s+'x', 'xrv[-]{0,1}'+self.id.abs.to_s+'$').destroy_all
 end
 end

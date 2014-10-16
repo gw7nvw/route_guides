@@ -1,3 +1,7 @@
-window.history.pushState(null, 'Route Guides | Places', '/places/<%=params[:id]+"/edit"%>');
-$('#right_panel').html("<%= escape_javascript(render(:partial => 'places/edit')).html_safe %>");
+<%if @url %>
+  $('#place_form').html("<%= escape_javascript(render(:partial => 'places/edit')).html_safe %>");
+<%else%>
+  window.history.pushState(null, 'Route Guides | Places', '/places/<%=params[:id]+"/edit"%>');
+  $('#right_panel').html("<%= escape_javascript(render(:partial => 'places/edit')).html_safe %>");
+<% end %>
 

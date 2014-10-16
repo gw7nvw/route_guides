@@ -30,16 +30,26 @@ def create
 
     if @place.save
       flash[:success] = "New place added, id:"+@place.id.to_s
-      @id=@place.id
-      #refresh variables
-      show()
-      
-      #render show panel
-      render 'show'
+      if params[:save]=="Create place"
+        @placeFromRoute=true
+        render 'createPlaceFromRoute'
+      else 
+        @id=@place.id
+        #refresh variables
+        show()
+        
+        #render show panel
+        render 'show'
+      end
     else
       flash[:error] = "Error creating place"
       @edit=true
-      render 'new'
+      if params[:save]=="Create place"
+        @placeFromRoute=true
+        render 'createPlaceFromRoute'
+      else 
+        render 'new'
+      end
     end
   end
 
@@ -111,6 +121,9 @@ def create
 
     # Save current place
     if (params[:save]) 
+       @url=params[:url]
+       @viewurl=@url.tr("e","v")
+
        if( !@place = Place.find_by_id(params[:id]))
           #tried to update a nonexistant place
           @edit=true
@@ -127,10 +140,19 @@ def create
 
        if @place.save
          flash[:success] = "Updated place, id:"+@place.id.to_s
-         show()
-         render 'show'
+         if @url and @url.include?('x')
+            #show routes screen
+            #get all data for show many
+            @id=@viewurl
+            show_many()
+
+            #show the show many screen
+            render '/routes/show_many'
+         else
+           show()
+           render 'show'
+         end
        else
-         flash[:error] = "Error saving place"
          @edit=true
          render 'edit'
        end

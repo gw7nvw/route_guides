@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141010020122) do
+ActiveRecord::Schema.define(version: 20141016052711) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -157,6 +157,15 @@ ActiveRecord::Schema.define(version: 20141010020122) do
     t.datetime "updated_at"
   end
 
+  create_table "route_importances", force: true do |t|
+    t.string   "name"
+    t.string   "description"
+    t.integer  "importance"
+    t.boolean  "isprimary"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "route_indices", force: true do |t|
     t.integer  "startplace_id"
     t.integer  "endplace_id"
@@ -190,6 +199,7 @@ ActiveRecord::Schema.define(version: 20141010020122) do
     t.string   "datasource"
     t.spatial  "location",            limit: {:srid=>4326, :type=>"line_string", :has_z=>true}
     t.integer  "updatedBy_id"
+    t.integer  "importance_id"
   end
 
   create_table "routes", force: true do |t|
@@ -215,6 +225,7 @@ ActiveRecord::Schema.define(version: 20141010020122) do
     t.string   "datasource"
     t.spatial  "location",            limit: {:srid=>4326, :type=>"line_string", :has_z=>true}
     t.integer  "updatedBy_id"
+    t.integer  "importance_id"
   end
 
   add_index "routes", ["endplace_id"], :name => "index_routes_on_endplace_id"

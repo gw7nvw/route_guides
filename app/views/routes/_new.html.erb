@@ -6,6 +6,21 @@
    update_title('<%=@title%>'); 
    document.getElementById("page_status").innerHTML = '';
 </script>
-<%= render 'routes/route_form' %>
+<div id="placeheader" class="erow" style="display:none">
+           <div class="leftbuttons">
+              <span title="Click to return to create route">
+                 <img id="startplacecreate" src="/assets/red-x.png" onclick="route_closePlace()" width="16" style="display:block">
+              </span>
+           </div>
+  <div id="subtitle" class="sectiontitle25">
+  </div>
+</div>
+<div id="place_form" style="display:none">
+
+   <%= render '/places/place_form' %>
+</div>
+<div id="route_form" style="display:block">
+   <%= render '/routes/route_form' %>
+</div>
 
 

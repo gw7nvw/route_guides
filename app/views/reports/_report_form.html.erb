@@ -31,14 +31,14 @@ function startEdit() {
 
 
       <% if @edit %>
-        <%= f.submit "Save", class: "btn btn-large btn-primary", name: "save", onclick: "linkHandler('savebutton')", id:  "savebutton" %>
+        <%= f.submit "Save", class: "btn btn-small btn-primary", name: "save", onclick: "linkHandler('savebutton')", id:  "savebutton" %>
+        <%=  link_to "Cancel", '/reports/'+@report.id.to_s, class: "btn btn-small btn-primary", remote: true %>
         <% if((@report.createdBy_id==@current_user.id) or (@current_user.role==Role.find_by( :name => 'root'))) %>
-           <%= f.submit "Delete", class: "btn btn-large btn-primary", name: "delete", onclick: "linkHandler('deletebutton')", id:  "deletebutton" %>
+           <%= f.submit "Delete", class: "btn btn-small btn-primary", name: "delete", onclick: "linkHandler('deletebutton')", id:  "deletebutton" %>
         <% end %>
 
       <% else %>
-        <%=  link_to "Edit", '/reports/'+@report.id.to_s+'/edit', class: "btn btn-large btn-primary", remote: true %>
-        <%= f.submit "Add to trip", class: "btn btn-large btn-primary", :disabled => @current_user, name: "add" %>
+        <%=  link_to "Edit", '/reports/'+@report.id.to_s+'/edit', class: "btn btn-small btn-primary", remote: true %>
       <% end %>
       <br/>
        

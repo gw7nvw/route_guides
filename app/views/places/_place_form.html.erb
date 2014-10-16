@@ -1,7 +1,7 @@
 <div id='place_details'>
-  <div>
+     <%= render 'shared/error_messages' %>
      <%= form_for  @place, :remote=> true, :html => {:name => 'placeform'}  do |f| %>
-      <%= render 'shared/error_messages' %>
+      <input type="hidden" name="url" value="<%=@url%>"/>
 
       <div class="erow">
          <% if @edit %>
@@ -69,7 +69,7 @@
            <%=render :partial => 'help_buttons',  :locals => {:expName => "helplocation", :initialSt => 0} %>
            <div class="leftbuttons">
               <span title="Click to select locstion from map">
-                 <img id="placeplus" src="/assets/add.png" onclick="place_selectPlace()" width="16" style="display:block">
+                 <img id="placeplus" src="/assets/draw.png" onclick="place_selectPlace()" width="16" style="display:block">
               </span>
 
               <span title="Click to confirm selection">
@@ -88,7 +88,7 @@
           Note: NTZM, NZMG are in full 7 digit format, e.g. x=1399769, y=5209764.<br/>
           <br/>
           Option B: Select the location from the map.<br/>
-          (1) Click the green plus to enable selection from the map.<br/>
+          (1) Click the draw icon (pencil and line) to enable selection from the map.<br/>
           (2) Scroll the map to the desired location and zoom in as far as you can.<br/>
           (3) Click once on the map at the location you want.<br/>
           --- The chosen location will be displayed below in NZTM format.<br/>
@@ -133,19 +133,26 @@
       </div>
       <%= f.text_area :links, :disabled=>!@edit, :rows=> "4" %>
       <br/>
-      <% if @edit %>
-        <%= f.submit "Save", class: "btn btn-small btn-primary", name: "save", onclick: "updatePlace('savebutton')", id:  "savebutton" %>
-        <%=  link_to "Cancel", '/places/'+@place.id.to_s, class: "btn btn-small btn-primary", remote: true %>
-        <%     if((@place.createdBy_id==@current_user.id) or (@current_user.role==Role.find_by( :name => 'root'))) %>
-           <%= f.submit "Delete", class: "btn btn-small btn-primary", name: "delete", onclick: "updatePlace('deletebutton')", id:  "deletebutton" %>
-        <% end %>
+        <% if @edit %>
+            <% if @placeFromRoute %>
+              <%= f.submit "Create place", class: "btn btn-small btn-primary", name: "save", onclick: "updatePlace('savebutton')", id:  "savebutton" %>
+            <% else %>
+              <%= f.submit "Save", class: "btn btn-small btn-primary", name: "save", onclick: "updatePlace('savebutton')", id:  "savebutton" %>
+              <% if @url %>   
+               <%=  link_to "Cancel", '/routes/'+@viewurl, class: "btn btn-small btn-primary", remote: true %>
+              <% else %>
+               <%=  link_to "Cancel", '/places/'+@place.id.to_s, class: "btn btn-small btn-primary", remote: true %>
+               <%     if((@place.createdBy_id==@current_user.id) or (@current_user.role==Role.find_by( :name => 'root'))) %>
+                 <%= f.submit "Delete", class: "btn btn-small btn-primary", name: "delete", onclick: "updatePlace('deletebutton')", id:  "deletebutton" %>
+               <% end %>
+              <% end %>
+            <% end %>
 
-      <% else %>
-        <%=  link_to "Edit", '/places/'+@place.id.to_s+'/edit', class: "btn btn-small btn-primary", remote: true %>
-        <%= f.submit "Add to trip", class: "btn btn-small btn-primary", :disabled => @current_user, name: "add" %>
-      <% end %>
+        <% else %>
+          <%=  link_to "Edit", '/places/'+@place.id.to_s+'/edit', class: "btn btn-small btn-primary", remote: true %>
+          <%= f.submit "Add to trip", class: "btn btn-small btn-primary", :disabled => @current_user, name: "add" %>
+        <% end %>
     <% end %>
-  </div>
 </div>
 <% if @place.createdBy_id %>
   Created by: <%= link_to @place.createdBy.name.capitalize, '/users/'+@place.createdBy.name, remote: true%> on <%=@place.created_at%>. Last updated: <%=@place.updated_at%>

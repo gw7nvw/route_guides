@@ -14,8 +14,7 @@ PlaceType.create(name: "Roadend", description: "The point a track leaves a vehic
 PlaceType.create(name: "Other", description: "Other location forming the start / end of a route", color: "#00003d", graphicName: "square", pointRadius: 3, url: nil, isDest: false)
 PlaceType.create(name: "Junction", description: "Track or route junction", color: "#00003d", graphicName: "square", pointRadius: 2, url: nil, isDest: false)
 PlaceType.create(name: "Waterbody" , description: "Lake, river, stream, etc", color: "#000099", graphicName: "triangle", pointRadius: 3, url: nil, isDest: false)
-PlaceType.create(name: "Rockbiv" , description: "Natural shelter", color: "#414141", graphicName: "triangle", pointRadius: 3, url: nil, isDest: false)
-
+PlaceType.create(name: "Rock Biv" , description: "Natural shelter", color: "#414141", graphicName: "triangle", pointRadius: 3, url: nil, isDest: false)
 #
 #
 #Routetype.create(code: "unk", name: "Unknown", description: "Not specified",difficulty: 0, linecolor: "#660066", linetype: "solid")
@@ -109,5 +108,10 @@ PlaceType.create(name: "Rockbiv" , description: "Natural shelter", color: "#4141
 #Projection.create(id: 4326, name: "WGS84", proj4: "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs", wkt: "", epsg: 4326)
 #Projection.create(id: 27200, name: "NZMG49", proj4: "+proj=nzmg +lat_0=-41 +lon_0=173 +x_0=2510000 +y_0=6023150 +ellps=intl +datum=nzgd49 +units=m +no_defs", wkt: "", epsg: 27200)
 #Projection.create(id: 900913, name: "GOOGLE", proj4: "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_defs", wkt: "", epsg: 900913)
+RouteImportance.create(name: "Primary, mapped", description: "Formal route, on maps, principal access to hut or along range / catchment", importance: 1)
+RouteImportance.create(name: "Primary, unmapped" , description: "Route not on maps, but is principal access to hut or along range / catchment", importance: 2)
+RouteImportance.create(name: "Secondary, mapped", description: "Formal route, on maps, an alternative recognised access to hut or along range / catchment", importance: 3)
+RouteImportance.create(name: "Secondary, unmapped" , description: "Route not on maps, an alternative recognised access to hut or along range / catchment", importance: 4)
+RouteImportance.create(name: "minor" , description: "A viable route, not widely used", importance: 8)
 
 ###   Mayor.create(name: 'Emanuel', city: cities.first)

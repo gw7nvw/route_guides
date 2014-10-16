@@ -1,3 +1,3 @@
-window.history.pushState(null, 'Route Guides | Routes', '/routes/<%=params[:id]%>');
+window.history.pushState(null, 'Route Guides | Routes', '/routes/<%=@id%>');
 $('#right_panel').html("<%= escape_javascript(render(:partial => 'routes/show')).html_safe %>");
 
