@@ -32,7 +32,6 @@ class ApplicationController < ActionController::Base
       prepare_route_vars()
       routes=[]
       if !@id then @id=params[:id] end
-
       @items=@id.split('x')[1..-1]
       @showForward=1
       @showConditions=0
@@ -53,6 +52,5 @@ class ApplicationController < ActionController::Base
         route=Route.find_by_signed_id(routeId)
         if route then @endplace=Place.find_by_id(route.endplace_id) end
       end
-
    end 
 end

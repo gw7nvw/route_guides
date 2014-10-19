@@ -907,6 +907,22 @@ function linkHandler(entity_name) {
    
  
 }
+
+function linkWithExtent(entity_name) {
+    /* get x,y of place, transform to WGS and write to form */
+    var mapProj =  map_map.projection;
+    var dstProj =  new OpenLayers.Projection("EPSG:4326");
+    
+    var currentextent=map_map.getExtent().transform(mapProj, dstProj);
+    document.routeform.extent_left.value=currentextent.left;
+    document.routeform.extent_right.value=currentextent.right;
+    document.routeform.extent_top.value=currentextent.top;
+    document.routeform.extent_bottom.value=currentextent.bottom;
+  
+    linkHandler(entity_name);
+}
+
+
    function clickplus(divname) {
      document.getElementById(divname).style.display = 'block';
      document.getElementById(divname+"plus").style.display="none";

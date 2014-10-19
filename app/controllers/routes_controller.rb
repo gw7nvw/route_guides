@@ -117,13 +117,26 @@ require "rexml/document"
     if @route.save
       flash[:success] = "New route added, id:"+@route.id.to_s
 
+      @url=params[:url]
 
       @edit=false
       @showForward=1
       @showConditions=0
       @showLinks=1
+      if @url and @url.include?('x')
+        #show routes screen
+        #if this is 1st place, next url is select next place.
+        #if this s asubsequent place, then next url is create route
+        @url=@url.gsub('xrn','xrv'+@route.id.to_s)
+        @url=@url+'xps'
+        @id=@url
+        show_many()
 
-      render 'show'
+        #show the show many screen
+        render '/routes/show_many'
+      else
+        render 'show'
+      end
     else
       @edit=true
       render 'new'

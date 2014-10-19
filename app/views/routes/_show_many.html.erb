@@ -1,5 +1,10 @@
-<% provide(:title, 'Route | '+@startplace.name+' to '+@endplace.name) %>
-<% @title=' | Route | '+@startplace.name+' to '+@endplace.name %>
+<% if @startplace and @endplace %>
+  <% provide(:title, 'Route | '+@startplace.name+' to '+@endplace.name) %>
+  <% @title=' | Route | '+@startplace.name+' to '+@endplace.name %>
+<% else %>
+  <% provide(:title, 'Route | New') %>
+  <% @title=' | Route | New '%>
+<% end %>
 <%= render 'flash' %>
 
 <script>
@@ -9,18 +14,19 @@
 </script>
 
 
-<% if @items %>
+<% if @items and @startplace and @endplace and @url and @url.include?('rv')%>
   <%= form_tag '/routes/many', :remote=> true, :name => "AddMany", :name=> 'listForm', :method=> 'post'%>
     <div class="erow">
       <div class="sectiontitle">
         <%=  link_to @startplace.name+' to '+@endplace.name, '/routes/'+@url, remote: true, onclick: %q[linkHandler('r]+@url+%q[')], id:  'r'+@url  %>
         <input type="hidden" name="route" value='<%=@url%>' />
         <%= submit_tag  "Add to trip", id: "Add Many", class: "btn btn-small btn-primary", remote: true, id: "add", onclick: "linkHandler('add')" %>      
-        <%=  link_to "Download GPX", params[:id]+'.gpx', class: "btn btn-small btn-primary", style: "font-weight:normal" %>
+        <%=  link_to "Download GPX", @id+'.gpx', class: "btn btn-small btn-primary", style: "font-weight:normal" %>
       </div>
     </div>
   </form>
-
+<% end %>
+<% if @items %>
   <%
      distance=0
      time=0
@@ -31,44 +37,52 @@
      rt_arr=[]
   %>
 
-  <% @items.reverse.each do |rt_str| %>
-    <% 
-       if rt_str[0]=='r' then 
-         rt_id=rt_str[2..-1].to_i
-         rt_arr=rt_arr+[rt_id]
-         route=Route.find_by_signed_id(rt_id)
-         if(route.distance) then distance+=route.distance end
-         if(route.time) then time+=route.time end
-         if(route.altgain) then altgain=altgain+route.altgain end
-         if(route.altloss) then altloss=altloss+route.altloss end
-         if(route.maxalt>maxalt) then maxalt=route.maxalt end
-         if(route.minalt<minalt) then minalt=route.minalt end
-       end
-     %> 
+  <% if @url and @url.include?('rv') %>
+    <% @items.reverse.each do |rt_str| %>
+      <% 
+         if rt_str[0..1]=='rv' then 
+           rt_id=rt_str[2..-1].to_i
+           rt_arr=rt_arr+[rt_id]
+           route=Route.find_by_signed_id(rt_id)
+           if(route.distance) then distance+=route.distance end
+           if(route.time) then time+=route.time end
+           if(route.altgain) then altgain=altgain+route.altgain end
+           if(route.altloss) then altloss=altloss+route.altloss end
+           if(route.maxalt>maxalt) then maxalt=route.maxalt end
+           if(route.minalt<minalt) then minalt=route.minalt end
+         end
+       %> 
+      <% end %>
+      <% if distance %>
+      <%= "Distance: "+distance.round(1).to_s+" km " %>
+    <%end %>
+    <% if time %>
+      <%="("+time.round(1).to_s+" DOC hours)"  %>
+      <br/>
     <% end %>
-  <% if distance %>
-    <%= "Distance: "+distance.round(1).to_s+" km " %>
-  <%end %>
-  <% if time %>
-    <%="("+time.round(1).to_s+" DOC hours)"  %>
+  
+    <%= "Altitude - Max: "+maxalt.to_i.to_s+"m  Min: "+minalt.to_i.to_s+"m"+
+       "  Gain: "+altgain.to_i.to_s+"m  Loss: "+altloss.to_i.to_s+"m" %>
+    <% if distance>0 %>
+      <%="  Gradient: "+(Math.tan((altgain+altloss)/(distance*1000))*180/Math::PI).to_i.to_s+" deg"%>
+    <% end %>
     <br/>
-  <% end %>
-
-  <%= "Altitude - Max: "+maxalt.to_i.to_s+"m  Min: "+minalt.to_i.to_s+"m"+
-     "  Gain: "+altgain.to_i.to_s+"m  Loss: "+altloss.to_i.to_s+"m" %>
-  <% if distance>0 %>
-    <%="  Gradient: "+(Math.tan((altgain+altloss)/(distance*1000))*180/Math::PI).to_i.to_s+" deg"%>
-  <% end %>
-  <br/>
-
+ <% end %> 
   <% @trip=true %>
+   <% index=0 %>
+   <% @placecount=0%>
   <% @items.each do |item| %>
      <% if item[0]=='p' then @place=Place.find_by_id(item[2..-1].to_i)  %>
-
+       <% if @place then @segment_start=@place.id end%>
+       <% @placecount+=1 %>
        <% @showForward=1 %>
        <% if item[1]=="v" then %>
          <%= render '/places/place_details' %> 
        <% end %>
+       <% if item[1]=="b" then %>
+         <%= render '/places/place_summary' %>
+       <% end %>
+
        <% if item[1]=="e" then %>
          <div id="place_form">
            <%= render '/places/place_form' %> 
@@ -79,6 +93,18 @@
            <%= render '/places/place_select' %> 
          </div>
        <% end %>
+       <% if item[1]=="n" then %>
+         <div id="place_form">
+           <% @place=Place.new %>
+           <div class='erow'>
+             <div class='sectiontitle'>
+               <%='Enter details of '+@placecount.ordinalize+' place'%>
+             </div>
+           </div>
+           <%= render '/places/place_form' %> 
+         </div>
+       <% end %>
+
 
      <%  end %>
      <%  if item[0]=='r' then routeId=item[2..-1].to_i%>
@@ -94,70 +120,92 @@
            <%= render '/routes/route_form' %>
          </div>
        <% end %>
+       <% if item[1]=="n" and @segment_start then %>
+         <div id="route_form">
+           <% @route=Route.new   
+              @route.startplace_id=@segment_start   
+              nextitem=@items[index+1]
+              if nextitem[0]=='p' then endplace=Place.find_by_id(nextitem[2..-1].to_i) 
+                 if endplace then 
+                   @route.endplace_id=endplace.id %>
+                   <div class='erow'>
+                     <div class='sectiontitle'>
+                       <%='Enter details of route from '+@route.startplace.name+' to '+@route.endplace.name%>
+                     </div>
+                   </div>
+
+                   <%= render '/routes/route_form' %> 
+                 <% end %>
+              <% end %>
+         </div>
+       <% end %>
 
      <% end %>
+     <% index=index+1%>
+     <div class="erow">
+        <div class="hrline">
+           <hr noshade size="4">
+        </div>
+     </div>
+
   <% end %>
   <% @trip=false %>
 <% end %>
 
-<div class="erow">
-   <div class="hrline">
-      <hr noshade size="4">
-   </div>
-</div>
-<div id="links_section">
-   <div class="erow" style="margin-top:12px">
-     <div class="sectiontitle-bold">
-        Routes adjoining this one:
+<% if @url and @url.include?('rv') and not @url.include?('s') and not @url.include?('n') and  not @url.include?('e') %>
+  <div id="links_section">
+     <div class="erow" style="margin-top:12px">
+       <div class="sectiontitle-bold">
+          Routes adjoining this one:
+       </div>
      </div>
-   </div>
-   <% 
-      @trip=true 
-      @dontMark=true 
-      rt_reverse=[]
-      rt_arr.each do |ar| 
-        rt_reverse+=[-ar] 
-      end 
-   %>
-   <% @startplace.adjoiningPlaces(nil,true,nil,nil,nil).each do |ap|   %>
-     <% if ap[:route]-rt_arr != [] and ap[:route]-rt_reverse != [] then # only routes niot included in current one ... %>
-       <div class="erow">
-          <div class="hrline">
-             <hr noshade size="2">
-          </div>
-       </div>
-       <div class="erow">
-          <div class="sectiontitle">
-                <% nextplace=Place.find_by_id(ap[:place]) %>
-                <%=  link_to @startplace.name, '/places/'+@startplace.id.to_s, remote: true, onclick: %q[linkHandler('p]+@startplace.id.to_s+%q[')], id:  'p'+@startplace.id.to_s  %>
-                <%= ' to ' %>
-                <%=  link_to nextplace.name, '/places/'+nextplace.id.to_s, remote: true, onclick: %q[linkHandler('p]+nextplace.id.to_s+%q[')], id:  'p'+nextplace.id.to_s  %>
-          </div>
-          <% @rt_list=ap[:route] %>
-          <%= render '/routes/search_details' %>
-       </div>
+     <% 
+        @trip=true 
+        @dontMark=true 
+        rt_reverse=[]
+        rt_arr.each do |ar| 
+          rt_reverse+=[-ar] 
+        end 
+     %>
+     <% @startplace.adjoiningPlaces(nil,true,nil,nil,nil).each do |ap|   %>
+       <% if ap[:route]-rt_arr != [] and ap[:route]-rt_reverse != [] then # only routes niot included in current one ... %>
+         <div class="erow">
+            <div class="hrline">
+               <hr noshade size="2">
+            </div>
+         </div>
+         <div class="erow">
+            <div class="sectiontitle">
+                  <% nextplace=Place.find_by_id(ap[:place]) %>
+                  <%=  link_to @startplace.name, '/places/'+@startplace.id.to_s, remote: true, onclick: %q[linkHandler('p]+@startplace.id.to_s+%q[')], id:  'p'+@startplace.id.to_s  %>
+                  <%= ' to ' %>
+                  <%=  link_to nextplace.name, '/places/'+nextplace.id.to_s, remote: true, onclick: %q[linkHandler('p]+nextplace.id.to_s+%q[')], id:  'p'+nextplace.id.to_s  %>
+            </div>
+            <% @rt_list=ap[:route] %>
+            <%= render '/routes/search_details' %>
+         </div>
+       <% end %>
      <% end %>
-   <% end %>
-   <% @endplace.adjoiningPlaces(nil,true,nil,nil,nil).each do |ap|%>
-     <% if ap[:route]-rt_arr != [] and ap[:route]-rt_reverse != [] then # only routes niot included in current one ... %>
-       <div class="erow">
-          <div class="hrline">
-             <hr noshade size="2">
-          </div>
-       </div>
-       <div class="erow">
-          <div class="sectiontitle">
-                <% nextplace=Place.find_by_id(ap[:place]) %>
-                <%=  link_to @endplace.name, '/places/'+@endplace.id.to_s, remote: true, onclick: %q[linkHandler('p]+@endplace.id.to_s+%q[')], id:  'p'+@endplace.id.to_s  %>
-                <%= ' to ' %>
-                <%=  link_to nextplace.name, '/places/'+nextplace.id.to_s, remote: true, onclick: %q[linkHandler('p]+nextplace.id.to_s+%q[')], id:  'p'+nextplace.id.to_s  %>
-          </div>
-          <% @rt_list=ap[:route] %>
-          <%= render '/routes/search_details' %>
-       </div>
+     <% @endplace.adjoiningPlaces(nil,true,nil,nil,nil).each do |ap|%>
+       <% if ap[:route]-rt_arr != [] and ap[:route]-rt_reverse != [] then # only routes niot included in current one ... %>
+         <div class="erow">
+            <div class="hrline">
+               <hr noshade size="2">
+            </div>
+         </div>
+         <div class="erow">
+            <div class="sectiontitle">
+                  <% nextplace=Place.find_by_id(ap[:place]) %>
+                  <%=  link_to @endplace.name, '/places/'+@endplace.id.to_s, remote: true, onclick: %q[linkHandler('p]+@endplace.id.to_s+%q[')], id:  'p'+@endplace.id.to_s  %>
+                  <%= ' to ' %>
+                  <%=  link_to nextplace.name, '/places/'+nextplace.id.to_s, remote: true, onclick: %q[linkHandler('p]+nextplace.id.to_s+%q[')], id:  'p'+nextplace.id.to_s  %>
+            </div>
+            <% @rt_list=ap[:route] %>
+            <%= render '/routes/search_details' %>
+         </div>
+       <% end %>
      <% end %>
-   <% end %>
-
+   <% end %> 
    <% @trip=false %>
    <% @dontMark=false %>
 
