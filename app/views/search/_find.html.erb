@@ -1,0 +1,196 @@
+<% if(@searchtext) %>
+     <% provide(:title, 'Find | '+@searchtext) %>
+     <% @title=" | Find | "+@searchtext %>
+<% else %>
+     <% provide(:title, 'Find') %> 
+     <% @title=" | Find" %>
+<% end %>
+<%= render 'flash' %>
+
+<script>
+   update_title('<%=@title%>'); 
+   document.getElementById("page_status").innerHTML = '';
+   reset_map_controllers();
+</script>
+
+
+    <%= form_tag '/find', :name => 'routeform', :remote => true, :method => 'post' %>
+
+      <input type="hidden" name="extent_left">
+      <input type="hidden" name="extent_right">
+      <input type="hidden" name="extent_top">
+      <input type="hidden" name="extent_bottom">
+      <div class="erow">
+        <div class="rowtitle">Find:</div>
+        <div class="rowtext">     
+          <input type="text" name="searchtext" value='<%=@searchtext%>'/>
+        </div>
+      </div>
+      <div class="erow">
+        <div class="rowtitle">Search for:</div>
+      </div>
+      <div class="erow">
+        <div class="checktitle">Places</div>
+        <div class="checkbox"><%= check_box_tag 'Places', 1, @findplaces %></div>
+      </div>
+      <div class="erow">
+        <div class="checktitle">Route segments</div>
+        <div class="checkbox"><%= check_box_tag 'Routes', 1, @findroutes %></div>
+      </div>
+      <div class="erow">
+        <div class="checktitle">Trips</div>
+        <div class="checkbox"><%= check_box_tag 'Trips', 1, @findtrips %></div>
+      </div>
+      <div class="erow">
+        <div class="checktitle">Stories</div>
+        <div class="checkbox"><%= check_box_tag 'Stories', 1, @findstories%></div>
+      </div>
+<br/>
+      <div class="erow">
+        <div class="rowtitle">Search in:</div>
+      </div>
+
+      <div class="erow">
+        <div class="checktitle">Name</div>
+        <div class="checkbox"><%= check_box_tag 'Name', 1, @inname %></div>
+      </div>
+      <div class="erow">
+        <div class="checktitle">Description</div>
+        <div class="checkbox"><%= check_box_tag 'Description', 1, @indescription %></div>
+      </div>
+      <div class="erow">
+        <div class="checktitle">Current map extent only</div>
+        <div class="checkbox"><%= check_box_tag 'Extent', 1, @inextent%></div>
+      </div>
+       
+      <%= submit_tag "Find", :id => "find", :onclick => "linkWithExtent('find')" %>
+
+    </form>
+<div id="links_section">
+  <% if @findplaces %>
+    <div class="erow">
+      <div class="rowtitle">
+         Places:
+      </div>
+    </div>
+    <% if @places %>
+      <% @places.each do |place| %>
+         <div class="erow"><div class="hrline"> <hr noshade size="2"> </div></div>
+         <div class="erow">
+           <%=link_to place.name+" ("+place.place_type+")", '/places/'+place.id.to_s, remote: true, onclick: %q[linkHandler('p]+place.id.to_s+%q[')], id:  'p'+place.id.to_s %>
+         </div>
+      <% end %>        
+         <div class="erow">
+            <div class="hrline">
+               <hr noshade size="4">
+            </div>
+         </div>
+    <% end %>
+
+    <% if @places_text %>
+      <% @places_text.each do |place| %>
+         <div class="erow"><div class="hrline"> <hr noshade size="2"> </div></div>
+         <div class="erow">
+           <%=link_to place.name+" ("+place.place_type+")", '/places/'+place.id.to_s, remote: true, onclick: %q[linkHandler('p]+place.id.to_s+%q[')], id:  'p'+place.id.to_s %>
+         </div>
+      <% end %>
+         <div class="erow">
+            <div class="hrline">
+               <hr noshade size="4">
+            </div>
+         </div>
+    <% end %>
+  <% end %>
+
+  <% if @findroutes %>
+    <div class="erow">
+      <div class="rowtitle">
+         Routes:
+      </div>
+    </div>
+    <% if @routes %>
+      <% @routes.each do |route| %>
+         <div class="erow"><div class="hrline"> <hr noshade size="2"> </div></div>
+         <div class="erow">
+           <%=link_to route.name+" ("+route.routetype.name+")", '/routes/'+route.id.to_s, remote: true, onclick: %q[linkHandler('r]+route.id.to_s+%q[')], id:  'r'+route.id.to_s %>
+         </div>
+      <% end %>
+         <div class="erow">
+            <div class="hrline">
+               <hr noshade size="4">
+            </div>
+         </div>
+    <% end %>
+
+    <% if @routes_text %>
+      <% @routes_text.each do |route| %>
+         <div class="erow"><div class="hrline"> <hr noshade size="2"> </div></div>
+         <div class="erow">
+           <%=link_to route.name+" ("+route.routetype.name+")", '/routes/'+route.id.to_s, remote: true, onclick: %q[linkHandler('r]+route.id.to_s+%q[')], id:  'r'+route.id.to_s %>
+         </div>
+      <% end %>
+         <div class="erow">
+            <div class="hrline">
+               <hr noshade size="4">
+            </div>
+         </div>
+    <% end %>
+  <% end %>
+
+  <% if @findtrips %>
+    <div class="erow">
+      <div class="rowtitle">
+         Trips:
+      </div>
+    </div>
+    <% if @trips%>
+      <% @trips.each do |trip| %>
+         <div class="erow"><div class="hrline"> <hr noshade size="2"> </div></div>
+         <div class="erow">
+           <%=link_to trip.name+" ("+trip.createdBy.name+")", '/trips/'+trip.id.to_s, remote: true, onclick: %q[linkHandler('t]+trip.id.to_s+%q[')], id:  't'+trip.id.to_s %>
+         </div>
+      <% end %>
+      <div class="erow"> <div class="hrline"> <hr noshade size="4"> </div> </div>
+    <% end %>
+
+    <% if @trips_text %>
+      <% @trips_text.each do |trip| %>
+         <div class="erow"><div class="hrline"> <hr noshade size="2"> </div></div>
+         <div class="erow">
+           <%=link_to trip.name+" ("+trip.createdBy.name+")", '/trips/'+trip.id.to_s, remote: true, onclick: %q[linkHandler('t]+trip.id.to_s+%q[')], id:  't'+trip.id.to_s %>
+         </div>
+      <% end %>
+      <div class="erow"> <div class="hrline"> <hr noshade size="4"> </div> </div>
+
+    <% end %>
+  <% end %>
+
+  <% if @findstories %>
+    <div class="erow">
+      <div class="sectiontitle">
+         <b>Stories / Trip Reports:</b>
+      </div>
+    </div>
+    <% if @stories %>
+      <% @stories.each do |report| %>
+         <div class="erow"><div class="hrline"> <hr noshade size="2"> </div></div>
+         <div class="erow">
+           <%=link_to report.name+" ("+report.createdBy.name+")", '/reports/'+report.id.to_s, remote: true, onclick: %q[linkHandler('s]+report.id.to_s+%q[')], id:  's'+report.id.to_s %>
+         </div>
+      <% end %>
+      <div class="erow"> <div class="hrline"> <hr noshade size="4"> </div> </div>
+    <% end %>
+
+    <% if @stories_text %>
+      <% @stories_text.each do |report| %>
+         <div class="erow"><div class="hrline"> <hr noshade size="2"> </div></div>
+         <div class="erow">
+           <%=link_to report.name+" ("+report.createdBy.name+")", '/reports/'+report.id.to_s, remote: true, onclick: %q[linkHandler('s]+report.id.to_s+%q[')], id:  's'+report.id.to_s %>
+         </div>
+      <% end %>
+      <div class="erow"> <div class="hrline"> <hr noshade size="4"> </div> </div>
+
+    <% end %>
+  <% end %>
+
+</div>

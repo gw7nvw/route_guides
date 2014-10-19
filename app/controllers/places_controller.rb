@@ -28,17 +28,27 @@ def create
     @place.updatedBy_id = @current_user.id #current_user.id
     # but doesn;t handle location ... so
 
+    @url=params[:url]
+
     if @place.save
       flash[:success] = "New place added, id:"+@place.id.to_s
-      if params[:save]=="Create place"
-        @placeFromRoute=true
-        render 'createPlaceFromRoute'
-      else 
-        @id=@place.id
-        #refresh variables
+      @id=@place.id
+
+      if @url and @url.include?('x')
+        #show routes screen
+        #if this is 1st place, next url is select next place.
+        #if this s asubsequent place, then next url is create route
+        if @url.include?('xpb') then
+          @id=@url.gsub('xpn','xrnxpb'+@id.to_s)
+        else
+          @id=@url.gsub('xpn','xpb'+@id.to_s+'xps')
+        end
+        show_many()
+
+        #show the show many screen
+        render '/routes/show_many'
+      else
         show()
-        
-        #render show panel
         render 'show'
       end
     else
@@ -72,7 +82,35 @@ def create
     end    
   end
 
+  def select
+  @url=params[:url]
+  @id=params[:route_startplace_id]
+    if @id and @id.to_i>0 and place = Place.find_by_id(@id) then
+      if @url and @url.include?('s')
+        #show routes screen
+        #if this is 1st place, next url is select next place.
+        #if this s asubsequent place, then next url is create route
+        if @url.include?('xpb') then
+          @id=@url.gsub('xps','xrnxpb'+@id.to_s)
+        else
+          @id=@url.gsub('xps','xpb'+@id.to_s+'xps')
+        end
 
+        show_many()
+
+        #show the show many screen
+        render '/routes/show_many'
+     else
+            redirect_to root_url
+     end
+   else
+     @id=@url
+     show_many()
+
+     #show the show many screen
+     render '/routes/show_many'
+   end
+  end
 
   def edit
     @edit=true

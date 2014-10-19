@@ -1,0 +1,74 @@
+<div id='place_select'>
+   <%= form_tag '/places/select', :name => 'routeform', :remote => true, :method => 'post' %>
+
+      <%= render 'shared/error_messages' %>
+
+
+      <input type="hidden" name="url" value="<%=@url%>"/>
+ 
+
+      <div class="erow">
+         <% if @edit %> 
+           <%=render :partial => 'help_buttons',  :locals => {:expName => "rhelpstart", :initialSt => 0} %>
+           <div class="leftbuttons">
+              <span title="Click to select an existing place from the map">
+                 <img id="startplaceplus" src="/assets/select-point.png" onclick="route_selectStartPlace()" width="16" style="display:block">
+              </span>
+              <span title="Click to confirm selection">
+                 <div class="pastebutton"  id='startplacetick' style="display:none"> <%= submit_tag "select", :id => "selectButton", :type => :image, :src => '/assets/tick.png', :style => 'margin-bottom:0;border:none', :onclick=> "route_selectNothing()"%> </div>
+              </span>
+           </div>
+           <% newplace_url=@url.gsub('xps','xpn') %>
+           <div class="leftbuttons">
+              <span title="Click to create a new place">
+                 <%=  link_to image_tag("/assets/add.png", :border=>0, :width=>16, :class => 'dock-item'), '/routes/'+newplace_url, remote: true, onclick: "linkHandler('createbutton')", id:  "createbutton"  %>
+              </span>
+           </div>
+         <% end %>
+         <% if @url and (@url.include?('pb') or @url.include?('pv')) %>
+           <div class="sectiontitle75">Select next place on route:</div>
+         <% else %>
+           <div class="sectiontitle75">Select start place of route:</div>
+         <% end%>
+      </div>
+      <div class="erow">
+        <div id="rhelpstart" class="helptext" style="display:none">
+          All routes must start and end at locations that have been added as 'places' in routeguides.co.nz. <br/>
+          <br/>
+          Option A: Select an existing place from the map.<br/>
+          (1) Click the select icon (pointer and dot) to enable selection from the map.<br/>
+          (2) Scroll the map to the desired location and zoom in until you can see the place you wish to select.<br/>
+          (3) Click on an existing 'place' on the map.<br/>
+          --- The chosen place will be shown in the box below.<br/>
+          (4) Turn off map selection by clicking the green tick.<br/>
+          <br/>
+          Option B: Create a new place.<br>
+          (1) Click the green plus to create a new place.<br/>
+          --- A form will be displayed allowing the new place to be created.
+        </div>
+      </div>
+
+      <div class="rowtext">
+        <input type="text" name="route_startplace_name" value='<%=@startplacename%>' disabled="disabled"/>
+      </div>
+      <input type="hidden" name="route_startplace_id" value='<%=@startplace%>'/>
+      <input type="hidden" name="route_startplace_location"/>
+
+      <input type="hidden" name="route_endplace_id"/>
+      <input type="hidden" name="route_endplace_location"/>
+      <div id="endplaceplus"></div>
+      <div id="endplacetick"></div>
+
+      <input type="hidden" name="route_location"/>
+      <div id="locationplus"></div>
+      <div id="locationtick"></div>
+
+    </form>
+</div>
+<script>
+
+/* specify map click mode */
+deactivate_all_click();
+
+</script>
+
