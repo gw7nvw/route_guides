@@ -20,6 +20,14 @@ var star_green;
 var star_blue;
 var line_red;
 
+var showRoutes;
+var showHuts;
+var showRoadends;
+var showPeaks;
+var showNatural;
+var showManmade
+var showOther;
+
 var select;
 var click_to_select_all;
 var click_to_copy_start_point;
@@ -115,6 +123,8 @@ function init(){
     map_map.addControl(select);
     select.activate();
 
+    map_show_default();
+
     //callback for moveend event 
     map_map.events.register("zoomend", map_map, function() {
        var x = map_map.getZoom();
@@ -130,10 +140,12 @@ function init(){
             places_layer.setVisibility(false);
             routes_layer.setVisibility(false);
             routes_simple_layer.setVisibility(true);
+            map_show_grey();
        } else {
                 places_layer.setVisibility(true);
                 routes_layer.setVisibility(true);
                 routes_simple_layer.setVisibility(false);
+                map_show_green();
        }
     });
 
@@ -177,6 +189,7 @@ function init(){
 
     /* by default, activate only xclick_to_select */
     click_to_select_all.activate();
+    map_enable_info();
 
     map_map.zoomToExtent( mapBounds.transform(map_map.displayProjection, map_map.projection ) );
     map_map.zoomTo(5);
@@ -284,7 +297,7 @@ function deactivate_all_click() {
     if(typeof(click_to_copy_start_point)!='undefined') click_to_copy_start_point.deactivate();
     if(typeof(click_to_copy_end_point)!='undefined') click_to_copy_end_point.deactivate();
     if(typeof(draw)!='undefined') draw.deactivate();
-
+    map_disable_all();
 }
 
 
@@ -292,12 +305,14 @@ function activate_draw() {
    vectorLayer.destroyFeatures;
    deactivate_all_click();
    draw.activate();
+   map_enable_draw_line();
 }
 
 function activate_select_all() {
 
    deactivate_all_click();
    click_to_select_all.activate();
+   map_enable_info();
 }
 
 
@@ -359,6 +374,7 @@ function add_click_to_select_all_controller() {
       /* disable click */
       deactivate_all_click();
       click_to_select_all.activate();
+      map_enable_info();
 
       /* disable current layer */
       vectorLayer.destroyFeatures();
@@ -715,6 +731,7 @@ function place_selectPlace() {
   vectorLayer.destroyFeatures();
   deactivate_all_click();
   click_to_create.activate();
+  map_enable_draw_point();
 }
 
 function place_selectNothing() {
@@ -735,31 +752,19 @@ function route_selectStartPlace() {
  
   deactivate_all_click();
   click_to_copy_start_point.activate();
+  map_enable_select_point();
 }
 
-function route_createStartPlace() {
-  route_selectNothing();
-  document.getElementById("route_form").style.display="none";
-  document.getElementById("place_form").style.display="block";
-  document.getElementById("placeheader").style.display="block";
-  document.getElementById("subtitle").innerHTML="Create new startplace for route<br/><br/>"
-}
-function route_closePlace() {
-  route_selectNothing();
-  document.getElementById("route_form").style.display="block";
-  document.getElementById("place_form").style.display="none";
-  document.getElementById("placeheader").style.display="none";
-  document.getElementById("subtitle").innerHTML="";
-}
 
 function route_selectEndPlace() { 
   route_selectNothing();
   document.getElementById("endplaceplus").style.display="none";
   document.getElementById("endplacetick").style.display="block";
- 
+   
 
   deactivate_all_click();
   click_to_copy_end_point.activate();
+  map_enable_select_point();
 
 }
 
@@ -821,7 +826,7 @@ function report_selectPlace() {
 
   deactivate_all_click();
   click_to_copy_report_link.activate();
-
+  map_enable_select_point();
 }
 
 function report_confirmPlace() {
@@ -840,7 +845,7 @@ function report_selectRoute() {
 
   deactivate_all_click();
   click_to_copy_report_link.activate();
-
+  map_enable_select_line();
 }
 
 function report_confirmRoute() {
@@ -887,22 +892,61 @@ function linkHandler(entity_name) {
     document.getElementById("page_status").innerHTML = 'Loading ...'
 
     /* register on complete ... */
-    $('#'+entity_name).bind('ajax:complete', function() {
+  //  $('#'+entity_name).bind('ajax:complete', function() {
         /* complete also fires when error ocurred, so only clear if no error has been shown */
-         document.getElementById("page_status").innerHTML = '';
-         lastUrl=document.URL;
+ //        if (document.getElementById("page_status").innerHTML=='Loading ...') {document.getElementById("page_status").innerHTML = ''};
+  //       lastUrl=document.URL;
+ //   });
 
-    });
-
+//    $('#'+entity_name).bind('ajax:error', function(e, jqXHR, ajaxSettings, thrownError) {
+ //       /* complete also fires when error ocurred, so only clear if no error has been shown */
+  //      if(thrownError=="timeout") {
+   //      document.getElementById("page_status").innerHTML = 'Timeout';
+    //     if (!this.tryCount<5) { this.tryCount=0 }
+     //    this.tryCount++;
+      //   alert(this.tryCount);
+       //  if(this.tryCount<4) {
+        // $.rails.ajax.this;
+//         alert("retry");
+ //        } else {
+  //        document.getElementById("page_status").innerHTML = 'Retries exceeded';
+   //      }
+    //    } else {
+     //    document.getElementById("page_status").innerHTML = 'Error: '+thrownError;
+      //  }
+//         lastUrl=document.URL;
+//    });
     /* set timeoput and register handler */
     $(function() {
      $.rails.ajax = function (options) {
-      if (!options.timeout) {
-         options.timeout = 15000;
+       options.timeout = 10000;
+       options.tryCount= (!options.tryCount) ? 0 : options.tryCount;0;
+       options.retryLimit=3;
+       options.complete = function(jqXHR, thrownError) {
+         /* complete also fires when error ocurred, so only clear if no error has been shown */
+         if(thrownError=="timeout") {
+           document.getElementById("page_status").innerHTML = 'Retrying ...';
+//         if (!this.tryCount<5) { this.tryCount=0 }
+           this.tryCount++;
+           alert(this.tryCount);
+           if(this.tryCount<this.retryLimit) {
+             $.rails.ajax(this);
+           } else {
+             document.getElementById("page_status").innerHTML = 'Timeout';
+           }
          }
-      return $.ajax(options);
+         if(thrownError=="error") {
+           document.getElementById("page_status").innerHTML = 'Error';
+         } 
+         if(thrownError=="success") {
+           document.getElementById("page_status").innerHTML = ''
+         }
+         lastUrl=document.URL;
+       }
+
+       return $.ajax(options);
      };
-    }); 
+   }); 
 
    
  
@@ -1066,5 +1110,82 @@ function overlay_getTileURL(bounds) {
         return "http://www.maptiler.org/img/none.png";
     }
 
-}  
+}
 
+function map_disable_all() {
+
+  document.getElementById("info").style.display="none";
+  document.getElementById("select-point").style.display="none";
+  document.getElementById("select-line").style.display="none";
+  document.getElementById("draw-point").style.display="none";
+  document.getElementById("draw-line").style.display="none";
+  document.getElementById("map-none").style.display="inline";
+
+}
+
+function map_enable_info() {
+  map_disable_all();
+  document.getElementById("info").style.display="inline";
+  document.getElementById("map-none").style.display="none";
+}
+function map_enable_select_point() {
+  map_disable_all();
+  document.getElementById("select-point").style.display="inline";
+  document.getElementById("map-none").style.display="none";
+}
+function map_enable_select_line() {
+  map_disable_all();
+  document.getElementById("select-line").style.display="inline";
+  document.getElementById("map-none").style.display="none";
+}
+function map_enable_draw_point() {
+  map_disable_all();
+  document.getElementById("draw-point").style.display="inline";
+  document.getElementById("map-none").style.display="none";
+}
+function map_enable_draw_line() {
+  map_disable_all();
+  document.getElementById("draw-line").style.display="inline";
+  document.getElementById("map-none").style.display="none";
+}
+
+function map_show_default() {
+
+    document.getElementById("show-routes").style.border="3px solid lightgreen"; 
+    showRoutes=true;
+    document.getElementById("show-huts").style.border="3px solid lightgreen"; 
+    showHuts=true;
+    document.getElementById("show-roadends").style.border="3px solid lightgreen"; 
+    showRoadends=true;
+    document.getElementById("show-peaks").style.border="3px solid lightgreen"; 
+    showPeaks=true;
+    document.getElementById("show-natural").style.border="3px solid lightgreen"; 
+    showNatural=true;
+    document.getElementById("show-manmade").style.border="3px solid lightgreen"; 
+    showManmade=true
+    document.getElementById("show-other").style.border="3px solid lightgreen"; 
+    showOther=true;
+}
+
+function map_show_grey() {
+
+  if (showRoutes) { document.getElementById("show-routes").style.border="3px solid lightgreen"};
+  if (showHuts) { document.getElementById("show-huts").style.border="3px solid lightgrey"};
+  if (showRoadends) { document.getElementById("show-roadends").style.border="3px solid lightgrey"};
+  if (showPeaks) { document.getElementById("show-peaks").style.border="3px solid lightgrey"};
+  if (showNatural) { document.getElementById("show-natural").style.border="3px solid lightgrey"};
+  if (showManmade) { document.getElementById("show-manmade").style.border="3px solid lightgrey"};
+  if (showOther) { document.getElementById("show-other").style.border="3px solid lightgrey"};
+
+}
+
+function map_show_green() {
+
+  if (showRoutes) { document.getElementById("show-routes").style.border="3px solid lightgreen"};
+  if (showHuts) { document.getElementById("show-huts").style.border="3px solid lightgreen"};
+  if (showRoadends) { document.getElementById("show-roadends").style.border="3px solid lightgreen"};
+  if (showPeaks) { document.getElementById("show-peaks").style.border="3px solid lightgreen"};
+  if (showNatural) { document.getElementById("show-natural").style.border="3px solid lightgreen"};
+  if (showManmade) { document.getElementById("show-manmade").style.border="3px solid lightgreen"};
+  if (showOther) { document.getElementById("show-other").style.border="3px solid lightgreen"};
+}

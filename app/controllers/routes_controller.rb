@@ -113,11 +113,11 @@ require "rexml/document"
     @route.updatedBy_id = @current_user.id #current_user.id
     route_add_altitude()
     # but doesn;t handle location ... so
+    @url=params[:url]
 
     if @route.save
       flash[:success] = "New route added, id:"+@route.id.to_s
 
-      @url=params[:url]
 
       @edit=false
       @showForward=1
@@ -138,6 +138,11 @@ require "rexml/document"
         render 'show'
       end
     else
+      if(@url and @url.include?('x')) then 
+         @id=@url
+         show_many() 
+      end
+
       @edit=true
       render 'new'
     end
@@ -152,7 +157,10 @@ def show
        show_single()
     else
       show_many()
-      respond_to do |wants|
+      if @id.include?('xps') and !signed_in? then 
+        redirect_to '/signin'
+      else
+       respond_to do |wants|
         wants.js do
          # if @startplace and @endplace then
             render '/routes/show_many'
@@ -177,6 +185,7 @@ def show
             render :xml => xml
           end
         end
+       end
       end 
     end
 end
@@ -312,7 +321,7 @@ end
         route=Route.find_by_id(params[:id].to_i.abs)
         if route.destroy
           flash[:success] = "Route deleted, id:"+params[:id]
-          redirect_to '/routes'
+          redirect_to '/'
         else
           edit()
           render 'edit'
@@ -326,27 +335,29 @@ end
 end
 
 def route_add_altitude
-  #check for alt data
-  totalAlt=0
-  @route.location.points.each do |p|
-    totalAlt+=p.z
-  end
-  #none present? then calculate
-  if totalAlt==0 then
-    linestr="LINESTRING("
+  if (@route.location and @route.location.length>0) then
+    #check for alt data
+    totalAlt=0
     @route.location.points.each do |p|
-       if linestr.length>11 then linestr+="," end
-       #get alt from map if it is blank or 0
-       altArr=Dem30.find_by_sql ["
-          select ST_Value(rast, ST_GeomFromText(?,4326))  rid
-             from dem30s
-             where ST_Intersects(rast,ST_GeomFromText(?,4326));",
-             'POINT('+p.x.to_s+' '+p.y.to_s+')',
-             'POINT('+p.x.to_s+' '+p.y.to_s+')']
-
-       linestr+=p.x.to_s+" "+p.y.to_s+" "+altArr.first.try(:rid).to_s
+      totalAlt+=p.z
     end
-    @route.location=linestr+")"
+    #none present? then calculate
+    if totalAlt==0 then
+      linestr="LINESTRING("
+      @route.location.points.each do |p|
+         if linestr.length>11 then linestr+="," end
+         #get alt from map if it is blank or 0
+         altArr=Dem30.find_by_sql ["
+            select ST_Value(rast, ST_GeomFromText(?,4326))  rid
+               from dem30s
+               where ST_Intersects(rast,ST_GeomFromText(?,4326));",
+               'POINT('+p.x.to_s+' '+p.y.to_s+')',
+               'POINT('+p.x.to_s+' '+p.y.to_s+')']
+  
+         linestr+=p.x.to_s+" "+p.y.to_s+" "+altArr.first.try(:rid).to_s
+      end
+      @route.location=linestr+")"
+    end
   end
 end
 

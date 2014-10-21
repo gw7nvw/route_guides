@@ -24,7 +24,7 @@
  </li>
  <li>
    Select a start and end place from the map and search for through routes between them:
- <%= render '/routes/search' %>
+ <%= render '/search/search' %>
  </li>
  </ul>
   <div class="erow">
@@ -34,6 +34,8 @@
   <%= render 'reports/index_details' %>
   <% @trips=Trip.where(published: true).order(:created_at).reverse[0..2] %>
   <%= render 'trips/index_details' %>
+  <% @routes=Route.all.order(:updated_at).reverse[0..2] %>
+  <%= render 'routes/index_details' %>
 <br/>
 <div style="text-align:right">
 <small> <%= link_to 'Site Index', 'site_index', remote:true,  remote: true, :id => 'site_index', :onclick => "linkHandler('site_index')" %> </small></div>

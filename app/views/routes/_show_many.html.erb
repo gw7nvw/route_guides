@@ -208,4 +208,20 @@
    <% end %> 
    <% @trip=false %>
    <% @dontMark=false %>
+<script>
+
+  /* specify map click mode */
+//  deactivate_all_click();
+
+  /* relad routes layer if we've been asked to */
+  if(routesStale) {
+       routes_layer.refresh({force: true}); 
+       routesStale=false;
+  }
+  if(placesStale) {
+     places_layer.refresh({force: true}); 
+     placesStale=false;
+  }
+
+</script>
 
