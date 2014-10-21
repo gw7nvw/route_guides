@@ -37,7 +37,7 @@ class ApplicationController < ActionController::Base
       @showConditions=0
       @showLinks=0
       @url=@id
-      @viewurl=@url.tr("e","v")
+      @viewurl=@url.tr("e","v").gsub("xpn","xps")
 
       @edit=true #always, so forms are shown in editmode if present
 

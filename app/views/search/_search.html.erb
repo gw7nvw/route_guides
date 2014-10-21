@@ -1,9 +1,16 @@
-<% if(@startplace and @endplace) %>
+<% if !@static_page %>
+  <% if(@startplace and @endplace) %>
      <% provide(:title, 'Search | '+@startplacename+" to "+@endplacename) %>
      <% @title=" | Search | "+@startplacename+" to "+@endplacename %>
-<% else %>
+  <% else %>
      <% provide(:title, 'Search') %> 
      <% @title=" | Search" %>
+  <% end %>
+  <div class='erow'>
+    <div class='sectiontitle'>
+  Select a start and end place from the map and search for through routes between them:
+    </div>
+  </div>
 <% end %>
 <%= render 'flash' %>
 

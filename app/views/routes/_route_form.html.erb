@@ -368,7 +368,7 @@ sufficient to differentiate it from other routes between the same two places. <b
 
       <% if @edit %>
         <%= f.submit "Save", class: "btn btn-small btn-primary", name: "save", onclick: "updateRoute('savebutton')", id:  "savebutton"  %>
-        <% if @url %>
+        <% if @url and @url.include?('x')%>
           <%=  link_to "Cancel", '/routes/'+@viewurl, class: "btn btn-small btn-primary", remote: true %>
         <% else %>
           <%=  link_to "Cancel", '/routes/'+@route.id.to_s, class: "btn btn-small btn-primary", remote: true %>

@@ -15,7 +15,7 @@
                  <img id="startplaceplus" src="/assets/select-point.png" onclick="route_selectStartPlace()" width="16" style="display:block">
               </span>
               <span title="Click to confirm selection">
-                 <div class="pastebutton"  id='startplacetick' style="display:none"> <%= submit_tag "select", :id => "selectButton", :type => :image, :src => '/assets/tick.png', :style => 'margin-bottom:0;border:none', :onclick=> "route_selectNothing()"%> </div>
+                 <div class="pastebutton"  id='startplacetick' style="display:none"> <%= submit_tag "select", :id => "selectButton", :type => :image, :src => '/assets/tick.png', :style => 'margin-bottom:0;border:none', :onclick=> "linkHandler('selectButton')"%> </div>
               </span>
            </div>
            <% newplace_url=@url.gsub('xps','xpn') %>

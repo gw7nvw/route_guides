@@ -1,3 +1,7 @@
-window.history.pushState(null, '', '/places/new');
-$('#right_panel').html("<%= escape_javascript(render(:partial => 'places/new')).html_safe %>");
+<% if @url and @url.include?('x') %>
+   $('#place_form').html("<%= escape_javascript(render(:partial => 'places/new')).html_safe %>");
+<% else %>
+  window.history.pushState(null, '', '/places/new');
+  $('#right_panel').html("<%= escape_javascript(render(:partial => 'places/new')).html_safe %>");
+<% end %>
 

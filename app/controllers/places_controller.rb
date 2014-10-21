@@ -54,12 +54,11 @@ def create
     else
       flash[:error] = "Error creating place"
       @edit=true
-      if params[:save]=="Create place"
-        @placeFromRoute=true
-        render 'createPlaceFromRoute'
-      else 
-        render 'new'
+      if(@url and @url.include?('x')) then 
+         @id=@url
+         show_many() 
       end
+      render 'new'
     end
   end
 
@@ -206,7 +205,7 @@ def create
          place=Place.find_by_id(params[:id])
          if place.destroy
            flash[:success] = "Place deleted, id:"+params[:id]
-           redirect_to '/places'
+           redirect_to '/'
          else
            edit()
            render 'edit'

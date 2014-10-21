@@ -1,0 +1,18 @@
+
+<div class="erow">
+  <div class="sectiontitle">
+    Routes
+   </div>
+</div>
+<div class="erow">
+  <ul class="places">
+    <% @routes.each do |route| %>
+      <li>
+        <%= link_to route.name, route, remote: true, :id => 'route_link_'+route.id.to_s, :onclick => "linkHandler('route_link_"+route.id.to_s+"')" %></li>
+        <%= "added by "+route.createdBy.name+" (last updated "+route.updated_at.strftime("%F")+")"%>
+ 
+      </li>
+    <% end %>
+  </ul>
+</div>
+

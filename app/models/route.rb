@@ -24,7 +24,6 @@ class Route < ActiveRecord::Base
   validates :endplace, presence: true
   belongs_to :endplace, class_name: "Place"
 
-
   before_save { |route| route.name = route.startplace.name + " to " + route.endplace.name + " via " + route.via }
   before_save :default_values
   before_save :handle_negatives_before_save
@@ -35,6 +34,7 @@ class Route < ActiveRecord::Base
   before_destroy :prune_route_index
 
   set_rgeo_factory_for_column(:location, RGeo::Geographic.spherical_factory(:srid => 4326, :proj4=> '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs', :has_z_coordinate => true))
+
 
 def self.find_by_signed_id(id)
    id=id.to_i
