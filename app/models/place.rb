@@ -59,7 +59,7 @@ def adjoiningRoutes
 end
 
 def adjoiningPlaces(placeb, destOnly, maxHopCount, baseRoute, ignoreRoute)
-  if !maxHopCount then maxHopCount=20 end
+  if !maxHopCount then maxHopCount=15 end
 
   placeSoFar=[]
   routeSoFar=[]

@@ -25,6 +25,7 @@ class Route < ActiveRecord::Base
   belongs_to :endplace, class_name: "Place"
 
   before_save { |route| route.name = route.startplace.name + " to " + route.endplace.name + " via " + route.via }
+  validates :name, uniqueness: true
   before_save :default_values
   before_save :handle_negatives_before_save
 
@@ -181,7 +182,7 @@ end
 
 def regenerate_route_index
 
-  maxLegCount=20
+  maxLegCount=15
 
   #delete old entries using this route
   RouteIndex.where("url ~ ? or url ~ ?",'xrv[-]{0,1}'+self.id.to_s+'x', 'xrv[-]{0,1}'+self.id.to_s+'$').destroy_all

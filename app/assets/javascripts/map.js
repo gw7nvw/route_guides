@@ -20,13 +20,13 @@ var star_green;
 var star_blue;
 var line_red;
 
-var showRoutes;
-var showHuts;
-var showRoadends;
-var showPeaks;
-var showNatural;
-var showManmade
-var showOther;
+var show_route;
+var show_accomodation;
+var show_roadend;
+var show_summit;
+var show_scenic;
+var show_crossing
+var show_other;
 
 var select;
 var click_to_select_all;
@@ -115,7 +115,7 @@ function init(){
     map_map.addLayer(routes_simple_layer);
 
     map_map.zoomToExtent(extent); 
-    map_map.addControl(new OpenLayers.Control.LayerSwitcher());
+    //map_map.addControl(new OpenLayers.Control.LayerSwitcher());
     map_map.addControl(new OpenLayers.Control.MousePosition());
     
     // Create a select feature control and add it to the map.
@@ -126,28 +126,7 @@ function init(){
     map_show_default();
 
     //callback for moveend event 
-    map_map.events.register("zoomend", map_map, function() {
-       var x = map_map.getZoom();
-        
-        if( x > 15) {
-            map_map.zoomTo(15);
-        }
-        if( x < 5) {
-            map_map.zoomTo(5);
-        }
-        // hide places above 7 zoom (too much data).  Turn back on if we drop below 
-        if( x < 8) {
-            places_layer.setVisibility(false);
-            routes_layer.setVisibility(false);
-            routes_simple_layer.setVisibility(true);
-            map_show_grey();
-       } else {
-                places_layer.setVisibility(true);
-                routes_layer.setVisibility(true);
-                routes_simple_layer.setVisibility(false);
-                map_show_green();
-       }
-    });
+    map_map.events.register("zoomend", map_map, check_zoomend);
 
     vectorLayer = new OpenLayers.Layer.Vector("Current feature", {
                 style: layer_style,
@@ -193,16 +172,6 @@ function init(){
 
     map_map.zoomToExtent( mapBounds.transform(map_map.displayProjection, map_map.projection ) );
     map_map.zoomTo(5);
-    // hide places below 2 zoom (too much data).  Turn back on if we drop beloiw 
-//    if( map_map.getZoom() < 2) {
-//        places_layer.setVisibility(false);
-//        routes_layer.setVisibility(false);
-////        routes_simple_layer.setVisibility(true);
-//   } else {
-//        places_layer.setVisibility(true);
-//        routes_layer.setVisibility(true);
-//        routes_simple_layer.setVisibility(false);
-//   }
 
   }
 }
@@ -352,7 +321,7 @@ function add_click_to_select_all_controller() {
             xhr.setRequestHeader("Accept","text/javascript");
           }, 
           type: "GET", 
-          timeout: 15000,
+          timeout: 20000,
           url: document.selectform.selecttype.value+document.selectform.select.value,
           complete: function() {
               /* complete also fires when error ocurred, so only clear if no error has been shown */
@@ -891,32 +860,6 @@ function linkHandler(entity_name) {
     /* show 'loading ...' */
     document.getElementById("page_status").innerHTML = 'Loading ...'
 
-    /* register on complete ... */
-  //  $('#'+entity_name).bind('ajax:complete', function() {
-        /* complete also fires when error ocurred, so only clear if no error has been shown */
- //        if (document.getElementById("page_status").innerHTML=='Loading ...') {document.getElementById("page_status").innerHTML = ''};
-  //       lastUrl=document.URL;
- //   });
-
-//    $('#'+entity_name).bind('ajax:error', function(e, jqXHR, ajaxSettings, thrownError) {
- //       /* complete also fires when error ocurred, so only clear if no error has been shown */
-  //      if(thrownError=="timeout") {
-   //      document.getElementById("page_status").innerHTML = 'Timeout';
-    //     if (!this.tryCount<5) { this.tryCount=0 }
-     //    this.tryCount++;
-      //   alert(this.tryCount);
-       //  if(this.tryCount<4) {
-        // $.rails.ajax.this;
-//         alert("retry");
- //        } else {
-  //        document.getElementById("page_status").innerHTML = 'Retries exceeded';
-   //      }
-    //    } else {
-     //    document.getElementById("page_status").innerHTML = 'Error: '+thrownError;
-      //  }
-//         lastUrl=document.URL;
-//    });
-    /* set timeoput and register handler */
     $(function() {
      $.rails.ajax = function (options) {
        options.timeout = 10000;
@@ -928,7 +871,6 @@ function linkHandler(entity_name) {
            document.getElementById("page_status").innerHTML = 'Retrying ...';
 //         if (!this.tryCount<5) { this.tryCount=0 }
            this.tryCount++;
-           alert(this.tryCount);
            if(this.tryCount<this.retryLimit) {
              $.rails.ajax(this);
            } else {
@@ -1151,41 +1093,126 @@ function map_enable_draw_line() {
 
 function map_show_default() {
 
-    document.getElementById("show-routes").style.border="3px solid lightgreen"; 
-    showRoutes=true;
-    document.getElementById("show-huts").style.border="3px solid lightgreen"; 
-    showHuts=true;
-    document.getElementById("show-roadends").style.border="3px solid lightgreen"; 
-    showRoadends=true;
-    document.getElementById("show-peaks").style.border="3px solid lightgreen"; 
-    showPeaks=true;
-    document.getElementById("show-natural").style.border="3px solid lightgreen"; 
-    showNatural=true;
-    document.getElementById("show-manmade").style.border="3px solid lightgreen"; 
-    showManmade=true
-    document.getElementById("show-other").style.border="3px solid lightgreen"; 
-    showOther=true;
+    document.getElementById("show_route").style.border="3px solid lightgreen"; 
+    show_route=true;
+    document.getElementById("show_accomodation").style.border="3px solid lightgreen"; 
+    show_accomodation=true;
+    document.getElementById("show_roadend").style.border="3px solid lightgreen"; 
+    show_roadend=true;
+    document.getElementById("show_summit").style.border="3px solid lightgreen"; 
+    show_summit=true;
+    document.getElementById("show_scenic").style.border="3px solid lightgreen"; 
+    show_scenic=true;
+    document.getElementById("show_crossing").style.border="3px solid lightgreen"; 
+    show_crossing=true
+    document.getElementById("show_other").style.border="3px solid lightgreen"; 
+    show_other=true;
 }
 
 function map_show_grey() {
 
-  if (showRoutes) { document.getElementById("show-routes").style.border="3px solid lightgreen"};
-  if (showHuts) { document.getElementById("show-huts").style.border="3px solid lightgrey"};
-  if (showRoadends) { document.getElementById("show-roadends").style.border="3px solid lightgrey"};
-  if (showPeaks) { document.getElementById("show-peaks").style.border="3px solid lightgrey"};
-  if (showNatural) { document.getElementById("show-natural").style.border="3px solid lightgrey"};
-  if (showManmade) { document.getElementById("show-manmade").style.border="3px solid lightgrey"};
-  if (showOther) { document.getElementById("show-other").style.border="3px solid lightgrey"};
+  if (show_route) { document.getElementById("show_route").style.border="3px solid lightgreen"};
+  if (show_accomodation) { document.getElementById("show_accomodation").style.border="3px solid lightgrey"};
+  if (show_roadend) { document.getElementById("show_roadend").style.border="3px solid lightgrey"};
+  if (show_summit) { document.getElementById("show_summit").style.border="3px solid lightgrey"};
+  if (show_scenic) { document.getElementById("show_scenic").style.border="3px solid lightgrey"};
+  if (show_crossing) { document.getElementById("show_crossing").style.border="3px solid lightgrey"};
+  if (show_other) { document.getElementById("show_other").style.border="3px solid lightgrey"};
 
 }
 
 function map_show_green() {
 
-  if (showRoutes) { document.getElementById("show-routes").style.border="3px solid lightgreen"};
-  if (showHuts) { document.getElementById("show-huts").style.border="3px solid lightgreen"};
-  if (showRoadends) { document.getElementById("show-roadends").style.border="3px solid lightgreen"};
-  if (showPeaks) { document.getElementById("show-peaks").style.border="3px solid lightgreen"};
-  if (showNatural) { document.getElementById("show-natural").style.border="3px solid lightgreen"};
-  if (showManmade) { document.getElementById("show-manmade").style.border="3px solid lightgreen"};
-  if (showOther) { document.getElementById("show-other").style.border="3px solid lightgreen"};
+  if (show_route) { document.getElementById("show_route").style.border="3px solid lightgreen"};
+  if (show_accomodation) { document.getElementById("show_accomodation").style.border="3px solid lightgreen"};
+  if (show_roadend) { document.getElementById("show_roadend").style.border="3px solid lightgreen"};
+  if (show_summit) { document.getElementById("show_summit").style.border="3px solid lightgreen"};
+  if (show_scenic) { document.getElementById("show_scenic").style.border="3px solid lightgreen"};
+  if (show_crossing) { document.getElementById("show_crossing").style.border="3px solid lightgreen"};
+  if (show_other) { document.getElementById("show_other").style.border="3px solid lightgreen"};
 }
+
+function toggle_routes() {
+  if (show_route) {
+    document.getElementById("show_route").style.border="3px solid orange";
+    routes_layer.setVisibility(false);
+    routes_simple_layer.setVisibility(false);
+  } else {
+    document.getElementById("show_route").style.border="3px solid lightgreen";
+  };
+  show_route=!show_route;
+  check_zoomend();
+
+  
+
+  //routes_layer.refresh({force:true});
+}
+function toggle_map(category){
+  currentState=eval("show_"+category);
+  var visibility=1;
+
+  if (currentState) {
+    visibility=0; 
+    document.getElementById("show_"+category).style.border="3px solid orange";
+  } else {
+    document.getElementById("show_"+category).style.border="3px solid lightgreen";
+  };
+  for (index=0; index<pt_styleMap.styles.default.rules.length; ++index) {
+     if (pt_styleMap.styles.default.rules[index].filter != null)  {
+       if ( pt_styleMap.styles.default.rules[index].symbolizer.category == category ) {
+         pt_styleMap.styles.default.rules[index].symbolizer.strokeOpacity=visibility;
+         pt_styleMap.styles.default.rules[index].symbolizer.fillOpacity=visibility;
+       };
+     };
+  };
+  places_layer.refresh({force:true});
+
+  switch (category) {
+   case "accomodation":
+     show_accomodation=!currentState;
+     break;
+   case "roadend":
+     show_roadend=!currentState;
+     break;
+   case "summit":
+     show_summit=!currentState;
+     break;
+   case "scenic":
+     show_scenic=!currentState;
+     break;
+   case "crossing":
+     show_crossing=!currentState;
+     break;
+   case "other":
+     show_other=!currentState;
+     break;
+  }  
+  check_zoomend();
+
+}
+function check_zoomend() {
+       var x = map_map.getZoom();
+        
+        if( x > 15) {
+            map_map.zoomTo(15);
+        }
+        if( x < 5) {
+            map_map.zoomTo(5);
+        }
+        // hide places above 7 zoom (too much data).  Turn back on if we drop below 
+        if( x < 8) {
+            places_layer.setVisibility(false);
+            if (show_route) {
+              routes_layer.setVisibility(false);
+              routes_simple_layer.setVisibility(true);
+            }
+            map_show_grey();
+       } else {
+                places_layer.setVisibility(true);
+                if(show_route) {
+                  routes_layer.setVisibility(true);
+                  routes_simple_layer.setVisibility(false);
+                }
+                map_show_green();
+       }
+    }
