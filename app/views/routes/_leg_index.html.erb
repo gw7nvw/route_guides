@@ -11,6 +11,8 @@
   <ul class="places">
     <% @routes.each do |route| %>
       <li>
+        <% if !route.published %>Draft: <%end%>
+        
         <%= link_to route.name, route, remote: true, :id => 'route_link_'+route.id.to_s, :onclick => "linkHandler('route_link_"+route.id.to_s+"')" %></li>
  
       </li>

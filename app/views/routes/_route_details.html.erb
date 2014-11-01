@@ -11,6 +11,7 @@
       <% end %>
 
       <div class="sectiontitle25">
+         <% if !@route.published then %>Draft:<% end %>
          <% if !@history %>
             <%= link_to @route.startplace.name+" to "+@route.endplace.name+" via "+@route.via, 
                @route, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>

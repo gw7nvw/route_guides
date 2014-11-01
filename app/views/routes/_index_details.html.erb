@@ -1,9 +1,11 @@
 
-<div class="erow">
-  <div class="sectiontitle">
-    Routes
-   </div>
-</div>
+<% if !@hidetitle %>
+  <div class="erow">
+    <div class="sectiontitle">
+      Routes
+     </div>
+  </div>
+<% end %>
 <div class="erow">
   <ul class="places">
     <% @routes.each do |route| %>

@@ -123,6 +123,7 @@
        <% if item[1]=="n" and @segment_start then %>
          <div id="route_form">
            <% @route=Route.new   
+              @route.published=true
               @route.startplace_id=@segment_start   
               nextitem=@items[index+1]
               if nextitem[0]=='p' then endplace=Place.find_by_id(nextitem[2..-1].to_i) 

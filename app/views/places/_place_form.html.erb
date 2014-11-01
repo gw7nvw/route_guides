@@ -1,4 +1,5 @@
-<div id='place_details'>
+<div id='place_details' <% if @place.errors.any? %> style="border-color:#f00;border-style:solid;border-width:1px" <% end %> >
+
      <%= render 'shared/error_messages' %>
      <%= form_for  @place, :remote=> true, :html => {:name => 'placeform'}  do |f| %>
       <input type="hidden" name="url" value="<%=@url%>"/>

@@ -4,7 +4,7 @@ require "rexml/document"
 #get altitude from DEM if not set
  before_action :signed_in_user, only: [:edit, :update, :new, :create]
  before_action :touch_user
-
+ 
   def leg_index
     @routes = Route.all.order(:name)
   end
@@ -60,8 +60,7 @@ require "rexml/document"
   def new
     @edit=true
     @route = Route.new
-    @place = Place.new
-    @placeFromRoute=true
+    @route.published=true
     prepare_route_vars()
   end
 
@@ -115,39 +114,48 @@ require "rexml/document"
     # but doesn;t handle location ... so
     @url=params[:url]
 
-    if @route.save
-      flash[:success] = "New route added, id:"+@route.id.to_s
+    dupRoute=Route.find_by_sql ['select * from routes where "startplace_id"=? and "endplace_id"=? and via=?',@route.startplace_id, @route.endplace_id, @route.via]
+     logger.debug dupRoute.count
+    if dupRoute.count>0  then 
+       #save already in procgress
+       logger.debug "errorwith 409"
+       render nothing: true, status: 409
+    else 
+      success=@route.save
+      if success
+        flash[:success] = "New route added, id:"+@route.id.to_s
+  
 
-
-      @edit=false
-      @showForward=1
-      @showConditions=0
-      @showLinks=1
-      if @url and @url.include?('x')
-        #show routes screen
-        #if this is 1st place, next url is select next place.
-        #if this s asubsequent place, then next url is create route
-        @url=@url.gsub('xrn','xrv'+@route.id.to_s)
-        @url=@url+'xps'
-        @id=@url
-        show_many()
-
-        #show the show many screen
-        render '/routes/show_many'
+        @edit=false
+        @showForward=1
+        @showConditions=0
+        @showLinks=1
+        if @url and @url.include?('x')
+          #show routes screen
+          #if this is 1st place, next url is select next place.
+          #if this s asubsequent place, then next url is create route
+          @url=@url.gsub('xrn','xrv'+@route.id.to_s)
+          @url=@url+'xps'
+          @id=@url
+          show_many()
+  
+          #show the show many screen
+          render '/routes/show_many'
+        else
+          render 'show'
+        end
       else
-        render 'show'
+        if(@url and @url.include?('x')) then 
+           @id=@url
+           show_many() 
+        end
+  
+        @edit=true
+        render 'new'
       end
-    else
-      if(@url and @url.include?('x')) then 
-         @id=@url
-         show_many() 
-      end
-
-      @edit=true
-      render 'new'
-    end
- 
-  end 
+   
+    end 
+ end
 
 def show
     prepare_route_vars()
@@ -306,6 +314,8 @@ end
           show()
           render 'show'
         end
+
+
       else
         flash[:error] = "Error creating route"
         @edit=true
@@ -419,7 +429,8 @@ end
        :time,
        :distance,
        :datasource,
-       :importance_id)
+       :importance_id,
+       :published)
   end
 
 end

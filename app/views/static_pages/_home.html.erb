@@ -34,7 +34,7 @@
   <%= render 'reports/index_details' %>
   <% @trips=Trip.where(published: true).order(:created_at).reverse[0..2] %>
   <%= render 'trips/index_details' %>
-  <% @routes=Route.all.order(:updated_at).reverse[0..2] %>
+  <% @routes=Route.where(published: true).order(:updated_at).reverse[0..2] %>
   <%= render 'routes/index_details' %>
 <br/>
 <div style="text-align:right">

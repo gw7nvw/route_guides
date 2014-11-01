@@ -50,8 +50,8 @@ end
 
 
 def adjoiningRoutes
-   t=Route.find_by_sql ["select *  from routes where startplace_id = ?", self.id]
-   t2=Route.find_by_sql ["select *  from routes where endplace_id = ?",self.id]
+   t=Route.find_by_sql ["select *  from routes where startplace_id = ? and published=true", self.id]
+   t2=Route.find_by_sql ["select *  from routes where endplace_id = ? and published=true",self.id]
    t2.each do |ti|
      t=t+[ti.reverse]
    end
@@ -78,7 +78,7 @@ def adjoiningPlaces(placeb, destOnly, maxHopCount, baseRoute, ignoreRoute)
   #if a base route is supplied, use that as the start of our route search
   if baseRoute
     urlSoFar[0]=baseRoute
-    routeStr=baseRoute.split('x')[2..-1]
+    routeStr=baseRoute.split('x')[1..-1]
     routeStr.each do |rs|
       if rs[0]=='r' then 
          thisRoute=rs[2..-1].to_i

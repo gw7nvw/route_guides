@@ -862,16 +862,16 @@ function linkHandler(entity_name) {
 
     $(function() {
      $.rails.ajax = function (options) {
-       options.timeout = 10000;
        options.tryCount= (!options.tryCount) ? 0 : options.tryCount;0;
+       options.timeout = 10000*(options.tryCount+1);
        options.retryLimit=3;
        options.complete = function(jqXHR, thrownError) {
          /* complete also fires when error ocurred, so only clear if no error has been shown */
          if(thrownError=="timeout") {
-           document.getElementById("page_status").innerHTML = 'Retrying ...';
-//         if (!this.tryCount<5) { this.tryCount=0 }
            this.tryCount++;
-           if(this.tryCount<this.retryLimit) {
+           document.getElementById("page_status").innerHTML = 'Retrying ...';
+           this.timeout=10000*this.tryCount;
+           if(this.tryCount<=this.retryLimit) {
              $.rails.ajax(this);
            } else {
              document.getElementById("page_status").innerHTML = 'Timeout';
