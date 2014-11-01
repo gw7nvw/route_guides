@@ -33,3 +33,11 @@
 
 <% @trips = @user.trips.select{ |trip| trip.published }  %>
 <%= render 'trips/index_details' %>
+
+
+  <div class="sectiontitle">
+    Draft routes: 
+  </div>
+  <% @routes = @user.routes.select{ |route| !route.published }  %>
+  <% @hidetitle=true %>
+  <%= render 'routes/index_details' %>

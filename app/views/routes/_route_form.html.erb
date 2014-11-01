@@ -1,4 +1,4 @@
-<div id='route_details'>
+<div id='route_details' <% if @route.errors.any? %> style="border-color:#f00;border-style:solid;border-width:1px" <% end %> >
      <%= form_for  @route, :html => {:name => 'routeform'}, :remote => 'true'  do |f| %>
       <%= render 'shared/error_messages' %>
 
@@ -364,7 +364,20 @@ sufficient to differentiate it from other routes between the same two places. <b
       </div>
 
       <%= f.text_area :links, :disabled=>!@edit, :rows=>"4"   %>
+      <div class="erow">
+         <% if @edit %>
+          <%=render :partial => 'help_buttons',  :locals => {:expName => "rhelppublished", :initialSt => 0} %>
+         <% end %>
+         <div class="sectiontitle25">Published:</div>
+      </div>
+      <div class="erow">
+        <div id="rhelppublished" class="helptext" style="display:none">
+           Uncheck this box to save a route as a draft.  Draft routes will not be displayed in search results or on the map, and are included to allow you to plan trips on the map prior to walking them. You can find your draft routes on your user's page. You can share draft routes with others by giving them to URL of the route, or by including them in trips and sharing the URL of the trip.
+        </div>
+      </div>
 
+     <%= f.check_box :published %>
+     <br/><br/>
 
       <% if @edit %>
         <%= f.submit "Save", class: "btn btn-small btn-primary", name: "save", onclick: "updateRoute('savebutton')", id:  "savebutton"  %>

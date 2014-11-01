@@ -9,6 +9,7 @@ class RouteInstance < ActiveRecord::Base
  belongs_to :river
  belongs_to :startplace, class_name: "Place"
  belongs_to :endplace, class_name: "Place"
+ belongs_to :importance, class_name: "RouteImportance"
 
 
   set_rgeo_factory_for_column(:location, RGeo::Geographic.spherical_factory(:srid => 4326, :proj4=> '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs', :has_z_coordinate => true))

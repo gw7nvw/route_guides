@@ -31,7 +31,7 @@ def findresults
       if @indescription then @places_text=Place.find_by_sql ["select * from places where description ilike ? "+exttext+" order by name",searchtext] end
     end
     if @findroutes then
-      if @inname then @routes=Route.find_by_sql ["select * from routes where name ilike ? "+exttext+" order by name",searchtext] end
+      if @inname then @routes=Route.find_by_sql ["select * from routes where published=true and name ilike ? "+exttext+" order by name",searchtext] end
       if @indescription then @routes_text=Route.find_by_sql ["select * from routes where (description ilike ? or 'reverse_description' like ?) "+exttext+" order by name",searchtext, searchtext] end
     end
     if @findtrips then

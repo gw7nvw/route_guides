@@ -30,35 +30,47 @@ def create
 
     @url=params[:url]
 
-    if @place.save
-      flash[:success] = "New place added, id:"+@place.id.to_s
-      @id=@place.id
-
-      if @url and @url.include?('x')
-        #show routes screen
-        #if this is 1st place, next url is select next place.
-        #if this s asubsequent place, then next url is create route
-        if @url.include?('xpb') then
-          @id=@url.gsub('xpn','xrnxpb'+@id.to_s)
-        else
-          @id=@url.gsub('xpn','xpb'+@id.to_s+'xps')
-        end
-        show_many()
-
-        #show the show many screen
-        render '/routes/show_many'
-      else
-        show()
-        render 'show'
-      end
+    dupPlace=Place.find_by_sql ['select * from places where "name"=? and location=?',@place.name, @place.location]
+     logger.debug dupPlace.count
+    if (session[:save] and (Time.now - session[:save])<60) or dupPlace.count>0  then
+       #save already in procgress
+       logger.debug "errorwith 409"
+       render nothing: true, status: 409
     else
-      flash[:error] = "Error creating place"
-      @edit=true
-      if(@url and @url.include?('x')) then 
-         @id=@url
-         show_many() 
+      session[:save]=Time.now
+      success=@place.save
+      session[:save]=nil
+      if success
+
+        flash[:success] = "New place added, id:"+@place.id.to_s
+        @id=@place.id
+  
+        if @url and @url.include?('x')
+          #show routes screen
+          #if this is 1st place, next url is select next place.
+          #if this s asubsequent place, then next url is create route
+          if @url.include?('xpb') then
+            @id=@url.gsub('xpn','xrnxpb'+@id.to_s)
+          else
+            @id=@url.gsub('xpn','xpb'+@id.to_s+'xps')
+          end
+          show_many()
+  
+          #show the show many screen
+          render '/routes/show_many'
+        else
+          show()
+          render 'show'
+        end
+      else
+        flash[:error] = "Error creating place"
+        @edit=true
+        if(@url and @url.include?('x')) then 
+           @id=@url
+           show_many() 
+        end
+        render 'new'
       end
-      render 'new'
     end
   end
 

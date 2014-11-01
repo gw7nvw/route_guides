@@ -30,12 +30,11 @@ class Route < ActiveRecord::Base
   before_save :handle_negatives_before_save
 
   after_save :create_new_instance
-  after_save :regenerate_route_index
+  after_save :queue_regenerate_route_index
 
   before_destroy :prune_route_index
 
   set_rgeo_factory_for_column(:location, RGeo::Geographic.spherical_factory(:srid => 4326, :proj4=> '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs', :has_z_coordinate => true))
-
 
 def self.find_by_signed_id(id)
    id=id.to_i
@@ -118,7 +117,7 @@ end
 
 def adjoiningRoutes
    t=Route.find_by_sql ["select distinct *  from routes r 
-       where (startplace_id = ? or endplace_id = ? or startplace_id = ? or endplace_id = ?) and id <> ?",self.startplace_id, self.startplace_id, self.endplace_id, self.endplace_id, self.id.abs]
+       where published=true and (startplace_id = ? or endplace_id = ? or startplace_id = ? or endplace_id = ?) and id <> ?",self.startplace_id, self.startplace_id, self.endplace_id, self.endplace_id, self.id.abs]
 end
 
 def trips
@@ -180,76 +179,72 @@ def altloss
 
 end
 
-def regenerate_route_index
+def queue_regenerate_route_index
+        Resque.enqueue(Indexer,self.id)
+end
 
+def regenerate_route_index
   maxLegCount=15
 
   #delete old entries using this route
+  puts "Deleting ond entries"
   RouteIndex.where("url ~ ? or url ~ ?",'xrv[-]{0,1}'+self.id.to_s+'x', 'xrv[-]{0,1}'+self.id.to_s+'$').destroy_all
 
-
-  #find all place-to-place routes of length < <maxhops-1> for the start or endplace
-  #startAffectedRoutes=[{:place => self.startplace.id}]+self.startplace.adjoiningPlaces(nil,false,maxLegCount-1, nil,self.id)
-  if self.startplace.placeType.isDest then startAffectedRoutes=[{:place => self.startplace_id, :route => [], :url => ''}]
-  else startAffectedRoutes=[] end
-  startAffectedRoutes+=self.startplace.adjoiningPlaces(nil,false,maxLegCount-1, nil,self.id)
-  #endAffectedRoutes=[{:place => self.endplace.id}]+self.endplace.adjoiningPlaces(nil,false,maxLegCount-1, nil,self.id)
-  if self.endplace.placeType.isDest then endAffectedRoutes=[{:place => self.endplace_id, :route => [], :url => ''}]
-  else endAffectedRoutes=[] end
-  endAffectedRoutes+=self.endplace.adjoiningPlaces(nil,false,maxLegCount-1, nil,self.id)
-
-  #reverse the above routes (so get them TO us, no FROM us) 
-  #and add the leg we are saving to the end of the route
-  rsar=[]
-  startAffectedRoutes.each do |ar|
-    rar=reverseRouteHash(ar)
-    rar[:url]=rar[:url]+"xrv"+self.id.to_s
-    rar[:route]=[self.id]+rar[:route]
-    rar[:place]=self.endplace.id
-    rar[:startplace]=ar[:place]
-    rsar=rsar+[rar]
-  end
-  puts "Star"
-  puts startAffectedRoutes
-  puts rsar
-
-  rear=[]
-  endAffectedRoutes.each do |ar|
-
-    rar=reverseRouteHash(ar)
-    rar[:url]=rar[:url]+"xrv"+(-self.id).to_s
-    rar[:route]=[-self.id]+rar[:route]
-    rar[:place]=self.startplace.id
-    rar[:startplace]=ar[:place]
-    rear=rear+[rar]
-  end
-
-  puts "Ear"
-  puts endAffectedRoutes
-  puts rear
-
-  allAR=rsar+rear
-  #recalculate all routes from the route's startplace that go via us
-  allAR.each do |ar|
-    #get start place
-    place=Place.find_by_id(ar[:startplace])
-
-    #regernarate routes from place using this route as base-route   
-    newRoutes=place.adjoiningPlaces(nil,false,maxLegCount,ar[:url],nil)
-    puts "BNewroutes"
-    puts place.id
-    puts newRoutes
-     
-     newRoutes.each do |newRoute|
-        endPlace_id=newRoute[:place]
-        endPlace=Place.find_by_id(endPlace_id)
-
-        if RouteIndex.where("url = ?",newRoute[:url]).count==0 and place.id!=endPlace.id then
-          ri=RouteIndex.new(:startplace_id => place.id, :endplace_id => endPlace.id, :isDest => endPlace.placeType.isDest, :url => newRoute[:url])
-          ri.save
-        end
-     end
-
+  if self.published==true then
+    #find all place-to-place routes of length < <maxhops-1> for the start or endplace
+    #startAffectedRoutes=[{:place => self.startplace.id}]+self.startplace.adjoiningPlaces(nil,false,maxLegCount-1, nil,self.id)
+    if self.startplace.placeType.isDest then startAffectedRoutes=[{:place => self.startplace_id, :route => [], :url => ''}]
+    else startAffectedRoutes=[] end
+    startAffectedRoutes+=self.startplace.adjoiningPlaces(nil,false,maxLegCount-1, nil,self.id)
+    #endAffectedRoutes=[{:place => self.endplace.id}]+self.endplace.adjoiningPlaces(nil,false,maxLegCount-1, nil,self.id)
+    if self.endplace.placeType.isDest then endAffectedRoutes=[{:place => self.endplace_id, :route => [], :url => ''}]
+    else endAffectedRoutes=[] end
+    endAffectedRoutes+=self.endplace.adjoiningPlaces(nil,false,maxLegCount-1, nil,self.id)
+  
+    #reverse the above routes (so get them TO us, no FROM us) 
+    #and add the leg we are saving to the end of the route
+    rsar=[]
+    startAffectedRoutes.each do |ar|
+      rar=reverseRouteHash(ar)
+      rar[:url]=rar[:url]+"xrv"+self.id.to_s
+      rar[:route]=[self.id]+rar[:route]
+      rar[:place]=self.endplace.id
+      rar[:startplace]=ar[:place]
+      rsar=rsar+[rar]
+    end
+  
+    rear=[]
+    endAffectedRoutes.each do |ar|
+  
+      rar=reverseRouteHash(ar)
+      rar[:url]=rar[:url]+"xrv"+(-self.id).to_s
+      rar[:route]=[-self.id]+rar[:route]
+      rar[:place]=self.startplace.id
+      rar[:startplace]=ar[:place]
+      rear=rear+[rar]
+    end
+  
+    allAR=rsar+rear
+    #recalculate all routes from the route's startplace that go via us
+    allAR.each do |ar|
+      #get start place
+      place=Place.find_by_id(ar[:startplace])
+  
+      #regernarate routes from place using this route as base-route   
+      newRoutes=place.adjoiningPlaces(nil,false,maxLegCount,ar[:url],nil)
+      puts "Newroutes"
+       
+       newRoutes.each do |newRoute|
+          puts newRoute[:url]
+          endPlace_id=newRoute[:place]
+          endPlace=Place.find_by_id(endPlace_id)
+  
+          if RouteIndex.where("url = ?",newRoute[:url]).count==0 and place.id!=endPlace.id then
+            ri=RouteIndex.new(:startplace_id => place.id, :endplace_id => endPlace.id, :isDest => endPlace.placeType.isDest, :url => newRoute[:url])
+            ri.save
+          end
+       end
+    end  
   end
 end
 
