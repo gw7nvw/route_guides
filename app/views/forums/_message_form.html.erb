@@ -1,5 +1,5 @@
 <% if signed_in?%>
-<div id='place_details'>
+<div id='place_details' class='no-print'>
   <div>
      <%= form_for  @message, :remote=> true, :html => {:name => 'messageform'}, :url => '/forums'   do |f| %>
       <%= render 'shared/error_messages' %>

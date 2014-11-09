@@ -1,6 +1,8 @@
 <% provide(:title, "Edit Route | "+@route.name) %>
 <% @title=" | Route | Edit -> "+@route.name %>
 <%= render 'flash' %>
+<%= render 'application/mail_status' %>
+
 
 <script> 
    update_title('<%=@title%>'); 

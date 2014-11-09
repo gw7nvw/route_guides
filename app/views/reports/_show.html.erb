@@ -1,6 +1,8 @@
 <% provide(:title, "Report | "+@report.name) %>
 <% @title=" | Report | "+@report.name %>
 <%= render 'flash' %>
+<%= render 'application/mail_status' %>
+
 
 <script> 
    update_title('<%=@title%>'); 
@@ -16,6 +18,7 @@
 <%= render 'shared/error_messages' %>
 <%= render 'reports/report_details' %>
 
+<div id="links_section">
    <div class="erow">
       <div class="sectiontitle">
         Links:
@@ -28,8 +31,12 @@
           <%= rl.item_type.capitalize+": "%>
         </div>
         <div class="rowtext">
-          <%= link_to rl.child.name, rl.child, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
+          <% if rl.item_type=='about' then %>
+            <%= link_to 'About', '/about' , remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
+          <% else %>
+            <%= link_to rl.child.name, rl.child, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
+          <% end %>
         </div>
       </div>
    <% end %>
-
+</div>

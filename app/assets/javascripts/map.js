@@ -1216,3 +1216,26 @@ function check_zoomend() {
                 map_show_green();
        }
     }
+
+    function PrintElem(elem)
+    {
+        Popup(document.getElementById(elem).innerHTML);
+    }
+
+    function Popup(data) 
+    {
+        var mywindow = window.open('', 'routeguides.co.nz', 'height='+map_map.getSize().h+',width='+map_map.getSize().w);
+        mywindow.document.write('<html><head><title>routeguides.co.nz</title>');
+        mywindow.document.write('<link rel="stylesheet" type="text/css" href="/assets/print.css" /> ');
+
+        mywindow.document.write('</head><body >');
+        mywindow.document.write(data);
+        mywindow.document.write('</body></html>');
+
+        mywindow.focus(); 
+        if (navigator.userAgent.toLowerCase().indexOf("chrome") < 0) {
+         mywindow.print(); 
+         mywindow.close();
+       }
+        return true;
+    }

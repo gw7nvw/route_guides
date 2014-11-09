@@ -12,7 +12,7 @@
          </div>
       <% end %>
 
-      <div class="sectiontitle">
+      <div class="sectiontitle25">
           <% link_name=@place.name+" ("+ (if @place.place_owner then @place.place_owner+" " end) + 
                  @place.place_type+") " %>
           <% if !@history %>
@@ -47,7 +47,7 @@
 <div id='place<%=@itemNumber.to_s%>' style='display:<%=if @hideAll then "none" else "block" end%>'>
    <div class="subrow">
       <%=render :partial => 'expand_buttons',  :locals => {:expName => "fw_p"+@itemNumber.to_s, :initialSt => @showForward} %>
-      <div class="sectiontitle" style="font-weight:normal">
+      <div class="sectiontitle25" style="font-weight:normal">
          <%= "NZTM2000: "+x.to_i.to_s+", "+y.to_i.to_s %>
          <% if @place.altitude %>
             <%="(alt: "+@place.altitude.to_i.to_s+"m)"%>
@@ -56,7 +56,7 @@
    </div>
 
    <!-- Place location in collapsable diiv -->
-   <div id='<%="fw_p"+@itemNumber.to_s%>' class="sectiontext" style=<%=if (@showForward==1) then "display:block" else "display:none" end %>>
+   <div id='<%="fw_p"+@itemNumber.to_s%>' class="sectiontext50" style=<%=if (@showForward==1) then "display:block" else "display:none" end %>>
          <%= simple_format(@place.description).html_safe %>
    </div>
 
@@ -66,13 +66,13 @@
    <% if (@place.links) %>
       <% if @place.links.length>0 %>
          <%=render :partial => 'info_buttons',  :locals => {:expName => "lk_p"+@itemNumber.to_s, :initialSt => @showLinks} %>
-          <div id='<%="lk_p"+@itemNumber.to_s%>' class="sectiontext25" style=<%=if (@showLinks==1) then "display:block" else "display:none" end %>>
+          <div id='<%="lk_p"+@itemNumber.to_s%>' class="sectiontext" style=<%=if (@showLinks==1) then "display:block" else "display:none" end %>>
               <p><%=@place.links %><br/></p>
           </div>
        <% end %>
     <% end %>
 
-   <div class="sectiontext25">
+   <div class="sectiontext">
       <!-- Place author details (if any) -->
        <% if @place.createdBy_id %>
           <small color="greyLight">

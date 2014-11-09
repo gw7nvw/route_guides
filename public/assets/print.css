@@ -1,26 +1,8 @@
-@import "bootstrap"; 
-@import "slider";
-
-/* mixins, variables, etc. */
-
-@mixin box_sizing {
-  -moz-box-sizing: border-box;
-  -webkit-box-sizing: border-box;
-  box-sizing: border-box;
-}
-$grayLight: #999;
 $grayLighter: #eee;
 $grayMediumLight: #eaeaea;
 
 /* universal */
 
-@media print
-{    
-    .no-print, .no-print *
-    {
-        display: none !important;
-    }
-}
 
 html {
   overflow-y: scroll;
@@ -30,6 +12,7 @@ body {
   padding-top: 60px;
   font-size: 0.9em;
   line-height: 1.3em;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 section {
@@ -40,13 +23,6 @@ textarea {
   resize: vertical;
 }
 
-.center {
-  text-align: center;
-  vertical-align: center;
-  h1 {
-    margin-bottom: 10px;
-  }
-}
 
 /* typography */
 
@@ -67,11 +43,11 @@ h2 {
   margin-bottom: 30px;
   text-align: center;
   font-weight: normal;
-  color: $grayLight;
+  color: #999;
 }
 
 small {
-  color: $grayLight;
+  color: #999;
   font-size: 0.7em;
 }
 
@@ -93,87 +69,51 @@ p {
 }
 
 #map_status{
-  width: 100%;
-  height: 24px;
-  float: left;
+  display: none;
 }
 #page_status{
-  width: 80px;
-  height: 24px;
-  float: right;
+  display: none;
 }
 
 #header
 {
-	height: 40px;
-	background-color: #666;
-	margin-bottom: 10px;
-        font-size: 0.8em;
+  display: none;
 }
 
 #our_logo {
-  width: calc(100% - 670px);
-  height: 24px;
-  overflow: hidden;
-  float: left;
-  margin-left: 0px;
-  margin-right: 0px%;
-  padding-top: 6px;
-  padding-right: 0px;
-  padding-left: 6px;
+  display: none;
 }
 
 #logo {
-  float: left;
-  margin-right: 1%;
-  margin-left:1%;
-  font-size: 1.3em;
-  color: white;
-  text-transform: uppercase;
-  letter-spacing: -1px;
-  padding-top: 9px;
-  font-weight: bold;
-  line-height: 1;
-  &:hover {
-    color: white;
-    text-decoration: none;
-  }
+  display: none;
 }
 
 #menus {
-  float: right;
-  font-size:1.1em;
+  display: none;
 }
 
 .container{
-  float:left;
   width:100%;
-  margin-left:2%;
-  margin-right:2%%;
 }
 
 #map_map {
-        width: calc(100% - 2px);
-        height: calc(100% - 62px);
-        border: 0px;
-        margin: 0px;
-        margin-left: 20px;
-        padding: 0px;
+        width: 100%;
+        height: 100%;
 }
 #tooltip{
-        position:absolute;
-        z-index:10000;
-        background-color:#FFFFFF;
-        display:none;
-        padding:5px;
+  display: none;
+}
+
+#addbutton {
+  display: none;
+}
+#links_section {
+  display: none;
 }
 #left_panel
 {
-        float: left;
-        width: 40%;
+        width: 100%;
         height: 100%;
-        position: fixed;
-        margin-bottom: 10px;
 }
 
 html, body {
@@ -236,6 +176,10 @@ html, body {
         padding: 5px;
         margin-bottom: 5px;
 }
+
+.no-print {
+        display: none;
+}
 .erow {
         width: 100%;
         float: left;
@@ -289,18 +233,15 @@ html, body {
 }
 
 .rightbuttons {
-        width: 25px;
-        float: right;
+        display: none;
 }
 
 .leftbuttons {
-        width: 25px;
-        float: left;
+        display: none;
 }
 
 .leftbuttons50 {
-        width: 50px;
-        float: left;
+        display: none;
 }
 
 .hrline {
@@ -316,16 +257,16 @@ html, body {
 .sectiontext {
         float: left;
         width: 100%;
-        margin-left: 25px;
+        margin-left: 0px;
 }
 .sectiontext50 {
         float: left;
         width: 100%;
-        margin-left: 50px;
+        margin-left: 25px;
 }
 .sectiontext25 {
         width: 100%;
-        margin-left: 25px;
+        margin-left: 0px;
 }
 .rowtitlesmall {
         width: calc(25% - 25px);
@@ -334,7 +275,7 @@ html, body {
         font-size: 1.2em;
         letter-spacing: -1px;
         font-weight: bold;
-        color: $grayLight;
+        color: #999;
 }
 
 
@@ -345,7 +286,7 @@ html, body {
         font-size: 1.2em;
         letter-spacing: -1px;
         font-weight: bold;
-        color: $grayLight;
+        color: #999;
 }
 
 .checktitle {
@@ -356,7 +297,7 @@ html, body {
         font-size: 0.9em;
         letter-spacing: -1px;
         font-weight: normal;
-        color: $grayLight;
+        color: #999;
 }
 .checkbox {
         float: left;
@@ -374,25 +315,24 @@ html, body {
         font-size: 1.2em;
         letter-spacing: -1px;
         font-weight: bold;
-        color: $grayLight;
+        color: #999;
 }
 .sectiontitle25 {
+        margin-top: 1px;
+        margin-left: 0px;
+        font-size: 1.2em;
+        letter-spacing: -1px;
+        font-weight: bold;
+        color: #999;
+}
+
+.sectiontitle50 {
         margin-top: 1px;
         margin-left: 25px;
         font-size: 1.2em;
         letter-spacing: -1px;
         font-weight: bold;
-        color: $grayLight;
-}
-
-
-.sectiontitle50 {
-        margin-top: 1px;
-        margin-left: 50px;
-        font-size: 1.2em;
-        letter-spacing: -1px;
-        font-weight: bold;
-        color: $grayLight;
+        color: #999;
 }
 
 .sectiontitle-bold {
@@ -401,7 +341,7 @@ html, body {
         font-size: 1.2em;
         letter-spacing: -1px;
         font-weight: bold;
-        color: $grayLight;
+        color: #999;
 }
 
 #links_section > .erow > #route_details > .erow > .sectiontitle25 {
@@ -431,39 +371,41 @@ html, body {
 
 #map_controls
 {
-        float: left;
-        width: 100%;
-        height: 20%;
+        display: none;
 
 }
 #photo_panel
 {
-	float: left;
-	margin-left: 45%;
-	margin-right:5%;
-	width: 50%;
-	height: auto;
-	margin-bottom: 10px;
+        display: none;
 }
 
 #right_panel
 {
-	float: left;
-	margin-left: 45%;
-	margin-right:5%;
-	width: 50%;
-	height: auto;
-	margin-bottom: 10px;
+	width: 100%;
+	height: 100%;
 }
 
 #footer
 {
-	clear: both;
-	height: 50px;
-	background-color: #666;
-	margin-left: 2%;
-	margin-right: 2%;
-	margin-bottom: 10px;
+        display: none;
+}
+
+a:link {
+    text-decoration: none;
+    color: inherit;
+}
+
+a:visited {
+    text-decoration: none;
+    color: inherit;
+}
+
+a:hover {
+    text-decoration: none;
+}
+
+a:active {
+    text-decoration: none;
 }
 
 /*footer {
@@ -492,52 +434,24 @@ html, body {
 
 /* miscellaneous */
 
-.debug_dump {
-  clear: both;
-  float: left;
-  width: 100%;
-  margin-top: 45px;
-  @include box_sizing;
-}
 /* forms */
 
 input, textarea, select, .uneditable-input {
   border: 1px solid #bbb;
   width: 100%;
   margin-bottom: 15px;
-  @include box_sizing;
 }
 
 input {
   height: auto !important;
 }
 
-#error_explanation {
-  color: #f00;
-  ul {
-    list-style: none;
-    margin: 0 0 18px 0;
-  }
-}
-
-.field_with_errors {
-  @extend .control-group;
-  @extend .error;
-}
 
 /* Places index */
 
 .places {
   list-style: none;
   margin: 0;
-  li {
-    overflow: auto;
-    padding: 10px 0;
-    border-top: 1px solid $grayLighter;
-    &:last-child {
-      border-bottom: 1px solid $grayLighter;
-    }
-  }
 }
 .imageWrap { 
     width: 640px; 

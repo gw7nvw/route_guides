@@ -60,8 +60,11 @@
             Winter - <%=@route.alpinewinter.name%>
             <%=" ("+(@route.alpinewinter_id-@alpinews.minimum(:id)).to_s+"/"+(@alpinews.maximum(:id)-@alpinews.minimum(:id)).to_s+")"%>
          <% end %>
-         <br/><i><%= link_to 'GPX info source:', '/routes/'+@route.id.to_s+'.gpx'%></i>
+         <br/>
+         <div class="no-print">
+              <i><%= link_to 'GPX info source:', '/routes/'+@route.id.to_s+'.gpx'%></i>
               <i><%= @route.datasource %></i>
+         </div>
       </div>
     </div>
     <div class="subrow">

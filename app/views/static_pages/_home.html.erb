@@ -1,6 +1,8 @@
 <% provide(:title, '') %>
 <% @title=" " %>
 <%= render 'flash' %>
+<%= render 'application/mail_status' %>
+
 
 <script>
    update_title('<%=@title%>'); 
@@ -23,6 +25,9 @@
  - sign up and contribute your knowledge and experience: create your own routes, add to and correct existing routes, build your own trips and publish your own stories and trip reports.
  </li>
  <li>
+   Check out to the <%= link_to 'About',  'about', remote:true,  remote: true, :id => 'about', :onclick => "linkHandler('about')" %> page for articles containing tips, help and further information about this site.
+ </li>
+ <li>
    Select a start and end place from the map and search for through routes between them:
  <%= render '/search/search' %>
  </li>
@@ -38,5 +43,4 @@
   <%= render 'routes/index_details' %>
 <br/>
 <div style="text-align:right">
-<small> <%= link_to 'Site Index', 'site_index', remote:true,  remote: true, :id => 'site_index', :onclick => "linkHandler('site_index')" %> </small></div>
 

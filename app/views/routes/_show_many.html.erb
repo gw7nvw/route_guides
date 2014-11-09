@@ -6,6 +6,8 @@
   <% @title=' | Route | New '%>
 <% end %>
 <%= render 'flash' %>
+<%= render 'application/mail_status' %>
+
 
 <script>
    update_title('<%=@title%>'); 
@@ -20,8 +22,8 @@
       <div class="sectiontitle">
         <%=  link_to @startplace.name+' to '+@endplace.name, '/routes/'+@url, remote: true, onclick: %q[linkHandler('r]+@url+%q[')], id:  'r'+@url  %>
         <input type="hidden" name="route" value='<%=@url%>' />
-        <%= submit_tag  "Add to trip", id: "Add Many", class: "btn btn-small btn-primary", remote: true, id: "add", onclick: "linkHandler('add')" %>      
-        <%=  link_to "Download GPX", @id+'.gpx', class: "btn btn-small btn-primary", style: "font-weight:normal" %>
+        <%= submit_tag  "Add to trip", id: "Add Many", class: "btn btn-small btn-primary", remote: true, id: "addbutton", onclick: "linkHandler('addbutton')" %>      
+        <%=  link_to "Download GPX", @id+'.gpx', class: "btn btn-small btn-primary no-print", style: "font-weight:normal" %>
       </div>
     </div>
   </form>
@@ -68,6 +70,12 @@
     <% end %>
     <br/>
  <% end %> 
+
+ <div class="erow">
+   <div class="hrline">
+    <hr noshade size="4">
+   </div>
+ </div>
   <% @trip=true %>
    <% index=0 %>
    <% @placecount=0%>

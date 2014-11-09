@@ -1,6 +1,8 @@
 <% provide(:title, "Trip | "+@trip.name) %>
 <% @title=" | Trip | "+@trip.name %>
 <%= render 'flash' %>
+<%= render 'application/mail_status' %>
+
 
 <script> 
    update_title('<%=@title%>'); 
@@ -67,6 +69,12 @@
                   <%= f.submit "Save", :type => :image, :src => '/assets/save.png', :style => 'margin-bottom:0;border:none',onclick: "linkHandler('editbutton')", id:  "editbutton" %>
                </span>
             </div>
+            <div class="leftbuttons">
+               <span title="Cancel edit">
+                  <%= link_to image_tag("/assets/red-x.png", :border=>0, :class => 'dock-item'), '/trips/'+@trip.id.to_s, remote: true, onclick: "linkHandler('cancelbutton')", id:  "cancelbutton"  %>
+               </span>
+            </div>
+
             <div class="rightbuttons">
                <span title="Delete trip">
                   <%= submit_tag "Delete",  :type => :image, :src => '/assets/trash.png', :style => 'margin-bottom:0;border:none'  %>
@@ -74,7 +82,17 @@
             </div>
          </div>
          <div class="erow">
-            <div class="rowtitle">
+           <div id="thelptitle" class="helptext" style="display:none">
+              A trip is a collection of routes that make up an end-to-end journey. <br>
+              <br>
+              Enter a title which describes the trip.
+           </div>
+         </div>
+
+         <div class="erow">
+            <%=render :partial => 'help_buttons',  :locals => {:expName => "thelptitle", :initialSt => 0} %>
+
+            <div class="rowtitlesmall">
                Trip:
             </div>
             <div class="rowtext">
@@ -82,7 +100,13 @@
             </div>
          </div>
          <div class="erow">
-            <div class="rowtitle">
+           <div id="thelpdays" class="helptext" style="display:none">
+              Enter the minumum and maximum likely duration of the trip described in days
+           </div>
+         </div>
+         <div class="erow">
+            <%=render :partial => 'help_buttons',  :locals => {:expName => "thelpdays", :initialSt => 0} %>
+            <div class="rowtitlesmall">
                Length (days):
             </div>
             <div class="rowtext">
@@ -90,13 +114,37 @@
             </div>
          </div>
          <% if (@trip.distance) %>
-            <div class="erow"><div class="rowtitle">Distance:</div><div class="rowtext"> <%= number_with_precision(@trip.distance, :precision => 2) %> km</div></div>
+            <div class="erow">
+              <div id="thelpdistance" class="helptext" style="display:none">
+                 Distance is calculated from the total lengths of all routes you add to the trip.  
+                 You cannot specify it manually here.
+              </div>
+            </div>
+            <div class="erow">
+               <%=render :partial => 'help_buttons',  :locals => {:expName => "thelpdistance", :initialSt => 0} %>
+               <div class="rowtitlesmall">Distance:</div><div class="rowtext"> <%= number_with_precision(@trip.distance, :precision => 2) %> km</div>
+            </div>
          <% end %>
          <% if @trip.walkingtime %>
-             <div class="erow"><div class="rowtitle">Walking time:</div><div class="rowtext"> <%= @trip.walkingtime %> DOC hours </div></div>
+            <div class="erow">
+              <div id="thelptime" class="helptext" style="display:none">
+                 Time is the total walking time and is calculated from the total lengths of all routes you add to the trip.  
+                 You cannot specify it manually here.
+              </div>
+            </div>
+             <div class="erow">
+               <%=render :partial => 'help_buttons',  :locals => {:expName => "thelptime", :initialSt => 0} %>
+                 <div class="rowtitlesmall">Walking time:</div><div class="rowtext"> <%= @trip.walkingtime %> DOC hours </div>
+             </div>
          <% end %>
          <div class="erow">
-            <div class="rowtitle">
+           <div id="thelppublished" class="helptext" style="display:none">
+              Tick the 'published' checkbox to make your trip visible for all users to view
+           </div>
+         </div>
+         <div class="erow">
+            <%=render :partial => 'help_buttons',  :locals => {:expName => "thelppublished", :initialSt => 0} %>
+            <div class="rowtitlesmall">
                Published:
             </div>
             <div class="rowtext">
@@ -104,9 +152,25 @@
             </div>
          </div>
          <div class="erow">
-            <div class="sectiontitle"><br/>
+            <br/>
+            <%=render :partial => 'help_buttons',  :locals => {:expName => "thelpdescription", :initialSt => 0} %>
+
+            <div class="sectiontitle25">
                 Description:
             </div>
+         </div>
+         <div class="erow">
+           <div id="thelpdescription" class="helptext" style="display:none">
+              Enter an <b>overview</b> of the trip.  This can contain information such as the 
+              type of experience the trip provides, the highlights, the best season / weather,
+              possible transport arrangements, etc.  <br>
+              <br>
+              This is <b>not</b> the place to enter the route guide (the details of how to get from
+              A to B). A trip is a collection of routes ('route segments') and the details of 
+              the places and how to get from one to another should be cointained in those routes. See
+              the guides on the 'About' page if you require information on how inbformation is 
+              structured or entered on this site.
+           </div>
          </div>
          <p>
             <%= f.text_area :description, :rows => "8" %>
@@ -180,19 +244,20 @@
       </span>
    </form>
 
-   <div class="erow" style="margin-top:12px">
-     <div class="sectiontitle">
-        Stories about this trip:
+   <div id="links_section">
+     <div class="erow" style="margin-top:12px">
+       <div class="sectiontitle">
+          Stories about this trip:
+       </div>
      </div>
-   </div>
-   <% @trip.reports.each do |r|%>
-     <div class="erow">
-        <div class="sectiontext">
-           <li>
-              <%=  link_to r.name+" by "+r.createdBy.name.capitalize, '/reports/'+r.id.to_s, remote: true, onclick: %q[linkHandler('r]+r.id.to_s+%q[')], id:  'r'+r.id.to_s  %>
-           </li>
-        </div>
-     </div>
-   <% end %>
-
+     <% @trip.reports.each do |r|%>
+       <div class="erow">
+          <div class="sectiontext">
+             <li>
+                <%=  link_to r.name+" by "+r.createdBy.name.capitalize, '/reports/'+r.id.to_s, remote: true, onclick: %q[linkHandler('r]+r.id.to_s+%q[')], id:  'r'+r.id.to_s  %>
+             </li>
+          </div>
+       </div>
+     <% end %>
+  </div>
 </div>

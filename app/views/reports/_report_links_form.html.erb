@@ -50,26 +50,26 @@
 
       <div class="erow">
         <div class="leftbuttons">
-              <span title="Click to select trip from dropdown">
+              <span title="Click to select trip or link from a static page on this site from the dropdown">
                  <img id="tripplus" src="/assets/add.png" onclick="report_selectTrip()" width="16" style="display:block">
               </span>
               <span title="Confirm selection">
                  <%= submit_tag  "confirmTrip",  :type => :image, :src => '/assets/tick.png', :style => 'margin-bottom:0;border:none;display:none',  :onclick => "report_confirmTrip()", :id => "triptick" %> 
               </span>
         </div>
-        <div class="rowtitle">Trips: </div>
+        <div class="rowtitle">Trips and links: </div>
       </div>
 
       <div class="erow">
         <% if  @report.id %>
-          <%=  collection_select( :report_link, :trip_id, Trip.where(published: true).order(:name), :id, :name, {:include_blank => 'None'}, {:disabled => true, :id => "tripSelect"}) %>
+          <%=  collection_select( :report_link, :trip_id, Trip.find_by_sql("select -1 as id, 'Page: About' as name union select id, name from trips where published=true order by id"), :id, :name, {:include_blank => 'None'}, {:disabled => true, :id => "tripSelect"}) %>
         <% end %>
       </div>
 
-      <% @report.reportLinks.select{|link| link.item_type=='trip'}.each do |rl| %>
+      <% @report.reportLinks.select{|link| link.item_type=='trip' or link.item_type=='about'}.each do |rl| %>
         <div class="erow">
           <div class="rowtext" style="margin-left:24px">
-            <%= rl.child.name %>
+            <%if rl.item_type=='about' %> <%='Page: About'%> <% else %> <%= rl.child.name %> <% end %>
           </div>
           <div class="rightbuttons"> <%= submit_tag  "delete"+rl.id.to_s,  :type => :image, :src => '/assets/trash.png', :style => 'margin-bottom:0;border:none' %> </div>
         </div>

@@ -1,6 +1,8 @@
 <% provide(:title, 'Forums') %>
 <% @title=" | Forums" %>
 <%= render 'flash' %>
+<%= render 'application/mail_status' %>
+
 <script>
    update_title('<%=@title%>');
    reset_map_controllers();
