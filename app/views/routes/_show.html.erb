@@ -12,9 +12,10 @@
 
 </script>
 
-
+<%= render 'application/mail_status' %>
 <%= render 'shared/error_messages' %>
 <%= render 'routes/route_details' %>
+<div id="links_section">
    <div class="erow" style="margin-top:12px">
      <div class="sectiontitle">
         Routes connecting with this one:
@@ -65,7 +66,7 @@
       <input  type="hidden" id="route_endplace_location" name="route[endplace_location]" type="text" <%if @route.endplace %>value='<%=@route.endplace.location%>'<%end%>>
       <%= f.hidden_field :location, :readonly=>true %>
     <% end %>
-
+  </div>
 <script>
 
   /* specify map click mode */

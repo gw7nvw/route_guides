@@ -15,7 +15,6 @@ class ApplicationController < ActionController::Base
       @current_user.lastVisited=Time.new()
       @current_user.save
     end
-
   end
 
   def prepare_route_vars()

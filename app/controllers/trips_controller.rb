@@ -138,9 +138,12 @@ def new
 end
 
 def show
-  @trip=Trip.find_by_id(params[:id])
-      prepare_route_vars()
-      @place_types = PlaceType.all
+  if !@trip=Trip.find_by_id(params[:id]) then
+    redirect_to root_url
+  end
+  prepare_route_vars()
+  @place_types = PlaceType.all
+  
 end
 
 def edit

@@ -2,6 +2,8 @@
 <% provide(:title, "Edit Report | "+@report.name) %>
 <% @title=" | Report | Edit -> "+@report.name %>
 <%= render 'flash' %>
+<%= render 'application/mail_status' %>
+
 
 <script> 
    update_title('<%=@title%>'); 

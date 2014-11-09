@@ -21,7 +21,9 @@ end
 def show
     @edit=false
     if (!@id) then @id=params[:id] end
-    @report=Report.find_by_id(@id)
+    if !@report=Report.find_by_id(@id) then
+      redirect_to root_url
+    end
 end
 
 def create
@@ -108,7 +110,10 @@ def update
         rl.report_id=params[:id]
         rl.item_type=params[:itemType]
         rl.item_id=params[:itemId]
-      if(rl.item_type and rl.item_type.length>0 and rl.item_id and rl.item_id.>0)
+        if (rl.item_id and rl.item_id.to_i==-1) then
+          rl.item_type='about'
+        end
+      if(rl.item_type and rl.item_type.length>0 and rl.item_id and (rl.item_id.>0 or rl.item_id=-1))
         rl.save
       end
       @edit=true
@@ -124,9 +129,9 @@ def update
       #add place/route to reportLinks
         rl=ReportLink.new()
         rl.report_id=params[:id]
-        rl.item_type='trip'
         rl.item_id=params[:report_link]['trip_id']
-      if(rl.item_id and rl.item_id.to_i>0)
+        rl.item_type='trip'
+      if((rl.item_id and rl.item_id.to_i>0))
         rl.save
       end
       @edit=true

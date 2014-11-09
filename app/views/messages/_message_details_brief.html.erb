@@ -1,4 +1,7 @@
            <p>
+            <% if @show_message.hasBeenRead==nil %>
+                <img src='/assets/newmail-24.png' width="16">
+            <% end %>
              <b> <%= @show_message.fromUser.name+" > "+@show_message.toUser.name %> </b>
              <%=link_to @count[:id].to_s+" messages - Latest: "+@show_message.created_at.strftime("%Y/%m/%d %H:%M"), '/messages/'+@count[:otherUser_id].to_s, remote: true%>
 

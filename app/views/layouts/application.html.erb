@@ -25,7 +25,10 @@
     <div id="left_panel">
       <%= render 'maps/map' %>
     </div>
+    <div id="photo_panel" style="display:none">
+    </div>
     <div id="right_panel">
+
       <%= yield %>
     </div>
   <%= form_tag '/redisplay', :remote=> true, :id => "thelink", :name=> 'selectform', :method=> 'post'%>

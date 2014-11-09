@@ -1,6 +1,8 @@
 <% provide(:title, 'Trips') %>
 <% @title=" | Trips" %>
 <%= render 'flash' %>
+<%= render 'application/mail_status' %>
+
 
 <script>
    update_title('<%=@title%>');
@@ -22,7 +24,7 @@
 
          <input type="hidden" name="selected_id" value='<%=trip.id%>' />
          <% if signed_in? %>
-            <% if trip.createdBy_id == @current_user.id %>
+            <% if trip.createdBy_id == @current_user.id or @current_user.role.name=='root'%>
                <%= submit_tag "Select as current",  :type => :image, :src => '/assets/tick.png', :style => 'margin-bottom:0;border:none',  id: "selectCurrent", onclick: "linkHandler('selectCurrent')"  %>
             <% end %>
          <% end %>

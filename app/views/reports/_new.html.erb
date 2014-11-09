@@ -1,6 +1,8 @@
 <% provide(:title, "Report | New") %>
 <% @title=" | Report | New" %>
 <%= render 'flash' %>
+<%= render 'application/mail_status' %>
+
 
 <script> 
    update_title('<%=@title%>'); 

@@ -1,13 +1,15 @@
 <% provide(:title, 'About Route Guides') %>
 <% @title=" | About " %>
 <%= render 'flash' %>
+<%= render 'application/mail_status' %>
+
 
 <script>
    update_title('<%=@title%>');
    reset_map_controllers();
    document.getElementById("page_status").innerHTML = '';
 </script>
-<h1>About Us</h1>
+<h1>About</h1>
 <p>
 In the tradiiton of Moir's Guide and Tararua Footprints 
 route guides are not complete trips in 
@@ -29,14 +31,10 @@ contribute or read trip reports and stories, and link them back to the routes
 or trips they describe.
 <br/>
 <br/>
-Acknowledgements:<br/>
-<br/>
-Thanks first to Matthew and <a href="http://tramper.co.nz">tramper.co.nz</a> for years of information, distraction, and for providing the first and best NZ tramping website. This site aims to fill a hole in the information on NZ Tramper, not to surplant it.<br>
-<br>
-Maps are from LINZ. “Source: Land Information New Zealand (LINZ) and licensed by LINZ for re-use under the Creative Commons Attribution 3.0 New Zealand licence."<br>
-<br/>
-Elevation data is from <a href='http://www.otago.ac.nz/surveying/research/geospatial/otago040574.html'>NZSoSDEM</a>. A 15m horizontal resolution elevation model produced by the School of Surveying at the University of Otago.  This has been generalised to 30m resolution for use in this website.<br/>
-<br/>
-Some in-site messaging will be available one day, but until then contact me at <a href="mailto:mattbriggs@yahoo.com">mattbriggs@yahoo.com</a> for any questions or bug reports.
+
+<% @hidetitle=true %>
+  <% @reports=Report.find_by_sql [%q[select r.* from reports r inner join "report_links" rl on rl.report_id = r.id where rl.item_type='about']] %>
+  <%= render 'reports/index_details' %>
+
 
 </p>

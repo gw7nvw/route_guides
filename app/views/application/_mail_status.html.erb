@@ -1,0 +1,10 @@
+   <% 
+      if (signed_in? and (Message.find_by_sql ['select * from messages where ("toUser_id"=? and "hasBeenRead" is null)', @current_user.id.to_s]).count>0) then @newmail=true end
+   %>
+   <script>
+   <% if @newmail then %>
+      document.getElementById("newmail").style.display="block";
+   <% else %>
+      document.getElementById("newmail").style.display="none";
+   <% end %>
+   </script>

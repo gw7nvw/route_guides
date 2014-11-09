@@ -53,6 +53,13 @@ def show
    if signed_in? then
         @edit=true
         @messages=Message.find_by_sql ['select * from messages where ("fromUser_id"=? and "toUser_id"=?) or ("toUser_id"=? and "fromUser_id"=?) order by created_at', @current_user.id.to_s, params[:id], @current_user.id.to_s, params[:id]]
+        @messages.each do |mess|
+          if mess.hasBeenRead==nil then
+            mess.hasBeenRead=true
+            logger.debug "new mail read"
+            mess.save
+          end
+        end
    end
    @message=Message.new() 
    if @messages and @messages.count>0 then
