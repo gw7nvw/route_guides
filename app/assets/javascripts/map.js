@@ -511,17 +511,25 @@ function add_click_to_create_controller() {
 
        var dstProj =  map_map.displayProjection;
        var mapProj =  map_map.projection;
+       var locProj =  new OpenLayers.Projection("EPSG:4326");
        var thisPoint = new OpenLayers.Geometry.Point(lonlat.lon, lonlat.lat).transform(mapProj,dstProj);
+       /* convert to WGS84 and writ to location */
+       var locPoint = new OpenLayers.Geometry.Point(lonlat.lon, lonlat.lat).transform(mapProj,locProj);
 
+       if ( typeof(document.placeform)!='undefined') {
        document.placeform.place_x.value=thisPoint.x;
        document.placeform.place_y.value=thisPoint.y;
        document.placeform.place_projection_id.value=dstProj.projCode.substr(5);
+       document.placeform.place_location.value=locPoint.x+" "+locPoint.y;
+       }
 
-       /* convert to WGS84 and writ to location */
-       var dstProj =  new OpenLayers.Projection("EPSG:4326");
-       var thisPoint = new OpenLayers.Geometry.Point(lonlat.lon, lonlat.lat).transform(mapProj,dstProj);
+       if ( typeof(document.photoform)!='undefined') {
+       document.photoform.photo_x.value=thisPoint.x;
+       document.photoform.photo_y.value=thisPoint.y;
+       document.photoform.photo_projection_id.value=dstProj.projCode.substr(5);
+       document.photoform.photo_location.value=locPoint.x+" "+locPoint.y;
+       }
 
-       document.placeform.place_location.value=thisPoint.x+" "+thisPoint.y;
 
        /* move the star */
        vectorLayer.destroyFeatures();

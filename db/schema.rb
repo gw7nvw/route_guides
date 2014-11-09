@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141030024106) do
+ActiveRecord::Schema.define(version: 20141109024850) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -58,6 +58,25 @@ ActiveRecord::Schema.define(version: 20141030024106) do
     t.boolean  "hasBeenRead"
     t.datetime "created_at"
     t.datetime "updated_at"
+  end
+
+  create_table "photos", force: true do |t|
+    t.string   "name"
+    t.string   "author"
+    t.text     "description"
+    t.datetime "taken_at"
+    t.integer  "createdBy_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.spatial  "location",           limit: {:srid=>4326, :type=>"point"}
+    t.spatial  "subject_location",   limit: {:srid=>4326, :type=>"point"}
+    t.string   "image_file_name"
+    t.string   "image_content_type"
+    t.integer  "image_file_size"
+    t.datetime "image_updated_at"
+    t.float    "x"
+    t.float    "y"
+    t.integer  "projection_id"
   end
 
   create_table "place_instances", force: true do |t|

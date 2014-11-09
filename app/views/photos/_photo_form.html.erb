@@ -1,0 +1,144 @@
+<div id='place_details' <% if @photo.errors.any? %> style="border-color:#f00;border-style:solid;border-width:1px" <% end %> >
+
+     <%= render 'shared/error_messages' %>
+     <%= form_for  @photo, :remote=> true, :html => {:name => 'photoform'}  do |f| %>
+      <input type="hidden" name="url" value="<%=@url%>"/>
+
+      <div class="erow">
+         <% if @edit %>
+          <%=render :partial => 'help_buttons',  :locals => {:expName => "helpname", :initialSt => 0} %>
+
+         <% end %>
+         <div class="sectiontitle25">Name:</div>
+      </div>
+      <div class="erow">
+        <div id="helpname" class="helptext" style="display:none">
+           Enter the name (title) of the photograph
+        </div>
+      </div>
+      <%= f.text_field :name, :disabled=>!@edit %>
+
+      <div class="erow">
+         <% if @edit %>
+          <%=render :partial => 'help_buttons',  :locals => {:expName => "helpphotographer", :initialSt => 0} %>
+         <% end %>
+         <div class="sectiontitle25">Photographer:</div>
+      </div>
+      <div class="erow">
+        <div id="helpphotographer" class="helptext" style="display:none">
+          Enter the name of the photographer to accredit this photo to.  If you are the photographer
+          then you can leave this blank and your username will be used.
+        </div>
+      </div>
+      <%= f.text_field :author, :disabled=>!@edit %>
+
+      <div class="erow">
+         <% if @edit %>
+          <%=render :partial => 'help_buttons',  :locals => {:expName => "helpdescription", :initialSt => 0} %>
+         <% end %>
+         <div class="sectiontitle25">Description:</div>
+      </div>
+      <div class="erow">
+        <div id="helpdescription" class="helptext" style="display:none">
+          Enter an optional description of the photograph
+        </div>
+      </div>
+      <%= f.text_area :description, :disabled=>!@edit, :rows=>"8"   %>
+
+
+      <div class="erow">
+         <% if @edit %>
+           <%=render :partial => 'help_buttons',  :locals => {:expName => "helplocation", :initialSt => 0} %>
+           <div class="leftbuttons">
+              <span title="Click to draw locstion on map">
+                 <img id="placeplus" src="/assets/draw-point.png" onclick="place_selectPlace()" width="16" style="display:block">
+              </span>
+
+              <span title="Click to confirm selection">
+                 <img id="placetick" src="/assets/tick.png" onclick="place_selectNothing()" width="16" style="display:none">
+              </span>
+           </div>
+         <% end %>
+         <div class="sectiontitle50">Location:</div>
+      </div>
+      <div class="erow">
+        <div id="helplocation" class="helptext" style="display:none">
+          Option A: enter the coordinates in the fields below. <br/>
+          (1) Select the correct projection from the dropdown.<br/>
+          (2) Enter the x (longitude).<br/>
+          (3) Enter the y (latitude).<br/>
+          Note: NTZM, NZMG are in full 7 digit format, e.g. x=1399769, y=5209764.<br/>
+          <br/>
+          Option B: Select the location from the map.<br/>
+          (1) Click the draw icon (pencil and line) to enable selection from the map.<br/>
+          (2) Scroll the map to the desired location and zoom in as far as you can.<br/>
+          (3) Click once on the map at the location you want.<br/>
+          --- The chosen location will be displayed below in NZTM format.<br/>
+          (4) Turn off map selection by clicking the green tick.
+        </div>
+      </div>
+
+      <%= f.hidden_field :location, :readonly => true %>
+
+      <%= f.label :projection %>
+      <%= collection_select( :photo, :projection_id, Projection.all.order(:name), :id, :name, {}, {:disabled => !@edit}) %>
+
+      <%= f.label :x %>
+      <%= f.text_field :x, :disabled=>!@edit, :size => 8 %>
+
+      <%= f.label :y %>
+      <%= f.text_field :y, :disabled=>!@edit, :size => 8 %>
+
+
+      <div class="erow">
+         <% if @edit %>
+          <%=render :partial => 'help_buttons',  :locals => {:expName => "helpdatetime", :initialSt => 0} %>
+         <% end %>
+         <div class="sectiontitle25">Photo taken:</div>
+      </div>
+      <div class="erow">
+        <div id="helpdatetime" class="helptext" style="display:none">
+          Optionally enter the time and date that the photograph was taken.
+        </div>
+      </div>
+
+      <%= f.datetime_field :taken_at, :disabled=>!@edit %>
+
+      <div class="erow">
+         <% if @edit %>
+          <%=render :partial => 'help_buttons',  :locals => {:expName => "helpfilename", :initialSt => 0} %>
+         <% end %>
+         <div class="sectiontitle25">Image file:</div>
+      </div>
+      <div class="erow">
+        <div id="helpfilename" class="helptext" style="display:none">
+          Select the file to upload
+        </div>
+      </div>
+
+      <%= f.file_field :image, :disabled=>!@edit %>
+
+      <br/>
+        <% if @edit %>
+              <%= f.submit "Save", class: "btn btn-small btn-primary", name: "save", onclick: "linkHandler('savebutton')", id:  "savebutton" %>
+               <%=  link_to "Cancel", '/photos/'+@photo.id.to_s, class: "btn btn-small btn-primary", remote: true %>
+               <%     if((@photo.createdBy_id==@current_user.id) or (@current_user.role==Role.find_by( :name => 'root'))) %>
+                 <%= f.submit "Delete", class: "btn btn-small btn-primary", name: "delete", onclick: "linkHandler('deletebutton')", id:  "deletebutton" %>
+            <% end %>
+
+        <% else %>
+          <%=  link_to "Edit", '/photos/'+@photo.id.to_s+'/edit', class: "btn btn-small btn-primary", remote: true %>
+        <% end %>
+    <% end %>
+</div>
+<% if @photo.createdBy_id %>
+  Created by: <%= link_to @photo.createdBy.name.capitalize, '/users/'+@photo.createdBy.name, remote: true%> on <%=@photo.created_at%>. Last updated: <%=@photo.updated_at%>
+<% end %>
+
+
+<script>
+/*    reset_map_controllers(); */
+    place_init('<%=@photo.location%>', 0);
+    deactivate_all_click();
+</script>
+

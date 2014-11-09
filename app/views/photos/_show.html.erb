@@ -1,0 +1,24 @@
+<% provide(:title, "Photo | "+@photo.name) %>
+<% @title=" | Photo | "+@photo.name %>
+<%= render 'flash' %>
+<%= render 'application/mail_status' %>
+
+<script> 
+   update_title('<%=@title%>'); 
+   document.getElementById("page_status").innerHTML = '';
+   // clear any existing map features and reset hover if map exists
+   if(typeof(vectorLayer)!='undefined') {
+    reset_map_controllers();
+   }
+
+</script>
+<div id='place_details'>
+   <%= render 'photos/photo_details' %>
+     <div class="erow">
+        <div class="hrline">
+           <hr noshade size="4">
+        </div>
+     </div>
+   <div id="links_section">
+
+</div>
