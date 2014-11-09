@@ -1,0 +1,26 @@
+<% provide(:title, 'Photos') %>
+<% @title=" | Photos" %>
+<%= render 'flash' %>
+<script>
+   update_title('<%=@title%>');
+   reset_map_controllers();
+   document.getElementById("page_status").innerHTML = '';
+</script>
+
+  <ul class="photos">
+   <% if @photos %>
+    <% @photos.each do |photo| %>
+      <li>
+        <%= link_to image_tag(photo.image.url(:thumb)), photo, remote: true, :id => 'photo_link_'+photo.id.to_s, :onclick => "linkHandler('photo_link_"+photo.id.to_s+"')" %>
+        <%= photo.name%> by 
+        <% if photo.author and photo.author.length>0 then %> 
+          <%=photo.author%> 
+        <% else %>
+          <%= link_to photo.createdBy.name.capitalize, '/users/'+photo.createdBy.name, remote: true%> 
+        <% end%>
+        (last updated <%=photo.updated_at.strftime("%F")%>)
+      </li>
+    <% end %>
+   <% end %>
+  </ul>
+

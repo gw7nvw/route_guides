@@ -6,6 +6,7 @@ gem 'bootstrap-sass', '2.3.2.0'
 gem 'sprockets', '2.11.0'
 gem 'bcrypt-ruby', '3.1.2'
 gem 'activerecord-postgis-adapter', '2.1.0'
+gem 'paperclip', '4.2.0'
 
 group :development, :test do
   gem 'rspec-rails', '2.13.1'

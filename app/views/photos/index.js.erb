@@ -1,0 +1,2 @@
+window.history.pushState(null, '', '/photos/');
+$('#right_panel').html("<%= escape_javascript(render(:partial => 'photos/index')).html_safe %>");
