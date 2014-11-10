@@ -1,0 +1,22 @@
+<% parent.links.each do |rl| %>
+      <div class="erow" style="margin-left:25px">
+        <% if rl.item_type!='photo'%>
+          <div class="rowtitle" >
+            <%= rl.item_type.capitalize+": "%>
+          </div>
+        <% end %>
+        <div class="rowtext">
+          <% case rl.item_type %>
+          <% when 'about' %>
+            <%= link_to 'About', '/about' , remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
+          <% when 'url' %>
+            <%= link_to rl.child.url, rl.child.url, :target=>"_blank" %>
+          <% when 'photo' %>
+          <% else %>
+            <%= link_to rl.child.name, rl.child, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
+          <% end %>
+        </div>
+      </div>
+<% end%>
+
+

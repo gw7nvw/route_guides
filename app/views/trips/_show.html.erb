@@ -244,20 +244,37 @@
       </span>
    </form>
 
-   <div id="links_section">
-     <div class="erow" style="margin-top:12px">
-       <div class="sectiontitle">
-          Stories about this trip:
-       </div>
-     </div>
-     <% @trip.reports.each do |r|%>
-       <div class="erow">
-          <div class="sectiontext">
-             <li>
-                <%=  link_to r.name+" by "+r.createdBy.name.capitalize, '/reports/'+r.id.to_s, remote: true, onclick: %q[linkHandler('r]+r.id.to_s+%q[')], id:  'r'+r.id.to_s  %>
-             </li>
-          </div>
-       </div>
-     <% end %>
-  </div>
+<div id="links_section">
+  <% if @editlinks and !@edit and signed_in?%>
+    <div class="erow">
+      <div class="leftbuttons">
+         <span title="Close editing">
+           <%=  link_to image_tag("/assets/red-x.png", :border=>0, :class => 'dock-item'), '/trips/'+@trip.id.to_s, remote: true, onclick: "linkHandler('editbutton')", id:  "editbutton"  %>
+         </span>
+      </div>
+      <div class="sectiontitle">
+        Edit Links:
+      </div>
+    </div>
+    <div id="editlinks">
+      <%=render :partial => 'links_form',  :locals => {:parent => @trip, :parent_type=>'trip'} %>
+    </div>
+  <% else %>
+    <div class="erow">
+      <% if signed_in? %>
+        <div class="leftbuttons">
+          <span title="Edit links"%>
+            <%=  link_to image_tag("/assets/pencil_edit.png", :border=>0, :class => 'dock-item'), '/trips/'+@trip.id.to_s+'/?editlinks=true', remote: true, onclick: "linkHandler('editbutton')", id:  "editbutton"  %>
+          </span>
+        </div>
+      <% end %>
+      <div class="sectiontitle">
+        Links:
+      </div>
+    </div>
+    <%=render :partial => 'links_photos',  :locals => {:parent => @trip} %>
+    <div class="erow"><div class="hrline"> <hr noshade size="2"> </div></div>
+    <%=render :partial => 'links_details',  :locals => {:parent => @trip} %>
+  <% end %>
+
 </div>

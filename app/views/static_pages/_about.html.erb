@@ -11,7 +11,7 @@
 </script>
 <h1>About</h1>
 <p>
-In the tradiiton of Moir's Guide and Tararua Footprints 
+In the tradition of Moir's Guide and Tararua Footprints 
 route guides are not complete trips in 
 themselves: they describe the route from one point to another, be it the ascent
 of a peak, the crossing of a mountain pass, the descent of a river catchment, 
@@ -33,7 +33,9 @@ or trips they describe.
 <br/>
 
 <% @hidetitle=true %>
-  <% @reports=Report.find_by_sql [%q[select r.* from reports r inner join "report_links" rl on rl.report_id = r.id where rl.item_type='about']] %>
+  <% @reports=Report.find_by_sql [%q[select r.* from reports r 
+     inner join "links" rl on (rl."baseItem_id" = r.id and rl."baseItem_type"='report')  or  (rl.item_id = r.id and rl.item_type='report')
+     where rl.item_type='about']] %>
   <%= render 'reports/index_details' %>
 
 

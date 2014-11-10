@@ -1,0 +1,3 @@
+$('#<%=@render_to%>').html("<%= escape_javascript(render(:partial => 'links_form', :locals => {:parent => @parent, :parent_type => @parent_type} )).html_safe %>");
+
+

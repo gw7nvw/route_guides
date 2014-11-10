@@ -103,6 +103,7 @@ end
 
 def show
     if !@id then @id=params[:id] end
+    if params[:editlinks] then @editlinks=true end
 
     @edit=false
     if( !(@photo = Photo.find_by_id(@id))) then

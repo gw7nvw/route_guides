@@ -164,15 +164,6 @@
         </div>
      </div>
    
-     <div class="erow">
-     <% if @route.links %>
-        <% if @route.links.length>0 %>
-              <%=render :partial => 'info_buttons',  :locals => {:expName => "lk_r"+@itemNumber.to_s, :initialSt => @showLinks} %>
-              <div id='<%="lk_r"+@itemNumber.to_s%>' class="sectiontext25" style=<%=if (@showLinks==1) then "display:block" else "display:none" end %>>
-                 <%= @route.links %><br/>
-              </div>
-        <% end %>
-     <% end %>
      <div class="sectiontext25">
         <small> 
            <% if @route.createdBy_id %>
@@ -183,7 +174,6 @@
            <% end %>
         </small>
      </div>
-   </div>
    </div>
 </div>
 

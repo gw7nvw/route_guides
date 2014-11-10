@@ -84,6 +84,8 @@ def create
     @showConditions=1
     @showLinks=1
 
+    if params[:editlinks] then @editlinks=true end
+
     if !@id then @id=params[:id] end
 
     @edit=false

@@ -138,6 +138,8 @@ def new
 end
 
 def show
+    if params[:editlinks] then @editlinks=true end
+
   if !@trip=Trip.find_by_id(params[:id]) then
     redirect_to root_url
   end

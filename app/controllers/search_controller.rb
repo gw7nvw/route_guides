@@ -10,12 +10,14 @@ def find
 end
 
 def findresults
+    @respond_to=params[:referer]
     @searchtext=params[:searchtext]
     searchtext='%'+params[:searchtext]+'%'
     @findplaces=params[:Places]=="1"
     @findroutes=params[:Routes]=="1"
     @findtrips=params[:Trips]=="1"
     @findstories=params[:Stories]=="1"
+    @findphotos=params[:Photos]=="1"
 
     @inname=params[:Name]=="1"
     @indescription=params[:Description]=="1"
@@ -40,8 +42,13 @@ def findresults
     end
     if @findstories then
       if @inname then @stories=Report.find_by_sql ["select * from reports where name ilike ? order by name",searchtext] end
-      if @indescription then @stories_text=Report.find_by_sql ["select * from reports where description ilike ? or 'reverse_description' like ? order by name",searchtext, searchtext] end
+      if @indescription then @stories_text=Report.find_by_sql ["select * from reports where description ilike ? order by name",searchtext] end
     end
+    if @findphotos then
+      if @inname then @photos=Photo.find_by_sql ["select * from photos where name ilike ? "+exttext+" order by name",searchtext] end
+      if @indescription then @photos_text=Photo.find_by_sql ["select * from photos where description ilike ? "+exttext+" order by name",searchtext] end
+    end
+
 
     render 'find'  
 end

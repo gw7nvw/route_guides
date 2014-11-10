@@ -120,19 +120,6 @@
 
       <%= f.text_field :altitude, :disabled=>!@edit %>
 
-      <div class="erow">
-         <% if @edit %>
-          <%=render :partial => 'help_buttons',  :locals => {:expName => "helplinks", :initialSt => 0} %>
-         <% end %>
-         <div class="sectiontitle25">Links:</div>
-      </div>
-      <div class="erow">
-        <div id="helplinks" class="helptext" style="display:none">
-          Optionally, enter the addresses of external web pages with further information about this place.<br/>
-          e.g. http://tramper.co.nz/13455
-        </div>
-      </div>
-      <%= f.text_area :links, :disabled=>!@edit, :rows=> "4" %>
       <br/>
         <% if @edit %>
               <%= f.submit "Save", class: "btn btn-small btn-primary", name: "save", onclick: "updatePlace('savebutton')", id:  "savebutton" %>

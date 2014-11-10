@@ -19,24 +19,35 @@
 <%= render 'reports/report_details' %>
 
 <div id="links_section">
-   <div class="erow">
+  <% if @editlinks and signed_in?%>
+    <div class="erow">
+      <div class="leftbuttons">
+         <span title="Close editing">
+           <%=  link_to image_tag("/assets/red-x.png", :border=>0, :class => 'dock-item'), '/reports/'+@report.id.to_s, remote: true, onclick: "linkHandler('editbutton')", id:  "editbutton"  %>
+         </span>
+      </div>
+      <div class="sectiontitle">
+        Edit Links:
+      </div>
+    </div>
+    <div id="editlinks">
+      <%=render :partial => 'links_form',  :locals => {:parent => @report, :parent_type=>'report'} %>
+    </div>
+  <% else %>
+    <div class="erow">
+      <% if signed_in? %>
+        <div class="leftbuttons">
+          <span title="Edit links"%>
+            <%=  link_to image_tag("/assets/pencil_edit.png", :border=>0, :class => 'dock-item'), '/reports/'+@report.id.to_s+'/?editlinks=true', remote: true, onclick: "linkHandler('editbutton')", id:  "editbutton"  %>
+          </span>
+        </div>
+      <% end %>
       <div class="sectiontitle">
         Links:
       </div>
-   </div>
-
-   <% @report.reportLinks.each do |rl| %>
-      <div class="erow" style="margin-left:25px">
-        <div class="rowtitle" >
-          <%= rl.item_type.capitalize+": "%>
-        </div>
-        <div class="rowtext">
-          <% if rl.item_type=='about' then %>
-            <%= link_to 'About', '/about' , remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
-          <% else %>
-            <%= link_to rl.child.name, rl.child, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
-          <% end %>
-        </div>
-      </div>
-   <% end %>
+    </div>
+    <%=render :partial => 'links_photos',  :locals => {:parent => @report} %>
+    <div class="erow"><div class="hrline"> <hr noshade size="2"> </div></div>
+    <%=render :partial => 'links_details',  :locals => {:parent => @report} %>
+  <% end %>
 </div>

@@ -31,7 +31,7 @@ var show_other;
 var select;
 var click_to_select_all;
 var click_to_copy_start_point;
-var click_to_copy_report_link;
+var click_to_copy_link;
 var click_to_copy_end_point;
 var click_to_create;
 var link_item_type="test";
@@ -148,9 +148,9 @@ function init(){
     click_to_select_all = new OpenLayers.Control.Click();
     map_map.addControl(click_to_select_all);
 
-    add_click_to_copy_report_link();
-    click_to_copy_report_link = new OpenLayers.Control.Click();
-    map_map.addControl(click_to_copy_report_link);
+    add_click_to_copy_link();
+    click_to_copy_link = new OpenLayers.Control.Click();
+    map_map.addControl(click_to_copy_link);
 
     add_click_to_copy_start_point();
     click_to_copy_start_point = new OpenLayers.Control.Click();
@@ -261,7 +261,7 @@ function routes_layer_add() {
 
 function deactivate_all_click() {
     if(typeof(click_to_select_all)!='undefined') click_to_select_all.deactivate();
-    if(typeof(click_to_copy_report_link)!='undefined') click_to_copy_report_link.deactivate();
+    if(typeof(click_to_copy_link)!='undefined') click_to_copy_link.deactivate();
     if(typeof(click_to_create)!='undefined') click_to_create.deactivate();
     if(typeof(click_to_copy_start_point)!='undefined') click_to_copy_start_point.deactivate();
     if(typeof(click_to_copy_end_point)!='undefined') click_to_copy_end_point.deactivate();
@@ -394,7 +394,7 @@ function add_click_to_copy_start_point() {
   });
 }
 
-function add_click_to_copy_report_link() {
+function add_click_to_copy_link() {
 
   OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {
      defaultHandlerOptions: {
@@ -421,16 +421,21 @@ function add_click_to_copy_report_link() {
     },
 
     trigger: function(e) {
-        if (link_item_type == '/routes/' && document.selectform.selecttype.value == "/routes/")  {
-           document.getElementsByName("routeName")[0].value=document.selectform.selectname.value;
-           document.getElementsByName("itemId")[0].value=document.selectform.select.value;
-           document.getElementsByName("itemType")[0].value='route';
+        if (document.selectform.selecttype.value == '/routes/')  {
+           document.getElementById("itemName").value=document.selectform.selectname.value;
+           document.getElementById("itemId").value=document.selectform.select.value;
+           document.getElementById("itemType").value='route';
         }
 
-        if (link_item_type == '/places/' && document.selectform.selecttype.value == "/places/")  {
-           document.getElementsByName("placeName")[0].value=document.selectform.selectname.value;
-           document.getElementsByName("itemId")[0].value=document.selectform.select.value;
-           document.getElementsByName("itemType")[0].value='place';
+        if (document.selectform.selecttype.value == '/places/')  {
+           document.getElementById("itemName").value=document.selectform.selectname.value;
+           document.getElementById("itemId").value=document.selectform.select.value;
+           document.getElementById("itemType").value='place';
+        }
+        if (document.selectform.selecttype.value == '/photos/')  {
+           document.getElementById("itemName").value=document.selectform.selectname.value;
+           document.getElementById("itemId").value=document.selectform.select.value;
+           document.getElementById("itemType").value='photo';
         }
     }
   });
@@ -794,70 +799,24 @@ function route_selectNothing() {
 
 
 }
-function report_selectPlace() {
-  document.getElementById("placeplus").style.display="none";
-  document.getElementById("placetick").style.display="block";
-  document.selectform.select.value='';
-  document.selectform.selectname.value='';
-  link_item_type='/places/';
+function link_select_on() {
+  document.getElementById("link-select-on").style.display="none";
+  document.getElementById("link-select-off").style.display="block";
+  //document.selectform.select.value='';
+  //document.selectform.selectname.value='';
 
   deactivate_all_click();
-  click_to_copy_report_link.activate();
+  click_to_copy_link.activate();
   map_enable_select_point();
 }
 
-function report_confirmPlace() {
-  document.getElementById("placeplus").style.display="block";
-  document.getElementById("placetick").style.display="none";
+function link_select_off() {
+  document.getElementById("link-select-on").style.display="block";
+  document.getElementById("link-select-off").style.display="none";
   
   deactivate_all_click();
 }
 
-function report_selectRoute() {
-  document.getElementById("routeplus").style.display="none";
-  document.getElementById("routetick").style.display="block";
-  document.selectform.select.value='';
-  document.selectform.selectname.value='';
-  link_item_type='/routes/';
-
-  deactivate_all_click();
-  click_to_copy_report_link.activate();
-  map_enable_select_line();
-}
-
-function report_confirmRoute() {
-  document.getElementById("routeplus").style.display="block";
-  document.getElementById("routetick").style.display="none";
-  
-  deactivate_all_click();
-}
-
-function report_selectTrip() {
-  document.getElementById("tripplus").style.display="none";
-  document.getElementById("triptick").style.display="block";
-  document.getElementById("tripSelect").disabled=false;
-
-  document.selectform.select.value='';
-  document.selectform.selectname.value='';
-
- document.getElementsByName("itemId")[0].value='';
-  document.getElementsByName("itemType")[0].value='';
-}
-
-function report_confirmTrip() {
-  document.getElementById("tripplus").style.display="block";
-  document.getElementById("triptick").style.display="none";
-  document.getElementById("tripSelect").disabled=true;
-
-  var selIndex=document.getElementById("tripSelect").options.selectedIndex;
-  document.getElementsByName("itemId")[0].value=document.getElementById("tripSelect").options[selIndex].value
-  document.getElementsByName("itemType")[0].value='trip';
-
-  
-}
-
-
-// MISCELANEOUS PAGE EVENT HANDLING THAT HAVE NOTHING TO DO WITH THE MAP
 
 // MISCELANEOUS PAGE EVENT HANDLING THAT HAVE NOTHING TO DO WITH THE MAP
 
@@ -1227,12 +1186,12 @@ function check_zoomend() {
 
     function PrintElem(elem)
     {
-        Popup(document.getElementById(elem).innerHTML);
+        Popup(document.getElementById(elem).innerHTML, document.getElementById(elem).offsetHeight,document.getElementById(elem).offsetWidth);
     }
 
-    function Popup(data) 
+    function Popup(data, h, w) 
     {
-        var mywindow = window.open('', 'routeguides.co.nz', 'height='+map_map.getSize().h+',width='+map_map.getSize().w);
+        var mywindow = window.open('', 'routeguides.co.nz', 'height='+h+',width='+w);
         mywindow.document.write('<html><head><title>routeguides.co.nz</title>');
         mywindow.document.write('<link rel="stylesheet" type="text/css" href="/assets/print.css" /> ');
 
@@ -1246,4 +1205,31 @@ function check_zoomend() {
          mywindow.close();
        }
         return true;
+    }
+
+    function link_search_on() 
+    {
+       document.getElementById("link-find").style.display="block";
+       document.getElementById("searchon").style.display="none";
+       document.getElementById("searchoff").style.display="block";
+
+
+    }
+
+    function link_search_off()
+    {
+       document.getElementById("link-find").style.display="none";
+       document.getElementById("searchon").style.display="block";
+       document.getElementById("searchoff").style.display="none";
+
+    }
+
+    function link_confirm(type,id, name)
+    {
+      document.getElementById("link-find").style.display="none";
+      document.getElementById("searchon").style.display="block";
+      document.getElementById("searchoff").style.display="none";
+      document.getElementById("itemType").value=type ;
+      document.getElementById("itemId").value=id ;
+      document.getElementById("itemName").value=name ;
     }

@@ -20,6 +20,7 @@
       <input type="hidden" name="extent_right">
       <input type="hidden" name="extent_top">
       <input type="hidden" name="extent_bottom">
+      <input type="hidden" name="referer" value='<%=@respond_to%>'>
       <div class="erow">
         <div class="rowtitle">Find:</div>
         <div class="rowtext">     
@@ -44,6 +45,10 @@
       <div class="erow">
         <div class="checktitle">Stories</div>
         <div class="checkbox"><%= check_box_tag 'Stories', 1, @findstories%></div>
+      </div>
+      <div class="erow">
+        <div class="checktitle">Photos</div>
+        <div class="checkbox"><%= check_box_tag 'Photos', 1, @findphotos%></div>
       </div>
 <br/>
       <div class="erow">
@@ -73,34 +78,15 @@
          Places:
       </div>
     </div>
-    <% if @places %>
-      <% @places.each do |place| %>
-         <div class="erow"><div class="hrline"> <hr noshade size="2"> </div></div>
-         <div class="erow">
-           <%=link_to place.name+" ("+place.place_type+")", '/places/'+place.id.to_s, remote: true, onclick: %q[linkHandler('p]+place.id.to_s+%q[')], id:  'p'+place.id.to_s %>
-         </div>
-      <% end %>        
-         <div class="erow">
-            <div class="hrline">
-               <hr noshade size="4">
-            </div>
-         </div>
+    <% if @places %> 
+     <%=render :partial => 'links_index',  :locals => {:links => @places, :parent_type=>'place'} %>
     <% end %>
 
     <% if @places_text %>
-      <% @places_text.each do |place| %>
-         <div class="erow"><div class="hrline"> <hr noshade size="2"> </div></div>
-         <div class="erow">
-           <%=link_to place.name+" ("+place.place_type+")", '/places/'+place.id.to_s, remote: true, onclick: %q[linkHandler('p]+place.id.to_s+%q[')], id:  'p'+place.id.to_s %>
-         </div>
-      <% end %>
-         <div class="erow">
-            <div class="hrline">
-               <hr noshade size="4">
-            </div>
-         </div>
+     <%=render :partial => 'links_index',  :locals => {:links => @places_text, :parent_type=>'place'} %>
     <% end %>
   <% end %>
+
 
   <% if @findroutes %>
     <div class="erow">
@@ -109,32 +95,13 @@
       </div>
     </div>
     <% if @routes %>
-      <% @routes.each do |route| %>
-         <div class="erow"><div class="hrline"> <hr noshade size="2"> </div></div>
-         <div class="erow">
-           <%=link_to route.name+" ("+route.routetype.name+")", '/routes/'+route.id.to_s, remote: true, onclick: %q[linkHandler('r]+route.id.to_s+%q[')], id:  'r'+route.id.to_s %>
-         </div>
-      <% end %>
-         <div class="erow">
-            <div class="hrline">
-               <hr noshade size="4">
-            </div>
-         </div>
+     <%=render :partial => 'links_index',  :locals => {:links => @routes, :parent_type=>'route'} %>
     <% end %>
 
     <% if @routes_text %>
-      <% @routes_text.each do |route| %>
-         <div class="erow"><div class="hrline"> <hr noshade size="2"> </div></div>
-         <div class="erow">
-           <%=link_to route.name+" ("+route.routetype.name+")", '/routes/'+route.id.to_s, remote: true, onclick: %q[linkHandler('r]+route.id.to_s+%q[')], id:  'r'+route.id.to_s %>
-         </div>
-      <% end %>
-         <div class="erow">
-            <div class="hrline">
-               <hr noshade size="4">
-            </div>
-         </div>
+     <%=render :partial => 'links_index',  :locals => {:links => @routes_text, :parent_type=>'route'} %>
     <% end %>
+
   <% end %>
 
   <% if @findtrips %>
@@ -144,24 +111,10 @@
       </div>
     </div>
     <% if @trips%>
-      <% @trips.each do |trip| %>
-         <div class="erow"><div class="hrline"> <hr noshade size="2"> </div></div>
-         <div class="erow">
-           <%=link_to trip.name+" ("+trip.createdBy.name+")", '/trips/'+trip.id.to_s, remote: true, onclick: %q[linkHandler('t]+trip.id.to_s+%q[')], id:  't'+trip.id.to_s %>
-         </div>
-      <% end %>
-      <div class="erow"> <div class="hrline"> <hr noshade size="4"> </div> </div>
+     <%=render :partial => 'links_index',  :locals => {:links => @trips, :parent_type=>'trip'} %>
     <% end %>
-
-    <% if @trips_text %>
-      <% @trips_text.each do |trip| %>
-         <div class="erow"><div class="hrline"> <hr noshade size="2"> </div></div>
-         <div class="erow">
-           <%=link_to trip.name+" ("+trip.createdBy.name+")", '/trips/'+trip.id.to_s, remote: true, onclick: %q[linkHandler('t]+trip.id.to_s+%q[')], id:  't'+trip.id.to_s %>
-         </div>
-      <% end %>
-      <div class="erow"> <div class="hrline"> <hr noshade size="4"> </div> </div>
-
+    <% if @trips_text%>
+     <%=render :partial => 'links_index',  :locals => {:links => @trips_text, :parent_type=>'trip'} %>
     <% end %>
   <% end %>
 
@@ -172,25 +125,24 @@
       </div>
     </div>
     <% if @stories %>
-      <% @stories.each do |report| %>
-         <div class="erow"><div class="hrline"> <hr noshade size="2"> </div></div>
-         <div class="erow">
-           <%=link_to report.name+" ("+report.createdBy.name+")", '/reports/'+report.id.to_s, remote: true, onclick: %q[linkHandler('s]+report.id.to_s+%q[')], id:  's'+report.id.to_s %>
-         </div>
-      <% end %>
-      <div class="erow"> <div class="hrline"> <hr noshade size="4"> </div> </div>
+     <%=render :partial => 'links_index',  :locals => {:links => @stories, :parent_type=>'report'} %>
     <% end %>
-
-    <% if @stories_text %>
-      <% @stories_text.each do |report| %>
-         <div class="erow"><div class="hrline"> <hr noshade size="2"> </div></div>
-         <div class="erow">
-           <%=link_to report.name+" ("+report.createdBy.name+")", '/reports/'+report.id.to_s, remote: true, onclick: %q[linkHandler('s]+report.id.to_s+%q[')], id:  's'+report.id.to_s %>
-         </div>
-      <% end %>
-      <div class="erow"> <div class="hrline"> <hr noshade size="4"> </div> </div>
-
+    <% if @stories_text%>
+     <%=render :partial => 'links_index',  :locals => {:links => @stories_text, :parent_type=>'report'} %>
     <% end %>
   <% end %>
-
+  
+ <% if @findphotos %>
+    <div class="erow">
+      <div class="sectiontitle">
+         <b>Photographs:</b>
+      </div>
+    </div>
+    <% if @photos %>
+     <%=render :partial => 'links_index',  :locals => {:links => @photos, :parent_type=>'photo'} %>
+    <% end %>
+    <% if @photos_text%>
+     <%=render :partial => 'links_index',  :locals => {:links => @photos_text, :parent_type=>'photo'} %>
+    <% end %>
+  <% end %>
 </div>

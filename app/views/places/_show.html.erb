@@ -19,7 +19,43 @@
            <hr noshade size="4">
         </div>
      </div>
-   <div id="links_section">
+
+
+<div id="links_section">
+  <% if @editlinks and signed_in? %>
+    <div class="erow">
+      <div class="leftbuttons">
+         <span title="Close editing">
+           <%=  link_to image_tag("/assets/red-x.png", :border=>0, :class => 'dock-item'), '/places/'+@place.id.to_s, remote: true, onclick: "linkHandler('editbutton')", id:  "editbutton"  %>
+         </span>
+      </div>
+      <div class="sectiontitle">
+        Edit Links:
+      </div>
+    </div>
+    <div id="editlinks">
+      <%=render :partial => 'links_form',  :locals => {:parent => @place, :parent_type=>'place'} %>
+    </div>
+  <% else %>
+    <div class="erow">
+      <% if signed_in? %>
+        <div class="leftbuttons">
+          <span title="Edit links"%>
+            <%=  link_to image_tag("/assets/pencil_edit.png", :border=>0, :class => 'dock-item'), '/places/'+@place.id.to_s+'/?editlinks=true', remote: true, onclick: "linkHandler('editbutton')", id:  "editbutton"  %>
+          </span>
+        </div>
+      <% end %>
+      <div class="sectiontitle">
+        Links:
+      </div>
+    </div>
+    <%=render :partial => 'links_photos',  :locals => {:parent => @place} %>
+    <div class="erow"><div class="hrline"> <hr noshade size="2"> </div></div>
+    <%=render :partial => 'links_details',  :locals => {:parent => @place} %>
+  <% end %>
+</div>
+
+<div id="links_section2">
    <div class="erow" style="margin-top:12px">
      <div class="sectiontitle-bold">
         Places you can go from here:
@@ -71,21 +107,6 @@
            <hr noshade size="4">
         </div>
      </div>
-
-   <div class="erow" style="margin-top:12px">
-     <div class="sectiontitle-bold">
-        Stories about this place:
-     </div>
-   </div>
-   <% @place.reports.each do |r|%>
-     <div class="erow">
-        <div class="sectiontext">
-           <li>
-              <%=  link_to r.name+" by "+r.createdBy.name.capitalize, '/reports/'+r.id.to_s, remote: true, onclick: %q[linkHandler('r]+r.id.to_s+%q[')], id:  'r'+r.id.to_s  %>
-           </li>
-        </div>
-     </div>
-   <% end %>
 
    <%= form_for  @place, :html => {:name => 'placeform'}, remote: true  do |f| %>
       <%= f.hidden_field :projection_id, :disabled=>!@edit %>
