@@ -161,12 +161,6 @@ def trips
        where td.place_id = ? and t.published=true",self.id]
 end
 
-def reports
-   r=Report.find_by_sql [%q[select distinct r.* from reports r
-        inner join links rl on (rl."baseItem_id" = r.id and rl."baseItem_type"='report') or (rl.item_id = r.id and rl.item_type='report')
-        where (rl.item_type='place' and rl.item_id=?) or (rl."baseItem_type"='place' and rl."baseItem_id"=?)],self.id, self.id]
-end
-
 def links
    r=Link.find_by_sql [%q[select distinct id, item_id, item_type, item_url from links l
               where (l."baseItem_type"='place' and l."baseItem_id"=?) 

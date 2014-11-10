@@ -115,7 +115,7 @@
        <div class="leftbuttons">
           <img id='switch' src="/assets/switch.png" <%=%q[onclick=clickswitch(']+@itemNumber.to_s+%q[')]%>>
        </div>
-       <% if (!@route.description or @route.description.length<2) then @showForward=0 end%>
+       <% if (!@route.description or @route.description.length<2)  and ( @route.reverse_description and @route.reverse_description.length>2) then @showForward=0 end%>
        <div id='<%="fw_t"+@itemNumber.to_s%>' class="sectiontitle" style=<%=if (@showForward==1) then "display:block" else "display:none" end %>>  
           <% if (!@trip and !@history) %>
              <%= form_for  @route, :html => {:name => 'routeform'}, remote: true  do |f| %>

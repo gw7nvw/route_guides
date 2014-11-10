@@ -42,8 +42,8 @@ def create
       #render edit panel to allow user to add links (can't do in create)
       @id=@report.id
       params[:id]=@id.to_s
-      edit()
-      render 'edit'
+      show()
+      render 'show'
     else
       flash[:error] = "Error creating report"
       @edit=true
@@ -80,11 +80,12 @@ def update
 
  if (params[:delete])
 
-         rls=Link.where(baseItem_id: params[:id], baseItem_type: 'report')
-         rls.each do |rl|
-             rl.destroy
-         end
          report=Report.find_by_id(params[:id])
+         links=report.links
+         links.each do |l|
+            l.destroy
+         end
+
          if report.destroy
            flash[:success] = "Report deleted, id:"+params[:id]
            redirect_to '/reports'
@@ -103,64 +104,6 @@ def update
 
       render 'report_links'
  end
-
-
-  if (params[:commit] and params[:commit][0..5] == 'confir')
-      #add place/route to reportLinks
-        rl=Link.new()
-        rl.baseItem_id=params[:id]
-        rl.baseItem_type='report'
-        rl.item_type=params[:itemType]
-        rl.item_id=params[:itemId]
-        if (rl.item_id and rl.item_id.to_i==-1) then
-          rl.item_type='about'
-        end
-      if(rl.item_type and rl.item_type.length>0 and rl.item_id and (rl.item_id.>0 or rl.item_id=-1))
-        rl.save
-      end
-      @edit=true
-      if (!@id) then @id=params[:id] end
-      @report=Report.find_by_id(@id)
-    
-      render 'report_links'
-
-  end
-
-  if (params[:add])
-      #add place/route to reportLinks
-      #add place/route to reportLinks
-        rl=Link.new()
-        rl.baseItem_id=params[:id]
-        rl.baseItem_type='report'
-        rl.item_id=params[:report_link]['trip_id']
-        rl.item_type='trip'
-      if((rl.item_id and rl.item_id.to_i>0))
-        rl.save
-      end
-      @edit=true
-      if (!@id) then @id=params[:id] end
-      @report=Report.find_by_id(@id)
-    
-      render 'report_links'
-
-   end
-  if (params[:commit] and params[:commit][0..5] == 'delete')
-     report_link=Link.find_by_id(params[:commit][6..-1].to_i)
-     if (report_link)
-        if(report_link.destroy)
-           flash[:success] = "Removed link from report:"+params[:commit][6..-1]
-        end
-     else
-        flash[:error] = "Cannot find link to delete:"+params[:commit][6..-1]
-     end
-
-     @edit=true
-      if (!@id) then @id=params[:id] end
-      @report=Report.find_by_id(@id)
-
-      render 'report_links'
-
-  end
 
 end
 

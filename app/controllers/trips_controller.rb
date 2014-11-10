@@ -108,6 +108,11 @@ def move
         @current_user.save
       end
 
+      links=trip.links
+      links.each do |l|
+         l.destroy
+      end
+
       trip.destroy
       index=true
    end

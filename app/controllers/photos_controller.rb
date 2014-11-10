@@ -89,6 +89,11 @@ def update
      photo=Photo.find_by_id(params[:id])
 
      #will need to delete any links, once they've been implemented
+     links=photo.links
+     links.each do |l|
+        l.destroy
+     end
+
      if photo.destroy
        flash[:success] = "Photo deleted, id:"+params[:id]
        redirect_to '/'
