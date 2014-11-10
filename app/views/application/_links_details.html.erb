@@ -9,8 +9,8 @@
           <% case rl.item_type %>
           <% when 'about' %>
             <%= link_to 'About', '/about' , remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
-          <% when 'url' %>
-            <%= link_to rl.child.url, rl.child.url, :target=>"_blank" %>
+          <% when 'URL' %>
+            <%= link_to rl.item_url, rl.item_url, :target=>"_blank" %>
           <% when 'photo' %>
           <% else %>
             <%= link_to rl.child.name, rl.child, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>

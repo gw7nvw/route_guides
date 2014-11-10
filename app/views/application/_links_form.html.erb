@@ -10,8 +10,8 @@
           <% case rl.item_type %>
           <% when 'about' %>
             <%= link_to 'About', '/about' , remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
-          <% when 'url' %>
-            <%= link_to rl.child.url, rl.child.url, :target=>"_blank" %>
+          <% when 'URL' %>
+            <%= link_to rl.item_url, rl.item_url, :target=>"_blank" %>
           <% else %>
             <%= link_to rl.child.name, rl.child, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
           <% end %>
@@ -44,10 +44,10 @@
  <div class="erow">
         <div class="leftbuttons">
               <span title="Click to select item from map">
-                 <img id="link-select-on" src="/assets/select-point.png" onclick="link_select_on()" width="16" style="display:block">
+                 <img id="link-select-on" src="/assets/select-line-point.png" onclick="link_select_on()" width="16" style="display:block">
               </span>
               <span title="Turn off map selection">
-                 <img id="link-select-off" src="/assets/red-x.png" onclick="link_select_off()" width="16" style="display:none">
+                 <img id="link-select-off" src="/assets/select-line-point-off.png" onclick="link_select_off()" width="16" style="display:none">
               </span>
         </div>
         <div class="leftbuttons">
@@ -55,9 +55,18 @@
                  <img id="searchon" src="/assets/search16.png" onclick="link_search_on()" width="16" style="display:block">
               </span>
               <span title="Cancel search">
-                 <img id="searchoff" src="/assets/red-x.png" onclick="link_search_off()" width="16" style="display:none">
+                 <img id="searchoff" src="/assets/search16-off.png" onclick="link_search_off()" width="16" style="display:none">
               </span>
         </div>
+        <div class="leftbuttons">
+              <span title="Click to add hyperlink">
+                 <img id="hyperlinkon" src="/assets/hyperlink-16.png" onclick="link_hyper_on()" width="16" style="display:block">
+              </span>
+              <span title="Cancel add hyperlink">
+                 <img id="hyperlinkoff" src="/assets/hyperlink-16-off.png" onclick="link_hyper_off()" width="16" style="display:none">
+              </span>
+        </div>
+
         <div class="erow"><div class="hrline"> <hr noshade size="2"> </div></div>
 
 

@@ -217,6 +217,11 @@ def create
 
        if(!route=Route.find_by(:endplace_id => params[:id]))
          place=Place.find_by_id(params[:id])
+         links=place.links
+         links.each do |l|
+           l.destroy
+         end
+
          if place.destroy
            flash[:success] = "Place deleted, id:"+params[:id]
            redirect_to '/'

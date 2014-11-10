@@ -129,21 +129,16 @@ def links
    r=Link.find_by_sql [%q[select distinct id, item_id, item_type, item_url from links l
               where (l."baseItem_type"='route' and l."baseItem_id"=?) 
         union select distinct id, "baseItem_id" as item_id, "baseItem_type" as item_type, '' as item_url from links l
-              where  (l.item_type='route' and l.item_id=?)],self.id, self.id]
+              where  (l.item_type='route' and l.item_id=?)],self.id.abs, self.id.abs]
 end
 
 def linked(type)
    r=Link.find_by_sql [%q[select distinct id, item_id, item_type, item_url from links l
               where (l."baseItem_type"='route' and l."baseItem_id"=? and item_type=?) 
         union select distinct id, "baseItem_id" as item_id, "baseItem_type" as item_type, '' as item_url from links l
-              where  (l.item_type='route' and l.item_id=? and "baseItem_type"=?)],self.id, type, self.id, type]
+              where  (l.item_type='route' and l.item_id=? and "baseItem_type"=?)],self.id.abs, type, self.id.abs, type]
 end
 
-def reports
-   r=Report.find_by_sql [%q[select distinct r.* from reports r
-        inner join links rl on (rl."baseItem_id" = r.id and rl."baseItem_type"='report') or (rl.item_id = r.id and rl.item_type='report')
-        where (rl.item_type='route' and rl.item_id=?)  or (rl."baseItem_type"='route' and rl."baseItem_id"=?)],self.id, self.id]
-end
 
 def maxalt
    alt=0

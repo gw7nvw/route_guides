@@ -4,7 +4,7 @@ class SitemapsController < ApplicationController
     @static_paths = [root_path, about_path]
     @places = Place.all
     @segments = Route.where(:published => true)
-    @routes = RouteIndex.all
+    @routes = RouteIndex.find_by_sql ['select max(id) as id, max(updated_at) as updated_at, startplace_id, endplace_id from route_indices group by startplace_id, endplace_id']
     @trips = Trip.where(:published => true)
     @stories = Report.all
     @users = User.all

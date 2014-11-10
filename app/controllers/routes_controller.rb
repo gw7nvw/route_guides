@@ -329,8 +329,12 @@ end
     if (params[:delete])
     
       if(!trip=TripDetail.find_by(:route_id => params[:id])) 
-   
+         
         route=Route.find_by_id(params[:id].to_i.abs)
+        links=route.links
+        links.each do |l| 
+           l.destroy
+        end
         if route.destroy
           flash[:success] = "Route deleted, id:"+params[:id]
           redirect_to '/'

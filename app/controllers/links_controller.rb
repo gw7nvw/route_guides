@@ -10,7 +10,7 @@ class LinksController < ApplicationController
    when 'report'
      @parent=Report.find_by_id(params[:parent_id])
    when 'route'
-     @parent=Route.find_by_id(params[:parent_id])
+     @parent=Route.find_by_id(params[:parent_id].to_i.abs)
    when 'place'
      @parent=Place.find_by_id(params[:parent_id])
    when 'photo'
@@ -35,12 +35,13 @@ class LinksController < ApplicationController
 
    if params[:commit] and params[:commit]=='addLink' then
         rl=Link.new()
-        rl.baseItem_id=params[:parent_id]
+        rl.baseItem_id=params[:parent_id].to_i.abs
         rl.baseItem_type=params[:parent_type]
-        rl.item_id=params[:itemId]
+        rl.item_id=params[:itemId].to_i.abs
         rl.item_type=params[:itemType]
         if rl.item_type=="URL" or rl.item_type=="page"  then
           rl.item_url=params[:itemName]
+          if rl.item_url[0..3]!='http' then rl.item_url="http://"+rl.item_url end
         end
       if((rl.item_id and rl.item_id.to_i>0) or rl.item_url) and  (rl.baseItem_id and  rl.baseItem_id>0)
         rl.save

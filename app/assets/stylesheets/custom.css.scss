@@ -112,7 +112,7 @@ p {
 }
 
 #our_logo {
-  width: calc(100% - 670px);
+  width: calc(100% - 512px);
   height: 24px;
   overflow: hidden;
   float: left;
@@ -413,6 +413,9 @@ html, body {
         font-weight: normal;
 }
 
+#links_section2 > .erow > #route_details > .erow > .sectiontitle25 {
+        font-weight: normal;
+}
 
 .photo-bar {
 margin-left:25px;

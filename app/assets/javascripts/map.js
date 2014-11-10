@@ -1224,6 +1224,27 @@ function check_zoomend() {
 
     }
 
+    function link_hyper_on()
+    {
+       $("#itemName").prop('readonly',false);
+       document.getElementById("itemType").value='URL';
+       document.getElementById("hyperlinkon").style.display="none";
+       document.getElementById("hyperlinkoff").style.display="block";
+
+
+    }
+
+    function link_hyper_off()
+    {
+       $("#itemName").prop('readonly',true);
+       document.getElementById("itemType").value='';
+       document.getElementById("itemName").value='';
+       document.getElementById("link-find").style.display="none";
+       document.getElementById("hyperlinkon").style.display="block";
+       document.getElementById("hyperlinkoff").style.display="none";
+
+    }
+
     function link_confirm(type,id, name)
     {
       document.getElementById("link-find").style.display="none";
