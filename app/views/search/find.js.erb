@@ -1,2 +1,6 @@
-window.history.pushState(null, '', '/find/');
-$('#right_panel').html("<%= escape_javascript(render(:partial => '/search/find')).html_safe %>");
+<% if @respond_to  and @respond_to.length>0 %> 
+  $('#<%=@respond_to%>').html("<%= escape_javascript(render(:partial => '/search/find')).html_safe %>");
+<% else %>
+  window.history.pushState(null, '', '/find/');
+  $('#right_panel').html("<%= escape_javascript(render(:partial => '/search/find')).html_safe %>");
+<% end %>

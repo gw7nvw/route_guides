@@ -60,18 +60,6 @@
          <%= simple_format(@place.description).html_safe %>
    </div>
 
-
-  <div class="erow"> 
-   <!-- Place links (f any) and max/mix buttons -->
-   <% if (@place.links) %>
-      <% if @place.links.length>0 %>
-         <%=render :partial => 'info_buttons',  :locals => {:expName => "lk_p"+@itemNumber.to_s, :initialSt => @showLinks} %>
-          <div id='<%="lk_p"+@itemNumber.to_s%>' class="sectiontext" style=<%=if (@showLinks==1) then "display:block" else "display:none" end %>>
-              <p><%=@place.links %><br/></p>
-          </div>
-       <% end %>
-    <% end %>
-
    <div class="sectiontext">
       <!-- Place author details (if any) -->
        <% if @place.createdBy_id %>

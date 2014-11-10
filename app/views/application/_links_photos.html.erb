@@ -1,0 +1,12 @@
+<div class="photo-bar">
+ <div style="width:1000%">
+  <% parent.linked('photo').each do |rl| %>
+    <span title='<%=rl.child.name%>'>
+       <%= link_to image_tag(rl.child.image.url(:thumb), class: 'photo'), rl.child, remote: true, :id => 'photo_link_'+rl.child.id.to_s, :onclick => "linkHandler('photo_link_"+rl.child.id.to_s+"')" %>
+    </span>
+
+  <% end %>
+ </div>
+</div>
+
+

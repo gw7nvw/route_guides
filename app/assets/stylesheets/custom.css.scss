@@ -368,6 +368,11 @@ html, body {
         width: 75%;
 }
 
+.rowtextsmall {
+        float: left;
+        width: calc(75%-25px);
+}
+
 .sectiontitle {
         margin-top: 1px;
         float: left;
@@ -407,6 +412,24 @@ html, body {
 #links_section > .erow > #route_details > .erow > .sectiontitle25 {
         font-weight: normal;
 }
+
+
+.photo-bar {
+margin-left:25px;
+height:auto;
+width:100%;
+overflow-x:auto;
+overflow-y:hidden;
+white-space: nowrap;
+}
+
+img.photo {
+    float:left;
+    display:inline;
+    margin-right:10px;
+}
+
+
 
 #links_section > .erow > .sectiontitle {
         font-weight: normal;

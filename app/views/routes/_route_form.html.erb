@@ -352,20 +352,6 @@ sufficient to differentiate it from other routes between the same two places. <b
       <br/>
       <div class="erow">
          <% if @edit %>
-          <%=render :partial => 'help_buttons',  :locals => {:expName => "rhelplinks", :initialSt => 0} %>
-         <% end %>
-         <div class="sectiontitle25">Links:</div>
-      </div>
-      <div class="erow">
-        <div id="rhelplinks" class="helptext" style="display:none">
-          Optionally, enter the addresses of external web pages with further information about this route.<br/>
-          e.g. http://tramper.co.nz/13455
-        </div>
-      </div>
-
-      <%= f.text_area :links, :disabled=>!@edit, :rows=>"4"   %>
-      <div class="erow">
-         <% if @edit %>
           <%=render :partial => 'help_buttons',  :locals => {:expName => "rhelppublished", :initialSt => 0} %>
          <% end %>
          <div class="sectiontitle25">Published:</div>

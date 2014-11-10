@@ -1,0 +1,31 @@
+ <% links.each do |link| %>
+         <div class="erow"><div class="hrline"> <hr noshade size="2"> </div></div>
+         <div class="erow">
+          <% case parent_type
+             when 'place' 
+                    linktext=link.place_type
+             when 'route' 
+                    linktext=link.routetype.name
+             else
+                    linktext=link.createdBy.name
+             end %>
+           <% if @respond_to and @respond_to.length>0 %>
+             <div class="leftbuttons">
+              <span title="Confirm selection">
+                <img id="placeplus" src="/assets/tick.png" onclick="link_confirm('<%=parent_type%>',<%=link.id.to_s%>,'<%=link.name%>')" width="16" style="display:block">
+              </span>
+             </div>
+             <div class="rowtext">
+               <%=link.name+" ("+linktext+")"%>
+             </div>
+           <% else %>
+             <%=link_to link.name+" ("+linktext+")", link, remote: true, onclick: %q[linkHandler('p]+link.id.to_s+%q[')], id:  'p'+link.id.to_s %>
+           <% end %>
+         </div>
+      <% end %>
+         <div class="erow">
+            <div class="hrline">
+               <hr noshade size="4">
+            </div>
+         </div>
+

@@ -7,6 +7,7 @@ resources :photos
 resources :routes
 resources :reports
 resources :sessions, only: [:new, :create, :destroy]
+resources :links, only: [:create, :destroy]
 resources :places
 resources :maps, only: [:index]
 resources :trips

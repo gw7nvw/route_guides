@@ -158,6 +158,8 @@ require "rexml/document"
  end
 
 def show
+    if params[:editlinks] then @editlinks=true end
+
     prepare_route_vars()
     routes=[]
     if !@id then @id=params[:id] end

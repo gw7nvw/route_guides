@@ -20,6 +20,7 @@ end
 
 def show
     @edit=false
+    if params[:editlinks] then @editlinks=true end
     if (!@id) then @id=params[:id] end
     if !@report=Report.find_by_id(@id) then
       redirect_to root_url
@@ -79,7 +80,7 @@ def update
 
  if (params[:delete])
 
-         rls=ReportLink.where(report_id: params[:id])
+         rls=Link.where(baseItem_id: params[:id], baseItem_type: 'report')
          rls.each do |rl|
              rl.destroy
          end
@@ -106,8 +107,9 @@ def update
 
   if (params[:commit] and params[:commit][0..5] == 'confir')
       #add place/route to reportLinks
-        rl=ReportLink.new()
-        rl.report_id=params[:id]
+        rl=Link.new()
+        rl.baseItem_id=params[:id]
+        rl.baseItem_type='report'
         rl.item_type=params[:itemType]
         rl.item_id=params[:itemId]
         if (rl.item_id and rl.item_id.to_i==-1) then
@@ -127,8 +129,9 @@ def update
   if (params[:add])
       #add place/route to reportLinks
       #add place/route to reportLinks
-        rl=ReportLink.new()
-        rl.report_id=params[:id]
+        rl=Link.new()
+        rl.baseItem_id=params[:id]
+        rl.baseItem_type='report'
         rl.item_id=params[:report_link]['trip_id']
         rl.item_type='trip'
       if((rl.item_id and rl.item_id.to_i>0))
@@ -142,7 +145,7 @@ def update
 
    end
   if (params[:commit] and params[:commit][0..5] == 'delete')
-     report_link=ReportLink.find_by_id(params[:commit][6..-1].to_i)
+     report_link=Link.find_by_id(params[:commit][6..-1].to_i)
      if (report_link)
         if(report_link.destroy)
            flash[:success] = "Removed link from report:"+params[:commit][6..-1]

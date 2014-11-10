@@ -1,0 +1,70 @@
+<% if signed_in? %>
+ <%= form_tag '/links', :name => 'linksform', :remote => true, :method => 'post' %>
+
+  <% parent.links.each do |rl| %>
+      <div class="erow" style="margin-left:25px">
+        <div class="rowtitle" >
+          <%= rl.item_type.capitalize+": "%>
+        </div>
+        <div class="rowtext">
+          <% case rl.item_type %>
+          <% when 'about' %>
+            <%= link_to 'About', '/about' , remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
+          <% when 'url' %>
+            <%= link_to rl.child.url, rl.child.url, :target=>"_blank" %>
+          <% else %>
+            <%= link_to rl.child.name, rl.child, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
+          <% end %>
+          <div class="rightbuttons"> <span title="Delete link"> <%= submit_tag  "delete"+rl.id.to_s,  :type => :image, :src => '/assets/trash.png', :style => 'margin-bottom:0;border:none' %> </span> </div>
+
+        </div>
+      </div>
+   <% end %>
+
+   <div id="add-link">
+     <div class="erow" style="margin-left:25px">
+        <div class="rowtitle">
+          <input type="text" name="itemType" id="itemType" readonly="true"/>
+        </div>
+        <div class="rowtextsmall">
+          <input type="text" name="itemName" id="itemName" readonly="true"/>
+          <input type="hidden" name="itemId" id="itemId" readonly="true"/>
+          <input type="hidden" name="parent_id" id="parent_id" value=<%=parent.id%> readonly="true"/>
+          <input type="hidden" name="parent_type" id="parent_type" value=<%=parent_type%> readonly="true"/>
+        </div>
+        <div class="rightbuttons">
+              <span title="Add link">
+                <%= submit_tag  "addLink",  :type => :image, :src => '/assets/add.png', :style => 'margin-bottom:0;border:none',  :onclick => "linkHandler('linkplus')", :id => "linkplus" %>
+              </span>
+         </div>
+     </div>
+   </div>
+
+ </form>
+ <div class="erow">
+        <div class="leftbuttons">
+              <span title="Click to select item from map">
+                 <img id="link-select-on" src="/assets/select-point.png" onclick="link_select_on()" width="16" style="display:block">
+              </span>
+              <span title="Turn off map selection">
+                 <img id="link-select-off" src="/assets/red-x.png" onclick="link_select_off()" width="16" style="display:none">
+              </span>
+        </div>
+        <div class="leftbuttons">
+              <span title="Click to search">
+                 <img id="searchon" src="/assets/search16.png" onclick="link_search_on()" width="16" style="display:block">
+              </span>
+              <span title="Cancel search">
+                 <img id="searchoff" src="/assets/red-x.png" onclick="link_search_off()" width="16" style="display:none">
+              </span>
+        </div>
+        <div class="erow"><div class="hrline"> <hr noshade size="2"> </div></div>
+
+
+        <% @respond_to='link-find' %>
+        <div id="link-find" style="display:none">
+             <%=render :partial => 'search/find',  :locals => {} %>
+        </div>
+ </div>
+<% end %>
+
