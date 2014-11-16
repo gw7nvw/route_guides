@@ -1,8 +1,10 @@
 class Route < ActiveRecord::Base
 
   has_many :routeInstances
-  belongs_to :createdBy, class_name: "User"
+ belongs_to :createdBy, class_name: "User"
+ belongs_to :updatedBy, class_name: "User"
   validates :createdBy, :presence => true
+  validates :experienced_at, :presence => true
 
   validates :via, presence: true
   validates :routetype, presence: true
@@ -102,16 +104,22 @@ def create_new_instance
 end
 
 
+def firstexperienced_at
+     t=Route.find_by_sql ["select created_at, experienced_at from route_instances  
+                where route_id = ? order by created_at limit 1", self.id.abs]
+     t.first.try(:experienced_at)
+end
+
 def firstcreated_at
      t=Route.find_by_sql ["select min(rd.created_at) id from route_instances rd 
-                where rd.route_id = ?", self.id]
+                where rd.route_id = ?", self.id.abs]
      t.first.try(:id)
 
 end
 
 def revision_number
      t=Route.find_by_sql ["select count(id) id from route_instances ri 
-                 where ri.route_id = ? and ri.updated_at <= ?",self.id, self.updated_at]
+                 where ri.route_id = ? and ri.updated_at <= ?",self.id.abs, self.updated_at]
      t.first.try(:id)
 end
 
@@ -123,7 +131,7 @@ end
 def trips
    t=Route.find_by_sql ["select distinct t.* from trips t
        inner join trip_details td on td.trip_id = t.id
-       where td.route_id = ? and t.published=true",self.id]
+       where td.route_id = ? and t.published=true",self.id.abs]
 end
 def links
    r=Link.find_by_sql [%q[select distinct id, item_id, item_type, item_url from links l

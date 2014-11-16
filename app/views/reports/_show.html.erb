@@ -50,4 +50,14 @@
     <div class="erow"><div class="hrline"> <hr noshade size="2"> </div></div>
     <%=render :partial => 'links_details',  :locals => {:parent => @report} %>
   <% end %>
+     <div class="erow">
+        <div class="hrline">
+           <hr noshade size="4">
+        </div>
+     </div>
+
+   <div id="comments_section">
+     <%=render :partial => 'comments/comments_brief',  :locals => {:itemType => "report", :itemId => @report.id} %>
+   </div>
+
 </div>

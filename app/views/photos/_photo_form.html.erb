@@ -98,11 +98,11 @@
       </div>
       <div class="erow">
         <div id="helpdatetime" class="helptext" style="display:none">
-          Optionally enter the time and date that the photograph was taken.
+          Optionally enter the date that the photograph was taken.
         </div>
       </div>
 
-      <%= f.datetime_field :taken_at, :disabled=>!@edit %>
+      <%= f.date_field :taken_at, :disabled=>!@edit %>
 
       <div class="erow">
          <% if @edit %>
@@ -120,10 +120,10 @@
 
       <br/>
         <% if @edit %>
-              <%= f.submit "Save", class: "btn btn-small btn-primary", name: "save", onclick: "linkHandler('savebutton')", id:  "savebutton" %>
+              <%= f.submit "Save", class: "btn btn-small btn-primary", remote: true, name: "save", onclick: "linkHandler('savebutton')", id:  "savebutton" %>
                <%=  link_to "Cancel", '/photos/'+@photo.id.to_s, class: "btn btn-small btn-primary", remote: true %>
                <%     if((@photo.createdBy_id==@current_user.id) or (@current_user.role==Role.find_by( :name => 'root'))) %>
-                 <%= f.submit "Delete", class: "btn btn-small btn-primary", name: "delete", onclick: "linkHandler('deletebutton')", id:  "deletebutton" %>
+                 <%= f.submit "Delete", class: "btn btn-small btn-primary", name: "delete", remote: true, onclick: "linkHandler('deletebutton')", id:  "deletebutton" %>
             <% end %>
 
         <% else %>

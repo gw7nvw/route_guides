@@ -1,0 +1,46 @@
+<% if !@comment then @comment=Comment.new() end %>
+<div id='comment_form' style="display:none<% if @comment.errors.any? %>;border-color:#f00;border-style:solid;border-width:1px<% end %>" >
+     <%= render 'shared/error_messages' %>
+     <%= form_for  @comment, :remote=> true, :html => {:name => 'commentform'}  do |f| %>
+      <input type="hidden" name="url" value="<%=@referring_page%>"/>
+      <%= f.hidden_field :item_type, :value => itemType %>
+      <%= f.hidden_field :item_id, :value => itemId %>
+
+      <div class="erow">
+        <div id="helpcomment" class="helptext" style="display:none">
+           Enter your comment. Comments are personal opinions, experiences, thoughts, etc.  
+           If you wish to point out that information in the item you are commenting on is incorrect or incomplete
+           then please do not create a comment.  Edit the item instead and correct the information.
+        </div>
+      </div>
+      <div class="erow">
+          <%=render :partial => 'help_buttons',  :locals => {:expName => "helpcomment", :initialSt => 0} %>
+         <div class="rowtitle">Comment:</div>
+         <div class="sectiontext">
+            <%= f.text_area :comment %>
+         </div>
+      </div>
+
+      <div class="erow">
+        <div id="helpdatetime" class="helptext" style="display:none">
+          Optionally enter the date you visited this location, the experience upon which your comments are based.
+        </div>
+      </div>
+      <div class="erow">
+          <%=render :partial => 'help_buttons',  :locals => {:expName => "helpdatetime", :initialSt => 0} %>
+         <div class="rowtitle">Date experienced:</div>
+         <div class="rowtextsmall">
+           <%= f.date_field :experienced_at %>
+         </div>
+      </div>
+
+
+      <br/>
+              <%= f.submit "Save", class: "btn btn-small btn-primary", remote: true, name: "save", onclick: "linkHandler('savebutton')", id:  "savebutton" %>
+               <%=  link_to "Cancel", '#', class: "btn btn-small btn-primary", remote: true, onclick: "editcommentoff()" %>
+            <% if @comment.id %>
+                 <%= f.submit "Delete", class: "btn btn-small btn-primary", name: "delete", remote: true, onclick: "linkHandler('deletebutton')", id:  "deletebutton" %>
+            <% end %>
+
+    <% end %>
+</div>

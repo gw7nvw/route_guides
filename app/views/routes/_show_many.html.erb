@@ -191,7 +191,7 @@
                   <%=  link_to nextplace.name, '/places/'+nextplace.id.to_s, remote: true, onclick: %q[linkHandler('p]+nextplace.id.to_s+%q[')], id:  'p'+nextplace.id.to_s  %>
             </div>
             <% @rt_list=ap[:route] %>
-            <%= render '/routes/search_details' %>
+            <%= render '/routes/search_brief' %>
          </div>
        <% end %>
      <% end %>
@@ -210,7 +210,7 @@
                   <%=  link_to nextplace.name, '/places/'+nextplace.id.to_s, remote: true, onclick: %q[linkHandler('p]+nextplace.id.to_s+%q[')], id:  'p'+nextplace.id.to_s  %>
             </div>
             <% @rt_list=ap[:route] %>
-            <%= render '/routes/search_details' %>
+            <%= render '/routes/search_brief' %>
          </div>
        <% end %>
      <% end %>

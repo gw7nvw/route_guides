@@ -93,6 +93,8 @@ def create
     #place does not exist - return to home
        redirect_to root_url
     end    
+    
+   @referring_page='/places/'+@place.id.to_s
   end
 
   def select
@@ -133,6 +135,7 @@ def create
       ystr = @place.location.y.to_s
       
       @place.location = xstr+" "+ystr
+      @place.experienced_at=nil
 
     else
     #place does not exist - return to home
@@ -176,6 +179,8 @@ def create
        @viewurl=@url.tr("e","v")
 
        if( !@place = Place.find_by_id(params[:id]))
+         flash[:error] = "Place does not exist: "+@place.id.to_s
+
           #tried to update a nonexistant place
           @edit=true
           render 'edit'
@@ -204,6 +209,7 @@ def create
            render 'show'
          end
        else
+         flash[:error] = "Form contains errors"+@place.id.to_s
          @edit=true
          render 'edit'
        end
@@ -255,7 +261,7 @@ end
 
   private 
   def place_params
-    params.require(:place).permit(:name, :place_type, :place_owner, :description, :location, :altitude, :x, :y, :projection_id, :links)
+    params.require(:place).permit(:name, :place_type, :place_owner, :description, :location, :altitude, :x, :y, :projection_id, :links, :experienced_at)
   end
 
   def convert_location_params

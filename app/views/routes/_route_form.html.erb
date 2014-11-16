@@ -87,6 +87,20 @@ sufficient to differentiate it from other routes between the same two places. <b
 
       <%= f.text_field :via, :disabled=>!@edit %>
 
+      <div class="erow">
+         <% if @edit %>
+          <%=render :partial => 'help_buttons',  :locals => {:expName => "helpdatetime", :initialSt => 0} %>
+         <% end %>
+         <div class="sectiontitle25">Date experienced:</div>
+      </div>
+      <div class="erow">
+        <div id="helpdatetime" class="helptext" style="display:none">
+          Mandatory: enter the date you experienced this route - the date this information if known to be correct. 
+        </div>
+      </div>
+
+      <%= f.date_field :experienced_at, :disabled=>!@edit %>
+
       <%= f.hidden_field :datasource %> 
       <div class="erow"> 
          <%=render :partial => 'help_buttons',  :locals => {:expName => "rhelproute", :initialSt => 0} %>
@@ -383,8 +397,9 @@ sufficient to differentiate it from other routes between the same two places. <b
     <% end %>
 </div>
 <small> 
-<% if @route.createdBy_id %>
-  Created by: <%= link_to @route.createdBy.name.capitalize, '/users/'+@route.createdBy.name, remote: true%> on <%=@route.created_at%>. Last updated: <%=@route.updated_at%>
+<% if @route.id and @route.createdBy_id %>
+              Created by: <%= link_to @route.createdBy.name.capitalize, '/users/'+@route.createdBy.name, remote: true%> on <%=@route.firstcreated_at.to_date%> based on experiece on <%=@route.firstexperienced_at%>.
+
 <% end %>
 </small>
 <script>

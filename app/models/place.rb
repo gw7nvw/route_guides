@@ -2,8 +2,10 @@ class Place < ActiveRecord::Base
   has_many :placeInstances
   has_many :placeIndices
   belongs_to :createdBy, class_name: "User"
+  belongs_to :updatedBy, class_name: "User"
   belongs_to :projection
   validates :createdBy, :presence => true
+  validates :experienced_at, :presence => true
 
   validates :name, presence: true
   validates :location, presence: true
@@ -22,6 +24,12 @@ def placeType
   t.first
 end
 
+def firstexperienced_at
+     t=Place.find_by_sql ["select created_at, experienced_at from place_instances  
+                where place_id = ? order by created_at limit 1", self.id]
+     t.first.try(:experienced_at)
+end
+
 def firstcreated_at
      t=Place.find_by_sql ["select min(pd.created_at) id from place_instances pd 
                 where pd.place_id = ?", self.id]
@@ -34,6 +42,7 @@ def revision_number
                  where ri.place_id = ? and ri.updated_at <= ?",self.id, self.updated_at]
      t.first.try(:id)
 end
+
 
 def default_values
     self.created_at ||= self.updated_at
