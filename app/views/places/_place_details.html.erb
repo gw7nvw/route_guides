@@ -64,8 +64,11 @@
       <!-- Place author details (if any) -->
        <% if @place.createdBy_id %>
           <small color="greyLight">
-      	     Created by: <%= link_to @place.createdBy.name.capitalize, '/users/'+@place.createdBy.name, remote: true%> on <%=@place.firstcreated_at%>. Last updated: <%=@place.updated_at%> 
-             <% if !@history %>
+              Created by: <%= link_to @place.createdBy.name.capitalize, '/users/'+@place.createdBy.name, remote: true%> on <%=@place.firstcreated_at.to_date%>. Experieced <%=@place.firstexperienced_at%>.
+              <% if !@history %>
+                <% if @place.revision_number>1 %>
+                  <br/>Last update: <%= link_to @place.updatedBy.name.capitalize, '/users/'+@place.updatedBy.name, remote: true%> on <%=@place.updated_at.to_date%>. Experieced <%=@place.experienced_at%>.
+                <% end %>
                 <%= link_to "View history", '/history/place-'+@place.id.to_s, remote: true, :id => 'history', :onclick =>"linkHandler('history')" %>
              <% end %>
           </small>

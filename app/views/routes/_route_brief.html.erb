@@ -1,0 +1,71 @@
+<div id="route_details">    
+   <% if !@itemNumber then @itemNumber=1 else @itemNumber+=1 end %>
+   <div class="erow">
+      <%=render :partial => 'expand_buttons',  :locals => {:expName => "route"+@itemNumber.to_s, :initialSt => (if @hideAll then 0 else 1 end)} %>
+      <%  if(signed_in? and !@trip and !@history) %>
+         <div class="leftbuttons">
+            <span title="Edit">
+               <%=  link_to image_tag("/assets/pencil_edit.png", :border=>0, :class => 'dock-item'), '/routes/'+@route.id.to_s+'/edit', remote: true, onclick: "linkHandler('editbutton')", id:  "editbutton"  %>
+            </span>
+         </div>
+      <% end %>
+
+      <div class="sectiontitle25">
+         <% if !@route.published then %>Draft:<% end %>
+         <% if !@history %>
+            <%= link_to @route.startplace.name+" to "+@route.endplace.name+" via "+@route.via, 
+               @route, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
+         <% else %>
+            <%=@route.startplace.name+" to "+@route.endplace.name+" via "+@route.via %>
+         <% end %>
+
+      </div>
+   </div>
+   <div id='route<%=@itemNumber.to_s%>' style='display:<%=if @hideAll then "none" else "block" end%>'>
+      <div class="subrow">
+         <div class="sectiontext25">
+            <% if @route.distance %>
+               <%= "Distance: "+@route.distance.round(1).to_s+" km  " %>
+            <%end %>
+            <% if @route.time %>
+               <%="("+@route.time.round(1).to_s+" DOC hours)"  %>
+            <% end %>
+            <% if @route.routetype.name!='Unknown'%>
+               <%=" - "+@route.routetype.name%>
+            <% end %>
+            <% if @route.terrain.name!='Unknown'%>
+               <%=" - "+@route.terrain.name+" terrain"%>
+            <% end %>
+            <% if @route.location and !@history%>
+               <br/>
+               <%= "Altitude - max: "+@route.maxalt.to_i.to_s+"m  min: "+@route.minalt.to_i.to_s+"m"+
+                  "  gain: "+@route.altgain.to_i.to_s+"m  loss: "+@route.altloss.to_i.to_s+"m" %>
+               <% if @route.distance>0 %>
+                  <%="  gradient: "+(Math.tan((@route.altgain+@route.altloss)/(@route.distance*1000))*180/Math::PI).to_i.to_s+" deg"%>
+               <% end %>
+               <% if @route.gradient.name!='Unknown'%>
+                  <%="("+@route.gradient.name+")"%>
+               <% end %>
+            <% end %><br/>
+            Skills:  
+            <% if @route.alpinesummer.name!='Unknown' and @route.alpinesummer.name!='None' %>
+               <%=@route.alpinesummer.name%><%=" ("+(@route.alpinesummer_id-@alpines.minimum(:id)).to_s+"/"+(@alpines.maximum(:id)-@alpines.minimum(:id)).to_s+") "%> 
+            <% end %>
+            <% if @route.river.name!='Unknown' and @route.river.name!='None' %>
+               <%=" - "+@route.river.name%>
+               <%=" ("+(@route.river_id-@rivers.minimum(:id)).to_s+"/"+(@rivers.maximum(:id)-@rivers.minimum(:id)).to_s+") "%>
+            <% end %>
+            <% if @route.alpinewinter.name!='Unknown' and @route.alpinewinter.name!='None' %>
+               Winter - <%=@route.alpinewinter.name%>
+               <%=" ("+(@route.alpinewinter_id-@alpinews.minimum(:id)).to_s+"/"+(@alpinews.maximum(:id)-@alpinews.minimum(:id)).to_s+")"%>
+            <% end %>
+            <br/>
+            <div class="no-print">
+                 <i><%= link_to 'GPX info source:', '/routes/'+@route.id.to_s+'.gpx'%></i>
+                 <i><%= @route.datasource %></i>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+

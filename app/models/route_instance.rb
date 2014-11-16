@@ -1,6 +1,7 @@
 class RouteInstance < ActiveRecord::Base
  belongs_to :route
  belongs_to :createdBy, class_name: "User"
+ belongs_to :updatedBy, class_name: "User"
  belongs_to :routetype
  belongs_to :gradient
  belongs_to :terrain
@@ -18,6 +19,11 @@ class RouteInstance < ActiveRecord::Base
 def firstcreated_at
    self.created_at
 end
+
+def firstexperienced_at
+   self.experienced_at
+end
+
 def revision_number
      t=RouteInstance.find_by_sql ["select count(id) id from route_instances ri 
                  where ri.route_id = ? and ri.updated_at <= ?",self.route_id, self.updated_at]

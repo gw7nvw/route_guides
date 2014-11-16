@@ -1,0 +1,32 @@
+<%
+    comments=Comment.find_by_sql [%q[select * from comments where "item_type"=? and "item_id"=? order by "created_at" desc],itemType,itemId]
+%>
+
+<div class="erow">
+   <% if signed_in?%>
+      <div class="leftbuttons" class="no-print">
+         <span title="Add a comment">
+           <img id='addComment' src="/assets/add.png" width="16" <%=%q[onclick=editcommenton()]%>>
+         </span>
+      </div>
+   <% end %>
+   <div class="sectiontitle">
+      Comments:
+   </div>
+</div>
+<div class="erow">
+
+   <%=render :partial => 'comments/comments_form',  :locals => {:itemType => itemType, :itemId => itemId} %>
+
+   <% comments.each do |comment| %>
+
+      <div class="subrow">
+         <%= link_to comment.createdBy.name.capitalize, '/users/'+comment.createdBy.name, remote: true%>
+         <%= "("+comment.created_at.to_date.to_s+"). "%>
+         <% if comment.experienced_at %>
+           <%="Experienced: "+comment.experienced_at.to_s%>
+         <% end %>
+         <%= simple_format(comment.comment).html_safe %>
+      </div>
+   <% end %>
+</div>

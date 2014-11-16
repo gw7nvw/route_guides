@@ -1,4 +1,4 @@
-<%if @url %>
+<%if @url and @url.length>0 %>
   $('#place_form').html("<%= escape_javascript(render(:partial => 'places/edit')).html_safe %>");
 <%else%>
   window.history.pushState(null, 'Route Guides | Places', '/places/<%=params[:id]+"/edit"%>');

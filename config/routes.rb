@@ -2,6 +2,7 @@ require 'resque/server'
 
 RouteGuides::Application.routes.draw do
 mount Resque::Server.new, at: "/resque"
+resources :comments
 resources :users
 resources :photos
 resources :routes

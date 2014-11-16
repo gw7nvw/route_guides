@@ -209,10 +209,12 @@ end
     @showConditions=0
     @showLinks=1
 
+
     if( @route = Route.find_by_signed_id(params[:id])) then
       if(@route.location)
         @route.location=@route.location.as_text
       end
+      @referring_page='/routes/'+@route.id.to_s
     else
       redirect_to root_url
     end
@@ -237,6 +239,7 @@ end
       if(@route.location) 
          @route.location=@route.location.as_text
       end
+      @route.experienced_at=nil
       prepare_route_vars()
     else
       redirect_to root_url
@@ -436,6 +439,7 @@ end
        :distance,
        :datasource,
        :importance_id,
+       :experienced_at,
        :published)
   end
 

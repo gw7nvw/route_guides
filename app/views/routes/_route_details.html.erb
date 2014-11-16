@@ -167,8 +167,11 @@
      <div class="sectiontext25">
         <small> 
            <% if @route.createdBy_id %>
-              Created by: <%= link_to @route.createdBy.name.capitalize, '/users/'+@route.createdBy.name, remote: true%> on <%=@route.firstcreated_at%>. Last updated: <%=@route.updated_at%>
-              <% if !@history%>
+              Created by: <%= link_to @route.createdBy.name.capitalize, '/users/'+@route.createdBy.name, remote: true%> on <%=@route.firstcreated_at.to_date%>. Experieced <%=@route.firstexperienced_at%>. 
+              <% if !@history %>
+                <% if @route.revision_number>1 %>
+                <br/>Last update: <%= link_to @route.updatedBy.name.capitalize, '/users/'+@route.updatedBy.name, remote: true%> on <%=@route.updated_at.to_date%>. Experieced <%=@route.experienced_at%>.
+                <% end %>
                  <%= link_to "View history", '/history/route-'+@route.id.abs.to_s, remote: true, :id => 'history', :onclick =>"linkHandler('history')" %>
               <% end %>
            <% end %>

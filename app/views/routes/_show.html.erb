@@ -79,6 +79,15 @@
         </div>
      </div>
    <% end %>
+     <div class="erow">
+        <div class="hrline">
+           <hr noshade size="4">
+        </div>
+     </div>
+
+   <div id="comments_section">
+     <%=render :partial => 'comments/comments_brief',  :locals => {:itemType => "route", :itemId => @route.id.abs} %>  
+   </div>
 
 
 <%= form_for  @route, :html => {:name => 'routeform'}, remote: true  do |f| %>

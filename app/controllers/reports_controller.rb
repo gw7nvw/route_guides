@@ -25,6 +25,8 @@ def show
     if !@report=Report.find_by_id(@id) then
       redirect_to root_url
     end
+    @referring_page='/reports/'+@report.id.to_s
+
 end
 
 def create

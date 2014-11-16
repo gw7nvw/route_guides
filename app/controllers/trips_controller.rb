@@ -150,6 +150,7 @@ def show
   end
   prepare_route_vars()
   @place_types = PlaceType.all
+  @referring_page='/trips/'+@trip.id.to_s
   
 end
 

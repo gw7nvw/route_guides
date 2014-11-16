@@ -1254,3 +1254,16 @@ function check_zoomend() {
       document.getElementById("itemId").value=id ;
       document.getElementById("itemName").value=name ;
     }
+
+    function editcommenton()
+    {
+      document.getElementById("comment_form").style.display="block";
+      document.getElementById("addComment").style.display="none";
+    }
+
+    function editcommentoff()
+    {
+      document.getElementById("comment_form").style.display="none";
+      document.getElementById("addComment").style.display="block";
+    
+    }
