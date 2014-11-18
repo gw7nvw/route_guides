@@ -1,47 +1,53 @@
 <div id="map_status">
   <span title="Click on map displays info on place/route segment">
-    <img src='/assets/info.png' width="16" id="info" style="display:none;border:3px solid green">
+    <img src='/assets/info.png' width="16" id="info" style="display:none;border:2px solid green">
   </span>
   <span title="Click on map selects a place">
-  <img src='/assets/select-point.png' width="16" id="select-point" style="display:none;border:3px solid green">
+  <img src='/assets/select-point.png' width="16" id="select-point" style="display:none;border:2px solid green">
   </span>
   <span title="Click on map selects a route segment">
-  <img src='/assets/select-line.png' width="16" id="select-line" style="display:none;border:3px solid green">
+  <img src='/assets/select-line.png' width="16" id="select-line" style="display:none;border:2px solid green">
   </span>
   <span title="Click on map draws a place">
-  <img src='/assets/draw-point.png' width="16" id="draw-point" style="display:none;border:3px solid green">
+  <img src='/assets/draw-point.png' width="16" id="draw-point" style="display:none;border:2px solid green">
   </span>
   <span title="Click on map draws a route segment">
-  <img src='/assets/draw.png' width="16" id="draw-line" style="display:none;border:3px solid green">
+  <img src='/assets/draw.png' width="16" id="draw-line" style="display:none;border:2px solid green">
   </span>
   <span title="Query/select/draw on map is currently disabled">
-  <img src='/assets/white.png' width="16" id="map-none" style="display:inline;border:3px solid white">
+  <img src='/assets/white.png' width="16" id="map-none" style="display:inline;border:2px solid white">
   </span>
-&nbsp;&nbsp;|&nbsp;&nbsp;
+&nbsp;|&nbsp;
   <span title="Show routes">
-   <img src='/assets/walk.png' width="16" id="show_route" style="border:3px solid white" onclick="toggle_routes()">
+   <img src='/assets/walk.png' width="16" id="show_route" style="border:2px solid white" onclick="toggle_routes()">
   </span>
   <span title="Show huts and campsites">
-   <img src='/assets/hut.png' width="16" id="show_accomodation" style="border:3px solid white" onclick="toggle_map('accomodation')">
+   <img src='/assets/hut.png' width="16" id="show_accomodation" style="border:2px solid white" onclick="toggle_map('accomodation')">
   </span>
   <span title="Show roadends">
-   <img src='/assets/road.png' width="16" id="show_roadend" style="border:3px solid white" onclick="toggle_map('roadend')">
+   <img src='/assets/road.png' width="16" id="show_roadend" style="border:2px solid white" onclick="toggle_map('roadend')">
   </span>
   <span title="Show summits">
-   <img src='/assets/peak.png' width="16" id="show_summit" style="border:3px solid white" onclick="toggle_map('summit')">
+   <img src='/assets/peak.png' width="16" id="show_summit" style="border:2px solid white" onclick="toggle_map('summit')">
   </span>
   <span title="Show passes and river crossing points">
-   <img src='/assets/crossings.png' width="16" id="show_crossing" style="border:3px solid white" onclick="toggle_map('crossing')">
+   <img src='/assets/crossings.png' width="16" id="show_crossing" style="border:2px solid white" onclick="toggle_map('crossing')">
   </span>
   <span title="Show scenic features">
-   <img src='/assets/natural.png' width="16" id="show_scenic" style="border:3px solid white" onclick="toggle_map('scenic')">
+   <img src='/assets/natural.png' width="16" id="show_scenic" style="border:2px solid white" onclick="toggle_map('scenic')">
   </span>
   <span title="Show junctions and unclassified features">
-   <img src='/assets/other.png' width="16" id="show_other" style="border:3px solid white" onclick="toggle_map('other')">
+   <img src='/assets/other.png' width="16" id="show_other" style="border:2px solid white" onclick="toggle_map('other')">
   </span>
-  &nbsp;&nbsp;|&nbsp;&nbsp;
+  &nbsp;|&nbsp;
   <span title="Print current map">
-   <img src='/assets/print-white16.png' width="16" id="print_left" style="border:3px solid lightgrey" onclick="PrintElem('left_panel')">
+   <img src='/assets/print-white16.png' width="16" id="print_left" style="border:2px solid lightgrey" onclick="PrintElem('left_panel')">
+  </span>
+  <span title="Centre on current item">
+   <img src='/assets/target.png' width="16" id="target" style="border:2px solid lightgrey" onclick="centre_map()">
+  </span>
+  <span title="Pin the map (when green auto recentring is disabled)">
+   <img src='/assets/pin.png' width="16" id="pin-map" style="border:2px solid orange" onclick="pin_map()">
   </span>
 
 

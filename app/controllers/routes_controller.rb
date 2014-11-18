@@ -392,11 +392,11 @@ def route_to_gpx(routes)
    route=Route.find_by_signed_id(routes.first)
 
    #currently just use data from first route segment for creator, etc 
-   gpx.add_element('name').add REXML::Text.new(route.name)
-   gpx.add_element('author').add REXML::Text.new(route.createdBy.name) 
-   gpx.add_element('url').add REXML::Text.new('http://routeguides.co.nz/routes/'+route.id.to_s)
-   gpx.add_element('time').add REXML::Text.new(route.created_at.to_s)
    trk = gpx.add_element 'trk'
+   trk.add_element('name').add REXML::Text.new(route.name)
+   trk.add_element('author').add REXML::Text.new(route.createdBy.name) 
+   trk.add_element('url').add REXML::Text.new('http://routeguides.co.nz/routes/'+route.id.to_s)
+   trk.add_element('time').add REXML::Text.new(route.created_at.to_s)
 
    routes.each do |route_id|
 
