@@ -115,7 +115,7 @@ sufficient to differentiate it from other routes between the same two places. <b
               </span>
             </div>
          <% end %>
-         <div class="sectiontitle">Route points:</div>
+         <div class="sectiontitle" style="font-weight:normal"><b>Route points: </b>(select from map or drag and drop a GPX file into this field)</div>
       </div>
       <div class="erow">
         <div id="rhelproute" class="helptext" style="display:none">
@@ -133,46 +133,21 @@ sufficient to differentiate it from other routes between the same two places. <b
           --- Try to include points at high and low points along the route, as the altitude profile of the route will only be calculated where you draw points.<br/>
           (5) When complete, double click to end drawing.  The line drawn will change colour to red.<br/>
           (6) Turn off map drawing by clicking the green tick.<br/>
-          --- The route points will now be listed in the 'Route Points' box.
+          --- The route points will now be listed in the 'Route Points' box.<br/>
           --- If you made a mistake or if you are editing an existing route, then simply repeat the above process and the new route will overwrite the old one. <br/>
+          <br/>
+          Option B: Drag and drop a GPX file into the location box.<br>
+          (1) Use a file explorer to find your GPX file on your computer<br>
+          (2) Use the mouse to drag and drop the file into the Route Points field below<br>
+          --- The route points will now be listed in the 'Route Points' box.<br/>
+          --- The route will be shown on the map. 
         </div>
       </div>
 
+      <div id="drop_location">
       <%= f.text_field :location, :readonly=>true %>
+      </div>
    
-      <div class="erow">
-         <% if @edit %>
-         <%=render :partial => 'help_buttons',  :locals => {:expName => "rhelpgpx", :initialSt => 0} %>
-
-           <div class="leftbuttons">
-              <span title="Click to open paste GPX dialog">
-                 <img id="gpxplus" src="/assets/add.png" onclick="enableGpx()" width="16" style="display:block">
-              </span>
-              <span title="Click to process the GPX file pasted">
-
-                 <img id="gpxtick" src="/assets/tick.png" onclick="copyGpx()" width="16" style="display:none">
-              </span>
-            </div>
-         <% end %>
-         <div class="sectiontitle">Paste a GPX file:</div>
-      </div>
-      <div class="erow">
-        <div id="rhelpgpx" class="helptext" style="display:none">
-          You can either draw the route on the map by hand, or you can upload it from a GPS using a GPX file.<br/>
-         <br>
-         Option B: Paste a GPX file:<br/>
-          Note: The following method is a temporary implementation and will be replaced by drag-and-drop of the file in future<br/>
-          (1) Click the green plus to open the Paste GPX text box.<br/>
-          --- A new text area will be displayed under Paste GPX<br/>
-          (2) Open your GPX file in your favourite text editor (e.g. notepad)<br/>
-          (3) In the text editor, select the entire file and click copy<br/>
-          (4) Paste the copied text from the GPX file into the text area below<br/>
-          (5) Click the green tick to process the GPX file<br/>
-          --- If successful, the points from the GPX file will be listed under Route Points<br/>
-          --- The uploaded GPX route will be displayed on the map<br/>
-          --- Note: The GPX file must contain the route in the same direction as you indicated above - from start place to end place
-        </div>
-      </div>
 
       <div class="erow">
         <textarea id="gpxfield" name="gpxfield" type="text" style="display:none" rows="8"></textarea>
@@ -504,5 +479,21 @@ deactivate_all_click();
    click_to_select_all.activate();
 <% end %>
 
+/* gox drag and drop */
+var zone = new FileDrop('drop_location', {input: false});
+
+zone.event('upload', function (e) {
+  zone.eventFiles(e).each(function (file) {
+    file.readData(
+      function (str) {
+        var area = document.getElementById("gpxfield")
+        area.value = str;
+        copyGpx()
+      },
+      function () { alert('Problem reading this file.'); },
+      'text'
+    );
+  });
+});
 </script>
 

@@ -2,6 +2,7 @@ var map_map;
 var mapBounds = new OpenLayers.Bounds(  545967,  3739728,  2507647, 6699370);
 var mapMinZoom = 5;
 var mapMaxZoom = 15;
+var map_pinned=false;
 
 var vectorLayer;
 var places_layer;
@@ -652,6 +653,12 @@ function place_init(plloc, keep) {
     vectorLayer.addFeatures(pointFeature);
 
   }
+  if (typeof(document.selectform)!='undefined') {
+    document.selectform.currentx.value=feaWGS.geometry.x;
+    document.selectform.currenty.value=feaWGS.geometry.y;
+    if (map_pinned==false) centre_map();
+  }
+
 }
 
 function route_init(startloc, endloc, rtline, keep) {
@@ -665,10 +672,10 @@ function route_init(startloc, endloc, rtline, keep) {
 
   if(startloc!="") {
     /* read location from form */
-    var feaWGS = new OpenLayers.Format.WKT().read(startloc);
+    var feaWGSs = new OpenLayers.Format.WKT().read(startloc);
 
     /*convert to map projectiob */
-    var geomMap = feaWGS.geometry.transform(srcProj, mapProj); 
+    var geomMap = feaWGSs.geometry.transform(srcProj, mapProj); 
     var pointFeature = new OpenLayers.Feature.Vector(geomMap,null,star_green);
 
     /*add to map */
@@ -678,10 +685,10 @@ function route_init(startloc, endloc, rtline, keep) {
   if(endloc!="") {
   
     /* read location from form */
-    feaWGS = new OpenLayers.Format.WKT().read(endloc);
+    feaWGSe = new OpenLayers.Format.WKT().read(endloc);
   
     /*convert to map projectiob */
-    geomMap = feaWGS.geometry.transform(srcProj, mapProj);
+    geomMap = feaWGSe.geometry.transform(srcProj, mapProj);
     pointFeature = new OpenLayers.Feature.Vector(geomMap,null,star_red);
   
     /*add to map */
@@ -701,6 +708,12 @@ function route_init(startloc, endloc, rtline, keep) {
 
     /*add to map */
     vectorLayer.addFeatures(lineFeature);
+  }
+
+  if (typeof(document.selectform)!='undefined' && endloc!="" && startloc!="") {
+    document.selectform.currentx.value=(feaWGSs.geometry.x+feaWGSe.geometry.x)/2;
+    document.selectform.currenty.value=(feaWGSs.geometry.y+feaWGSe.geometry.y)/2;
+    if (map_pinned==false) centre_map();
   }
 
 }
@@ -830,14 +843,14 @@ function linkHandler(entity_name) {
     $(function() {
      $.rails.ajax = function (options) {
        options.tryCount= (!options.tryCount) ? 0 : options.tryCount;0;
-       options.timeout = 10000*(options.tryCount+1);
+       options.timeout = 15000*(options.tryCount+1);
        options.retryLimit=3;
        options.complete = function(jqXHR, thrownError) {
          /* complete also fires when error ocurred, so only clear if no error has been shown */
          if(thrownError=="timeout") {
            this.tryCount++;
            document.getElementById("page_status").innerHTML = 'Retrying ...';
-           this.timeout=10000*this.tryCount;
+           this.timeout=15000*this.tryCount;
            if(this.tryCount<=this.retryLimit) {
              $.rails.ajax(this);
            } else {
@@ -980,23 +993,17 @@ function linkWithExtent(entity_name) {
          var lineGeomMeterProj = fea[0].geometry.transform(gpxProj,distProj);
          document.routeform.route_distance.value=lineGeomMeterProj.getLength()/1000;
          document.routeform.route_datasource.value="Uploaded from GPS";
+       } else {
+         alert("Invald GPX file");
        }
+       
      }
 }
 
-   function enableGpx() {
-     document.getElementById("gpxplus").style.display="none";
-     document.getElementById("gpxtick").style.display="block";
-     document.getElementById("gpxfield").style.display="block";
-}
 
    function copyGpx() {
      
      GPXtoWKT();
-     document.getElementById("gpxplus").style.display="block";
-     document.getElementById("gpxtick").style.display="none";
-     document.getElementById("gpxfield").style.display="none";
-
      // redraw map
      route_init(document.routeform.route_startplace_location.value,
               document.routeform.route_endplace_location.value,
@@ -1060,52 +1067,52 @@ function map_enable_draw_line() {
 
 function map_show_default() {
 
-    document.getElementById("show_route").style.border="3px solid lightgreen"; 
+    document.getElementById("show_route").style.border="2px solid lightgreen"; 
     show_route=true;
-    document.getElementById("show_accomodation").style.border="3px solid lightgreen"; 
+    document.getElementById("show_accomodation").style.border="2px solid lightgreen"; 
     show_accomodation=true;
-    document.getElementById("show_roadend").style.border="3px solid lightgreen"; 
+    document.getElementById("show_roadend").style.border="2px solid lightgreen"; 
     show_roadend=true;
-    document.getElementById("show_summit").style.border="3px solid lightgreen"; 
+    document.getElementById("show_summit").style.border="2px solid lightgreen"; 
     show_summit=true;
-    document.getElementById("show_scenic").style.border="3px solid lightgreen"; 
+    document.getElementById("show_scenic").style.border="2px solid lightgreen"; 
     show_scenic=true;
-    document.getElementById("show_crossing").style.border="3px solid lightgreen"; 
+    document.getElementById("show_crossing").style.border="2px solid lightgreen"; 
     show_crossing=true
-    document.getElementById("show_other").style.border="3px solid lightgreen"; 
+    document.getElementById("show_other").style.border="2px solid lightgreen"; 
     show_other=true;
 }
 
 function map_show_grey() {
 
-  if (show_route) { document.getElementById("show_route").style.border="3px solid lightgreen"};
-  if (show_accomodation) { document.getElementById("show_accomodation").style.border="3px solid lightgrey"};
-  if (show_roadend) { document.getElementById("show_roadend").style.border="3px solid lightgrey"};
-  if (show_summit) { document.getElementById("show_summit").style.border="3px solid lightgrey"};
-  if (show_scenic) { document.getElementById("show_scenic").style.border="3px solid lightgrey"};
-  if (show_crossing) { document.getElementById("show_crossing").style.border="3px solid lightgrey"};
-  if (show_other) { document.getElementById("show_other").style.border="3px solid lightgrey"};
+  if (show_route) { document.getElementById("show_route").style.border="2px solid lightgreen"};
+  if (show_accomodation) { document.getElementById("show_accomodation").style.border="2px solid lightgrey"};
+  if (show_roadend) { document.getElementById("show_roadend").style.border="2px solid lightgrey"};
+  if (show_summit) { document.getElementById("show_summit").style.border="2px solid lightgrey"};
+  if (show_scenic) { document.getElementById("show_scenic").style.border="2px solid lightgrey"};
+  if (show_crossing) { document.getElementById("show_crossing").style.border="2px solid lightgrey"};
+  if (show_other) { document.getElementById("show_other").style.border="2px solid lightgrey"};
 
 }
 
 function map_show_green() {
 
-  if (show_route) { document.getElementById("show_route").style.border="3px solid lightgreen"};
-  if (show_accomodation) { document.getElementById("show_accomodation").style.border="3px solid lightgreen"};
-  if (show_roadend) { document.getElementById("show_roadend").style.border="3px solid lightgreen"};
-  if (show_summit) { document.getElementById("show_summit").style.border="3px solid lightgreen"};
-  if (show_scenic) { document.getElementById("show_scenic").style.border="3px solid lightgreen"};
-  if (show_crossing) { document.getElementById("show_crossing").style.border="3px solid lightgreen"};
-  if (show_other) { document.getElementById("show_other").style.border="3px solid lightgreen"};
+  if (show_route) { document.getElementById("show_route").style.border="2px solid lightgreen"};
+  if (show_accomodation) { document.getElementById("show_accomodation").style.border="2px solid lightgreen"};
+  if (show_roadend) { document.getElementById("show_roadend").style.border="2px solid lightgreen"};
+  if (show_summit) { document.getElementById("show_summit").style.border="2px solid lightgreen"};
+  if (show_scenic) { document.getElementById("show_scenic").style.border="2px solid lightgreen"};
+  if (show_crossing) { document.getElementById("show_crossing").style.border="2px solid lightgreen"};
+  if (show_other) { document.getElementById("show_other").style.border="2px solid lightgreen"};
 }
 
 function toggle_routes() {
   if (show_route) {
-    document.getElementById("show_route").style.border="3px solid orange";
+    document.getElementById("show_route").style.border="2px solid orange";
     routes_layer.setVisibility(false);
     routes_simple_layer.setVisibility(false);
   } else {
-    document.getElementById("show_route").style.border="3px solid lightgreen";
+    document.getElementById("show_route").style.border="2px solid lightgreen";
   };
   show_route=!show_route;
   check_zoomend();
@@ -1120,9 +1127,9 @@ function toggle_map(category){
 
   if (currentState) {
     visibility=0; 
-    document.getElementById("show_"+category).style.border="3px solid orange";
+    document.getElementById("show_"+category).style.border="2px solid orange";
   } else {
-    document.getElementById("show_"+category).style.border="3px solid lightgreen";
+    document.getElementById("show_"+category).style.border="2px solid lightgreen";
   };
   for (index=0; index<pt_styleMap.styles.default.rules.length; ++index) {
      if (pt_styleMap.styles.default.rules[index].filter != null)  {
@@ -1266,4 +1273,22 @@ function check_zoomend() {
       document.getElementById("comment_form").style.display="none";
       document.getElementById("addComment").style.display="block";
     
+    }
+
+    function centre_map()
+    {
+      map_map.setCenter([document.selectform.currentx.value,document.selectform.currenty.value]);
+    }
+
+    function pin_map()
+    {
+      if (map_pinned==true)
+      {
+           map_pinned=false;
+           document.getElementById("pin-map").style.border="2px solid orange";
+           centre_map(); 
+      } else {
+           map_pinned=true;
+           document.getElementById("pin-map").style.border="2px solid lightgreen";
+      }
     }
