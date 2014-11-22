@@ -1,4 +1,7 @@
 class User < ActiveRecord::Base
+  attr_accessor :remeber_token, :activation_token
+  before_save :downcase_email
+  before_create :create_activation_digest
   has_many :places, class_name: "Place", foreign_key: "createdBy_id"
   has_many :reports, class_name: "Report", foreign_key: "createdBy_id"
   has_many :trips, class_name: "Trip", foreign_key: "createdBy_id"
@@ -25,7 +28,7 @@ class User < ActiveRecord::Base
 
   belongs_to :currenttrip, class_name: "Trip"
 
-  def User.new_remember_token
+  def User.new_token
     SecureRandom.urlsafe_base64
   end
 
@@ -40,10 +43,36 @@ class User < ActiveRecord::Base
     end
   end
 
+  def authenticated?(attribute, token)
+     digest = send("#{attribute}_digest")
+    return false if digest.nil?
+    Digest::SHA1.hexdigest(token.to_s)==digest
+  end
+
+  # Activates an account.
+  def activate
+    update_attribute(:activated,    true)
+    update_attribute(:activated_at, Time.zone.now)
+  end
+
+  # Sends activation email.
+  def send_activation_email
+    UserMailer.account_activation(self).deliver
+  end
+
+
   private
 
     def create_remember_token
-      self.remember_token = User.digest(User.new_remember_token)
+      self.remember_token = User.digest(User.new_token)
+    end
+  
+    def downcase_email
+      self.email = email.downcase
     end
 
+    def create_activation_digest
+      self.activation_token = User.new_token
+      self.activation_digest = User.digest(activation_token)
+    end
 end

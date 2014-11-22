@@ -1,7 +1,7 @@
 class UsersController < ApplicationController
   before_action :signed_in_user, only: [:edit, :update] 
   def index
-    @users=User.all.order(:lastVisited).reverse
+    @users=User.where(:activated=>true).order(:lastVisited).reverse
   end
 
   def show
@@ -57,11 +57,21 @@ class UsersController < ApplicationController
         session[:id2]=nil
         session[:op]=nil
 
-        sign_in @user
-        flash[:success] = "Welcome to the Route Guides"
-        redirect_to '/users/'+@user.name
+        @user.send_activation_email
+        flash[:info] = "Please check your email for details on how to activate your account"
+        redirect_to '/signin'
+#        sign_in @user
+#        flash[:success] = "Welcome to the Route Guides"
+#        redirect_to '/users/'+@user.name
       else
-        new()
+        # generate a security question and store it for this session 
+        @id1= rand(Securityquestion.count)+Securityquestion.minimum(:id)
+        @id2= rand(Securityquestion.count)+Securityquestion.minimum(:id)
+        @op= rand(Securityoperator.count)+Securityoperator.minimum(:id)
+        session[:id1]=@id1
+        session[:id2]=@id2
+        session[:op]=@op
+
         render 'new'
       end
     end
