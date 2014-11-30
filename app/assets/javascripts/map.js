@@ -120,8 +120,16 @@ function init(){
     map_map.addControl(new OpenLayers.Control.MousePosition());
     
     // Create a select feature control and add it to the map.
-    select = new OpenLayers.Control.SelectFeature([places_layer, routes_layer], {hover: true});
+    select = new OpenLayers.Control.SelectFeature([places_layer, routes_layer], {
+                 clickout: false, toggle: false,
+                        multiple: false, hover: false,
+                        toggleKey: "ctrlKey", // ctrl key removes from selection
+                        multipleKey: "shiftKey", // shift key adds to selection
+                        box: true
+
+    });
     map_map.addControl(select);
+    select.box=false;
     select.activate();
 
     map_show_default();
@@ -199,6 +207,7 @@ function places_layer_add() {
              document.selectform.selectx.value = f.geometry.x;
              document.selectform.selecty.value = f.geometry.y;
              document.selectform.selecttype.value = "/places/";
+             if (select.box) simulate_click();
 
            },
            'featureunselected': function(feature) {
@@ -247,7 +256,7 @@ function routes_layer_add() {
              document.selectform.selectx.value = f.geometry.x;
              document.selectform.selecty.value = f.geometry.y;
              document.selectform.selecttype.value = "/routes/";
-
+             if (select.box) simulate_click();
            },
            'featureunselected': function(feature) {
              document.selectform.select.value = "";
@@ -268,6 +277,14 @@ function deactivate_all_click() {
     if(typeof(click_to_copy_end_point)!='undefined') click_to_copy_end_point.deactivate();
     if(typeof(draw)!='undefined') draw.deactivate();
     map_disable_all();
+}
+
+function simulate_click() {
+    if(typeof(click_to_select_all)!='undefined') if (click_to_select_all.active)click_to_select_all.trigger();
+    if(typeof(click_to_copy_link)!='undefined') if (click_to_copy_link.active) click_to_copy_link.trigger();
+    if(typeof(click_to_create)!='undefined') if (click_to_create.active) click_to_create.trigger();
+    if(typeof(click_to_copy_start_point)!='undefined') if (click_to_copy_start_point.active) click_to_copy_start_point.trigger();
+    if(typeof(click_to_copy_end_point)!='undefined') if(click_to_copy_end_point.active) click_to_copy_end_point.trigger();
 }
 
 
@@ -291,7 +308,7 @@ function add_click_to_select_all_controller() {
      defaultHandlerOptions: {
          'single': true,
          'double': true,
-         'pixelTolerance': 0,
+         'pixelTolerance': 5,
          'stopSingle': false,
          'stopDouble': false
      },
@@ -333,7 +350,7 @@ function add_click_to_select_all_controller() {
       }
     }
   });
-}
+ }
 
 
 
@@ -652,11 +669,12 @@ function place_init(plloc, keep) {
     /*add to map */
     vectorLayer.addFeatures(pointFeature);
 
-  }
-  if (typeof(document.selectform)!='undefined') {
-    document.selectform.currentx.value=feaWGS.geometry.x;
-    document.selectform.currenty.value=feaWGS.geometry.y;
-    if (map_pinned==false) centre_map();
+    if (typeof(document.selectform)!='undefined') {
+
+      document.selectform.currentx.value=feaWGS.geometry.x;
+      document.selectform.currenty.value=feaWGS.geometry.y;
+      if (map_pinned==false) centre_map();
+    }
   }
 
 }
@@ -1021,7 +1039,7 @@ function overlay_getTileURL(bounds) {
     }
     if (mapBounds.intersectsBounds( bounds ) && z >= mapMinZoom && z <= mapMaxZoom ) {
        //console.log( this.url + z + "/" + x + "/" + y + "." + this.type);
-        return '/ms4w/apps/matts_app/data/nztm/' + z + "/" + x + "/" + y + "." + this.type;
+        return 'http://maps.routeguides.co.nz/ms4w/apps/matts_app/data/nztm/' + z + "/" + x + "/" + y + "." + this.type;
     } else {
         return "http://www.maptiler.org/img/none.png";
     }
@@ -1131,11 +1149,11 @@ function toggle_map(category){
   } else {
     document.getElementById("show_"+category).style.border="2px solid lightgreen";
   };
-  for (index=0; index<pt_styleMap.styles.default.rules.length; ++index) {
-     if (pt_styleMap.styles.default.rules[index].filter != null)  {
-       if ( pt_styleMap.styles.default.rules[index].symbolizer.category == category ) {
-         pt_styleMap.styles.default.rules[index].symbolizer.strokeOpacity=visibility;
-         pt_styleMap.styles.default.rules[index].symbolizer.fillOpacity=visibility;
+  for (index=0; index<pt_styleMap.styles['default'].rules.length; ++index) {
+     if (pt_styleMap.styles['default'].rules[index].filter != null)  {
+       if ( pt_styleMap.styles['default'].rules[index].symbolizer.category == category ) {
+         pt_styleMap.styles['default'].rules[index].symbolizer.strokeOpacity=visibility;
+         pt_styleMap.styles['default'].rules[index].symbolizer.fillOpacity=visibility;
        };
      };
   };
@@ -1292,3 +1310,20 @@ function check_zoomend() {
            document.getElementById("pin-map").style.border="2px solid lightgreen";
       }
     }
+
+
+  function select_box() {
+
+    select.box=!select.box;
+    if(select.active) {
+       select.deactivate();
+       select.activate();
+    }
+    if(select.box==true) {
+           document.getElementById("select-box").style.border="2px solid lightgreen";
+
+    } else {
+           document.getElementById("select-box").style.border="2px solid orange";
+
+    }
+  }

@@ -41,13 +41,13 @@ class ApplicationController < ActionController::Base
       @edit=true #always, so forms are shown in editmode if present
 
       #determine start and endplace opf combined route 
-      if @items.first[0]=='p' then @startplace=Place.find_by_id(@items.first[2..-1].to_i) end
-      if @items.first[0]=='r' then  routeId=@items.first[2..-1].to_i
+      if @items.first[0]=='p' and @items.first[2..-1].to_i>0 then @startplace=Place.find_by_id(@items.first[2..-1].to_i) end
+      if @items.first[0]=='r' and @items.first[2..-1].to_i!=0 then  routeId=@items.first[2..-1].to_i
         route=Route.find_by_signed_id(routeId)
-        @startplace=Place.find_by_id(route.startplace_id)
+        if route then @startplace=Place.find_by_id(route.startplace_id) end
       end
-      if @items.last[0]=='p' then @endplace=Place.find_by_id(@items.last[2..-1].to_i) end
-      if @items.last[0]=='r' then  routeId=@items.last[2..-1].to_i
+      if @items.last[0]=='p' and @items.first[2..-1].to_i>0 then @endplace=Place.find_by_id(@items.last[2..-1].to_i) end
+      if @items.last[0]=='r' and @items.first[2..-1].to_i!=0 then  routeId=@items.last[2..-1].to_i
         route=Route.find_by_signed_id(routeId)
         if route then @endplace=Place.find_by_id(route.endplace_id) end
       end

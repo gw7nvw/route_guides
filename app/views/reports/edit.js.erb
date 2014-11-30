@@ -1,4 +1,4 @@
-window.history.pushState(null, '', '/reports/<%=params[:id]+"/edit"%>');
+if (window.history.pushState!=null) window.history.pushState(null, '', '/reports/<%=params[:id]+"/edit"%>');
 $('#right_panel').html("<%= escape_javascript(render(:partial => 'reports/edit')).html_safe %>");
 
 
