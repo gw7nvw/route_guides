@@ -19,16 +19,6 @@
 
 </head>
 <body onload='<%=@init_name%>'>
-
-    <%= render 'layouts/header' %>
-    <div id="main_page">
-    <div id="left_panel">
-      <%= render 'maps/map' %>
-    </div>
-    <div id="right_panel">
-
-      <%= yield %>
-    </div>
   <%= form_tag '/redisplay', :remote=> true, :id => "thelink", :name=> 'selectform', :method=> 'post'%>
     <div class="row">
      <input type="hidden" name="select"/>
@@ -40,6 +30,16 @@
      <input type="hidden" name="currenty"/>
     </div>
   </form>
+
+    <%= render 'layouts/header' %>
+    <div id="main_page">
+    <div id="left_panel">
+      <%= render 'maps/map' %>
+    </div>
+    <div id="right_panel">
+
+      <%= yield %>
+    </div>
 
   </div>
 </body>

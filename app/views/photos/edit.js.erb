@@ -1,3 +1,3 @@
-  window.history.pushState(null, 'Route Guides | Photos', '/photos/<%=params[:id]+"/edit"%>');
+  if (window.history.pushState!=null) window.history.pushState(null, 'Route Guides | Photos', '/photos/<%=params[:id]+"/edit"%>');
   $('#right_panel').html("<%= escape_javascript(render(:partial => 'photos/edit')).html_safe %>");
 

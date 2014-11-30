@@ -10,7 +10,7 @@
   <ul class="places">
     <% @routes.each do |route| %>
       <li>
-        <%= link_to route.name, route, remote: true, :id => 'route_link_'+route.id.to_s, :onclick => "linkHandler('route_link_"+route.id.to_s+"')" %></li>
+        <%= link_to route.name, route, remote: true, :id => 'route_link_'+route.id.to_s, :onclick => "linkHandler('route_link_"+route.id.to_s+"')" %>
         <%= "added by "+route.createdBy.name+" (last updated "+route.updated_at.strftime("%F")+")"%>
  
       </li>

@@ -1,6 +1,10 @@
 require 'resque/server'
 
 RouteGuides::Application.routes.draw do
+  get "password_resets/new"
+  get "password_resets/edit"
+  get "password_reset/new"
+  get "password_reset/edit"
 mount Resque::Server.new, at: "/resque"
 resources :comments
 resources :account_activations, only: [:edit]
@@ -16,6 +20,8 @@ resources :trips
 resources :history, only: [:index, :show, :update]
 resources :messages, only: [:index, :show, :update]
 resources :forums, only: [:index, :show, :update]
+resources :password_resets, only: [:new, :create, :edit, :update]
+
 #controller :places do
 #    post 'places/:id' => :redisplay
 #end

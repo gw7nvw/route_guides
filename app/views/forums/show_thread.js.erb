@@ -1,2 +1,2 @@
-window.history.pushState(null, 'Route Guides | Forums', '/forums/<%=@id.to_s+"/?thread="+URI.escape(@subject)%>');
+if (window.history.pushState!=null) window.history.pushState(null, 'Route Guides | Forums', '/forums/<%=@id.to_s+"/?thread="+URI.escape(@subject)%>');
 $('#right_panel').html("<%= escape_javascript(render(:partial => 'forums/show_thread')).html_safe %>");

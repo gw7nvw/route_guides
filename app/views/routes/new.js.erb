@@ -1,7 +1,7 @@
 <% if @url and @url.include?('x') %>
   $('#route_form').html("<%= escape_javascript(render(:partial => 'routes/new')).html_safe %>");
 <% else %>
-  window.history.pushState(null, '', '/routes/new');
+  if (window.history.pushState!=null) window.history.pushState(null, '', '/routes/new');
   $('#right_panel').html("<%= escape_javascript(render(:partial => 'routes/new')).html_safe %>");
 <% end %>
 

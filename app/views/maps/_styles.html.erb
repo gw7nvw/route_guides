@@ -7,6 +7,14 @@ pt_styleMap = new OpenLayers.StyleMap({
             'select': {strokeColor: "pink", fillColor: "pink"}
         });
 
+var layer_style
+    layer_style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
+    layer_style.fillOpacity = 0.2;
+    layer_style.graphicOpacity = 1;
+    layer_style.strokeWidth = 2;
+    layer_style.strokeColor = "red";
+    layer_style.fillColor = "red";
+
 <% pts=PlaceType.all %>
 
 <% pts.each do |pt| %>
