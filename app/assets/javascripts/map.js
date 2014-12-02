@@ -66,14 +66,18 @@ function init(){
     Proj4js.defs["EPSG:27200"] = "+proj=nzmg +lat_0=-41 +lon_0=173 +x_0=2510000 +y_0=6023150 +ellps=intl +datum=nzgd49 +units=m +no_defs";
     Proj4js.defs["ESPG:4326"] = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs '
 
-    /* define our point styles */
-    create_styles();
+	    /* define our point styles */
+	    create_styles();
 
     var options = {
-      projection: new OpenLayers.Projection("EPSG:2193"),
-      displayProjection: new OpenLayers.Projection("EPSG:2193"),
-      units: "m",
-      maxResolution: 156543.0339,
+projection: new OpenLayers.Projection("EPSG:2193"),
+	    displayProjection: new OpenLayers.Projection("EPSG:2193"),
+	    units: "m",
+	    //      max4Resolution: 156543.0339,
+      maxResolution: 4891.969809375,
+      numZoomLevels: 11,
+//      resolutions: [4891.969809375, 2445.9849046875, 1222.99245234375, 611.496226171875, 305.7481130859375, 152.8740565429688, 76.43702827148438, 38.21851413574219, 19.10925706787109, 9.554628533935547, 4.777314266967773],
+      //resolutions: [156543.0339, 78271.51695, 39135.758475, 19567.8792375, 9783.93961875, 4891.969809375, 2445.9849046875, 1222.99245234375, 611.496226171875, 305.7481130859375, 152.8740565429688, 76.43702827148438, 38.21851413574219, 19.10925706787109, 9.554628533935547, 4.777314266967773],
       maxExtent: new OpenLayers.Bounds(-20037508, -20037508, 20037508, 20037508.34)
  //       maxExtent: new OpenLayers.Bounds(545967,  3739728,  2507647, 6699370)
     };
@@ -118,11 +122,12 @@ function init(){
     map_map.zoomToExtent(extent); 
     //map_map.addControl(new OpenLayers.Control.LayerSwitcher());
     map_map.addControl(new OpenLayers.Control.MousePosition());
+    map_map.addControl(new OpenLayers.Control.Scale());
     
     // Create a select feature control and add it to the map.
     select = new OpenLayers.Control.SelectFeature([places_layer, routes_layer], {
-                 clickout: false, toggle: false,
-                        multiple: false, hover: false,
+                 clickout: true, toggle: false,
+                        multiple: false, hover: true,
                         toggleKey: "ctrlKey", // ctrl key removes from selection
                         multipleKey: "shiftKey", // shift key adds to selection
                         box: true
@@ -136,6 +141,7 @@ function init(){
 
     //callback for moveend event 
     map_map.events.register("zoomend", map_map, check_zoomend);
+    map_map.events.register("moveend", map_map, check_moveend);
 
     vectorLayer = new OpenLayers.Layer.Vector("Current feature", {
                 style: layer_style,
@@ -180,7 +186,7 @@ function init(){
     map_enable_info();
 
     map_map.zoomToExtent( mapBounds.transform(map_map.displayProjection, map_map.projection ) );
-    map_map.zoomTo(5);
+//    map_map.zoomTo(5);
 
   }
 }
@@ -202,12 +208,14 @@ function places_layer_add() {
     places_layer.events.on({
         'featureselected': function(feature) {
 	     var f = places_layer.selectedFeatures.pop();
+             select.unselectAll();
+	     places_layer.selectedFeatures.push(f);
              document.selectform.select.value = f.attributes.id;
              document.selectform.selectname.value = f.attributes.name;
              document.selectform.selectx.value = f.geometry.x;
              document.selectform.selecty.value = f.geometry.y;
              document.selectform.selecttype.value = "/places/";
-             if (select.box) simulate_click();
+             if (!select.hover) simulate_click();
 
            },
            'featureunselected': function(feature) {
@@ -347,6 +355,8 @@ function add_click_to_select_all_controller() {
           }
   
         });
+        document.selectform.selecttype.value="";
+        document.selectform.select.value="";
       }
     }
   });
@@ -1033,7 +1043,7 @@ function overlay_getTileURL(bounds) {
     var res = this.map.getResolution();
     var x = Math.round((bounds.left - this.maxExtent.left) / (res * this.tileSize.w));
     var y = Math.round((bounds.bottom - this.tileOrigin.lat ) / (res * this.tileSize.h));
-    var z = this.map.getZoom();
+    var z = this.map.getZoom()+5;
     if (this.map.baseLayer.name == 'Virtual Earth Roads' || this.map.baseLayer.name == 'Virtual Earth Aerial' || this.map.baseLayer.name == 'Virtual Earth Hybrid') {
        z = z + 1;
     }
@@ -1182,17 +1192,16 @@ function toggle_map(category){
   check_zoomend();
 
 }
+function check_moveend() {   
+     if (places_layer.visible && places_layer.features.length==0) places_layer.refresh({force:true});
+     if (routes_layer.visible && routes_layer.features.length==0) routes_layer.refresh({force:true});
+     if (routes_simple_layer.visible && routes_simple_layer.features.length==0) routes_simple_layer.refresh({force:true});
+}
+
 function check_zoomend() {
        var x = map_map.getZoom();
-        
-        if( x > 15) {
-            map_map.zoomTo(15);
-        }
-        if( x < 5) {
-            map_map.zoomTo(5);
-        }
         // hide places above 7 zoom (too much data).  Turn back on if we drop below 
-        if( x < 8) {
+        if( x < 4) {
             places_layer.setVisibility(false);
             if (show_route) {
               routes_layer.setVisibility(false);
@@ -1226,9 +1235,10 @@ function check_zoomend() {
 
         mywindow.focus(); 
         if (navigator.userAgent.toLowerCase().indexOf("chrome") < 0) {
-         mywindow.print(); 
-         mywindow.close();
-       }
+          mywindow.print(); 
+        }
+     
+        mywindow.focus(); 
         return true;
     }
 
@@ -1315,15 +1325,41 @@ function check_zoomend() {
   function select_box() {
 
     select.box=!select.box;
+    select.hover=!select.box;
     if(select.active) {
        select.deactivate();
        select.activate();
     }
+    toggle_select();
     if(select.box==true) {
            document.getElementById("select-box").style.border="2px solid lightgreen";
 
     } else {
            document.getElementById("select-box").style.border="2px solid orange";
 
+    }
+  }
+ 
+  function toggle_select() {
+    // Restart current click controller
+    if(typeof(click_to_select_all)!='undefined') if (click_to_select_all.active) { 
+     click_to_select_all.deactivate();
+     click_to_select_all.activate();
+    }
+    if(typeof(click_to_copy_link)!='undefined') if (click_to_copy_link.active) {
+      click_to_copy_link.deactivate();
+      click_to_copy_link.activate();
+    }
+    if(typeof(click_to_create)!='undefined') if (click_to_create.active)  {
+       click_to_create.deactivate();
+       click_to_create.activate();
+    }
+    if(typeof(click_to_copy_start_point)!='undefined') if (click_to_copy_start_point.active) {
+      click_to_copy_start_point.deactivate();
+      click_to_copy_start_point.activate();
+    }
+    if(typeof(click_to_copy_end_point)!='undefined') if(click_to_copy_end_point.active) {
+      click_to_copy_end_point.deactivate();
+      click_to_copy_end_point.activate();
     }
   }
