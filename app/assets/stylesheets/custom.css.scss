@@ -89,7 +89,7 @@ p {
   height: 100%;
   margin-left: 2%;
   margin-right: 2%;
-  margin-top: 45px;
+  margin-top: 25px;
 }
 
 #map_status{
@@ -152,14 +152,6 @@ p {
   margin-right:2%%;
 }
 
-#map_map {
-        width: calc(100% - 2px);
-        height: calc(100% - 62px);
-        border: 0px;
-        margin: 0px;
-        margin-left: 20px;
-        padding: 0px;
-}
 #tooltip{
         position:absolute;
         z-index:10000;
@@ -440,7 +432,7 @@ img.photo {
 
 #map_map {
         width: calc(100% - 2px);
-        height: calc(100% - 62px); 
+        height: calc(100% - 72px); 
         border: 0px;
         margin: 0px;
  /*       margin-top: 100px; */
