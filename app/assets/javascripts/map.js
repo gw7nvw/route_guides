@@ -60,6 +60,26 @@ window.onpopstate = function(event)  {
 function init(){
   if(typeof(map_map)=='undefined') {
 
+  //resizable div
+//  var containerWidth =900;
+  var containerWidth= $("#main_page").width()-5;
+  var nbpanels = 2;
+  var padding = 2.5;
+  
+//  $(".panel").width( (containerWidth / nbpanels) - (nbpanels * padding - 2 * padding));
+
+  $(".panel").resizable({
+    handles: 'e',
+    maxWidth: containerWidth-120,
+    minWidth: 120,
+    resize: function(event, ui){
+      var currentWidth = ui.size.width;
+      // set the content panel width
+      $(".panel").width( ( (containerWidth - currentWidth + padding ) / (nbpanels - 1) ) - ((nbpanels - 1) * padding) );
+      $("#right_panel").css('margin-left', currentWidth+padding*2+'px' );
+      $(this).width(currentWidth);
+    }
+  });
     /* explicityly define the projections we will use */
     Proj4js.defs["EPSG:2193"] = "+proj=tmerc +lat_0=0 +lon_0=173 +k=0.9996 +x_0=1600000 +y_0=10000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs";
     Proj4js.defs["EPSG:900913"] = "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_defs";
@@ -76,8 +96,6 @@ projection: new OpenLayers.Projection("EPSG:2193"),
 	    //      max4Resolution: 156543.0339,
       maxResolution: 4891.969809375,
       numZoomLevels: 11,
-//      resolutions: [4891.969809375, 2445.9849046875, 1222.99245234375, 611.496226171875, 305.7481130859375, 152.8740565429688, 76.43702827148438, 38.21851413574219, 19.10925706787109, 9.554628533935547, 4.777314266967773],
-      //resolutions: [156543.0339, 78271.51695, 39135.758475, 19567.8792375, 9783.93961875, 4891.969809375, 2445.9849046875, 1222.99245234375, 611.496226171875, 305.7481130859375, 152.8740565429688, 76.43702827148438, 38.21851413574219, 19.10925706787109, 9.554628533935547, 4.777314266967773],
       maxExtent: new OpenLayers.Bounds(-20037508, -20037508, 20037508, 20037508.34)
  //       maxExtent: new OpenLayers.Bounds(545967,  3739728,  2507647, 6699370)
     };
@@ -94,14 +112,12 @@ projection: new OpenLayers.Projection("EPSG:2193"),
     layer_style.strokeColor = "red";
     layer_style.fillColor = "red";
 
-//    var extent = new OpenLayers.Bounds(-20037508, -20037508, 20037508, 20037508.34)
     var extent=new OpenLayers.Bounds(545967,  3739728,  2507647, 6699370);
 
     var basemap_layer =  new OpenLayers.Layer.TMS( "TMS Overlay", "",
-        {    //url: '/routeguides.co.nz/ms4w/apps/matts_app/date/nztm/',
+        {    
              type: 'png', 
              getURL: overlay_getTileURL,
-// alpha: true, 
              isBaseLayer: true,
              tileOrigin: new OpenLayers.LonLat(0,-20037508)
          });
@@ -116,11 +132,10 @@ projection: new OpenLayers.Projection("EPSG:2193"),
 
     map_map.addLayer(basemap_layer);
     map_map.addLayer(places_layer);
-  map_map.addLayer(routes_layer);
+    map_map.addLayer(routes_layer);
     map_map.addLayer(routes_simple_layer);
 
     map_map.zoomToExtent(extent); 
-    //map_map.addControl(new OpenLayers.Control.LayerSwitcher());
     map_map.addControl(new OpenLayers.Control.MousePosition());
     map_map.addControl(new OpenLayers.Control.Scale());
     
@@ -150,14 +165,6 @@ projection: new OpenLayers.Projection("EPSG:2193"),
             });
     map_map.addLayer(vectorLayer);
 
-   /* arrange layer order */
-//   map_map.setLayerIndex(basemap_layer,100);
- //  map_map.setLayerIndex(places_layer,200);
-  // map_map.setLayerIndex(routes_layer,300);
-   //map_map.setLayerIndex(vector_layer,400);
-//
-   //map_map.redraw();
-
     /* create click controllers*/
     add_click_to_select_all_controller();
     click_to_select_all = new OpenLayers.Control.Click();
@@ -186,7 +193,6 @@ projection: new OpenLayers.Projection("EPSG:2193"),
     map_enable_info();
 
     map_map.zoomToExtent( mapBounds.transform(map_map.displayProjection, map_map.projection ) );
-//    map_map.zoomTo(5);
 
   }
 }
