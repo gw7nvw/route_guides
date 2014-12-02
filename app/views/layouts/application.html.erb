@@ -11,6 +11,8 @@
 
     <title><%= full_title(yield(:title)) %></title>
     <%= stylesheet_link_tag "application", media: "all", "data-turbolinks-track" => true %>
+    <%= stylesheet_link_tag "application", media: "all", "jquery-ui.mi" => true %>
+
     <%= javascript_include_tag "application", "data-turbolinks-track" => true %>
     <%= csrf_meta_tags %>
     <%= render 'layouts/shim' %> 
@@ -18,7 +20,7 @@
     <%= render '/maps/styles' %>
 
 </head>
-<body onload='<%=@init_name%>'>
+<body onload='<%=@init_name%>' style="cursor: auto;">
   <%= form_tag '/redisplay', :remote=> true, :id => "thelink", :name=> 'selectform', :method=> 'post'%>
     <div class="row">
      <input type="hidden" name="select"/>
@@ -33,14 +35,14 @@
 
     <%= render 'layouts/header' %>
     <div id="main_page">
-    <div id="left_panel">
-      <%= render 'maps/map' %>
+    <div id="left_panel" class="panel">
+      <%=render 'maps/map' %>
     </div>
-    <div id="right_panel">
+    <div id="right_panel" class="panel">
 
-      <%= yield %>
+      <%=yield %>
     </div>
-
+    <div class="clear"></div>
   </div>
 </body>
 </html>
