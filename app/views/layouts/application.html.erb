@@ -20,7 +20,11 @@
     <%= render '/maps/styles' %>
 
 </head>
-<body onload='<%=@init_name%>' style="cursor: auto;">
+<% if @help=="true" %>
+ <body>
+    <div id="right_panel" class="panel" style="margin-left: 0px; width: 100%">
+<% else %>
+ <body onload='<%=@init_name%>' style="cursor: auto;">
   <%= form_tag '/redisplay', :remote=> true, :id => "thelink", :name=> 'selectform', :method=> 'post'%>
     <div class="row">
      <input type="hidden" name="select"/>
@@ -39,6 +43,7 @@
       <%=render 'maps/map' %>
     </div>
     <div id="right_panel" class="panel">
+ <% end %> 
 
       <%=yield %>
     </div>

@@ -1,13 +1,13 @@
-  <script type="text/javascript">
+<script type="text/javascript">
 //<![CDATA[
    bkLib.onDomLoaded(startEdit);
 
 function startEdit() {
-   nicEditors.allTextAreas();
+  nicEditors.allTextAreas();
   init();
 }
   //]]>
- </script>
+</script>
 <div id='report_details'>
   <div>
      <%= form_for  @report, :remote=> true, :html => {:name => 'reportform'}  do |f| %>
@@ -17,10 +17,12 @@ function startEdit() {
       <%= f.text_field :name, :disabled=>!@edit %>
 
       <%= f.label :description %>
+      <div class="erow">
       <div id="editPanel"></div>
       <span id="descrSpan">
          <%= f.text_area :description, :disabled=>!@edit, :rows=>"8"   %>
       </span>
+      </div>
       <br/>
       <div class="erow">
         <% if @report.createdBy_id %>
@@ -29,7 +31,7 @@ function startEdit() {
       </div>
       <br/>
 
-
+      <div class="erow">
       <% if @edit %>
         <%= f.submit "Save", class: "btn btn-small btn-primary", name: "save", onclick: "linkHandler('savebutton')", id:  "savebutton" %>
         <%=  link_to "Cancel", '/reports/'+@report.id.to_s, class: "btn btn-small btn-primary", remote: true %>
@@ -43,6 +45,7 @@ function startEdit() {
       <br/>
        
     <% end %>
+    </div>
   </div>
 </div>
 

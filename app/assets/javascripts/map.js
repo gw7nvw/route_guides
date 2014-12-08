@@ -65,7 +65,11 @@ function init(){
   var containerWidth= $("#main_page").width()-5;
   var nbpanels = 2;
   var padding = 2.5;
-  
+ 
+  window.onresize = function()
+  {
+    setTimeout( function() { map_map.updateSize();}, 1000);
+  } 
 //  $(".panel").width( (containerWidth / nbpanels) - (nbpanels * padding - 2 * padding));
 
   $(".panel").resizable({
@@ -956,6 +960,16 @@ function linkWithExtent(entity_name) {
    }
 
    function updateRoute(buttonName) {
+     //Validation
+     if(document.getElementById("locationtick").style.display=="block") {
+       alert("You must confirm the route you have drawn before you can save. Click the green tick next to Route Points");
+       //cancel
+       return false;
+     } else {
+     if(document.routeform.route_location.value.length<1 && document.getElementById("route_published").checked==true) {
+       alert("All routes must have a set of route points on the map. Please either draw / upload a set of route points, or uncheck the 'published' checkbox to save as draft");
+     return false;
+     } }
      routesStale=true;
      linkHandler(buttonName); 
    }
@@ -1224,6 +1238,11 @@ function check_zoomend() {
        }
     }
 
+    function HelpWindow(path) {
+       var mywindow = window.open(path+'/?help=true', 'Help', 'height=1024,width=768' );
+        mywindow.focus(); 
+    }
+
     function PrintElem(elem)
     {
         Popup(document.getElementById(elem).innerHTML, document.getElementById(elem).offsetHeight,document.getElementById(elem).offsetWidth);
@@ -1234,14 +1253,13 @@ function check_zoomend() {
         var mywindow = window.open('', 'routeguides.co.nz', 'height='+h+',width='+w);
         mywindow.document.write('<html><head><title>routeguides.co.nz</title>');
         mywindow.document.write('<link rel="stylesheet" type="text/css" href="/assets/print.css" /> ');
-
         mywindow.document.write('</head><body >');
         mywindow.document.write(data);
         mywindow.document.write('</body></html>');
 
         mywindow.focus(); 
         if (navigator.userAgent.toLowerCase().indexOf("chrome") < 0) {
-          mywindow.print(); 
+//          mywindow.print(); 
         }
      
         mywindow.focus(); 

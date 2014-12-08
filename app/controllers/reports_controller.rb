@@ -20,11 +20,14 @@ end
 
 def show
     @edit=false
+    if params[:help] then @help=params[:help] end
     if params[:editlinks] then @editlinks=true end
     if (!@id) then @id=params[:id] end
     if !@report=Report.find_by_id(@id) then
       redirect_to root_url
     end
+    puts @id
+    puts @report
     @referring_page='/reports/'+@report.id.to_s
 
 end
