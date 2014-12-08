@@ -94,6 +94,9 @@
                 <%= link_to image_tag("/assets/newmail-24.png", :border=>5, :class => 'dock-item'), '/messages/', remote: true, onclick: "linkHandler('newmail')", id:  "newmail", style: "display:none"  %>
               </li>
               <li>
+                <img src='/assets/help-on.png' width="16" id="print_right" style="margin-top:13px;margin-right:5px" onclick="HelpWindow('/reports/14')">
+              </li>
+              <li>
                 <img src='/assets/print24.png' width="16" id="print_right" style="margin-top:13px;margin-right:5px" onclick="PrintElem('right_panel')">
               </li>
             </ul>
