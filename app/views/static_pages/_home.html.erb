@@ -11,12 +11,35 @@
 
 </script>
 
+<div style="background-image: url('assets/banner3.jpg'); background-size: cover;height: 100px">
 <h1>NZ Route Guides</h1>
   <h2>
     A repository for tramping knowledge
   <br/>
   </h2>
+</div>
  <ul class="places"> 
+    <li>
+   <b>Keen to help?</b> routeguides.co.nz is now fully functional and needs keen trampers to help guide its future. So, have a go - play with the site.  Add in a route guide for a route you are familiar with. And most important of all give us your feedback through the 
+<%= link_to 'forums',  'forums', remote:true,  remote: true, :id => 'forums', :onclick => "linkHandler('forums')" %>
+.  Let us know:<br/>
+- What's good, what's bad?<br/>
+- What works well for you, and what's too hard to use? <br/>
+- Where is simplification or help needed?<br/>
+- What's missing that you'd like to see?<br/>
+This site can develop in any way the tramping community want it to.  So 
+<%= link_to 'join up',  'signup', remote:true,  remote: true, :id => 'signup', :onclick => "linkHandler('signup')" %> or 
+<%= link_to 'sign in',  'signin', remote:true,  remote: true, :id => 'signup', :onclick => "linkHandler('signinu)" %>
+and help us realise its potential.
+ </li>
+ <li>
+   Find a place, route etc by name:
+ <%= render '/search/find' %>
+ </li>
+ <li>
+   Select a start and end place from the map and search for through routes between them:
+ <%= render '/search/search' %>
+ </li>
     <li>
    Explore the map. Zoom in to see places and detailed topomaps. Click on a place or route on the map to view information. 
  </li>
@@ -26,10 +49,6 @@
  </li>
  <li>
    Check out to the <%= link_to 'About',  'about', remote:true,  remote: true, :id => 'about', :onclick => "linkHandler('about')" %> page for articles containing tips, help and further information about this site.
- </li>
- <li>
-   Select a start and end place from the map and search for through routes between them:
- <%= render '/search/search' %>
  </li>
  </ul>
   <div class="erow">

@@ -1,5 +1,5 @@
 var map_map;
-var mapBounds = new OpenLayers.Bounds(  545967,  3739728,  2507647, 6699370);
+var mapBounds = new OpenLayers.Bounds(748961,3808210, 2940563,  6836339);
 var mapMinZoom = 5;
 var mapMaxZoom = 15;
 var map_pinned=false;
@@ -64,7 +64,7 @@ function init(){
 //  var containerWidth =900;
   var containerWidth= $("#main_page").width()-5;
   var nbpanels = 2;
-  var padding = 2.5;
+  var padding = 5;
  
   window.onresize = function()
   {
@@ -918,10 +918,10 @@ function linkWithExtent(entity_name) {
     var dstProj =  new OpenLayers.Projection("EPSG:4326");
     
     var currentextent=map_map.getExtent().transform(mapProj, dstProj);
-    document.routeform.extent_left.value=currentextent.left;
-    document.routeform.extent_right.value=currentextent.right;
-    document.routeform.extent_top.value=currentextent.top;
-    document.routeform.extent_bottom.value=currentextent.bottom;
+    document.findform.extent_left.value=currentextent.left;
+    document.findform.extent_right.value=currentextent.right;
+    document.findform.extent_top.value=currentextent.top;
+    document.findform.extent_bottom.value=currentextent.bottom;
   
     linkHandler(entity_name);
 }

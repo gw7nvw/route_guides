@@ -1,9 +1,11 @@
-<% if(@searchtext) %>
+<% if !@static_page %>
+  <% if(@searchtext) %>
      <% provide(:title, 'Find | '+@searchtext) %>
      <% @title=" | Find | "+@searchtext %>
-<% else %>
+  <% else %>
      <% provide(:title, 'Find') %> 
      <% @title=" | Find" %>
+  <% end %>
 <% end %>
 <%= render 'flash' %>
 
@@ -14,7 +16,7 @@
 </script>
 
 
-    <%= form_tag '/find', :name => 'routeform', :remote => true, :method => 'post' %>
+    <%= form_tag '/find', :name => 'findform', :remote => true, :method => 'post' %>
 
       <input type="hidden" name="extent_left">
       <input type="hidden" name="extent_right">
@@ -22,11 +24,24 @@
       <input type="hidden" name="extent_bottom">
       <input type="hidden" name="referer" value='<%=@respond_to%>'>
       <div class="erow">
+        <% if  @static_page and @static_page==true %>
+        <% else %>
         <div class="rowtitle">Find:</div>
+        <% end %>
         <div class="rowtext">     
           <input type="text" name="searchtext" value='<%=@searchtext%>'/>
         </div>
       </div>
+      <% if @static_page and @static_page==true %>
+        <input type="hidden" name="Places" value="1">
+        <input type="hidden" name="Routes" value="1">
+        <input type="hidden" name="Trips" value="1">
+        <input type="hidden" name="Stories" value="1">
+        <input type="hidden" name="Photos" value="1">
+        <input type="hidden" name="Name" value="1">
+        <input type="hidden" name="Description" value="0">
+        <input type="hidden" name="Extent" value="0">
+      <% else %> 
       <div class="erow">
         <div class="rowtitle">Search for:</div>
       </div>
@@ -67,7 +82,8 @@
         <div class="checktitle">Current map extent only</div>
         <div class="checkbox"><%= check_box_tag 'Extent', 1, @inextent%></div>
       </div>
-       
+      
+      <% end %>
       <%= submit_tag "Find", :id => "find", :onclick => "linkWithExtent('find')" %>
 
     </form>
