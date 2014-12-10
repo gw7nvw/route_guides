@@ -7,6 +7,7 @@ def find
   if !@findroutes then @findroutes=true end
   if !@findtrips then @findtrips=true end
   if !@findstories then @findstories=true end
+  if !@findphotos then @findphotos=true end
 end
 
 def findresults
