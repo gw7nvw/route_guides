@@ -1,5 +1,11 @@
-<% provide(:title, 'Trips') %>
-<% @title=" | Trips" %>
+<% if @referring_page=="wishlist" %> 
+   <% provide(:title, 'My Trips') %>
+   <% @title=" | My Trips" %>
+<% else %>
+   <% provide(:title, 'Trips') %>
+    <% @title=" | Trips" %>
+<% end %>
+
 <%= render 'flash' %>
 <%= render 'application/mail_status' %>
 
@@ -11,6 +17,41 @@
 </script>
 
 
+    <% if @referring_page=="wishlist" %> 
+         <div class="erow">
+            <%=render :partial => 'help_buttons',  :locals => {:expName => "thelptitle", :initialSt => 0} %>
+
+            <div class="rowtitlesmall">
+              <%="My Trips"%>
+            </div>
+         <% if signed_in? %> 
+               <div class="rightbuttons">
+               <span title="Add new trip">
+                 <%= link_to image_tag("/assets/add.png", :border=>0, :class => 'dock-item'), '/trips/new', remote: true, onclick: "linkHandler('addbutton')", id:  "addbutton"  %>
+               </span>
+               </div>
+         <% end %>
+
+         </div>
+         <div class="erow">
+           <div id="thelptitle" class="helptext" style="display:none">
+              My Trips shows a list of all the trips you have created.  <br/><br/>
+              The trip highlighted in green is your
+              'current trip', and anything you 'Add to trip' will be added to this trip.  Click the green tick 
+              next to a trip to make it your current trip.  Click on the title of a trip to view it. Click on 
+              the green plus to create a new trip (nd make it your current trip). Click on the trash can to 
+              delete a trip.
+           </div>
+         </div>
+
+    <% else %>
+       <div class="erow">
+         <div class="sectiontitle">
+            <%="Trips"%>
+         </div>
+       </div>
+    <% end %>
+  <div class="erow">
   <ul class="places">
    <% if @trips %>
     <% @trips.each do |trip| %>
@@ -23,13 +64,30 @@
        <%= form_tag '/trips/move', :remote=> true, :method=> 'post'%>
 
          <input type="hidden" name="selected_id" value='<%=trip.id%>' />
+         <input type="hidden" name="referring_page" value='<%=@referring_page%>' />
+         <div class="erow">
          <% if signed_in? %>
             <% if trip.createdBy_id == @current_user.id or @current_user.role.name=='root'%>
-               <%= submit_tag "Select as current",  :type => :image, :src => '/assets/tick.png', :style => 'margin-bottom:0;border:none',  id: "selectCurrent", onclick: "linkHandler('selectCurrent')"  %>
+               <div class="leftbuttons">
+               <span title="Select this as my current trip">
+                 <%= submit_tag "Select as current",  :type => :image, :src => '/assets/tick.png', :style => 'margin-bottom:0;border:none',  id: "selectCurrent", onclick: "linkHandler('selectCurrent')"  %>
+               </span>
+               </div>
             <% end %>
          <% end %>
 
-       <%= link_to trip.createdBy.name.capitalize+" - "+trip.name, trip, remote: true, :id => 'trip_link_'+trip.id.to_s, :onclick => "linkHandler('trip_link_"+trip.id.to_s+"')" %><br/>
+       <%= link_to trip.createdBy.name.capitalize+" - "+trip.name, trip, remote: true, :id => 'trip_link_'+trip.id.to_s, :onclick => "linkHandler('trip_link_"+trip.id.to_s+"')" %>
+      
+         <% if signed_in? and @referring_page=="wishlist"%>
+            <% if trip.createdBy_id == @current_user.id or @current_user.role.name=='root'%>
+               <div class="rightbuttons">
+               <span title="Delete this trip">
+                 <%= submit_tag "Delete",  :type => :image, :src => '/assets/trash.png', :style => 'margin-bottom:0;border:none',  id: "Delete", onclick: "linkHandler('Delete')", data: { confirm: "Detete trip: are you sure?" } %>
+               </span>
+               </div>
+            <% end %>
+         <% end %>
+       <br/>
        <%= trip.lengthmin%> to <%= trip.lengthmax%> days |
        <%= number_with_precision(trip.distance, :precision => 2) %> km |
        <%= number_with_precision(trip.walkingtime, :precision => 1) %> DOC hrs
@@ -40,4 +98,5 @@
     </form>
    <% end %>
   </ul>
+  </div>
 

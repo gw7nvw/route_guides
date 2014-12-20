@@ -2,7 +2,7 @@
  <%= form_tag '/links', :name => 'linksform', :remote => true, :method => 'post' %>
 
   <% parent.links.each do |rl| %>
-      <div class="erow" style="margin-left:25px">
+      <div class="erow" style="margin-left:25px;width:calc(100% - 25px)">
         <div class="rowtitle" >
           <%= rl.item_type.capitalize+": "%>
         </div>
@@ -22,7 +22,7 @@
    <% end %>
 
    <div id="add-link">
-     <div class="erow" style="padding-left:25px">
+     <div class="erow" style="padding-left:25px;width:calc(100% - 25px)">
         <div class="rowtitle">
           <input type="text" name="itemType" id="itemType" readonly="true"/>
         </div>

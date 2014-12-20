@@ -49,7 +49,6 @@
                   <li class="divider"></li>
                   <li><%= link_to "Place", new_place_path, remote: true, :id => 'new_place_link', :onclick => "linkHandler('new_places_link')"  %></li>
                   <li><%= link_to "Route segment", new_route_path, remote: true,  :id => 'new_route_link', :onclick => "linkHandler('new_route_link')"   %></li>
-                  <li><%= link_to "Trip", new_trip_path,  remote: true,  :id => 'new_trip_link', :onclick => "linkHandler('new_trip_link')" %></li>
                   <li><%= link_to "Story", new_report_path,  remote: true,  :id => 'new_report_link', :onclick => "linkHandler('new_report_link')" %></li>
                   <li><%= link_to "Photo", new_photo_path,  remote: true,  :id => 'new_photo_link', :onclick => "linkHandler('new_photo_link')" %></li>
 
@@ -75,11 +74,11 @@
                    <b>Me</b> <b class="caret"></b>
                 </a>
                 <ul class="dropdown-menu">
+                  <li><%= link_to "My trips", wishlist_path,  remote: true,  :id => 'trips_link', :onclick => "linkHandler('trips_link')" %></li>
                   <% if @current_user.currenttrip %> <li><%= link_to "Current trip",  currenttrip_path,  remote: true,  :id => 'my_trip_link', :onclick => "linkHandler('my_trip_link')"  %></li> <% end %>
-                  <li><%= link_to "Wishlist", wishlist_path,  remote: true,  :id => 'trips_link', :onclick => "linkHandler('trips_link')" %></li>
+                  <li><%= link_to "Add new trip", new_trip_path,  remote: true,  :id => 'new_trip_link', :onclick => "linkHandler('new_trip_link')" %></li>
                   <li class="divider"></li>
                   <li><%= link_to "Profile", '/users/'+current_user.name, remote: true %></li>
-                  <li><%= link_to "Settings", '#' %></li>
                   <li class="divider"></li>
                   <li>
                     <%= link_to "Sign out", signout_path, method: "delete" %>

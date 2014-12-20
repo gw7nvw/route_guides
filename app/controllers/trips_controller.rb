@@ -7,6 +7,7 @@ def index
   if signed_in?  then @trips=Trip.where('"createdBy_id" = ? or published = true ',@current_user.id).order(:name)
   else @trips=Trip.where(published: true).order(:name) 
   end
+  @referring_page="index"
 end
 
 def wishlist
@@ -14,6 +15,7 @@ def wishlist
 
   @trips=Trip.where('"createdBy_id" = ?',@current_user.id).order(:name)
 
+  @referring_page="wishlist"
   render 'index'
 end
 
@@ -29,6 +31,9 @@ end
 
 def move
    @edit=true
+   @referring_page=params[:referring_page]
+   if !@referring_page or @referring_page.length==0 then @referring_page='index' end
+  
       prepare_route_vars()
       @place_types = PlaceType.all
 
@@ -98,12 +103,17 @@ def move
    if (params[:commit] == 'Delete')
       trip=Trip.find_by_id(params[:selected_id])
 
-      # if we delete current trip, make a new one ...
+      # if we delete current trip, selct first remainingtrip as current, or else make a new one ...
       if trip.id == @current_user.currenttrip_id
-        @trip=Trip.new()
-        @trip.createdBy_id=@current_user.id
-        @trip.name="Default" 
-        @trip.save
+        trips=Trip.where('"createdBy_id" = ? and "id" <> ?',@current_user.id, trip.id).order(:name)
+        if trips.count>0 then 
+          @trip=trips.first 
+        else
+          @trip=Trip.new()
+          @trip.createdBy_id=@current_user.id
+          @trip.name="Default" 
+          @trip.save
+        end
         @current_user.currenttrip_id = @trip.id
         @current_user.save
       end
@@ -115,11 +125,16 @@ def move
 
       trip.destroy
       index=true
+      @referring_page="wishlist"
    end
 
    if index==true 
-      index()
-      render 'index'
+      if @referring_page=="wishlist" then 
+        wishlist() 
+      else 
+        index() 
+        render 'index'
+      end
    else
       render 'show'
    end
@@ -131,8 +146,9 @@ def new
   @trip.createdBy_id=@current_user.id
   @trip.name="Default"
   @trip.save
-  @current_user.currenttrip_id = @trip.id
-  @current_user.save
+  user=User.find_by_id(@current_user.id)
+  user.currenttrip_id = @trip.id
+  user.save
 
   prepare_route_vars()
   @place_types = PlaceType.all
@@ -241,25 +257,42 @@ def update
    if (params[:commit] == 'Delete')
       trip=Trip.find_by_id(params[:id])
 
-      # if we delete current trip, make a new one ...
+      # if we delete current trip, selct first remainingtrip as current, or else make a new one ...
       if trip.id == @current_user.currenttrip_id
-        @trip=Trip.new()
-        @trip.createdBy_id=@current_user.id
-        @trip.name="Default"
-        @trip.save
+        trips=Trip.where('"createdBy_id" = ? and "id" <> ?',@current_user.id, trip.id).order(:name)
+        if trips.count>0 then
+          @trip=trips.first
+        else
+          @trip=Trip.new()
+          @trip.createdBy_id=@current_user.id
+          @trip.name="Default"
+          @trip.save
+        end
         @current_user.currenttrip_id = @trip.id
         @current_user.save
       end
 
+      links=trip.links
+      links.each do |l|
+         l.destroy
+      end
+
       trip.destroy
-      index()
-      render 'index'
+      index=true
+      @referring_page="wishlist"
+
+      if @referring_page=="wishlist" then 
+        wishlist() 
+      else 
+        index() 
+        render 'index'
+      end
    else
 
       if (params[:commit] == 'edit')
          edit()
          render 'edit' 
-          else
+      else
          show()
          render 'show'
       end

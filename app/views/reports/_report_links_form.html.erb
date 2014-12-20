@@ -19,7 +19,7 @@
 
       <% @report.links.select{|link| link.item_type=='place'}.each do |rl| %>
         <div class="erow">
-          <div class="rowtext" style="margin-left:24px">
+          <div class="rowtext" style="margin-left:24px;width=calc(75% - 24px)">
             <%= rl.child.name %>
           </div>
           <div class="rightbuttons"> <%= submit_tag  "delete"+rl.id.to_s,  :type => :image, :src => '/assets/trash.png', :style => 'margin-bottom:0;border:none' %> </div>
@@ -41,7 +41,7 @@
 
       <% @report.links.select{|link| link.item_type=='route'}.each do |rl| %>
         <div class="erow">
-          <div class="rowtext" style="margin-left:24px">
+          <div class="rowtext" style="margin-left:24px;width:calc(75% - 24px)">
             <%= rl.child.name %>
           </div>
           <div class="rightbuttons"> <%= submit_tag  "delete"+rl.id.to_s,  :type => :image, :src => '/assets/trash.png', :style => 'margin-bottom:0;border:none' %> </div>
@@ -68,7 +68,7 @@
 
       <% @report.links.select{|link| link.item_type=='trip' or link.item_type=='about'}.each do |rl| %>
         <div class="erow">
-          <div class="rowtext" style="margin-left:24px">
+          <div class="rowtext" style="margin-left:24px;width=calc(75% - 24px)">
             <%if rl.item_type=='about' %> <%='Page: About'%> <% else %> <%= rl.child.name %> <% end %>
           </div>
           <div class="rightbuttons"> <%= submit_tag  "delete"+rl.id.to_s,  :type => :image, :src => '/assets/trash.png', :style => 'margin-bottom:0;border:none' %> </div>
