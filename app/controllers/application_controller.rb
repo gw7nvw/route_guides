@@ -12,8 +12,9 @@ class ApplicationController < ActionController::Base
 
   def touch_user
     if signed_in? then
-      @current_user.lastVisited=Time.new()
-      @current_user.save
+      user=User.find_by_id(@current_user.id)
+      user.lastVisited=Time.new()
+      user.save
     end
   end
 

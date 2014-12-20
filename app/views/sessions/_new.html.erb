@@ -18,12 +18,12 @@
 
       <div class="erow" >
         <%= "Password" %>
-        <%= link_to "(forgotton password?)", new_password_reset_path, remote: true %>
       </div>
       <%= f.password_field :password %>
       <br/>
 
       <%= f.submit "Sign in", class: "btn btn-small btn-primary" %>
+      <%= link_to "(forgotton password?)", new_password_reset_path, remote: true %>
     <% end %>
 
     <p>New user? <%= link_to "Sign up now!", signup_path, remote: true %></p>
