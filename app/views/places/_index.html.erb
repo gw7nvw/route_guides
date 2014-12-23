@@ -5,7 +5,20 @@
    update_title('<%=@title%>');
    reset_map_controllers();
    document.getElementById("page_status").innerHTML = '';
+
+$(function () {
+  $('#right_panel .pagination a').on('click', function () {
+    $.getScript(this.href);
+    return false;
+  });
+})
 </script>
+
+<%if @order=='latest'%>
+  <div class="date_pagination"> <%= will_paginate(@places, :renderer => PaginationListLinkRenderer, :order => @order, :inner_window => 3) %></div>
+<% else %>
+  <div class="name_pagination"> <%= will_paginate(@places, :renderer => PaginationListLinkRenderer, :order => @order) %></div>
+<% end %>
 
   <ul class="places">
     <% @places.each do |place| %>
@@ -15,3 +28,8 @@
     <% end %>
   </ul>
 
+<%if @order=='latest'%>
+  <div class="date_pagination"> <%= will_paginate(@places, :renderer => PaginationListLinkRenderer, :order => @order, :inner_window => 3) %></div>
+<% else %>
+  <div class="name_pagination"> <%= will_paginate(@places, :renderer => PaginationListLinkRenderer, :order => @order) %></div>
+<% end %>

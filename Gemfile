@@ -8,7 +8,7 @@ gem 'sprockets', '2.11.0'
 gem 'bcrypt-ruby', '3.1.2'
 gem 'activerecord-postgis-adapter', '2.1.0'
 gem 'paperclip', '4.2.0'
-
+gem 'will_paginate', '3.0.7'
 group :development, :test do
   gem 'rspec-rails', '2.13.1'
 end

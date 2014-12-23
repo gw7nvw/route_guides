@@ -15,7 +15,14 @@ def edit
 end
 
 def index
-    @reports = Report.all.order(:name)
+    if params[:order]=='latest' then
+      @order='latest'
+      @reports=Report.order('updated_at desc').paginate(:per_page => 20, :page => params[:page])
+
+    else
+      @reports = Report.all.order(:name).paginate(:per_page => 20, :page => params[:page])
+    end
+
 end
 
 def show

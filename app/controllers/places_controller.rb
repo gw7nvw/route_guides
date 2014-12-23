@@ -11,7 +11,15 @@ def new
 end
 
 def index
-    @places = Place.all.order(:name)
+
+    @order=params[:order]
+
+    if params[:order]=='latest' then
+      @places=Place.all.order('updated_at desc').paginate(:per_page => 80, :page => params[:page])
+    else
+      @places = Place.all.order('name').paginate(:per_page => 80, :page => params[:page])
+    end
+
 end
 
 

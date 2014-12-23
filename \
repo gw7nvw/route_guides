@@ -1,9 +1,8 @@
 <div class="erow">
-  <div class="sectiontitle">Trips
+  <div class="sectiontitle">Trips</div>
       <% if @static_page==true %>
-        <%=link_to "(more ...)",'/trips?order=latest', remote: true, :id => 'trip_index', :class => 'normaltext', :onclick => "linkHandler('trip_index')" %> 
+        <%=link_to "(more ...)",'/trips?order=latest', remote: true, :id => 'trip_index', :style => 'font-weight:normal;', :onclick => "linkHandler('trip_index')" %> </div>
      <% end %>
-  </div>
 
 </div>
  

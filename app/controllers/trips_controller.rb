@@ -4,16 +4,22 @@ class TripsController < ApplicationController
 
 
 def index
-  if signed_in?  then @trips=Trip.where('"createdBy_id" = ? or published = true ',@current_user.id).order(:name)
-  else @trips=Trip.where(published: true).order(:name) 
+  if params[:order]=='latest' then
+      @order='latest'
+      @trips=Trip.where(published: true).order('updated_at desc').paginate(:per_page => 20, :page => params[:page])
+  else 
+    if signed_in?  then @trips=Trip.where('"createdBy_id" = ? or published = true ',@current_user.id).order(:name).paginate(:per_page => 20, :page => params[:page])
+    else @trips=Trip.where(published: true).order(:name).paginate(:per_page => 20, :page => params[:page])
+    end
   end
+
   @referring_page="index"
 end
 
 def wishlist
   current_user()
 
-  @trips=Trip.where('"createdBy_id" = ?',@current_user.id).order(:name)
+  @trips=Trip.where('"createdBy_id" = ?',@current_user.id).order(:name).paginate(:per_page => 20, :page => params[:page])
 
   @referring_page="wishlist"
   render 'index'
