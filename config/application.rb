@@ -23,6 +23,6 @@ module RouteGuides
     config.assets.precompile += %w(*.png *.jpg *.jpeg *.gif)
     config.time_zone = 'Auckland' 
     config.active_record.default_timezone = :utc
-
+    config.autoload_paths += %W(#{config.root}/lib)
   end
 end

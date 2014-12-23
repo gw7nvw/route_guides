@@ -6,16 +6,37 @@
    update_title('<%=@title%>'); 
    document.getElementById("page_status").innerHTML = '';
    reset_map_controllers();
+
+$(function () {
+  $('#right_panel .pagination a').on('click', function () {
+    $.getScript(this.href);
+    return false;
+  });
+})
+
 </script>
+
+<%if @order=='latest'%>
+  <div class="date_pagination"> <%= will_paginate(@routes, :renderer => PaginationListLinkRenderer, :order => @order, :inner_window => 3) %></div>
+<% else %>
+  <div class="name_pagination"> <%= will_paginate(@routes, :renderer => PaginationListLinkRenderer, :order => @order) %></div>
+<% end %>
 
   <ul class="places">
     <% @routes.each do |route| %>
       <li>
         <% if !route.published %>Draft: <%end%>
         
-        <%= link_to route.name, route, remote: true, :id => 'route_link_'+route.id.to_s, :onclick => "linkHandler('route_link_"+route.id.to_s+"')" %></li>
- 
+        <%= link_to route.name, route, remote: true, :id => 'route_link_'+route.id.to_s, :onclick => "linkHandler('route_link_"+route.id.to_s+"')" %>
+        <% if @order and @order == 'latest' %>
+          <br/><%= "added by "+route.createdBy.name+" (last updated "+route.updated_at.strftime("%F")+")"%>
+        <% end %> 
       </li>
     <% end %>
   </ul>
 
+<%if @order=='latest'%>
+  <div class="date_pagination"> <%= will_paginate(@routes, :renderer => PaginationListLinkRenderer, :order => @order, :inner_window => 3) %></div>
+<% else %>
+  <div class="name_pagination"> <%= will_paginate(@routes, :renderer => PaginationListLinkRenderer, :order => @order) %></div>
+<% end %>

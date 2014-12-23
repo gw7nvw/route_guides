@@ -21,7 +21,7 @@
 </script>
 
 
-    <%= form_tag '/search', :name => 'routeform', :remote => true, :method => 'post' %>
+    <%= form_tag '/search', :name => 'routeform', :remote => true, :method => 'post', :style => 'margin-bottom: 0px' %>
 
       <div class="erow">
         <div class="leftbuttons">
@@ -32,8 +32,8 @@
                  <img id="startplacetick" src="/assets/tick.png" onclick="route_selectNothing()" width="16" style="display:none">
               </span>
         </div>
-        <div class="rowtitle">From:</div>
-        <div class="rowtext">     
+        <div class="rowtitleshort">From:</div>
+        <div class="rowtextshort">     
           <input type="text" name="route_startplace_name" value='<%=@startplacename%>' disabled="disabled"/>
         </div>
       </div>
@@ -48,9 +48,12 @@
                  <img id="endplacetick" src="/assets/tick.png" onclick="route_selectNothing()" width="16" style="display:none">
               </span>
         </div>    
-        <div class="rowtitle">To:</div>    
-        <div class="rowtext">   
+        <div class="rowtitleshort">To:</div>    
+        <div class="rowtextshort">   
           <input type="text" name="route_endplace_name" value='<%=@endplacename%>' disabled="disabled"/>
+        </div>
+        <div class="buttonshort">
+          <%= submit_tag "Search", :id => "find", :onclick => "linkHandler('find')" %>
         </div>
       </div>
       <input type="hidden" name="route_endplace_id" value='<%=@endplace%>'/>
@@ -59,7 +62,6 @@
        <div id="locationplus"></div>
        <div id="locationtick"></div>
        
-      <%= submit_tag "Search", :id => "find", :onclick => "linkHandler('find')" %>
 
     </form>
 <div id="links_section">

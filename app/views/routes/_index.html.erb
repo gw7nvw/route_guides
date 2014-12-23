@@ -6,7 +6,16 @@
    update_title('<%=@title%>'); 
    document.getElementById("page_status").innerHTML = '';
    reset_map_controllers();
+
+$(function () {
+  $('#right_panel .pagination a').on('click', function () {
+    $.getScript(this.href);
+    return false;
+  });
+})
+
 </script>
+
 
   <ul class="places">
     <% @route_index.sort_by{|a| [a.startplace.name, a.endplace.name]}.each do |ri| %>

@@ -1,0 +1,12 @@
+<div class="photo-bar">
+ <div style="width:1000%">
+  <% photos.each do |photo| %>
+    <span title='<%=photo.name%>'>
+       <%= link_to image_tag(photo.image.url(:thumb), class: 'photo'), photo, remote: true, :id => 'photo_'+photo.id.to_s, :onclick => "linkHandler('photo_"+photo.id.to_s+"')" %>
+    </span>
+
+  <% end %>
+ </div>
+</div>
+
+

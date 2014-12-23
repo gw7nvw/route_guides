@@ -1,6 +1,11 @@
 <% if !@hidetitle %>
   <div class="erow">
-    <div class="sectiontitle">Stories and Trip Reports</div>
+    <div class="sectiontitle">Stories and Trip Reports
+      <% if @static_page==true %>
+        <%=link_to "(more ...)",'/reports?order=latest', remote: true, :id => 'report_index',  :class => 'normaltext',:onclick => "linkHandler('report_index')" %> 
+     <% end %>
+    </div>
+
   </div>
 <% end %>
   <% if @reports.count and @reports.count>0 %>
@@ -9,7 +14,9 @@
         <div class="erow">
           <li>
             <%= link_to report.name, report, remote: true, :id => 'report_link_'+report.id.to_s, :onclick => "linkHandler('report_link_"+report.id.to_s+"')" %>
-            by <%= link_to report.createdBy.name.capitalize, '/users/'+report.createdBy.name, remote: true%> (last updated <%=report.updated_at.strftime("%F")%>)
+            by <%= link_to report.createdBy.name.capitalize, '/users/'+report.createdBy.name, remote: true%> 
+            <% if @static_page==true %><br/><% end %>
+            (last updated <%=report.updated_at.strftime("%F")%>)
           </li>
         </div>
       <% end %>

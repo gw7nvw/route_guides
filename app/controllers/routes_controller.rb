@@ -6,7 +6,13 @@ require "rexml/document"
  before_action :touch_user
  
   def leg_index
-    @routes = Route.all.order(:name)
+
+    if params[:order]=='latest' then
+      @order='latest'
+      @routes=Route.where(published: true).order('updated_at desc').paginate(:per_page => 80, :page => params[:page])
+    else
+      @routes = Route.all.order(:name).paginate(:per_page => 80, :page => params[:page])
+    end
   end
 
   def index

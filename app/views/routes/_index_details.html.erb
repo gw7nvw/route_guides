@@ -3,14 +3,16 @@
   <div class="erow">
     <div class="sectiontitle">
       Routes
-     </div>
+      <% if @static_page==true %>
+        <%=link_to "(more ...)",'/legs?order=latest', remote: true, :id => 'route_index', :class => 'normaltext', :onclick => "linkHandler('route_index')" %> 
+     <% end %>
   </div>
 <% end %>
 <div class="erow">
   <ul class="places">
     <% @routes.each do |route| %>
       <li>
-        <%= link_to route.name, route, remote: true, :id => 'route_link_'+route.id.to_s, :onclick => "linkHandler('route_link_"+route.id.to_s+"')" %>
+        <%= link_to route.name, route, remote: true, :id => 'route_link_'+route.id.to_s, :onclick => "linkHandler('route_link_"+route.id.to_s+"')" %><br/>
         <%= "added by "+route.createdBy.name+" (last updated "+route.updated_at.strftime("%F")+")"%>
  
       </li>

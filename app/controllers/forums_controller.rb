@@ -18,26 +18,27 @@ def show
       @index=true
      threads=Message.find_by_sql ['select "subject" from messages where "toUser_id" is null  and subject is not null and forum_id = ? group by "subject" order by max(created_at) desc', @id]
 
+
      thisItem=0
-     @threads=[]
+     @fullthreads=[]
      @counts=[]
     
      threads.each do |thread|
-        @threads[thisItem]=[]
+        @fullthreads[thisItem]=[]
         last_id=Message.find_by_sql ['select max(id) as id from messages where ("subject"=? and "toUser_id" is null and forum_id = ?)', thread.subject, @id]
         last=Message.find_by_id(last_id)
         #get other party
 
         first_id=Message.find_by_sql ['select min(id) as id from messages where ("subject"=? and "toUser_id" is null and forum_id = ?)', thread.subject, @id]
         first=Message.find_by_id(first_id)
-        @threads[thisItem][0]=first
-        if (first.id!=last.id) then @threads[thisItem][1]=last end
+        @fullthreads[thisItem][0]=first
+        if (first.id!=last.id) then @fullthreads[thisItem][1]=last end
          msg=Message.find_by_sql ['select count(id) as id from messages where ("subject"=? and "toUser_id" is null and forum_id = ?)', thread.subject, @id] 
         @counts[thisItem]=msg.first.id
         thisItem+=1
      end
 
-
+     @threads=@fullthreads.paginate(:per_page => 20, :page => params[:page])
      @edit=true
      @message=Message.new() 
      @message.forum_id=@id

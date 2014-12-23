@@ -8,7 +8,13 @@ def new
 end
 
 def index
-   @photos=Photo.all.order(:name)
+    if params[:order]=='latest' then
+      @order='latest'
+      @photos=Photo.all.order('updated_at desc').paginate(:per_page => 20, :page => params[:page])
+    else
+      @photos=Photo.all.order(:name).paginate(:per_page => 20, :page => params[:page])
+    end
+
 end
 
 def create
