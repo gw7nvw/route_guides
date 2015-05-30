@@ -1,0 +1,60 @@
+
+<% @rt_list.each do |rt| %>
+     <% 
+        minalt=99999
+        maxalt=0
+     %>
+     <div class="erow">
+     <div class="sectiontext25">
+       <%="From "+Route.find_by_signed_id(rt.route.reverse.first).startplace.name%>
+     </div>
+     <% rt.route.reverse.each do |rt_id| 
+          @route=Route.find_by_signed_id(rt_id) 
+          @hideAll=1  %>
+         <div class="sectiontext25">
+           <%=render '/routes/route_brief'%> 
+         </div>
+     <% end %>
+     <div class="sectiontext25">
+            <% if rt.distance %>
+               <%= "Distance: "+rt.distance.round(1).to_s+" km  " %>
+            <%end %>
+            <% if rt.time %>
+               <%="("+rt.time.round(1).to_s+" DOC hours)"  %>
+            <% end %>
+            <% if rt.maxRouteType_.name!='Unknown'%>
+               <%=" - "+rt.maxRouteType_.name%>
+            <% end %>
+            <% if rt.maxTerrain_.name!='Unknown'%>
+               <%=" - "+rt.maxTerrain_.name+" terrain"%>
+            <% end %>
+               <br/>
+               <%= "Altitude - max: "+rt.maxAlt.to_i.to_s+"m  min: "+rt.minAlt.to_i.to_s+"m"+
+                  "  gain: "+rt.altGain.to_i.to_s+"m  loss: "+rt.altLoss.to_i.to_s+"m" %>
+               <% if rt.distance>0 %>
+                  <%="  gradient: "+(Math.tan((rt.altGain+rt.altLoss)/(rt.distance*1000))*180/Math::PI).to_i.to_s+" deg"%>
+               <% end %>
+               <% if rt.maxGradient_.name!='Unknown'%>
+                  <%="("+rt.maxGradient_.name+")"%>
+               <% end %><br/>
+            Skills:
+            <% if rt.maxAlpineS_.name!='Unknown' and rt.maxAlpineS_.name!='None' %>
+               <%=rt.maxAlpineS_.name%><%=" ("+(rt.maxAlpineS-@alpines.minimum(:id)).to_s+"/"+(@alpines.maximum(:id)-@alpines.minimum(:id)).to_s+") "%>
+            <% end %>
+            <% if rt.maxRiver_.name!='Unknown' and rt.maxRiver_.name!='None' %>
+               <%=" - "+rt.maxRiver_.name%>
+               <%=" ("+(rt.maxRiver-@rivers.minimum(:id)).to_s+"/"+(@rivers.maximum(:id)-@rivers.minimum(:id)).to_s+") "%>
+            <% end %>
+            <% if rt.maxAlpineW_.name!='Unknown' and rt.maxAlpineW_.name!='None' %>
+               Winter - <%=rt.maxAlpineW_.name%>
+               <%=" ("+(rt.maxAlpineW-@alpinews.minimum(:id)).to_s+"/"+(@alpinews.maximum(:id)-@alpinews.minimum(:id)).to_s+")"%>
+            <% end %>
+     </div>
+     <div class="subrow">
+        <%=  link_to 'View Route', '/routes/'+rt.url, class: "btn btn-small btn-primary", remote: true, onclick: %q[linkHandler('r]+rt.url+%q[')], id:  'r'+rt.url  %> 
+            <br/><br/>
+     </div>
+     </div>
+<% end %>
+
+

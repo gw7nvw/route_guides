@@ -41,7 +41,7 @@ test:
   postgis_extension: postgis      # default is postgis
   schema_search_path: public,postgis
   pool: 5
-  username: mbriggs
+  username: route_guides_production
   password: littledog
   database: route_guides_test
 

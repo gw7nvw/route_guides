@@ -1,0 +1,34 @@
+  <% all_aps=[] %>
+  <% @pl_list.each do |pl| %>
+    <%all_aps+=pl.adjoiningPlaceListFast%>
+  <% end %>
+  <% p_count=0 %>
+  <% all_aps.uniq.each do |ap|%>
+   <% if !@ignore_pl_list or !@ignore_pl_list.include?(ap.id) %>
+     <% p_count+=1%>
+     <% rt_count=@pl_list.first.adjoiningPlacesFast(ap.id,false,nil,nil,nil).count %>
+     <div class="erow">
+         <div class="sectiontext25">
+              <div style="float:left">
+              <%=  link_to ap.name, '/places/'+ap.id.to_s, remote: true, onclick: %q[linkHandler('p]+ap.id.to_s+%q[')], id:  'p'+ap.id.to_s  %>
+              &nbsp;<%= "("+rt_count.to_s+" route"+(if(rt_count!=1) then "s"  else "" end) %>
+              </div>
+              <ul class="nav" id="menus" style="float:left;margin-bottom:10px">
+              <li id="fat-menu" class="dropdown" style="font-size:0.9em">
+                 <a href="/" class="dropdown-toggle" data-toggle="dropdown">
+                   ... show <b class="caret"></b>)
+                 </a>
+                 <ul class="dropdown-menu" style="font-size:0.9em">
+                   <li><%= link_to 'fastest', '/adj_route/?startplace_id='+@pl_list.first.id.to_s+'&endplace_id='+ap.id.to_s+'&show=fastest&loc=ap_list_'+p_count.to_s, remote: true, :id => 'ap_link', :onclick => "linkHandler('p_list_"+p_count.to_s+"')"  %></li>
+                   <li><%= link_to 'shortest', '/adj_route/?startplace_id='+@pl_list.first.id.to_s+'&endplace_id='+ap.id.to_s+'&show=shortest&loc=ap_list_'+p_count.to_s, remote: true, :id => 'ap_link', :onclick => "linkHandler('p_list_"+p_count.to_s+"')"  %></li>
+                   <li><%= link_to 'all', '/adj_route/?startplace_id='+@pl_list.first.id.to_s+'&endplace_id='+ap.id.to_s+'&show=all&loc=ap_list_'+p_count.to_s, remote: true, :id => 'ap_link', :onclick => "linkHandler('p_list_"+p_count.to_s+"')"  %></li>
+                   <li><%= link_to 'none', '/adj_route/?startplace_id='+@pl_list.first.id.to_s+'&endplace_id='+ap.id.to_s+'&show=none&loc=ap_list_'+p_count.to_s, remote: true, :id => 'ap_link', :onclick => "linkHandler('p_list_"+p_count.to_s+"')"  %></li>
+                 </ul>
+              </li>
+              </ul>
+              <div id="ap_list_<%=p_count.to_s%>"></div> 
+         </div>
+     </div>
+    <% end %>
+   <% end %>
+

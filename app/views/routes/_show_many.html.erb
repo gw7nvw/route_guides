@@ -37,6 +37,7 @@
      minalt=99999
      maxalt=0
      rt_arr=[]
+     place_list=[]
   %>
 
   <% if @url and @url.include?('rv') %>
@@ -51,6 +52,7 @@
            if(route.altgain) then altgain=altgain+route.altgain end
            if(route.altloss) then altloss=altloss+route.altloss end
            if(route.maxalt>maxalt) then maxalt=route.maxalt end
+           place_list+=[route.startplace_id]
            if(route.minalt<minalt) then minalt=route.minalt end
          end
        %> 
@@ -58,6 +60,7 @@
       <% if distance %>
       <%= "Distance: "+distance.round(1).to_s+" km " %>
     <%end %>
+    <% if @endplace then place_list+=[@endplace.id] end %>
     <% if time %>
       <%="("+time.round(1).to_s+" DOC hours)"  %>
       <br/>
@@ -165,60 +168,18 @@
   <div id="links_section">
      <div class="erow" style="margin-top:12px">
        <div class="sectiontitle-bold">
-          Routes adjoining this one:
+          Places you can go from here:
        </div>
      </div>
-     <% 
-        @trip=true 
-        @dontMark=true 
-        rt_reverse=[]
-        rt_arr.each do |ar| 
-          rt_reverse+=[-ar] 
-        end 
-     %>
-     <% @startplace.adjoiningPlaces(nil,true,nil,nil,nil).each do |ap|   %>
-       <% if ap[:route]-rt_arr != [] and ap[:route]-rt_reverse != [] then # only routes niot included in current one ... %>
-         <div class="erow">
-            <div class="hrline">
-               <hr noshade size="2">
-            </div>
-         </div>
-         <div class="erow">
-            <div class="sectiontitle">
-                  <% nextplace=Place.find_by_id(ap[:place]) %>
-                  <%=  link_to @startplace.name, '/places/'+@startplace.id.to_s, remote: true, onclick: %q[linkHandler('p]+@startplace.id.to_s+%q[')], id:  'p'+@startplace.id.to_s  %>
-                  <%= ' to ' %>
-                  <%=  link_to nextplace.name, '/places/'+nextplace.id.to_s, remote: true, onclick: %q[linkHandler('p]+nextplace.id.to_s+%q[')], id:  'p'+nextplace.id.to_s  %>
-            </div>
-            <% @rt_list=ap[:route] %>
-            <%= render '/routes/search_brief' %>
-         </div>
-       <% end %>
-     <% end %>
-     <% @endplace.adjoiningPlaces(nil,true,nil,nil,nil).each do |ap|%>
-       <% if ap[:route]-rt_arr != [] and ap[:route]-rt_reverse != [] then # only routes niot included in current one ... %>
-         <div class="erow">
-            <div class="hrline">
-               <hr noshade size="2">
-            </div>
-         </div>
-         <div class="erow">
-            <div class="sectiontitle">
-                  <% nextplace=Place.find_by_id(ap[:place]) %>
-                  <%=  link_to @endplace.name, '/places/'+@endplace.id.to_s, remote: true, onclick: %q[linkHandler('p]+@endplace.id.to_s+%q[')], id:  'p'+@endplace.id.to_s  %>
-                  <%= ' to ' %>
-                  <%=  link_to nextplace.name, '/places/'+nextplace.id.to_s, remote: true, onclick: %q[linkHandler('p]+nextplace.id.to_s+%q[')], id:  'p'+nextplace.id.to_s  %>
-            </div>
-            <% @rt_list=ap[:route] %>
-            <%= render '/routes/search_brief' %>
-         </div>
-       <% end %>
-     <% end %>
-   <% end %> 
-   <% @trip=false %>
-   <% @dontMark=false %>
-<script>
+   <% @trip=true %>
+   <% @dontMark=true %>
+   <% @pl_list=[@startplace, @endplace]%>
+   <% @ignore_pl_list=place_list %>
 
+   <%= render '/places/adj_pl_list' %>
+   </div>
+<% end %>
+<script>
   /* specify map click mode */
 //  deactivate_all_click();
 

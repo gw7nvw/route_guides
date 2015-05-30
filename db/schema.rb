@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141122073938) do
+ActiveRecord::Schema.define(version: 20150316053513) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -207,6 +207,28 @@ ActiveRecord::Schema.define(version: 20141122073938) do
     t.string   "url"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.boolean  "fromDest"
+    t.boolean  "direct"
+    t.decimal  "distance"
+    t.decimal  "time"
+    t.decimal  "altGain"
+    t.decimal  "altLoss"
+    t.integer  "maxImportance"
+    t.integer  "maxRouteType"
+    t.integer  "maxGradient"
+    t.integer  "maxTerrain"
+    t.integer  "maxAlpineS"
+    t.integer  "maxAlpineW"
+    t.integer  "maxRiver"
+    t.decimal  "avgImportance"
+    t.decimal  "avgRouteType"
+    t.decimal  "avgGradient"
+    t.decimal  "avgTerrain"
+    t.decimal  "avgAlpineS"
+    t.decimal  "avgAlpineW"
+    t.decimal  "avgRiver"
+    t.integer  "minAlt"
+    t.integer  "maxAlt"
   end
 
   create_table "route_instances", force: true do |t|

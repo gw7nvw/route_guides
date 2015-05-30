@@ -16,7 +16,9 @@ require "rexml/document"
   end
 
   def index
-    @route_index = RouteIndex.select(:startplace_id, :endplace_id).uniq
+    route_index = RouteIndex.select(:startplace_id, :endplace_id).uniq
+    @routes=route_index.where(:isDest => true, :fromDest => true).sort_by{|a| [a.startplace.name, a.endplace.name]}.paginate(:per_page => 80, :page => params[:page])
+
   end
 
   def site_index
@@ -54,7 +56,7 @@ require "rexml/document"
 
      placea=Place.find_by_id(params[:route_startplace_id].to_i)
      if placea then
-       @route_ids=placea.adjoiningPlaces(params[:route_endplace_id].to_i,true,nil,nil,nil)
+       @route_ids=placea.adjoiningPlacesFast(params[:route_endplace_id].to_i,true,nil,nil,nil)
      else 
        @route_ids=nil
      end 

@@ -12,6 +12,7 @@
 
 </script>
 
+
 <%= render 'application/mail_status' %>
 <%= render 'shared/error_messages' %>
 <%= render 'routes/route_details' %>
@@ -52,18 +53,29 @@
 <div id="links_section2">
    <div class="erow" style="margin-top:12px">
      <div class="sectiontitle">
-        Routes connecting with this one:
+        Route segments connecting with this one:
      </div>
    </div>
    <% @route.adjoiningRoutes.each do |r|%>
      <div class="erow">
         <div class="sectiontext">
-           <li>
+           <li style="margin-bottom:10px;list-style-type: none">
               <%=  link_to r.name, '/routes/'+r.id.to_s, remote: true, onclick: %q[linkHandler('r]+r.id.to_s+%q[')], id:  'r'+r.id.to_s  %>
            </li>
         </div>
      </div>
    <% end %>
+
+   <div class="erow" style="margin-top:12px">
+     <div class="sectiontitle">
+        Places you can go from here:
+     </div>
+   </div>
+   <% @trip=true %>
+   <% @dontMark=true %>
+   <% @pl_list=[@route.startplace, @route.endplace]%>
+   <% @ignore_pl_list=[@route.startplace_id, @route.endplace_id] %>
+   <%= render '/places/adj_pl_list' %>
 
    <div class="erow" style="margin-top:12px">
      <div class="sectiontitle">

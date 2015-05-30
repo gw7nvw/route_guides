@@ -67,8 +67,8 @@
 <div id="links_section">
   <div class="erow">
     <% if @route_ids %>
-      <% @route_ids.each do |rt_list| %>
-         <% @rt_list=rt_list[:route] %>
+      <% @route_ids.sort_by{|r| r.time or 0}.each do |rt_list| %>
+         <% @rt_list=rt_list %>
          <div class="erow">
             <div class="hrline">
                <hr noshade size="4">
