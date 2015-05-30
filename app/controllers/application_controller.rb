@@ -16,6 +16,8 @@ class ApplicationController < ActionController::Base
       user.lastVisited=Time.new()
       user.save
     end
+
+    if params[:zoom] then @zoomlevel=params[:zoom] end
   end
 
   def prepare_route_vars()
@@ -52,5 +54,6 @@ class ApplicationController < ActionController::Base
         route=Route.find_by_signed_id(routeId)
         if route then @endplace=Place.find_by_id(route.endplace_id) end
       end
+      if @startplace and @endplace then @description="An NZ Route Guide to the track/route from "+@startplace.name+" to "+@endplace.name end
    end 
 end

@@ -32,7 +32,8 @@
                 </a>
                 <ul class="dropdown-menu">
                   <li><%= link_to "Places", places_path,  remote: true,  :id => 'trips_link', :onclick => "linkHandler('trips_link')" %></li>
-                  <li><%= link_to "Route segments", '/legs',  remote: true,  :id => 'routes_link', :onclick => "linkHandler('routes_link')"  %></li>
+                  <li><%= link_to "Routes", '/routes',  remote: true,  :id => 'routes_link', :onclick => "linkHandler('routes_link')"  %></li>
+                  <li><%= link_to "Route segments", '/legs',  remote: true,  :id => 'legs_link', :onclick => "linkHandler('legs_link')"  %></li>
                   <li><%= link_to "Trips", trips_path,  remote: true,  :id => 'trips_link', :onclick => "linkHandler('trips_link')" %></li>
                   <li><%= link_to "Stories", reports_path,  remote: true,  :id => 'report_link', :onclick => "linkHandler('report_link')" %></li>
                   <li><%= link_to "Photos", photos_path,  remote: true,  :id => 'photo_link', :onclick => "linkHandler('photo_link')" %></li>

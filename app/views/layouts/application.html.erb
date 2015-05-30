@@ -7,9 +7,15 @@
 
 
     <!-- load page-specific map javascript and determine init function to call. Default is init() -->
+    <% if @zoomlevel and @zoomlevel.to_i>=5 and @zoomlevel.to_i<=15%>    
+      <script> var defzoom=<%=@zoomlevel%></script>
+    <% end %>
     <%  @init_name = "init()" %>
 
     <title><%= full_title(yield(:title)) %></title>
+    <% if @description and @description.length>0 %>
+    <meta name="description" content="<%=@description%>">
+    <% end %>
     <%= stylesheet_link_tag "application", media: "all", "data-turbolinks-track" => true %>
     <%= stylesheet_link_tag "application", media: "all", "jquery-ui.mi" => true %>
 

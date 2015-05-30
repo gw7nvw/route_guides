@@ -69,22 +69,10 @@
    </div>
    <% @trip=true %>
    <% @dontMark=true %>
-   <% @place.adjoiningPlaces(nil,true,nil,nil,nil).each do |ap|%>
-     <div class="erow">
-        <div class="hrline">
-           <hr noshade size="2">
-        </div>
-     </div>
-     <div class="erow">
-        <div class="sectiontitle">
-              <% nextplace=Place.find_by_id(ap[:place]) %>
-              <%=  link_to nextplace.name, '/places/'+nextplace.id.to_s, remote: true, onclick: %q[linkHandler('p]+nextplace.id.to_s+%q[')], id:  'p'+nextplace.id.to_s  %>
-        </div>
-        <% @rt_list=ap[:route] %>
-        <%= render '/routes/search_brief' %>
-     </div>
+   <% @pl_list=[@place] %>
+   <%= render '/places/adj_pl_list' %>
 
-   <% end %>
+
    <% @trip=false %>
    <% @dontMark=false %> 
 

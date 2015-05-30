@@ -1,3 +1,5 @@
+OpenLayers.IMAGE_RELOAD_ATTEMPTS = 3;
+OpenLayers.Util.onImageLoadErrorColor = "transparent";
 var map_map;
 var mapBounds = new OpenLayers.Bounds(748961,3808210, 2940563,  6836339);
 var mapMinZoom = 5;
@@ -47,8 +49,6 @@ var tripsStale=false;
 var itemToCut;
 var positionToPaste;
 
-OpenLayers.IMAGE_RELOAD_ATTEMPTS = 3;
-OpenLayers.Util.onImageLoadErrorColor = "transparent";
 
 /* keep trtack of current page, and trigger refresh if we 'pop'
    a different page (back/forward buttons) */
@@ -95,7 +95,7 @@ function init(){
 
     var options = {
 projection: new OpenLayers.Projection("EPSG:2193"),
-	    displayProjection: new OpenLayers.Projection("EPSG:2193"),
+	    displayProjection: new OpenLayers.Projection("EPSG:27200"),
 	    units: "m",
 	    //      max4Resolution: 156543.0339,
       maxResolution: 4891.969809375,
@@ -118,14 +118,50 @@ projection: new OpenLayers.Projection("EPSG:2193"),
 
     var extent=new OpenLayers.Bounds(545967,  3739728,  2507647, 6699370);
 
-    var basemap_layer =  new OpenLayers.Layer.TMS( "TMS Overlay", "",
+    var basemap_layer =  new OpenLayers.Layer.TMS( "NZTM Topo 2009", "http://tiles.mapspast.org.nz/topo50/",
         {    
              type: 'png', 
              getURL: overlay_getTileURL,
              isBaseLayer: true,
-             tileOrigin: new OpenLayers.LonLat(0,-20037508)
+             tileOrigin: new OpenLayers.LonLat(0,-20037508),
+             displayInLayerSwitcher:true
          });
 
+    var nzms1969_layer =  new OpenLayers.Layer.TMS( "NZMS1 1969", "http://tiles.mapspast.org.nz/nzms-1969/",
+        {    
+             type: 'png', 
+             getURL: overlay_getTileURL,
+             isBaseLayer: true,
+             tileOrigin: new OpenLayers.LonLat(0,-20037508),
+             displayInLayerSwitcher:true
+         });
+    
+    var nzms1979_layer =  new OpenLayers.Layer.TMS( "NZMS1 1979", "http://tiles.mapspast.org.nz/nzms-1979/",
+        {    
+             type: 'png', 
+             getURL: overlay_getTileURL,
+             isBaseLayer: true,
+           // tileOrigin: new OpenLayers.LonLat(0,-20037508),
+             displayInLayerSwitcher:true
+         });
+
+    var nzms1999_layer =  new OpenLayers.Layer.TMS( "NZMS260 1999 (beta)", "http://tiles.mapspast.org.nz/nzms260-1999/",
+        {
+             type: 'png',
+             getURL: overlay_getTileURL,
+             isBaseLayer: true,
+           // tileOrigin: new OpenLayers.LonLat(0,-20037508),
+             displayInLayerSwitcher:true
+         });
+
+    var nzms1959_layer =  new OpenLayers.Layer.TMS( "NZMS1 1959 (beta)", "http://tiles.mapspast.org.nz/nzms-1959/",
+        {
+             type: 'png',
+             getURL: overlay_getTileURL,
+             isBaseLayer: true,
+           // tileOrigin: new OpenLayers.LonLat(0,-20037508),
+             displayInLayerSwitcher:true
+         });
 
     places_layer_add();
     places_layer.setVisibility(false);
@@ -135,6 +171,10 @@ projection: new OpenLayers.Projection("EPSG:2193"),
     routes_simple_layer_add();
 
     map_map.addLayer(basemap_layer);
+    map_map.addLayer(nzms1999_layer);
+    map_map.addLayer(nzms1979_layer);
+    map_map.addLayer(nzms1969_layer);
+    map_map.addLayer(nzms1959_layer);
     map_map.addLayer(places_layer);
     map_map.addLayer(routes_layer);
     map_map.addLayer(routes_simple_layer);
@@ -142,7 +182,10 @@ projection: new OpenLayers.Projection("EPSG:2193"),
     map_map.zoomToExtent(extent); 
     map_map.addControl(new OpenLayers.Control.MousePosition());
     map_map.addControl(new OpenLayers.Control.Scale());
-    
+   
+    var switcherControl = new OpenLayers.Control.LayerSwitcher();
+    map_map.addControl(switcherControl);
+ 
     // Create a select feature control and add it to the map.
     select = new OpenLayers.Control.SelectFeature([places_layer, routes_layer], {
                  clickout: true, toggle: false,
@@ -165,7 +208,8 @@ projection: new OpenLayers.Projection("EPSG:2193"),
     vectorLayer = new OpenLayers.Layer.Vector("Current feature", {
                 style: layer_style,
                 renderers: renderer,
-                projection: new OpenLayers.Projection("EPSG:2193".toUpperCase())
+                projection: new OpenLayers.Projection("EPSG:2193".toUpperCase()),
+                displayInLayerSwitcher:false
             });
     map_map.addLayer(vectorLayer);
 
@@ -198,6 +242,9 @@ projection: new OpenLayers.Projection("EPSG:2193"),
 
     map_map.zoomToExtent( mapBounds.transform(map_map.displayProjection, map_map.projection ) );
 
+    if(typeof(defzoom)!="undefined" &&  defzoom!=null)  {
+        map_map.zoomTo(defzoom-5);
+    }
   }
 }
 
@@ -209,7 +256,8 @@ function places_layer_add() {
                         featureType: "places",
                         extractAttributes: true
                     }),
-                    styleMap: pt_styleMap
+                    styleMap: pt_styleMap,
+                    displayInLayerSwitcher:false
                 });
 
 
@@ -248,7 +296,8 @@ function routes_simple_layer_add() {
                         featureType: "routes-simple",
                         extractAttributes: true
                     }),
-                    styleMap: rt_styleMap
+                    styleMap: rt_styleMap,
+                    displayInLayerSwitcher:false
                 });
 }
 
@@ -261,7 +310,8 @@ function routes_layer_add() {
                         featureType: "routes",
                         extractAttributes: true
                     }),
-                    styleMap: rt_styleMap
+                    styleMap: rt_styleMap,
+                    displayInLayerSwitcher:false
                 });
 
             
@@ -1059,22 +1109,20 @@ function linkWithExtent(entity_name) {
 
 }
 
-function overlay_getTileURL(bounds) {
+function overlay_getTileURL(bounds,url) {
     var res = this.map.getResolution();
     var x = Math.round((bounds.left - this.maxExtent.left) / (res * this.tileSize.w));
     var y = Math.round((bounds.bottom - this.tileOrigin.lat ) / (res * this.tileSize.h));
     var z = this.map.getZoom()+5;
-    if (this.map.baseLayer.name == 'Virtual Earth Roads' || this.map.baseLayer.name == 'Virtual Earth Aerial' || this.map.baseLayer.name == 'Virtual Earth Hybrid') {
-       z = z + 1;
-    }
     if (mapBounds.intersectsBounds( bounds ) && z >= mapMinZoom && z <= mapMaxZoom ) {
        //console.log( this.url + z + "/" + x + "/" + y + "." + this.type);
-        return 'http://maps.routeguides.co.nz/ms4w/apps/matts_app/data/nztm/' + z + "/" + x + "/" + y + "." + this.type;
+        return this.url + z + "/" + x + "/" + y + "." + this.type;
     } else {
         return "http://www.maptiler.org/img/none.png";
     }
 
 }
+
 
 function map_disable_all() {
 

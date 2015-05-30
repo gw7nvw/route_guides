@@ -1,22 +1,15 @@
 <div id="route_details">    
-   <% if !@itemNumber then @itemNumber=1 else @itemNumber+=1 end %>
+   <% if !@itemNumber then @itemNumber=1001 else @itemNumber+=1 end %>
    <div class="erow">
       <%=render :partial => 'expand_buttons',  :locals => {:expName => "route"+@itemNumber.to_s, :initialSt => (if @hideAll then 0 else 1 end)} %>
-      <%  if(signed_in? and !@trip and !@history) %>
-         <div class="leftbuttons">
-            <span title="Edit">
-               <%=  link_to image_tag("/assets/pencil_edit.png", :border=>0, :class => 'dock-item'), '/routes/'+@route.id.to_s+'/edit', remote: true, onclick: "linkHandler('editbutton')", id:  "editbutton"  %>
-            </span>
-         </div>
-      <% end %>
 
-      <div class="sectiontitle25">
+      <div class="sectiontext25">
          <% if !@route.published then %>Draft:<% end %>
          <% if !@history %>
-            <%= link_to @route.startplace.name+" to "+@route.endplace.name+" via "+@route.via, 
+            <%= link_to "... to "+@route.endplace.name+" via "+@route.via+" ("+@route.routetype.name+")", 
                @route, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
          <% else %>
-            <%=@route.startplace.name+" to "+@route.endplace.name+" via "+@route.via %>
+            <%="... to "+@route.endplace.name+" via "+@route.via+" ("+@route.routetype.name+")" %>
          <% end %>
 
       </div>

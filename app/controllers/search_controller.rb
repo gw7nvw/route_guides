@@ -82,7 +82,7 @@ end
 
      placea=Place.find_by_id(params[:route_startplace_id].to_i)
      if placea then
-       @route_ids=placea.adjoiningPlaces(params[:route_endplace_id].to_i,true,nil,nil,nil)
+       @route_ids=placea.adjoiningPlacesFast(params[:route_endplace_id].to_i,false,nil,nil,nil)
      else
        @route_ids=nil
      end

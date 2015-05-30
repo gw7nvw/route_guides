@@ -128,6 +128,14 @@ def adjoiningRoutes
        where published=true and (startplace_id = ? or endplace_id = ? or startplace_id = ? or endplace_id = ?) and id <> ?",self.startplace_id, self.startplace_id, self.endplace_id, self.endplace_id, self.id.abs]
 end
 
+def adjoiningPlaces
+   aps=self.startplace.adjoiningPlaceListFast+self.endplace.adjoiningPlaceListFast
+end
+def parents
+   t=RouteIndex.find_by_sql [%q[select distinct * from route_indices ri where ri.url like '%xr?x%' or ri.url like '%xr?'], self.id.abs, self.id.abs]
+   r=t.sort_by{|a| [a.startplace.name, a.endplace.name]}
+end
+
 def trips
    t=Route.find_by_sql ["select distinct t.* from trips t
        inner join trip_details td on td.trip_id = t.id
@@ -208,14 +216,14 @@ def regenerate_route_index
 
   if self.published==true then
     #find all place-to-place routes of length < <maxhops-1> for the start or endplace
-    #startAffectedRoutes=[{:place => self.startplace.id}]+self.startplace.adjoiningPlaces(nil,false,maxLegCount-1, nil,self.id)
-    if self.startplace.placeType.isDest then startAffectedRoutes=[{:place => self.startplace_id, :route => [], :url => ''}]
-    else startAffectedRoutes=[] end
-    startAffectedRoutes+=self.startplace.adjoiningPlaces(nil,false,maxLegCount-1, nil,self.id)
-    #endAffectedRoutes=[{:place => self.endplace.id}]+self.endplace.adjoiningPlaces(nil,false,maxLegCount-1, nil,self.id)
-    if self.endplace.placeType.isDest then endAffectedRoutes=[{:place => self.endplace_id, :route => [], :url => ''}]
-    else endAffectedRoutes=[] end
-    endAffectedRoutes+=self.endplace.adjoiningPlaces(nil,false,maxLegCount-1, nil,self.id)
+    startAffectedRoutes=[{:place => self.startplace.id, :route => [], :url => ''}]+self.startplace.adjoiningPlaces(nil,false,maxLegCount-1, nil,self.id)
+    #if self.startplace.placeType.isDest then startAffectedRoutes=[{:place => self.startplace_id, :route => [], :url => ''}]
+    #else startAffectedRoutes=[] end
+    #startAffectedRoutes+=self.startplace.adjoiningPlaces(nil,false,maxLegCount-1, nil,self.id)
+    endAffectedRoutes=[{:place => self.endplace.id, :route => [], :url => ''}]+self.endplace.adjoiningPlaces(nil,false,maxLegCount-1, nil,-self.id)
+    #if self.endplace.placeType.isDest then endAffectedRoutes=[{:place => self.endplace_id, :route => [], :url => ''}]
+    #else endAffectedRoutes=[] end
+    #endAffectedRoutes+=self.endplace.adjoiningPlaces(nil,false,maxLegCount-1, nil,self.id)
   
     #reverse the above routes (so get them TO us, no FROM us) 
     #and add the leg we are saving to the end of the route
@@ -248,15 +256,41 @@ def regenerate_route_index
   
       #regernarate routes from place using this route as base-route   
       newRoutes=place.adjoiningPlaces(nil,false,maxLegCount,ar[:url],nil)
-      puts "Newroutes"
+    #  puts "Newroutes"
        
        newRoutes.each do |newRoute|
-          puts newRoute[:url]
+    #      puts newRoute[:url]
           endPlace_id=newRoute[:place]
           endPlace=Place.find_by_id(endPlace_id)
   
           if RouteIndex.where("url = ?",newRoute[:url]).count==0 and place.id!=endPlace.id then
-            ri=RouteIndex.new(:startplace_id => place.id, :endplace_id => endPlace.id, :isDest => endPlace.placeType.isDest, :url => newRoute[:url])
+            ri=RouteIndex.new(:startplace_id => place.id, 
+                              :endplace_id => endPlace.id, 
+                              :isDest => endPlace.placeType.isDest, 
+                              :fromDest => place.placeType.isDest,
+                              :url => newRoute[:url], 
+                              :direct => newRoute[:direct], 
+                              :time => newRoute[:time], 
+                              :distance => newRoute[:distance],
+                              :altGain => newRoute[:altGain],
+                              :altLoss => newRoute[:altLoss],
+                              :maxAlt => newRoute[:maxAlt],
+                              :minAlt => newRoute[:minAlt],
+                              :maxImportance => newRoute[:maxImportance],
+                              :maxRouteType => newRoute[:maxRouteType],
+                              :maxGradient => newRoute[:maxGradient],
+                              :maxTerrain => newRoute[:maxGradient],
+                              :maxAlpineS =>newRoute[:maxAlpineS],
+                              :maxAlpineW =>newRoute[:maxAlpineW],
+                              :maxRiver => newRoute[:maxRiver],
+                              :avgImportance =>newRoute[:avgImportance],
+                              :avgRouteType =>newRoute[:avgRouteType],
+                              :avgGradient =>newRoute[:avgGradient],
+                              :avgTerrain =>newRoute[:avgTerrain],
+                              :avgAlpineS =>newRoute[:avgAlpineS],
+                              :avgAlpineW =>newRoute[:avgAlpineW],
+                              :avgRiver => newRoute[:avgRiver]
+                              )
             ri.save
           end
        end

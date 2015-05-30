@@ -7,3 +7,5 @@ User-Agent: *
 Disallow: */edit
 Disallow: */new
 Disallow: /history/*
+Disallow: /*/adj_route/*
+Disallow: /adj_route/*

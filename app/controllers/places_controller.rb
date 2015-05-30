@@ -3,6 +3,33 @@ class PlacesController < ApplicationController
  before_action :signed_in_user, only: [:edit, :update, :new, :create]
  before_action :touch_user
 
+def adj_route
+if request.xhr?
+  # respond to Ajax request
+   prepare_route_vars()
+   p=Place.find_by_id(params[:startplace_id])
+   rt_list=p.adjoiningPlacesFast(params[:endplace_id].to_i,false,nil,nil,nil)
+   @rt_list=[]
+   if params[:show]=="fastest" then
+      @rt_list=[rt_list.sort_by{|r| r.time or 0}.first]
+   end
+
+   if params[:show]=="shortest" then
+      @rt_list=[rt_list.sort_by{|r| r.distance or 0}.first]
+   end
+
+   if params[:show]=="all" then
+      @rt_list=rt_list.sort_by{|r| r.time or 0}
+   end
+
+   @render_to=params[:loc]
+#   render "adj_route"
+
+else
+  redirect_to root_url
+end
+end
+
 def new
     @edit=true
     @place=Place.new
@@ -100,9 +127,9 @@ def create
     if( !(@place = Place.find_by_id(@id))) then 
     #place does not exist - return to home
        redirect_to root_url
-    end    
-    
-   @referring_page='/places/'+@place.id.to_s
+    else    
+       @referring_page='/places/'+@place.id.to_s
+    end
   end
 
   def select
