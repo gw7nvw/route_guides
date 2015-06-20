@@ -112,6 +112,8 @@ PlaceType.create(name: "Lookout" , description: "Lookout or viewing platform", c
 #Projection.create(id: 4326, name: "WGS84", proj4: "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs", wkt: "", epsg: 4326)
 #Projection.create(id: 27200, name: "NZMG49", proj4: "+proj=nzmg +lat_0=-41 +lon_0=173 +x_0=2510000 +y_0=6023150 +ellps=intl +datum=nzgd49 +units=m +no_defs", wkt: "", epsg: 27200)
 #Projection.create(id: 900913, name: "GOOGLE", proj4: "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_defs", wkt: "", epsg: 900913)
+Projection.create(id: 27291, name: "NIYG", proj4: "+proj=tmerc +lat_0=-39 +lon_0=175.5 +k=1 +x_0=274319.5243848086 +y_0=365759.3658464114 +ellps=intl +datum=nzgd49 +to_meter=0.9143984146160287 +no_defs", wkt: "", epsg: 27291)
+Projection.create(id: 27292, name: "SIYG", proj4: "+proj=tmerc +lat_0=-44 +lon_0=171.5 +k=1 +x_0=457199.2073080143 +y_0=457199.2073080143 +ellps=intl +datum=nzgd49 +to_meter=0.9143984146160287 +no_defs", wkt: "", epsg: 27292)
 #RouteImportance.create(name: "Primary, mapped", description: "Formal route, on maps, principal access to hut or along range / catchment", importance: 1)
 #RouteImportance.create(name: "Primary, unmapped" , description: "Route not on maps, but is principal access to hut or along range / catchment", importance: 2)
 #RouteImportance.create(name: "Secondary, mapped", description: "Formal route, on maps, an alternative recognised access to hut or along range / catchment", importance: 3)

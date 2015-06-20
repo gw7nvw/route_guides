@@ -95,7 +95,7 @@ function init(){
 
     var options = {
 projection: new OpenLayers.Projection("EPSG:2193"),
-	    displayProjection: new OpenLayers.Projection("EPSG:27200"),
+	    displayProjection: new OpenLayers.Projection("EPSG:2193"),
 	    units: "m",
 	    //      max4Resolution: 156543.0339,
       maxResolution: 4891.969809375,
@@ -118,7 +118,7 @@ projection: new OpenLayers.Projection("EPSG:2193"),
 
     var extent=new OpenLayers.Bounds(545967,  3739728,  2507647, 6699370);
 
-    var basemap_layer =  new OpenLayers.Layer.TMS( "NZTM Topo 2009", "http://tiles.mapspast.org.nz/topo50/",
+    var basemap_layer =  new OpenLayers.Layer.TMS( "NZTM Topo 2009", "http://au.mapspast.org.nz/topo50/",
         {    
              type: 'png', 
              getURL: overlay_getTileURL,
@@ -127,7 +127,15 @@ projection: new OpenLayers.Projection("EPSG:2193"),
              displayInLayerSwitcher:true
          });
 
-    var nzms1969_layer =  new OpenLayers.Layer.TMS( "NZMS1 1969", "http://tiles.mapspast.org.nz/nzms-1969/",
+    var nzms1989_layer =  new OpenLayers.Layer.TMS( "NZMS1/260 1989", "http://au.mapspast.org.nz/nzms-1989/",
+        {    
+             type: 'png', 
+             getURL: overlay_getTileURL,
+             isBaseLayer: true,
+             tileOrigin: new OpenLayers.LonLat(0,-20037508),
+             displayInLayerSwitcher:true
+         });
+    var nzms1969_layer =  new OpenLayers.Layer.TMS( "NZMS1 1969", "http://au.mapspast.org.nz/nzms-1969/",
         {    
              type: 'png', 
              getURL: overlay_getTileURL,
@@ -136,7 +144,7 @@ projection: new OpenLayers.Projection("EPSG:2193"),
              displayInLayerSwitcher:true
          });
     
-    var nzms1979_layer =  new OpenLayers.Layer.TMS( "NZMS1 1979", "http://tiles.mapspast.org.nz/nzms-1979/",
+    var nzms1979_layer =  new OpenLayers.Layer.TMS( "NZMS1 1979", "http://au.mapspast.org.nz/nzms-1979/",
         {    
              type: 'png', 
              getURL: overlay_getTileURL,
@@ -145,7 +153,7 @@ projection: new OpenLayers.Projection("EPSG:2193"),
              displayInLayerSwitcher:true
          });
 
-    var nzms1999_layer =  new OpenLayers.Layer.TMS( "NZMS260 1999 (beta)", "http://tiles.mapspast.org.nz/nzms260-1999/",
+    var nzms1999_layer =  new OpenLayers.Layer.TMS( "NZMS260 1999", "http://au.mapspast.org.nz/nzms260-1999/",
         {
              type: 'png',
              getURL: overlay_getTileURL,
@@ -154,7 +162,7 @@ projection: new OpenLayers.Projection("EPSG:2193"),
              displayInLayerSwitcher:true
          });
 
-    var nzms1959_layer =  new OpenLayers.Layer.TMS( "NZMS1 1959 (beta)", "http://tiles.mapspast.org.nz/nzms-1959/",
+    var nzms1959_layer =  new OpenLayers.Layer.TMS( "NZMS1 1959", "http://au.mapspast.org.nz/nzms-1959/",
         {
              type: 'png',
              getURL: overlay_getTileURL,
@@ -172,6 +180,7 @@ projection: new OpenLayers.Projection("EPSG:2193"),
 
     map_map.addLayer(basemap_layer);
     map_map.addLayer(nzms1999_layer);
+    map_map.addLayer(nzms1989_layer);
     map_map.addLayer(nzms1979_layer);
     map_map.addLayer(nzms1969_layer);
     map_map.addLayer(nzms1959_layer);
