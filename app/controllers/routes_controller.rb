@@ -413,11 +413,13 @@ def route_to_gpx(routes)
      route=Route.find_by_signed_id(route_id)
 
      #and reverse the direction if required
-
-     route.location.points.each do |pt|
-       elem = trkseg.add(REXML::Element.new('trkpt'))
-       elem.add_attributes({'lat' => pt.y.to_s, 'lon' => pt.x.to_s})
-       elem.add_element('ele').add(REXML::Text.new(pt.z.to_s))
+    
+     if route.location and route.location.points and route.location.points.count>0 then
+       route.location.points.each do |pt|
+         elem = trkseg.add(REXML::Element.new('trkpt'))
+         elem.add_attributes({'lat' => pt.y.to_s, 'lon' => pt.x.to_s})
+         elem.add_element('ele').add(REXML::Text.new(pt.z.to_s))
+       end
      end
   end
   output = String.new

@@ -9,6 +9,7 @@ RouteGuides::Application.configure do
   # and those relying on copy on write to perform better.
   # Rake tasks automatically ignore this option for performance.
   config.eager_load = true
+  hosts = "routeguides.co.nz"
 
   # Full error reports are disabled and caching is turned on.
   config.consider_all_requests_local       = false
@@ -86,7 +87,9 @@ ActionMailer::Base.smtp_settings = {
    :address => "madpom",
    :port => 25,
    :domain => "wharncliffe.co.nz",
-   :authentication => :none
+   :authentication => :none,
+:openssl_verify_mode  => 'none'
+
 }
 
 end

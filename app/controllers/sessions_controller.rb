@@ -12,6 +12,9 @@ class SessionsController < ApplicationController
       else
         message  = "Account not activated. "
         message += "Check your email for the activation link."
+        message += "If you do not recieve an email within a few minutes (check your spam folder too), then use the forgotten password link to sign in."
+        message += "Alternatively email mattbriggs@yahoo.com to request manual activation"
+
         flash[:error] = message
         render 'new'
       end

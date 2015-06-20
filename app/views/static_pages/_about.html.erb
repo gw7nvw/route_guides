@@ -31,7 +31,12 @@ contribute or read trip reports and stories, and link them back to the routes
 or trips they describe.
 <br/>
 <br/>
-
+Contact mattbriggs@yahoo.com with questions.
+<br/>
+<br/>
+Matt (madpom)
+<br/>
+<br/>
 <% @hidetitle=true %>
   <% @reports=Report.find_by_sql [%q[select r.* from reports r 
      inner join "links" rl on (rl."baseItem_id" = r.id and rl."baseItem_type"='report')  or  (rl.item_id = r.id and rl.item_type='report')

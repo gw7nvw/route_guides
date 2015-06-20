@@ -27,6 +27,8 @@ class PasswordResetsController < ApplicationController
       flash.now[:error] = "Password/confirmation can't be blank"
       render 'edit'
     elsif @user.update_attributes(user_params)
+      #activate too as we use this as fallback activation link
+      @user.activate
       sign_in @user
       flash[:success] = "Password has been reset."
       redirect_to '/users/'+@user.name
@@ -48,8 +50,7 @@ private
 
     # Confirms a valid user.
     def valid_user
-      unless (@user && @user.activated? &&
-              @user.authenticated?(:reset, params[:id]))
+      unless (@user && @user.authenticated?(:reset, params[:id]))
         redirect_to root_url
       end
     end
