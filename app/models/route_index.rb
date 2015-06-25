@@ -7,7 +7,7 @@ def route
     routeStr=self.url.split('x')[1..-1]
     route=[]
     routeStr.each do |rs|
-      if rs[0]=='r' then
+      if rs[0]=='r' or rs[0]=='q' then
          route=[rs[2..-1].to_i]+route
       end
     end
@@ -19,46 +19,51 @@ def place
   self.endplace_id
 end
 
-def maxRouteType_
-  mrn=Routetype.find_by_id(self.maxRouteType)
+def isStub
+  #a better plan - look at endplace count during create of index and set isDest=truer
+  if self.endplace.adjoiningRoutes.count<2 then true else false   end
 end
-def avgRouteType_
-  arn=RouteType.find_by_id(self.avgRouteType.to_i)
+
+def maxroutetype_
+  mrn=Routetype.find_by_id(self.maxroutetype)
 end
-def maxGradient_
-  mrn=Gradient.find_by_id(self.maxGradient)
+def avgroutetype_
+  arn=Routetype.find_by_id(self.avgroutetype.to_i)
 end
-def avgGradient_
-  arn=Gradient.find_by_id(self.avgGradient.to_i)
+def maxgradient_
+  mrn=Gradient.find_by_id(self.maxgradient)
 end
-def maxRiver_
-  mrn=River.find_by_id(self.maxRiver)
+def avggradient_
+  arn=Gradient.find_by_id(self.avggradient.to_i)
 end
-def avgRiver_
-  arn=River.find_by_id(self.avgRiver.to_i)
+def maxriver_
+  mrn=River.find_by_id(self.maxriver)
 end
-def maxAlpineS_
-  mrn=Alpine.find_by_id(self.maxAlpineS)
+def avgriver_
+  arn=River.find_by_id(self.avgriver.to_i)
 end
-def avgAlpineS_
-  arn=Alpine.find_by_id(self.avgAlpineS.to_i)
+def maxalpines_
+  mrn=Alpine.find_by_id(self.maxalpines)
 end
-def maxAlpineW_
-  mrn=Alpinew.find_by_id(self.maxAlpineW)
+def avgalpines_
+  arn=Alpine.find_by_id(self.avgalpines.to_i)
 end
-def avgAlpineW_
-  arn=Alpinew.find_by_id(self.avgAlpineW.to_i)
+def maxalpinew_
+  mrn=Alpinew.find_by_id(self.maxalpinew)
 end
-def maxImportance_
-  mrn=RouteImportance.find_by_id(self.maxImportance)
+def avgalpinew_
+  arn=Alpinew.find_by_id(self.avgalpinew.to_i)
 end
-def avgImportance_
-  arn=RouteImportance.find_by_id(self.avgImportance.to_i)
+def maximportance_
+  mrn=RouteImportance.find_by_id(self.maximportance)
 end
-def maxTerrain_
-  mrn=Terrain.find_by_id(self.maxTerrain)
+def avgimportance_
+  arn=RouteImportance.find_by_id(self.avgimportance.to_i)
 end
-def avgTerrain_
-  arn=Terrain.find_by_id(self.avgTerrain.to_i)
+def maxterrain_
+  mrn=Terrain.find_by_id(self.maxterrain)
+end
+def avgterrain_
+  arn=Terrain.find_by_id(self.avgterrain.to_i)
 end
 end

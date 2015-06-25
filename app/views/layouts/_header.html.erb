@@ -75,6 +75,7 @@
                    <b>Me</b> <b class="caret"></b>
                 </a>
                 <ul class="dropdown-menu">
+                  <li><%= link_to "My draft items", drafts_path,  remote: true,  :id => 'drafts_link', :onclick => "linkHandler('drafts_link')" %></li>
                   <li><%= link_to "My trips", wishlist_path,  remote: true,  :id => 'trips_link', :onclick => "linkHandler('trips_link')" %></li>
                   <% if @current_user.currenttrip %> <li><%= link_to "Current trip",  currenttrip_path,  remote: true,  :id => 'my_trip_link', :onclick => "linkHandler('my_trip_link')"  %></li> <% end %>
                   <li><%= link_to "Add new trip", new_trip_path,  remote: true,  :id => 'new_trip_link', :onclick => "linkHandler('new_trip_link')" %></li>

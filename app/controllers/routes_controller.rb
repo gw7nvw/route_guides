@@ -17,7 +17,8 @@ require "rexml/document"
 
   def index
     route_index = RouteIndex.select(:startplace_id, :endplace_id).uniq
-    @routes=route_index.where(:isDest => true, :fromDest => true).sort_by{|a| [a.startplace.name, a.endplace.name]}.paginate(:per_page => 80, :page => params[:page])
+#    @routes=route_index.where(:isDest => true, :fromDest => true).sort_by{|a| [a.startplace.name, a.endplace.name]}.paginate(:per_page => 80, :page => params[:page])
+    @routes=route_index.all.sort_by{|a| [a.startplace.name, a.endplace.name]}.paginate(:per_page => 80, :page => params[:page])
 
   end
 
@@ -90,7 +91,7 @@ require "rexml/document"
           @trip_details.showConditions=false;
           @trip_details.showLinks=false;
         end
-        if item[0]=='r' then
+        if item[0]=='r' or item[0]=='q' then
           @trip_details = TripDetail.new
           @trip_details.showForward=true;
           @trip_details.is_reverse=false
@@ -119,6 +120,7 @@ require "rexml/document"
     @route.createdBy_id = @current_user.id #current_user.id
     @route.updatedBy_id = @current_user.id #current_user.id
     route_add_altitude()
+    @route.datasource=params[:datasource]
     # but doesn;t handle location ... so
     @url=params[:url]
 
@@ -196,7 +198,7 @@ def show
         wants.gpx do
           if(@startplace and @endplace)
             @items.each do |item|
-               if item[0]=='r' then routes=routes+[item[2..-1].to_i] end
+               if item[0]=='r'  or item[0]=='q' then routes=routes+[item[2..-1].to_i] end
             end
             xml = route_to_gpx(routes)
             response.headers['Content-Disposition'] = 'attachment; filename=' + (@startplace.name+' to '+@endplace.name).gsub(/[\\\/\s]/, '_') + '.gpx'
@@ -310,7 +312,7 @@ end
 
       @route.attributes=route_params
       route_add_altitude()
-
+      @route.datasource=params[:datasource]
       @route.updated_at=Time.new()
       @route.updatedBy_id = @current_user.id #current_user.id
       if @route.save

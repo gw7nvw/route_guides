@@ -9,6 +9,18 @@ class Report < ActiveRecord::Base
   before_save :default_values
   after_save :create_new_instance
 
+def self.find_latest_by_user(count)
+  reports=[]
+  contributors=Report.find_by_sql [ 'select "createdBy_id" from reports group by "createdBy_id" order by max(updated_at) desc limit ?', count ]
+
+  contributors.each do |c|
+    r=Report.find_by_sql [ 'select * from reports where "createdBy_id" = ? order by updated_at desc limit 1', c.createdBy_id.to_s]
+    if r and r.count>0 then reports=reports+r end
+  end
+  reports
+end
+
+
 def default_values
     self.created_at ||= self.updated_at
 end

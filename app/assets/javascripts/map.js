@@ -884,6 +884,7 @@ function route_endSelectLocation() {
    /* really should do foreach an dconcatenate here ... */
     document.routeform.route_location.value=wktText;
     document.routeform.route_distance.value=lineGeomMeterProj.getLength()/1000;
+    document.routeform.datasource.value="Drawn on map";
   }
 
   route_selectNothing();
@@ -1099,7 +1100,7 @@ function linkWithExtent(entity_name) {
 
          var lineGeomMeterProj = fea[0].geometry.transform(gpxProj,distProj);
          document.routeform.route_distance.value=lineGeomMeterProj.getLength()/1000;
-         document.routeform.route_datasource.value="Uploaded from GPS";
+         document.routeform.datasource.value="Uploaded from GPS";
        } else {
          alert("Invald GPX file");
        }

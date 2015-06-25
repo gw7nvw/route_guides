@@ -15,32 +15,32 @@
             <% if @rt_list.time %>
                <%="("+@rt_list.time.round(1).to_s+" DOC hours)"  %>
             <% end %>
-            <% if @rt_list.maxRouteType_.name!='Unknown'%>
-               <%=" - "+@rt_list.maxRouteType_.name%>
+            <% if @rt_list.maxroutetype_.name!='Unknown'%>
+               <%=" - "+@rt_list.maxroutetype_.name%>
             <% end %>
-            <% if @rt_list.maxTerrain_.name!='Unknown'%>
-               <%=" - "+@rt_list.maxTerrain_.name+" terrain"%>
+            <% if @rt_list.maxterrain_.name!='Unknown'%>
+               <%=" - "+@rt_list.maxterrain_.name+" terrain"%>
             <% end %>
                <br/>
-               <%= "Altitude - max: "+@rt_list.maxAlt.to_i.to_s+"m  min: "+@rt_list.minAlt.to_i.to_s+"m"+
-                  "  gain: "+@rt_list.altGain.to_i.to_s+"m  loss: "+@rt_list.altLoss.to_i.to_s+"m" %>
+               <%= "Altitude - max: "+@rt_list.maxalt.to_i.to_s+"m  min: "+@rt_list.minalt.to_i.to_s+"m"+
+                  "  gain: "+@rt_list.altgain.to_i.to_s+"m  loss: "+@rt_list.altloss.to_i.to_s+"m" %>
                <% if @rt_list.distance>0 %>
-                  <%="  gradient: "+(Math.tan((@rt_list.altGain+@rt_list.altLoss)/(@rt_list.distance*1000))*180/Math::PI).to_i.to_s+" deg"%>
+                  <%="  gradient: "+(Math.tan((@rt_list.altgain+@rt_list.altloss)/(@rt_list.distance*1000))*180/Math::PI).to_i.to_s+" deg"%>
                <% end %>
-               <% if @rt_list.maxGradient_.name!='Unknown'%>
-                  <%="("+@rt_list.maxGradient_.name+")"%>
+               <% if @rt_list.maxgradient_.name!='Unknown'%>
+                  <%="("+@rt_list.maxgradient_.name+")"%>
                <% end %><br/>
             Skills:
-            <% if @rt_list.maxAlpineS_.name!='Unknown' and @rt_list.maxAlpineS_.name!='None' %>
-               <%=@rt_list.maxAlpineS_.name%><%=" ("+(@rt_list.maxAlpineS-@alpines.minimum(:id)).to_s+"/"+(@alpines.maximum(:id)-@alpines.minimum(:id)).to_s+") "%>
+            <% if @rt_list.maxalpines_.name!='Unknown' and @rt_list.maxalpines_.name!='None' %>
+               <%=@rt_list.maxalpines_.name%><%=" ("+(@rt_list.maxalpines-@alpines.minimum(:id)).to_s+"/"+(@alpines.maximum(:id)-@alpines.minimum(:id)).to_s+") "%>
             <% end %>
-            <% if @rt_list.maxRiver_.name!='Unknown' and @rt_list.maxRiver_.name!='None' %>
-               <%=" - "+@rt_list.maxRiver_.name%>
-               <%=" ("+(@rt_list.maxRiver-@rivers.minimum(:id)).to_s+"/"+(@rivers.maximum(:id)-@rivers.minimum(:id)).to_s+") "%>
+            <% if @rt_list.maxriver_.name!='Unknown' and @rt_list.maxriver_.name!='None' %>
+               <%=" - "+@rt_list.maxriver_.name%>
+               <%=" ("+(@rt_list.maxriver-@rivers.minimum(:id)).to_s+"/"+(@rivers.maximum(:id)-@rivers.minimum(:id)).to_s+") "%>
             <% end %>
-            <% if @rt_list.maxAlpineW_.name!='Unknown' and @rt_list.maxAlpineW_.name!='None' %>
-               Winter - <%=@rt_list.maxAlpineW_.name%>
-               <%=" ("+(@rt_list.maxAlpineW-@alpinews.minimum(:id)).to_s+"/"+(@alpinews.maximum(:id)-@alpinews.minimum(:id)).to_s+")"%>
+            <% if @rt_list.maxalpinew_.name!='Unknown' and @rt_list.maxalpinew_.name!='None' %>
+               Winter - <%=@rt_list.maxalpinew_.name%>
+               <%=" ("+(@rt_list.maxalpinew-@alpinews.minimum(:id)).to_s+"/"+(@alpinews.maximum(:id)-@alpinews.minimum(:id)).to_s+")"%>
             <% end %>
 
      </div>
