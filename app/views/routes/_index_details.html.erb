@@ -2,10 +2,10 @@
 <% if !@hidetitle %>
   <div class="erow">
     <div class="sectiontitle">
-      Route Segments
+    Route Segments
       <% if @static_page==true %>
         <%=link_to "(more ...)",'/legs?order=latest', remote: true, :id => 'route_index', :class => 'normaltext', :onclick => "linkHandler('route_index')" %> 
-     <% end %>
+      <% end %>
   </div>
 <% end %>
 <div class="erow">

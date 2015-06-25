@@ -16,7 +16,7 @@
 </script>
 
 
-<% if @items and @startplace and @endplace and @url and @url.include?('rv')%>
+<% if @items and @startplace and @endplace and @url and (@url.include?('rv') or @url.include?('qv'))%>
   <%= form_tag '/routes/many', :remote=> true, :name => "AddMany", :name=> 'listForm', :method=> 'post'%>
     <div class="erow">
       <div class="sectiontitle">
@@ -27,6 +27,9 @@
       </div>
     </div>
   </form>
+<% end %>
+<% if @url.split('q').count>1 %>
+  <p style='color:red'> Note: End-to-end route leaves / joins <%=@url.split('q').count-1%> of the route segments listed part-way along.  Distances / times shown do not reflect this</p>
 <% end %>
 <% if @items %>
   <%
@@ -40,13 +43,22 @@
      place_list=[]
   %>
 
-  <% if @url and @url.include?('rv') %>
+  <% if @url and (@url.include?('rv') or @url.include?('qv')) %>
     <% @items.reverse.each do |rt_str| %>
       <% 
-         if rt_str[0..1]=='rv' then 
-           rt_id=rt_str[2..-1].to_i
+         if rt_str[0..1]=='rv' or rt_str[0..1]=='qv' then 
+           if rt_str[0..1]=='rv' then
+             rt_id=rt_str[2..-1].to_i
+             route=Route.find_by_signed_id(rt_id)
+           else
+             rtarr=rt_str[2..-1].split('y')
+             if rtarr.count<3 then abort() end
+             rt_id=rtarr[0].to_i
+             route=Route.find_by_signed_id(rt_id)
+             route.startplace_id=rtarr[1].to_i
+             route.endplace_id=rtarr[2].to_i
+           end
            rt_arr=rt_arr+[rt_id]
-           route=Route.find_by_signed_id(rt_id)
            if(route.distance) then distance+=route.distance end
            if(route.time) then time+=route.time end
            if(route.altgain) then altgain=altgain+route.altgain end
@@ -118,11 +130,24 @@
 
 
      <%  end %>
-     <%  if item[0]=='r' then routeId=item[2..-1].to_i%>
+     <%  if item[0]=='r' or item[0]=='q' then %>
        <% 
           @showForward=1
-          @showReverse=0
-          @route=Route.find_by_signed_id(routeId) %>
+          @showReverse=0 
+       %>
+       <% if item[0]=='q' %>
+          <p style='color:red'> Note: your end-to-end journey joins or leaves this route segment part way along.  Distances / times shown to not reflect this</p>
+          <% arr=item[2..-1].split('y')
+             routeId=arr[0].to_i
+             @real_startplace=Place.find_by_id(arr[1].to_i)
+             @real_endplace=Place.find_by_id(arr[2].to_i)
+        else 
+           routeId=item[2..-1].to_i
+           @real_startplace=nil
+           @real_endplace=nil
+        end 
+        @route=Route.find_by_signed_id(routeId)
+       %>
        <% if item[1]=="v" then %>
          <%= render '/routes/route_details' %> 
        <% end %>
@@ -164,7 +189,7 @@
   <% @trip=false %>
 <% end %>
 
-<% if @url and @url.include?('rv') and not @url.include?('s') and not @url.include?('n') and  not @url.include?('e') %>
+<% if @url and (@url.include?('rv') or @url.include?('qv')) and not @url.include?('s') and not @url.include?('n') and  not @url.include?('e') %>
   <div id="links_section">
      <div class="erow" style="margin-top:12px">
        <div class="sectiontitle-bold">

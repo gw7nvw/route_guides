@@ -4,6 +4,17 @@ class Trip < ActiveRecord::Base
   belongs_to :createdBy, class_name: "User"
   validates :createdBy, :presence => true
 
+def self.find_latest_by_user(count)
+  trips=[]
+  contributors=Trip.find_by_sql [ 'select "createdBy_id" from trips where published=true group by "createdBy_id" order by max(updated_at) desc limit ?', count ]
+
+  contributors.each do |c|
+    r=Trip.find_by_sql [ 'select * from trips where "createdBy_id" = ? and published=true order by updated_at desc limit 1', c.createdBy_id.to_s]
+    if r and r.count>0 then trips=trips+r end
+  end
+  trips
+end
+
 def distance
      t=Trip.find_by_sql ["select sum(r.distance) id from trip_details td 
                 inner join routes r on r.id = td.route_id 

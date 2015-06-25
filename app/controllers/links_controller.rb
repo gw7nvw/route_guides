@@ -45,9 +45,37 @@ class LinksController < ApplicationController
         end
       if((rl.item_id and rl.item_id.to_i>0) or rl.item_url) and  (rl.baseItem_id and  rl.baseItem_id>0)
         rl.save
+        regen=false
+        if @parent_type=="route" then
+          @parent.queue_regenerate_route_index 
+          regen=true
+        end 
+        if regen==false and rl.item_type=="route" then
+           child=Route.find_by_id(rl.item_id)
+           if child then 
+             regen=true
+             child.queue_regenerate_route_index 
+           end
+        end
+        if regen==false and @parent_type=="place" then
+          rs=@parent.adjoiningRoutes
+          rs.each do |r|
+             r.queue_regenerate_route_index
+             regen=true
+          end
+        end
+        if regen==false and rl.item_type=="place" then
+          child=Place.find_by_id(rl.item_id)
+          rs=child.adjoiningRoutes
+          rs.each do |r|
+             r.queue_regenerate_route_index
+             regen=true
+          end
+        end
       end
-
+   
    end
+
 
    render 'edit' 
  end

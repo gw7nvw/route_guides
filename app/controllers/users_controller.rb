@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-  before_action :signed_in_user, only: [:edit, :update] 
+  before_action :signed_in_user, only: [:edit, :update, :drafts] 
   def index
     @users=User.where(:activated=>true).order(:lastVisited).reverse
   end
@@ -10,6 +10,11 @@ class UsersController < ApplicationController
     end
   end
 
+  def drafts
+    @user=@current_user
+
+    @trips=Trip.where('"createdBy_id" = ? and published = false',@current_user.id).order(:name)
+  end
 
   def new
     @user = User.new
@@ -100,7 +105,7 @@ class UsersController < ApplicationController
   private
 
     def user_params
-      params.require(:user).permit(:name, :firstName, :lastName, :email, :password,
+      params.require(:user).permit(:name, :firstName, :lastName, :email, :password, :hide_name, 
                                    :password_confirmation)
     end
 

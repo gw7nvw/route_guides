@@ -11,12 +11,14 @@
       <% end %>
 
       <div class="sectiontitle25">
+         <% if @real_startplace then startplace= @real_startplace else startplace=@route.startplace end %>
+         <% if @real_endplace then endplace= @real_endplace else endplace=@route.endplace end %>
          <% if !@route.published then %>Draft:<% end %>
          <% if !@history %>
-            <%= link_to @route.startplace.name+" to "+@route.endplace.name+" via "+@route.via, 
+            <%= link_to startplace.name+" to "+endplace.name+" via "+@route.via, 
                @route, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
          <% else %>
-            <%=@route.startplace.name+" to "+@route.endplace.name+" via "+@route.via %>
+            <%=startplace.name+" to "+endplace.name+" via "+@route.via %>
          <% end %>
 
       </div>

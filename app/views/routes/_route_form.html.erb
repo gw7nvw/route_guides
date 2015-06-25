@@ -101,7 +101,7 @@ sufficient to differentiate it from other routes between the same two places. <b
 
       <%= f.date_field :experienced_at, :disabled=>!@edit %>
 
-      <%= f.hidden_field :datasource %> 
+
       <div class="erow"> 
          <%=render :partial => 'help_buttons',  :locals => {:expName => "rhelproute", :initialSt => 0} %>
 
@@ -152,6 +152,11 @@ sufficient to differentiate it from other routes between the same two places. <b
       <div class="erow">
         <textarea id="gpxfield" name="gpxfield" type="text" style="display:none" rows="8"></textarea>
       </div>
+
+      <select name="datasource">
+        <option value="Drawn on map" <%='selected="selected"' if @route.datasource!="Uploaded from GPS"%>>Drawn on map</option>
+        <option value="Uploaded from GPS" <%='selected="selected"' if @route.datasource=="Uploaded from GPS"%>>Uploaded from GPS</option>
+      </select>
 
       <div class="erow">
          <%=render :partial => 'help_buttons',  :locals => {:expName => "rhelpdescription", :initialSt => 0} %>

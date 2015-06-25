@@ -14,9 +14,17 @@
 
 </div>
  <div class="erow">
-     <% if (@user.firstName and @user.lastName) %> 
+    <% if(signed_in? and ((@user.id==@current_user.id) or (@current_user.role==Role.find_by( :name => 'root')))) %>
        <%= @user.firstName.capitalize+" "+@user.lastName.capitalize %><br/>
-     <% end %>
+       </div><div class="erow">
+       Anonymity enabled: <%if @user.hide_name%>True<%else%>False<%end%><br/>
+    <% else %>
+       <% if (@user.firstName and @user.lastName and !@user.hide_name) %> 
+         <%= @user.firstName.capitalize+" "+@user.lastName.capitalize %><br/>
+       <% else %>
+         <%= 'Anonymous' %><br/>
+       <% end %>
+    <% end %>
  </div>
 <%     if(signed_in? and ((@user.id==@current_user.id) or (@current_user.role==Role.find_by( :name => 'root')))) %>
  <div class="erow">

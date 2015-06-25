@@ -11,11 +11,12 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150316053513) do
+ActiveRecord::Schema.define(version: 20150625045713) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
+  enable_extension "postgis_topology"
 
   create_table "alpines", force: true do |t|
     t.string   "name"
@@ -147,6 +148,7 @@ ActiveRecord::Schema.define(version: 20150316053513) do
     t.integer  "projection_id"
     t.integer  "updatedBy_id"
     t.date     "experienced_at"
+    t.datetime "affected_at"
   end
 
   create_table "projections", force: true do |t|
@@ -203,33 +205,38 @@ ActiveRecord::Schema.define(version: 20150316053513) do
   create_table "route_indices", force: true do |t|
     t.integer  "startplace_id"
     t.integer  "endplace_id"
-    t.boolean  "isDest"
+    t.boolean  "isdest"
     t.string   "url"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.boolean  "fromDest"
+    t.boolean  "fromdest"
     t.boolean  "direct"
     t.decimal  "distance"
     t.decimal  "time"
-    t.decimal  "altGain"
-    t.decimal  "altLoss"
-    t.integer  "maxImportance"
-    t.integer  "maxRouteType"
-    t.integer  "maxGradient"
-    t.integer  "maxTerrain"
-    t.integer  "maxAlpineS"
-    t.integer  "maxAlpineW"
-    t.integer  "maxRiver"
-    t.decimal  "avgImportance"
-    t.decimal  "avgRouteType"
-    t.decimal  "avgGradient"
-    t.decimal  "avgTerrain"
-    t.decimal  "avgAlpineS"
-    t.decimal  "avgAlpineW"
-    t.decimal  "avgRiver"
-    t.integer  "minAlt"
-    t.integer  "maxAlt"
+    t.decimal  "altgain"
+    t.decimal  "altloss"
+    t.integer  "maximportance"
+    t.integer  "maxroutetype"
+    t.integer  "maxgradient"
+    t.integer  "maxterrain"
+    t.integer  "maxalpines"
+    t.integer  "maxalpinew"
+    t.integer  "maxriver"
+    t.decimal  "avgimportance"
+    t.decimal  "avgroutetype"
+    t.decimal  "avggradient"
+    t.decimal  "avgterrain"
+    t.decimal  "avgalpines"
+    t.decimal  "avgalpinew"
+    t.decimal  "avgriver"
+    t.integer  "minalt"
+    t.integer  "maxalt"
+    t.decimal  "disterror"
+    t.decimal  "timeerror"
   end
+
+  add_index "route_indices", ["endplace_id"], :name => "index_route_indices_on_endplace_id"
+  add_index "route_indices", ["startplace_id"], :name => "index_route_indices_on_startplace_id"
 
   create_table "route_instances", force: true do |t|
     t.integer  "route_id"
@@ -258,6 +265,10 @@ ActiveRecord::Schema.define(version: 20150316053513) do
     t.integer  "importance_id"
     t.boolean  "published"
     t.date     "experienced_at"
+    t.integer  "altloss"
+    t.integer  "altgain"
+    t.integer  "minalt"
+    t.integer  "maxalt"
   end
 
   create_table "routes", force: true do |t|
@@ -286,6 +297,10 @@ ActiveRecord::Schema.define(version: 20150316053513) do
     t.integer  "importance_id"
     t.boolean  "published"
     t.date     "experienced_at"
+    t.integer  "altloss"
+    t.integer  "altgain"
+    t.integer  "minalt"
+    t.integer  "maxalt"
   end
 
   add_index "routes", ["endplace_id"], :name => "index_routes_on_endplace_id"
@@ -368,6 +383,7 @@ ActiveRecord::Schema.define(version: 20150316053513) do
     t.datetime "activated_at"
     t.string   "reset_digest"
     t.datetime "reset_sent_at"
+    t.boolean  "hide_name"
   end
 
   add_index "users", ["email"], :name => "index_users_on_email", :unique => true

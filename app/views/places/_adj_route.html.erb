@@ -22,32 +22,32 @@
             <% if rt.time %>
                <%="("+rt.time.round(1).to_s+" DOC hours)"  %>
             <% end %>
-            <% if rt.maxRouteType_.name!='Unknown'%>
-               <%=" - "+rt.maxRouteType_.name%>
+            <% if rt.maxroutetype_.name!='Unknown'%>
+               <%=" - "+rt.maxroutetype_.name%>
             <% end %>
-            <% if rt.maxTerrain_.name!='Unknown'%>
-               <%=" - "+rt.maxTerrain_.name+" terrain"%>
+            <% if rt.maxterrain_.name!='Unknown'%>
+               <%=" - "+rt.maxterrain_.name+" terrain"%>
             <% end %>
                <br/>
-               <%= "Altitude - max: "+rt.maxAlt.to_i.to_s+"m  min: "+rt.minAlt.to_i.to_s+"m"+
-                  "  gain: "+rt.altGain.to_i.to_s+"m  loss: "+rt.altLoss.to_i.to_s+"m" %>
+               <%= "Altitude - max: "+rt.maxalt.to_i.to_s+"m  min: "+rt.minalt.to_i.to_s+"m"+
+                  "  gain: "+rt.altgain.to_i.to_s+"m  loss: "+rt.altloss.to_i.to_s+"m" %>
                <% if rt.distance>0 %>
-                  <%="  gradient: "+(Math.tan((rt.altGain+rt.altLoss)/(rt.distance*1000))*180/Math::PI).to_i.to_s+" deg"%>
+                  <%="  gradient: "+(Math.tan((rt.altgain+rt.altloss)/(rt.distance*1000))*180/Math::PI).to_i.to_s+" deg"%>
                <% end %>
-               <% if rt.maxGradient_.name!='Unknown'%>
-                  <%="("+rt.maxGradient_.name+")"%>
+               <% if rt.maxgradient_.name!='Unknown'%>
+                  <%="("+rt.maxgradient_.name+")"%>
                <% end %><br/>
             Skills:
-            <% if rt.maxAlpineS_.name!='Unknown' and rt.maxAlpineS_.name!='None' %>
-               <%=rt.maxAlpineS_.name%><%=" ("+(rt.maxAlpineS-@alpines.minimum(:id)).to_s+"/"+(@alpines.maximum(:id)-@alpines.minimum(:id)).to_s+") "%>
+            <% if rt.maxalpines_.name!='Unknown' and rt.maxalpines_.name!='None' %>
+               <%=rt.maxalpines_.name%><%=" ("+(rt.maxalpines-@alpines.minimum(:id)).to_s+"/"+(@alpines.maximum(:id)-@alpines.minimum(:id)).to_s+") "%>
             <% end %>
-            <% if rt.maxRiver_.name!='Unknown' and rt.maxRiver_.name!='None' %>
-               <%=" - "+rt.maxRiver_.name%>
-               <%=" ("+(rt.maxRiver-@rivers.minimum(:id)).to_s+"/"+(@rivers.maximum(:id)-@rivers.minimum(:id)).to_s+") "%>
+            <% if rt.maxriver_.name!='Unknown' and rt.maxriver_.name!='None' %>
+               <%=" - "+rt.maxriver_.name%>
+               <%=" ("+(rt.maxriver-@rivers.minimum(:id)).to_s+"/"+(@rivers.maximum(:id)-@rivers.minimum(:id)).to_s+") "%>
             <% end %>
-            <% if rt.maxAlpineW_.name!='Unknown' and rt.maxAlpineW_.name!='None' %>
-               Winter - <%=rt.maxAlpineW_.name%>
-               <%=" ("+(rt.maxAlpineW-@alpinews.minimum(:id)).to_s+"/"+(@alpinews.maximum(:id)-@alpinews.minimum(:id)).to_s+")"%>
+            <% if rt.maxalpinew_.name!='Unknown' and rt.maxalpinew_.name!='None' %>
+               Winter - <%=rt.maxalpinew_.name%>
+               <%=" ("+(rt.maxalpinew-@alpinews.minimum(:id)).to_s+"/"+(@alpinews.maximum(:id)-@alpinews.minimum(:id)).to_s+")"%>
             <% end %>
      </div>
      <div class="subrow">

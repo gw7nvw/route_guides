@@ -19,6 +19,10 @@ class Place < ActiveRecord::Base
   # But use a geographic implementation for the :lonlat column.
   set_rgeo_factory_for_column(:location, RGeo::Geographic.spherical_factory(:srid => 4326, :proj4=> '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'))
 
+def isDest
+    (self.placeType.isDest  or self.adjoiningRoutes.count<2)
+end
+
 def placeType
   t=PlaceType.find_by_sql ["select * from place_types where name=?",self.place_type]
   t.first
@@ -46,24 +50,71 @@ end
 
 def default_values
     self.created_at ||= self.updated_at
+    if self.updated_at_changed? then
+      self.affected_at = self.updated_at
+    else
+      self.affected_at =Time.new()
+    end
 end
 
 def create_new_instance
-   place_instance=PlaceInstance.new(self.attributes)
-   place_instance.place_id=self.id
-   place_instance.id=nil
-   place_instance.createdBy_id = self.updatedBy_id #current_user.id
+   #only for actual modifications, not for updates to affected_at
+   if self.affected_at.to_s == self.updated_at.to_s then
+     place_instance=PlaceInstance.new(self.attributes.except('affected_at'))
+     place_instance.place_id=self.id
+     place_instance.id=nil
+     place_instance.createdBy_id = self.updatedBy_id #current_user.id
 
-   place_instance.save
+     place_instance.save   
+   end
 end
 
+def adjoiningRoutesWithLinks
+
+  ars=self.adjoiningRoutes
+  allars=[]
+
+  ars.each do |ar|
+    allars=allars+[ar]
+    ar.linked('place').each do |l|
+      if l.item_id!=self.id then
+        nr=ar.dup
+        nr.id=ar.id
+        nr.endplace_id=l.item_id
+        allars=allars+[nr]
+      end
+    end
+  end
+  allars
+end
 
 def adjoiningRoutes
+   #routes using us
    t=Route.find_by_sql ["select *  from routes where startplace_id = ? and published=true", self.id]
    t2=Route.find_by_sql ["select *  from routes where endplace_id = ? and published=true",self.id]
    t2.each do |ti|
      t=t+[ti.reverse]
    end
+   
+   self.links.each do |l|
+     #routes from places linked to us
+     if l.item_type=="place" then
+         lt=Route.find_by_sql ["select *  from routes where startplace_id = ? and published=true", l.item_id]
+         lt2=Route.find_by_sql ["select *  from routes where endplace_id = ? and published=true", l.item_id]
+         t=t+lt
+         lt2.each do |ti|
+            t=t+[ti.reverse]
+         end
+     end
+     #routes linked to us
+     if l.item_type=="route" then
+         lr=Route.find_by_signed_id(l.item_id)
+         lr2=Route.find_by_signed_id(-l.item_id)
+         if lr then t=t+[lr] end 
+         if lr2 then t=t+[lr2] end 
+     end
+   end
+    
    t
 end
 
@@ -79,22 +130,58 @@ end
 def adjoiningPlacesFast(placeb, destOnly, maxHopCount, baseRoute, ignoreRoute)
 
   queryString="select * from route_indices where startplace_id = "+self.id.to_s
-  if placeb then queryString+=" and endplace_id = "+placeb.to_s end
-  if destOnly then queryString+=%q[ and "isDest" = true and direct = true] end
-  if baseRoute then queryString+=" and url contains '"+baseRoute+"'" end
-  if ignoreRoute then queryString+=" and not url contains '"+baseRoute+"'" end
+  if placeb then 
+     pbstr=placeb.to_s
+     pb=Place.find_by_id(placeb)
+     lps=pb.linked('place')
+     if lps.count>0 then
+       lps.each do |lp|
+         pbstr=pbstr+", "+lp.item_id.to_s
+       end
+     end         
+     queryString+=" and endplace_id in ("+pbstr+")" 
+  end
+  if destOnly then queryString+=%q[ and "isdest" = true and direct = true] end
+  if baseRoute then queryString+=" and url contains '"+baseRoute[:url]+"'" end
+  if ignoreRoute then queryString+=" and not url contains '"+ignoreRoute+"'" end
 
   ris=RouteIndex.find_by_sql [queryString]
 
+   #routes using linked places
+   self.links.each do |l|
+     if l.item_type=="place" then
+       queryString="select * from route_indices where startplace_id = "+l.item_id.to_s
+        if placeb then queryString+=" and endplace_id in ("+pbstr+")" end
+        if destOnly then queryString+=%q[ and "isdest" = true and direct = true] end
+        if baseRoute then queryString+=" and url contains '"+baseRoute[:url]+"'" end
+        if ignoreRoute then queryString+=" and not url contains '"+ignoreRoute+"'" end
+            
+        ris2=RouteIndex.find_by_sql [queryString]
+        ris=ris+ris2
+     end
+   end
+
+   ris
 end
 
+
 def adjoiningPlaces(placeb, destOnly, maxHopCount, baseRoute, ignoreRoute)
-  if !maxHopCount then maxHopCount=15 end
+  if !maxHopCount then maxHopCount=12 end
 
   if ignoreRoute then 
       ir=Route.find_by_signed_id(ignoreRoute)
       ignorePlace=[ir.startplace_id, ir.endplace_id] 
   else ignorePlace=nil end
+  if placeb then 
+     pbarr=[placeb]
+     pb=Place.find_by_id(placeb)
+     lps=pb.linked('place')
+     if lps.count>0 then
+       lps.each do |lp|
+         pbarr=pbarr+[lp.item_id]
+       end
+     end         
+  end
   placeSoFar=[]
   routeSoFar=[]
   urlSoFar=[]
@@ -150,24 +237,35 @@ def adjoiningPlaces(placeb, destOnly, maxHopCount, baseRoute, ignoreRoute)
   hopCount=0
   goodPathCount=0
 
-  #cache placeTypes to avoid loading for each place
-  pt=PlaceType.find_by_sql('select name, "isDest" from place_types')
 
   #if a base route is supplied, use that as the start of our route search
   if baseRoute
-    urlSoFar[0]=baseRoute
-    routeStr=baseRoute.split('x')[1..-1]
+    urlSoFar[0]=baseRoute[:url]
+    urlindex=0
+    routeStr=baseRoute[:url].split('x')[1..-1]
     routeStr.each do |rs|
-      if rs[0]=='r' then 
-         thisRoute=rs[2..-1].to_i
+      if rs[0]=='r' or rs[0]=='q' then 
+         if rs[0]=='r' then
+           thisRoute=rs[2..-1].to_i
+           currentLeg=Route.find_by_signed_id(thisRoute)
+           placeSoFar[0]=[currentLeg.endplace_id]+placeSoFar[0]
+           currentDirect=(currentLeg.endplace.place_type=="Hut")
+         else
+           rtarr=rs[2..-1].split('y')
+           if rtarr.count<3 then abort() end
+           thisRoute=rtarr[0].to_i
+           currentLeg=Route.find_by_signed_id(thisRoute)
+           placeSoFar[0]=rtarr[2].to_i+placeSoFar[0] 
+           nextPlace=Place.find_by_id(rtarr[2].to_i)
+           currentDirect=(nextPlace.place_type=="Hut")
+         end
          routeSoFar[0]=[thisRoute]+routeSoFar[0] 
-         #next place is route endplace
-         currentLeg=Route.find_by_signed_id(thisRoute)
-         placeSoFar[0]=[currentLeg.endplace_id]+placeSoFar[0]
+         urlindex+=1
          thisDistance[0]=thisDistance[0]+(currentLeg.distance or 0)
          thisTime[0]=thisTime[0]+(currentLeg.time or 0)
          lastIsDirect=thisIsDirect[0]
-         thisIsDirect[0]= !(!thisIsDirect[0] or (currentLeg.endplace.place_type=="Hut"))
+
+         thisIsDirect[0]= !(!thisIsDirect[0] or currentDirect)
          thisAltGain[0]=thisAltGain[0]+currentLeg.altgain
          thisAltLoss[0]=thisAltLoss[0]+currentLeg.altloss
          thisMaxAlt[0]=[thisMaxAlt[0],(currentLeg.maxalt.to_i or 0)].max
@@ -195,7 +293,7 @@ def adjoiningPlaces(placeb, destOnly, maxHopCount, baseRoute, ignoreRoute)
     # 2) We are not looking for a specific place, and this is a 'destination'
     # 3) We are not looking for a placex, and this is a direct route 
     nextDest=Place.find_by_id(placeSoFar[0][0])
-    if ((placeb and nextDest.id == placeb) or (!placeb and  pt.select { |pt| pt.name==nextDest.place_type }.first.isDest)  or (!placeb and lastIsDirect)) then
+    if ((placeb and (pbarr.include? nextDest.id)) or (!placeb and  nextDest.isDest)  or (!placeb and lastIsDirect)) then
          goodRoute[goodPathCount]={
               :place => nextDest.id, 
               :route=>routeSoFar[0], 
@@ -203,24 +301,24 @@ def adjoiningPlaces(placeb, destOnly, maxHopCount, baseRoute, ignoreRoute)
               :direct => lastIsDirect,
               :distance => thisDistance[0],
               :time => thisTime[0],
-              :altGain => thisAltGain[0],
-              :altLoss => thisAltLoss[0],
-              :minAlt => thisMinAlt[0],
-              :maxAlt => thisMaxAlt[0],
-              :maxRouteType => thisMaxRouteType[0],
-              :maxImportance => thisMaxImportance[0],
-              :maxGradient => thisMaxGradient[0],
-              :maxTerrain => thisMaxTerrain[0],
-              :maxAlpineS => thisMaxAlpineS[0],
-              :maxAlpineW => thisMaxAlpineW[0],
-              :maxRiver => thisMaxRiver[0],
-              :avgImportance => thisSumImportance[0]/thisDistance[0],
-              :avgRouteType => thisSumRouteType[0]/thisDistance[0],
-              :avgGradient => thisSumGradient[0]/thisDistance[0],
-              :avgTerrain => thisSumTerrain[0]/thisDistance[0],
-              :avgAlpineS => thisSumAlpineS[0]/thisDistance[0],
-              :avgAlpineW => thisSumAlpineW[0]/thisDistance[0],
-              :avgRiver => thisSumRiver[0]/thisDistance[0]
+              :altgain => thisAltGain[0],
+              :altloss => thisAltLoss[0],
+              :minalt => thisMinAlt[0],
+              :maxalt => thisMaxAlt[0],
+              :maxroutetype => thisMaxRouteType[0],
+              :maximportance => thisMaxImportance[0],
+              :maxgradient => thisMaxGradient[0],
+              :maxterrain => thisMaxTerrain[0],
+              :maxalpines => thisMaxAlpineS[0],
+              :maxalpinew => thisMaxAlpineW[0],
+              :maxriver => thisMaxRiver[0],
+              :avgimportance => thisSumImportance[0]/thisDistance[0],
+              :avgroutetype => thisSumRouteType[0]/thisDistance[0],
+              :avggradient => thisSumGradient[0]/thisDistance[0],
+              :avgterrain => thisSumTerrain[0]/thisDistance[0],
+              :avgalpines => thisSumAlpineS[0]/thisDistance[0],
+              :avgalpinew => thisSumAlpineW[0]/thisDistance[0],
+              :avgriver => thisSumRiver[0]/thisDistance[0]
          }
          goodPathCount+=1
     end
@@ -262,44 +360,70 @@ def adjoiningPlaces(placeb, destOnly, maxHopCount, baseRoute, ignoreRoute)
       goodRoutesFromThisPlace=0
 
       #add each route to hash
-      here.adjoiningRoutes.each do |ar|
+      here.adjoiningRoutesWithLinks.each do |ar|
         if ar.id.abs != (ignoreRoute or 0).abs then
           matchedThisRoute=false
           endOfLine=false
           nextDest=ar.endplace
           # only use if not already in route, and is not start of the ignoreRoute
-          if (!thisPath.include? nextDest.id) and (!ignorePlace or !(ignorePlace.include? nextDest.id)) then
-             #puts "==="
-             #puts baseRoute
-             #puts [nextDest.id]+thisPath
-             #puts urlSoFar[currentRouteIndex]+'xrv'+ar.id.to_s
-             if ((placeb and nextDest.id == placeb) or (!placeb and  pt.select { |pt| pt.name==nextDest.place_type }.first.isDest) or (!placeb and thisIsDirect[currentRouteIndex])) then
+          beenThere=false
+          if (thisPath.include? nextDest.id) then 
+              beenThere=true 
+          end
+          nextDest.links.each do |l|
+            if l.item_type=="place" then
+              if (thisPath.include? l.item_id) then 
+                beenThere=true 
+              end 
+            end
+          end
+          #check for 
+          if (routeSoFar[currentRouteIndex].include? ar.id) or (routeSoFar[currentRouteIndex].include? -ar.id) then 
+            beenThere=true 
+          end
+
+          if (!beenThere) and (!ignorePlace or !(ignorePlace.include? nextDest.id)) then
+             #big hack to check if endpoint weve been gioven is same as saved route. If not is an intermediate point
+             oldr=Route.find_by_signed_id(ar.id)
+             if oldr then oldep=oldr.endplace_id else oldep=0 end
+             prefix="xrv"
+             suffix=""
+             #do not process backwards routes between intermediate points ... will result in duplicates
+             if !(ar.startplace_id!=here.id and ar.endplace_id!=oldep and ar.id<0) then
+     
+             
+               if ar.startplace_id!=here.id or  ar.endplace_id!=oldep then
+                 prefix="xqv"
+                 suffix="y"+here.id.to_s+"y"+ar.endplace_id.to_s
+               end
+   
+               if ((placeb and (pbarr.include? nextDest.id)) or (!placeb and  nextDest.isDest) or (!placeb and thisIsDirect[currentRouteIndex])) then
                   tmpDist=thisDistance[currentRouteIndex]+(ar.distance or 0)
                   goodRoute[goodPathCount]=
                        {:place => nextDest.id, 
                         :route=>[ar.id]+routeSoFar[currentRouteIndex], 
-                        :url=>urlSoFar[currentRouteIndex]+'xrv'+ar.id.to_s, 
+                        :url=>urlSoFar[currentRouteIndex]+prefix+ar.id.to_s+suffix, 
                         :direct => thisIsDirect[currentRouteIndex], 
                         :distance => tmpDist,
                         :time => thisTime[currentRouteIndex]+(ar.time or 0),
-                        :altGain => thisAltGain[currentRouteIndex]+ar.altgain,
-                        :altLoss => thisAltLoss[currentRouteIndex]+ar.altloss,
-                        :minAlt => [thisMinAlt[currentRouteIndex],(ar.minalt.to_i or 9999)].min,
-                        :maxAlt => [thisMaxAlt[currentRouteIndex],(ar.maxalt.to_i or 0)].max,
-                        :maxImportance => [thisMaxImportance[currentRouteIndex],ar.importance_id].max,
-                        :maxRouteType => [thisMaxRouteType[currentRouteIndex],ar.routetype_id].max,
-                        :maxGradient => [thisMaxGradient[currentRouteIndex],ar.gradient_id].max,
-                        :maxTerrain => [thisMaxTerrain[currentRouteIndex],ar.terrain_id].max,
-                        :maxAlpineS => [thisMaxAlpineS[currentRouteIndex],ar.alpinesummer_id].max,
-                        :maxAlpineW => [thisMaxAlpineW[currentRouteIndex],ar.alpinewinter_id].max,
-                        :maxRiver => [thisMaxRiver[currentRouteIndex],ar.river_id].max,
-                        :avgImportance => (thisSumImportance[currentRouteIndex]+ar.importance_id*ar.distance)/tmpDist,
-                        :avgRouteType => (thisSumRouteType[currentRouteIndex]+ar.routetype_id*ar.distance)/tmpDist,
-                        :avgGradient => (thisSumGradient[currentRouteIndex]+ar.gradient_id*ar.distance)/tmpDist,
-                        :avgTerrain => (thisSumTerrain[currentRouteIndex]+ar.terrain_id*ar.distance)/tmpDist,
-                        :avgAlpineS => (thisSumAlpineS[currentRouteIndex]+ar.alpinesummer_id*ar.distance)/tmpDist,
-                        :avgAlpineW => (thisSumAlpineW[currentRouteIndex]+ar.alpinewinter_id*ar.distance)/tmpDist, 
-                        :avgRiver => (thisSumRiver[currentRouteIndex]+ar.river_id*ar.distance)/tmpDist
+                        :altgain => thisAltGain[currentRouteIndex]+ar.altgain,
+                        :altloss => thisAltLoss[currentRouteIndex]+ar.altloss,
+                        :minalt => [thisMinAlt[currentRouteIndex],(ar.minalt.to_i or 9999)].min,
+                        :maxalt => [thisMaxAlt[currentRouteIndex],(ar.maxalt.to_i or 0)].max,
+                        :maximportance => [thisMaxImportance[currentRouteIndex],ar.importance_id].max,
+                        :maxroutetype => [thisMaxRouteType[currentRouteIndex],ar.routetype_id].max,
+                        :maxgradient => [thisMaxGradient[currentRouteIndex],ar.gradient_id].max,
+                        :maxterrain => [thisMaxTerrain[currentRouteIndex],ar.terrain_id].max,
+                        :maxalpines => [thisMaxAlpineS[currentRouteIndex],ar.alpinesummer_id].max,
+                        :maxalpinew => [thisMaxAlpineW[currentRouteIndex],ar.alpinewinter_id].max,
+                        :maxriver => [thisMaxRiver[currentRouteIndex],ar.river_id].max,
+                        :avgimportance => (thisSumImportance[currentRouteIndex]+ar.importance_id*ar.distance)/tmpDist,
+                        :avgroutetype => (thisSumRouteType[currentRouteIndex]+ar.routetype_id*ar.distance)/tmpDist,
+                        :avggradient => (thisSumGradient[currentRouteIndex]+ar.gradient_id*ar.distance)/tmpDist,
+                        :avgterrain => (thisSumTerrain[currentRouteIndex]+ar.terrain_id*ar.distance)/tmpDist,
+                        :avgalpines => (thisSumAlpineS[currentRouteIndex]+ar.alpinesummer_id*ar.distance)/tmpDist,
+                        :avgalpinew => (thisSumAlpineW[currentRouteIndex]+ar.alpinewinter_id*ar.distance)/tmpDist, 
+                        :avgriver => (thisSumRiver[currentRouteIndex]+ar.river_id*ar.distance)/tmpDist
                   }
                   goodPathCount+=1 
                   goodRoutesFromThisPlace+=1     
@@ -310,7 +434,7 @@ def adjoiningPlaces(placeb, destOnly, maxHopCount, baseRoute, ignoreRoute)
              #only look beyond a destination if destOnly=false
              if endOfLine==false or destOnly==false then
                   nextRouteSoFar[placeCountThisHop]=[ar.id]+routeSoFar[currentRouteIndex]
-                  nextUrlSoFar[placeCountThisHop]=urlSoFar[currentRouteIndex]+'xrv'+ar.id.to_s
+                  nextUrlSoFar[placeCountThisHop]=urlSoFar[currentRouteIndex]+prefix+ar.id.to_s+suffix
                   nextPlaceSoFar[placeCountThisHop]=[nextDest.id]+thisPath
                   nextDistance[placeCountThisHop]=thisDistance[currentRouteIndex]+(ar.distance or 0)
                   nextTime[placeCountThisHop]=thisTime[currentRouteIndex]+(ar.time or 0)
@@ -337,42 +461,12 @@ def adjoiningPlaces(placeb, destOnly, maxHopCount, baseRoute, ignoreRoute)
 
                   placeCountThisHop+=1
                   goodRoutesFromThisPlace+=1
-             end
-          end
+               end
+             end # do not process backward routes between 2 intermediate points
+          end #if already been there
         end #if ignoreRoute
       end #end of 'each adjoining route' for thisPlace
 
-      # if this was a stub route, we're not looking for a specific dest, 
-      # add it even if it didn;t end at a destination
-      if goodRoutesFromThisPlace==0 and !placeb and routeSoFar[currentRouteIndex].count>0 and !pt.select { |pt| pt.name==here.place_type }.first.isDest then
-          goodRoute[goodPathCount]=
-                       {:place => here.id, 
-                        :route=>routeSoFar[currentRouteIndex], 
-                        :url=>urlSoFar[currentRouteIndex],
-                        :direct => thisIsDirect[currentRouteIndex], 
-                        :distance => thisDistance[currentRouteIndex],
-                        :time => thisTime[currentRouteIndex],
-                        :altGain => thisAltGain[currentRouteIndex],
-                        :altLoss => thisAltLoss[currentRouteIndex],
-                        :maxAlt => thisMaxAlt[currentRouteIndex],
-                        :minAlt => thisMinAlt[currentRouteIndex],
-                        :maxImportance => thisMaxImportance[currentRouteIndex],
-                        :maxRouteType => thisMaxRouteType[currentRouteIndex],
-                        :maxGradient => thisMaxGradient[currentRouteIndex],
-                        :maxTerrain => thisMaxTerrain[currentRouteIndex],
-                        :maxAlpineS => thisMaxAlpineS[currentRouteIndex],
-                        :maxAlpineW => thisMaxAlpineW[currentRouteIndex],
-                        :maxRiver => thisMaxRiver[currentRouteIndex],
-                        :avgImportance => (thisSumImportance[currentRouteIndex])/thisDistance[currentRouteIndex],
-                        :avgRouteType => (thisSumRouteType[currentRouteIndex])/thisDistance[currentRouteIndex],
-                        :avgGradient => (thisSumGradient[currentRouteIndex])/thisDistance[currentRouteIndex],
-                        :avgTerrain => (thisSumTerrain[currentRouteIndex])/thisDistance[currentRouteIndex],
-                        :avgAlpineS => (thisSumAlpineS[currentRouteIndex])/thisDistance[currentRouteIndex],
-                        :avgAlpineW => (thisSumAlpineW[currentRouteIndex])/thisDistance[currentRouteIndex], 
-                        :avgRiver => (thisSumRiver[currentRouteIndex])/thisDistance[currentRouteIndex]
-                       }
-          goodPathCount+=1
-      end
       currentRouteIndex+=1
     end # end of for each flace so far
 
@@ -404,7 +498,8 @@ def adjoiningPlaces(placeb, destOnly, maxHopCount, baseRoute, ignoreRoute)
  
   end #end of while we get results & don;t exceed max hop count
 
-  goodRoute.sort_by { |hsh| Place.find_by_id(hsh[:place]).name }
+#  goodRoute.sort_by { |hsh| Place.find_by_id(hsh[:place]).name }
+   goodRoute
 
 end
 
