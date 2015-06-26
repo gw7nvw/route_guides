@@ -53,8 +53,9 @@ class UsersController < ApplicationController
       @user.role=Role.find_by(:name => 'user')
 
       if @user.save
+        @user.reload
         # resave trip with userID
-        @trip.createdBy = @user
+        @trip.createdBy_id = @user.id
         @trip.save
 
         # clear the security question coz we're tidy kiwis 

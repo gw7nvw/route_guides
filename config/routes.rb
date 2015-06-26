@@ -48,6 +48,7 @@ root 'static_pages#home'
   match '/signin',  to: 'sessions#new',         via: 'get'
   match '/signout', to: 'sessions#destroy',     via: 'delete'
   match '/about',   to: 'static_pages#about',   via: 'get'
+  match '/reload',   to: 'static_pages#reload',   via: 'get'
   match '/sitemap.xml', to: 'sitemaps#index', via: 'get', as: "sitemap", defaults: { format: "xml" }
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

@@ -88,6 +88,7 @@
                 </ul>
               </li>
               <% else %>
+                <% if is_guest? and @current_guest.currenttrip %> <li><%= link_to "My trip",  currenttrip_path,  remote: true,  :id => 'my_trip_link', :onclick => "linkHandler('my_trip_link')"  %></li> <% end %>
                 <li><%= link_to "Sign in", signin_path, remote: true %></li>
               <% end %>
               <li>

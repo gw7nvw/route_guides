@@ -47,14 +47,14 @@ xml.urlset(xmlns: "http://www.sitemaps.org/schemas/sitemap/0.9") do
       xml.priority("0.2")
     end
   end
-#  @routes.each do |ri|
-#    url= 'search/?route_startplace_id='+ri.startplace_id.to_s+'&route_endplace_id='+ri.endplace_id.to_s
-#    url= 'routes/'+ri.url
-#    xml.url do
-#      xml.loc "#{root_url}#{url}"
-#      xml.lastmod ri.updated_at.strftime("%F")
-#      xml.changefreq("monthly")
-#      xml.priority("0.07")
-#    end
-#  end
+  @routes.each do |ri|
+    url= 'search/?route_startplace_id='+ri.startplace_id.to_s+'&route_endplace_id='+ri.endplace_id.to_s
+    url= 'routes/'+ri.url
+    xml.url do
+      xml.loc "#{root_url}#{url}"
+      xml.lastmod ri.updated_at.strftime("%F")
+      xml.changefreq("monthly")
+      xml.priority("0.1")
+    end
+  end
 end

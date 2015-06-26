@@ -1,6 +1,6 @@
 
 class PlacesController < ApplicationController
- before_action :signed_in_user, only: [:edit, :update, :new, :create]
+ before_action :signed_in_user, only: [:edit, :new, :create]
  before_action :touch_user
 
 def adj_route
@@ -183,33 +183,49 @@ def create
   def update
     #add to trip
     if (params[:add]) 
-      @trip=Trip.find_by_id(@current_user.currenttrip)
-      @trip_details = TripDetail.new
-      @trip_details.trip = @trip
-      @trip_details.place_id = params[:id]
-      @trip_details.showForward=true;
-      @trip_details.showReverse=false;
-      @trip_details.showConditions=false;
-      @trip_details.showLinks=false;
-
-      last_td=TripDetail.where(trip_id: @trip.id).order(:order).last()
-      if(last_td)  then
-        @trip_details.order = last_td.order+1 
-      else 
-        @trip_details.order=1 
+      if (!signed_in?) then
+        if (!is_guest?) then
+          create_guest()
+          reload_required=true
+        end
       end
-      @trip_details.save
+      if signed_in? then @trip=Trip.find_by_id(@current_user.currenttrip) end
+      if is_guest? then @trip=Trip.find_by_id(@current_guest.currenttrip) end
 
-      flash[:success] = "Added place to trip"
-
+      if @trip
+        @trip_details = TripDetail.new
+        @trip_details.trip = @trip
+        @trip_details.place_id = params[:id]
+        @trip_details.showForward=true;
+        @trip_details.showReverse=false;
+        @trip_details.showConditions=false;
+        @trip_details.showLinks=false;
+  
+        last_td=TripDetail.where(trip_id: @trip.id).order(:order).last()
+        if(last_td)  then
+          @trip_details.order = last_td.order+1 
+        else 
+          @trip_details.order=1 
+        end
+        @trip_details.save
+  
+        flash[:success] = "Added place to trip"
+      else
+        flash[:error] = "couldn't find you trip"
+      end
       #refrese show' variables 
       show()
       #render the panel
-      render 'show'
+      if reload_required then
+         redirect_to '/reload'
+      else
+        render 'show'
+      end
     end
 
+    if signed_in?
     # Save current place
-    if (params[:save]) 
+     if (params[:save]) 
        @url=params[:url]
        @viewurl=@url.tr("e","v")
 
@@ -250,7 +266,7 @@ def create
        end
     end
 
- if (params[:delete])
+  if (params[:delete])
 
    if(!trip=TripDetail.find_by(:place_id => params[:id]))
 
@@ -287,8 +303,8 @@ def create
       render 'edit'
     end
   
-  end
-
+   end
+  end # signed in
 end
 
   def destroy

@@ -8,5 +8,7 @@ class StaticPagesController < ApplicationController
   def about
   end
 
+  def reload
+  end
 
 end

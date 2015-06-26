@@ -2,7 +2,6 @@ class Trip < ActiveRecord::Base
    has_many :trip_details
 
   belongs_to :createdBy, class_name: "User"
-  validates :createdBy, :presence => true
 
 def self.find_latest_by_user(count)
   trips=[]
@@ -15,6 +14,15 @@ def self.find_latest_by_user(count)
   trips
 end
 
+def destroy_tree
+      self.links.each do |l|
+         l.destroy
+      end
+      self.trip_details.each do |td|
+        td.destroy
+      end
+      self.destroy
+end
 def distance
      t=Trip.find_by_sql ["select sum(r.distance) id from trip_details td 
                 inner join routes r on r.id = td.route_id 
