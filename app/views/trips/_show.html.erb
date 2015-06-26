@@ -1,5 +1,5 @@
-<% provide(:title, "Trip | "+@trip.name) %>
-<% @title=" | Trip | "+@trip.name %>
+<% provide(:title, "Trip | "+(@trip.name or "")) %>
+<% @title=" | Trip | "+(@trip.name or "") %>
 <%= render 'flash' %>
 <%= render 'application/mail_status' %>
 
@@ -13,7 +13,7 @@
 <div id='place_details'>
    <% if !@edit %>
       <div class="erow">
-         <%  if(signed_in? and ((@trip.createdBy_id == current_user.id) or (@current_user.role==Role.find_by( :name => 'root')))) %>
+         <%  if(signed_in? and ((@trip.createdBy_id == current_user.id) or (@current_user.role==Role.find_by( :name => 'root'))) or (is_guest? and @trip.id == @current_guest.currenttrip_id)) %>
             <div class="leftbuttons">
                 <%= form_for @trip, remote: true do |f| %>
                    <span title="Edit">
@@ -22,7 +22,7 @@
                 <% end %>
             </div>
          <% end %>
-         <%  if(signed_in? and ((@trip.createdBy_id != current_user.id) )) %>
+         <%  if(signed_in? and (@trip.createdBy_id != current_user.id)) or (is_guest? and (@trip.id != @current_guest.currenttrip_id))%>
             <div class="leftbuttons">
                 <%= form_for @trip, remote: true do |f| %>
                    <span title="Make a personal copy I can edit">
@@ -137,20 +137,22 @@
                  <div class="rowtitlesmall">Walking time:</div><div class="rowtext"> <%= @trip.walkingtime %> DOC hours </div>
              </div>
          <% end %>
-         <div class="erow">
-           <div id="thelppublished" class="helptext" style="display:none">
-              Tick the 'published' checkbox to make your trip visible for all users to view
+         <% if signed_in? %>
+           <div class="erow">
+             <div id="thelppublished" class="helptext" style="display:none">
+                Tick the 'published' checkbox to make your trip visible for all users to view
+             </div>
            </div>
-         </div>
-         <div class="erow">
-            <%=render :partial => 'help_buttons',  :locals => {:expName => "thelppublished", :initialSt => 0} %>
-            <div class="rowtitlesmall">
-               Published:
-            </div>
-            <div class="rowtext">
-               <%= f.check_box :published %>
-            </div>
-         </div>
+           <div class="erow">
+              <%=render :partial => 'help_buttons',  :locals => {:expName => "thelppublished", :initialSt => 0} %>
+              <div class="rowtitlesmall">
+                 Published:
+              </div>
+              <div class="rowtext">
+                 <%= f.check_box :published %>
+              </div>
+           </div>
+         <% end %>
          <div class="erow">
             <br/>
             <%=render :partial => 'help_buttons',  :locals => {:expName => "thelpdescription", :initialSt => 0} %>

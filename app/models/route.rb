@@ -384,7 +384,7 @@ def createRI(startplace, baseRoute, endplace)
         direct+=1 if nextPlace.place_type=="Hut"
      end
    end
-   query="select sum(distance) as distance, sum(time) as time, max(maxalt) as maxAlt, min(minalt) as minAlt, max(importance_id) as maxImportance, max(routetype_id) as maxRouteType, max(gradient_id) as maxGradient, max(terrain_id) as maxTerrain, max(alpinesummer_id) as maxAlpineS,  max(alpinewinter_id) as maxAlpineW, max(river_id) as maxRiver,   sum(routetype_id*distance)/sum(distance) as avgRouteType, sum(importance_id*distance)/sum(distance) as avgImportance, sum(gradient_id*distance)/sum(distance) as avgGradient, sum(alpinesummer_id*distance)/sum(distance) as avgAlpineS, sum(alpinewinter_id*distance)/sum(distance) as avgAlpineW, sum(river_id*distance)/sum(distance) as avgRiver from routes where id in ("+routelist[1..-1]+")"
+   query="select sum(distance) as distance, sum(time) as time, max(maxalt) as maxAlt, min(minalt) as minAlt, max(importance_id) as maxImportance, max(routetype_id) as maxRouteType, max(gradient_id) as maxGradient, max(terrain_id) as maxTerrain, max(alpinesummer_id) as maxAlpineS,  max(alpinewinter_id) as maxAlpineW, max(river_id) as maxRiver,   sum(routetype_id*distance)/nullif(sum(distance),0) as avgRouteType, sum(importance_id*distance)/nullif(sum(distance),0) as avgImportance, sum(gradient_id*distance)/nullif(sum(distance),0) as avgGradient, sum(alpinesummer_id*distance)/nullif(sum(distance),0) as avgAlpineS, sum(alpinewinter_id*distance)/nullif(sum(distance),0) as avgAlpineW, sum(river_id*distance)/nullif(sum(distance),0) as avgRiver from routes where id in ("+routelist[1..-1]+")"
    ri=RouteIndex.new((RouteIndex.find_by_sql [ query ]).first.attributes)
 
   if rroutelist!="" then 

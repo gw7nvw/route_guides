@@ -2,7 +2,7 @@ class RoutesController < ApplicationController
 require "rexml/document"
 
 #get altitude from DEM if not set
- before_action :signed_in_user, only: [:edit, :update, :new, :create]
+ before_action :signed_in_user, only: [:edit, :new, :create]
  before_action :touch_user
  
   def leg_index
@@ -16,9 +16,9 @@ require "rexml/document"
   end
 
   def index
-    route_index = RouteIndex.select(:startplace_id, :endplace_id).uniq
+    route_index = RouteIndex.find_by_sql ["select distinct startplace_id, endplace_id, sp.name, ep.name from route_indices inner join places sp on sp.id = startplace_id inner join places ep on ep.id=endplace_id order by sp.name, ep.name" ]
 #    @routes=route_index.where(:isDest => true, :fromDest => true).sort_by{|a| [a.startplace.name, a.endplace.name]}.paginate(:per_page => 80, :page => params[:page])
-    @routes=route_index.all.sort_by{|a| [a.startplace.name, a.endplace.name]}.paginate(:per_page => 80, :page => params[:page])
+    @routes=route_index.paginate(:per_page => 80, :page => params[:page])
 
   end
 
@@ -77,10 +77,14 @@ require "rexml/document"
     @items=params[:route].split('x')[1..-1]
     current_user()
     if (!signed_in?) then 
-      redirect_to '/signin'
-    else
-      @trip=Trip.find_by_id(@current_user.currenttrip)
-      @items.each do |item|
+      if (!is_guest?) then
+        create_guest()
+        reload_required=true
+      end
+    end
+    if signed_in? then @trip=Trip.find_by_id(@current_user.currenttrip) end
+    if is_guest? then @trip=Trip.find_by_id(@current_guest.currenttrip) end
+    @items.each do |item|
         itemno=item[2..-1].to_i
         if item[0]=='p' then
           @trip_details = TripDetail.new
@@ -107,11 +111,14 @@ require "rexml/document"
         end
           @trip_details.save
         flash[:success]="Added route to trip"
-      end
-      @trip= trip=Trip.find_by_id(@current_user.currenttrip)
-      prepare_route_vars()
+    end
+    @trip.reload
+    prepare_route_vars()
+    if reload_required then   
+       redirect_to '/reload'
+    else
       render '/trips/show'
-    end 
+    end
  end
 
  def create
@@ -272,10 +279,14 @@ end
     end
 
     if (add)
-      if (!signed_in?) then 
-        redirect_to '/signin'
-      else
-        trip=Trip.find_by_id(@current_user.currenttrip)
+        if (!signed_in?) then 
+          if (!is_guest?) then
+            create_guest()
+            reload_required=true
+          end
+        end
+        if is_guest? then trip=Trip.find_by_id(@current_guest.currenttrip) end
+        if signed_in? then trip=Trip.find_by_id(@current_user.currenttrip) end
         trip_details = TripDetail.new
         if ((!route.description or route.description.length<1) and route.reverse_description and route.reverse_description.length>0) then
           trip_details.showForward=false;
@@ -295,13 +306,21 @@ end
         trip_details.save
         flash[:success]="Added route to trip"
   
-        @trip= trip=Trip.find_by_id(@current_user.currenttrip)
+        @trip= trip.reload
+        params[:id]=@trip.id
         prepare_route_vars()
-        render '/trips/show'
-      end
+        if reload_required then
+          redirect_to '/reload'
+        else
+          render '/trips/show'
+        end
+
     end
 
     if (params[:save])
+     if (!signed_in) then 
+       redirect_to signin_path
+     else
        @url=params[:url]
        @viewurl=@url.tr("e","v")
 
@@ -336,11 +355,15 @@ end
         @edit=true
         render 'edit'
       end
+     end
     end
   
 
     if (params[:delete])
-    
+     if !signed_in then
+        redirect_to signin_path
+     else
+ 
       if(!trip=TripDetail.find_by(:route_id => params[:id])) 
          
         route=Route.find_by_id(params[:id].to_i.abs)
@@ -360,6 +383,7 @@ end
         edit()
         render 'edit'
       end
+     end
    end
 end
 
