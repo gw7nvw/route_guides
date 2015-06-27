@@ -42,6 +42,11 @@ textarea {
   resize: vertical;
 }
 
+.body-select {
+  font-size: 0.9em;
+  max-width: 100%;
+  width: auto;
+}
 .center {
   text-align: center;
   vertical-align: center;
@@ -563,7 +568,7 @@ img.photo {
 }
 /* forms */
 
-input, textarea, select, .uneditable-input {
+input, textarea, select:not(.body-select), .uneditable-input {
   border: 1px solid #bbb;
   width: 100%;
   margin-bottom: 15px;

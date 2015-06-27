@@ -62,18 +62,26 @@
 
    <div class="sectiontext">
       <!-- Place author details (if any) -->
-       <% if @place.createdBy_id %>
+     <% if @history or @trip%>
+       <div class="erow">
           <small color="greyLight">
               Created by: <%= link_to @place.createdBy.name.capitalize, '/users/'+@place.createdBy.name, remote: true%> on <%=@place.firstcreated_at.to_date%>. Experieced <%=@place.firstexperienced_at%>.
-              <% if !@history %>
-                <% if @place.revision_number>1 %>
-                  <br/>Last update: <%= link_to @place.updatedBy.name.capitalize, '/users/'+@place.updatedBy.name, remote: true%> on <%=@place.updated_at.to_date%>. Experieced <%=@place.experienced_at%>.
-                <% end %>
-                <%= link_to "View history", '/history/place-'+@place.id.to_s, remote: true, :id => 'history', :onclick =>"linkHandler('history')" %>
-             <% end %>
           </small>
-       <% end %>
-    </div>
+       </div>
+     <% else %>
+       <div class="erow">
+         <div class="rowtitle">Versions:
+           <% if !@history and signed_in?%>
+             <small color="greyLight" style="font-weight:normal">
+                <%= link_to "(Manage versions)", '/history/place-'+@place.id.to_s, remote: true, :id => 'history', :onclick =>"linkHandler('history')" %>
+             </small>
+           <% end %>
+         </div>
+       </div>
+       <div class="erow">
+         <%=select_tag("versions", options_from_collection_for_select(@place.placeInstances.order(:updated_at).reverse, "id", "readable_name", @version), {:multiple => :multiple, :size => [3, @place.placeInstances.count].min, :onchange => 'showVersion()', :class=>'body-select'})%>
+       </div>
+     <% end %>
   </div>
 </div>
 

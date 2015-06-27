@@ -24,6 +24,9 @@
     <%= form_for  @item, :url => '/history/'+params[:id], :html => {:name => 'historyform'}, remote: true  do |f| %>
 <% if signed_in? %>
            <%= f.submit "Make current", class: "btn btn-small btn-primary", name: "current", onclick: "linkHandler('makeCurrent')", id: "makeCurrent" %>
+           <% if (@current_user.id == @item.updatedBy_id  or @current_user.role.name=="root") and @item_instances.count>1%>
+             <%= f.submit "Delete", class: "btn btn-small btn-primary", name: "delete", onclick: "linkHandler('delete')", id: "delete" %>
+           <% end %>
 <% end %>
            <%=  link_to "History", '/history/'+@itemType+"-"+@item.id.to_s, class: "btn btn-small btn-primary",  remote: true, onclick: "linkHandler('histbutton')", id:  "histbutton"  %>
        <% end %>

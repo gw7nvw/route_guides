@@ -13,7 +13,6 @@ class Place < ActiveRecord::Base
   validates :y, presence: true
   validates :projection, presence: true 
   before_save :default_values
-  after_save :create_new_instance
 
 
   # But use a geographic implementation for the :lonlat column.
@@ -58,15 +57,12 @@ def default_values
 end
 
 def create_new_instance
-   #only for actual modifications, not for updates to affected_at
-   if self.affected_at.to_s == self.updated_at.to_s then
      place_instance=PlaceInstance.new(self.attributes.except('affected_at'))
      place_instance.place_id=self.id
      place_instance.id=nil
      place_instance.createdBy_id = self.updatedBy_id #current_user.id
 
      place_instance.save   
-   end
 end
 
 def adjoiningRoutesWithLinks

@@ -15,7 +15,7 @@
           <% else %>
             <%= link_to rl.child.name, rl.child, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
           <% end %>
-          <div class="rightbuttons"> <span title="Delete link"> <%= submit_tag  "delete"+rl.id.to_s,  :type => :image, :src => '/assets/trash.png', :style => 'margin-bottom:0;border:none;width:16px;' %> </span> </div>
+          <div class="rightbuttons"> <span title="Delete link"> <%= submit_tag  "delete"+rl.id.to_s,  :type => :image, :src => '/assets/trash.png', :style => 'margin-bottom:0;border:none;width:16px;',:onclick => "linkHandler('deletelink')", :id => "deletelink" %> </span> </div>
 
         </div>
       </div>

@@ -368,14 +368,16 @@ def createRI(startplace, baseRoute, endplace)
    urlindex=0
    routeStr=baseRoute.split('x')[1..-1]
    routelist=""
-   rroutelist=""
+   rrgz=""
+   rrlz=""
    gzrl=""
    lzrl=""
    direct=0
    routeStr.each do |r| 
      nr=r[2..-1].to_i
      routelist+=", "+nr.abs.to_s
-     rroutelist+=", "+nr.abs.to_s if r[0]=="r"
+     rrgz+=", "+nr.abs.to_s if (r[0]=="r" and nr>0)
+     rrlz+=", "+nr.abs.to_s if (r[0]=="r" and nr<0)
      gzrl=gzrl+", "+nr.to_s if nr>0
      lzrl=lzrl+", "+nr.abs.to_s if nr<0
      if  r[0]=='q' then
@@ -387,8 +389,12 @@ def createRI(startplace, baseRoute, endplace)
    query="select sum(distance) as distance, sum(time) as time, max(maxalt) as maxAlt, min(minalt) as minAlt, max(importance_id) as maxImportance, max(routetype_id) as maxRouteType, max(gradient_id) as maxGradient, max(terrain_id) as maxTerrain, max(alpinesummer_id) as maxAlpineS,  max(alpinewinter_id) as maxAlpineW, max(river_id) as maxRiver,   sum(routetype_id*distance)/nullif(sum(distance),0) as avgRouteType, sum(importance_id*distance)/nullif(sum(distance),0) as avgImportance, sum(gradient_id*distance)/nullif(sum(distance),0) as avgGradient, sum(alpinesummer_id*distance)/nullif(sum(distance),0) as avgAlpineS, sum(alpinewinter_id*distance)/nullif(sum(distance),0) as avgAlpineW, sum(river_id*distance)/nullif(sum(distance),0) as avgRiver from routes where id in ("+routelist[1..-1]+")"
    ri=RouteIndex.new((RouteIndex.find_by_sql [ query ]).first.attributes)
 
-  if rroutelist!="" then 
-    query="select count(place_type='Hut') as direct from places p  where p.id in ("+rroutelist[1..-1]+")"
+  if rrlz!="" then 
+    query="select count(r.id) as direct from routes r inner join places p on p.id=r.startplace_id where r.id in ("+rrlz[1..-1]+") and p.place_type='Hut'"
+    direct+=(RouteIndex.find_by_sql [ query ]).first.direct
+  end
+  if rrgz!="" then 
+    query="select count(r.id) as direct from routes r inner join places p on p.id=r.endplace_id where r.id in ("+rrgz[1..-1]+") and p.place_type='Hut'"
     direct+=(RouteIndex.find_by_sql [ query ]).first.direct
   end
   rigz=nil
@@ -410,8 +416,7 @@ def createRI(startplace, baseRoute, endplace)
   ri.isdest = (endPlace.isDest or isStub)
   ri.fromdest = place.isDest
   ri.url = baseRoute
-  p=Place.find_by_id(endPlace.id)
-  if p.place_type=="Hut" then direct=direct-1 end
+  if endPlace.place_type=="Hut" then direct=direct-1 end
   ri.direct=(direct==0)
 
 
@@ -426,6 +431,11 @@ def createRI(startplace, baseRoute, endplace)
       ri2.url=reverseRouteUrl(baseRoute)
       ri2.altgain=ri.altloss
       ri2.altloss=ri.altgain
+      if endPlace.place_type=="Hut" then direct=direct+1 end
+      if place.place_type=="Hut" then direct=direct-1 end
+      ri2.direct=(direct==0)
+
+
       ri2.save
 
       #mark start and end places as changed

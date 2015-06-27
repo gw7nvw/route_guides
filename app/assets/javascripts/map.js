@@ -1445,3 +1445,44 @@ function check_zoomend() {
       click_to_copy_end_point.activate();
     }
   }
+
+function loadLink(linkurl) {
+   document.getElementById("page_status").innerHTML = 'Loading ...';
+   var tryCount=0;
+   $.ajax({
+          beforeSend: function (xhr){
+            xhr.setRequestHeader("Content-Type","application/javascript");
+            xhr.setRequestHeader("Accept","text/javascript");
+          },
+          type: "GET",
+          url: linkurl,
+          tryCount: (!tryCount) ? 0 : tryCount,
+          timeout: 5000*(tryCount+1),
+          retryLimit: 3,
+          complete: function(jqXHR, thrownError) {
+             /* complete also fires when error ocurred, so only clear if no error has been shown */
+             if(thrownError=="timeout") {
+               this.tryCount++;
+               document.getElementById("page_status").innerHTML = 'Retrying ...';
+               this.timeout=5000*this.tryCount;
+               if(this.tryCount<=this.retryLimit) {
+                 $.rails.ajax(this);
+               } else {
+                 document.getElementById("page_status").innerHTML = 'Timeout';
+               }
+             }
+             if(thrownError=="error") {
+               document.getElementById("page_status").innerHTML = 'Error';
+             }
+             if(thrownError=="success") {
+               document.getElementById("page_status").innerHTML = ''
+             }
+             lastUrl=document.URL;
+          }
+    });
+
+
+}
+function showVersion() {
+  loadLink(location.protocol + '//' + location.host + location.pathname+"/?version="+document.getElementById("versions").value);
+}
