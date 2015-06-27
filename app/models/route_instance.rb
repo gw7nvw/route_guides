@@ -30,5 +30,10 @@ def revision_number
      t.first.try(:id)
 end
 
+def readable_name
+   if !self.updated_at then self.updated_at="1/1/1900" end
+   if !self.experienced_at then self.experienced_at="1/1/1900" end
+   self.updated_at.strftime("%F")+" by "+self.createdBy.name.capitalize+". Experienced: "+self.experienced_at.strftime("%F")
+end
 
 end

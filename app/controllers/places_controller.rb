@@ -76,7 +76,7 @@ def create
       success=@place.save
       session[:save]=nil
       if success
-
+       @place.create_new_instance
         flash[:success] = "New place added, id:"+@place.id.to_s
         @id=@place.id
   
@@ -124,7 +124,15 @@ def create
     if !@id then @id=params[:id] end
 
     @edit=false
-    if( !(@place = Place.find_by_id(@id))) then 
+    if params[:version] then
+      @place = Place.find_by_id(@id)
+      @place.assign_attributes(PlaceInstance.find_by_id(params[:version]).attributes.except("id", "place_id"))
+      @version=params[:version]
+    else
+      @place = Place.find_by_id(@id) 
+      @version=(PlaceInstance.find_by_sql [ "select id from place_instances where place_id=? order by updated_at desc limit 1", @place.id.to_s ]).first.try('id')
+    end
+    if !@place
     #place does not exist - return to home
        redirect_to root_url
     else    
@@ -246,6 +254,7 @@ def create
        @place.updated_at = Time.new()
 
        if @place.save
+         @place.create_new_instance
          flash[:success] = "Updated place, id:"+@place.id.to_s
          if @url and @url.include?('x')
             #show routes screen

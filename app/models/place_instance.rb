@@ -12,6 +12,10 @@ def firstexperienced_at
    self.experienced_at
 end
 
+def readable_name
+   self.updated_at.strftime("%F")+" by "+self.createdBy.name.capitalize+". Experienced: "+self.experienced_at.strftime("%F")
+end
+
 def revision_number
      t=PlaceInstance.find_by_sql ["select count(id) id from place_instances ri 
                  where ri.place_id = ? and ri.updated_at <= ?",self.place_id, self.updated_at]

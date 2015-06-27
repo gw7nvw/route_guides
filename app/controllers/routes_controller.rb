@@ -159,6 +159,8 @@ require "rexml/document"
           #show the show many screen
           render '/routes/show_many'
         else
+          @id=params[:id]=@route.id
+          show_single() 
           render 'show'
         end
       else
@@ -207,7 +209,12 @@ def show
             @items.each do |item|
                if item[0]=='r'  or item[0]=='q' then routes=routes+[item[2..-1].to_i] end
             end
-            xml = route_to_gpx(routes)
+            routearr=[]
+            routes.each do |r|
+              routearr+=[Route.find_by_signed_id(r)]
+            end
+
+            xml = route_to_gpx(routearr)
             response.headers['Content-Disposition'] = 'attachment; filename=' + (@startplace.name+' to '+@endplace.name).gsub(/[\\\/\s]/, '_') + '.gpx'
             render :xml => xml
           end
@@ -226,8 +233,22 @@ end
     @showConditions=0
     @showLinks=1
 
+    @route = Route.find_by_signed_id(params[:id])
+    puts "doing instances"
+    @routeInstances=RouteInstance.where(:route_id => @route.id.abs)
+    if params[:version] then
+      @route.assign_attributes(RouteInstance.find_by_id(params[:version]).attributes.except("id", "route_id"))
+      if params[:id].to_i<0 then @route.reverse end
+      @route.calc_altgain
+      @route.calc_altloss
+      @route.calc_maxalt
+      @route.calc_minalt
+      @version=params[:version]
+    else
+      @version=(RouteInstance.find_by_sql [ "select id from route_instances where route_id=? order by updated_at desc limit 1", @route.id.abs.to_s ]).first.try('id')
+    end
 
-    if( @route = Route.find_by_signed_id(params[:id])) then
+    if( @route) then
       if(@route.location)
         @route.location=@route.location.as_text
       end
@@ -242,7 +263,7 @@ end
       wants.js do
       end 
       wants.gpx do  
-        xml = route_to_gpx([@route.id])
+        xml = route_to_gpx([@route])
         response.headers['Content-Disposition'] = 'attachment; filename=' + @route.name.gsub(/[\\\/\s]/, '_') + '.gpx'
         render :xml => xml 
       end 
@@ -318,7 +339,7 @@ end
     end
 
     if (params[:save])
-     if (!signed_in) then 
+     if (!signed_in?) then 
        redirect_to signin_path
      else
        @url=params[:url]
@@ -345,6 +366,7 @@ end
             #show the show many screen
             render '/routes/show_many'
         else
+          @id=params[:id]=@route.id
           show()
           render 'show'
         end
@@ -360,7 +382,7 @@ end
   
 
     if (params[:delete])
-     if !signed_in then
+     if !signed_in? then
         redirect_to signin_path
      else
  
@@ -423,7 +445,7 @@ def route_to_gpx(routes)
      'xsi:schemaLocation' => 'http://www.topografix.com/GPX/1/0 http://www.topografix.com/GPX/1/0/gpx.xsd',
      'version' => '1.0', 'creator' => 'http://routeguides.co.nz/'}
    
-   route=Route.find_by_signed_id(routes.first)
+   route=routes.first
 
    #currently just use data from first route segment for creator, etc 
    trk = gpx.add_element 'trk'
@@ -432,11 +454,9 @@ def route_to_gpx(routes)
    trk.add_element('url').add REXML::Text.new('http://routeguides.co.nz/routes/'+route.id.to_s)
    trk.add_element('time').add REXML::Text.new(route.created_at.to_s)
 
-   routes.each do |route_id|
+   routes.each do |route|
 
      trkseg = trk.add_element 'trkseg'
-      
-     route=Route.find_by_signed_id(route_id)
 
      #and reverse the direction if required
     

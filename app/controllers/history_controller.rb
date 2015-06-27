@@ -1,6 +1,7 @@
 class HistoryController < ApplicationController
  before_action :signed_in_user, only: [:update]
 
+
 def update
      current_user()
      @itemType=params[:id].split("-")[0]
@@ -10,7 +11,33 @@ def update
   if itemVersion then @itemVersion=itemVersion.to_i end
 
 
-  logger.debug @itemType+"|"+params[:current]
+
+  if params[:delete]=="Delete"
+    count=0
+    if @itemType=="place"
+       # create new instance
+       item=PlaceInstance.find_by_id(itemVersion)
+       count=PlaceInstance.where(:place_id => item.place_id).count
+    end
+
+    if @itemType=="report"
+       # create new instance
+       item=ReportInstance.find_by_id(itemVersion)
+       count=ReportInstance.where(:report => item.report_id).count
+    end
+
+    if @itemType == "route"
+       item=RouteInstance.find_by_id(itemVersion)
+       count=RouteInstance.where(:route_id => item.route_id).count
+    end
+    if count>1 and (item.updatedBy_id == @current_user.id or @current_user.role.name=="root") then
+      if (item.destroy) then
+        flash[:success]="Success: Version deleted" 
+      else
+        flash[:error]="Error: Delete failed"
+      end 
+    end
+  end
 
   if params[:current]=="Make current" 
     if @itemType=="place"
@@ -52,6 +79,7 @@ def update
     end
   end
   @id=@itemType+"-"+@itemId.to_s
+  params[:id]=@id
   @itemVersion=nil
   show()
 end
