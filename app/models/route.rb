@@ -1,5 +1,5 @@
 class Route < ActiveRecord::Base
-
+ attr_accessor :customerrors
   has_many :routeInstances
  belongs_to :createdBy, class_name: "User"
  belongs_to :updatedBy, class_name: "User"
@@ -9,6 +9,7 @@ class Route < ActiveRecord::Base
   validates :via, presence: true
   validates :routetype, presence: true
   belongs_to :routetype
+  validates :importance, presence: true
   belongs_to :importance, class_name: "RouteImportance"
   validates :gradient, presence: true
   belongs_to :gradient
@@ -60,6 +61,127 @@ def self.find_by_signed_id(id)
    route
 end
 
+def distance_from_place(place)
+  (Route.find_by_sql [ "SELECT ST_Distance( (select geography(location) from places where id=?), (select geography(location) from routes where id=?)) as distance;", place.id, self.id]).first.try('distance')
+
+end
+
+def esttime
+   est=0
+   var=0
+  #if self.time then 
+ #    est=self.time
+#     var=0
+#  else
+    #try average
+    ev=Route.find_by_sql [ "select stddev_pop(time/distance) as var, avg(time/distance) as time from routes where routetype_id=? and terrain_id=? and gradient_id=? and time>0 and distance>0 and published=true;", self.routetype_id, self.terrain_id, self.gradient_id ]
+   if ev and ev.count==1 then
+     est=ev[0].time*self.distance
+     var=ev[0].var*self.distance
+   else
+     #try slope
+     ev=(Route.find_by_sql [ "select stddev_pop(time/distance) as distance, avg(time/distance) as time from routes where routetype_id=? and time>0 and distance>0 and published=true", self.routetype_id ] ).first
+     gs=(Route.find_by_sql [ "select avg((altgain+altloss)/distance) as altgain, regr_r2(time/distance, (altgain+altloss)/distance) as distance, regr_slope(time/distance, (altgain+altloss)/distance) as time from routes where time>0 and routetype_id=?;",self.routetype_id]).first
+     if ev and gs then
+     tpkm=ev[:time]+(((self.altgain+self.altloss)/self.distance)-gs.altgain)*gs.distance
+     est=tpkm*self.distance
+     var=(ev.distance+gs.time*(1-gs.distance))*self.distance
+    end
+#   end
+  end
+  {time: est, var: var}
+end
+
+def esttime2
+   est=0
+   var=0
+     #try slope
+     ev=(Route.find_by_sql [ "select stddev_pop(time/distance) as distance, avg(time/distance) as time from routes where routetype_id=? and time>0 and distance>0 and published=true", self.routetype_id ] ).first
+     gs=(Route.find_by_sql [ "select avg((altgain+altloss)/distance) as altgain, regr_r2(time/distance, (altgain+altloss)/distance) as distance, regr_slope(time/distance, (altgain+altloss)/distance) as time from routes where time>0 and distance>0 and routetype_id=?;",self.routetype_id]).first
+     if ev and gs then
+     tpkm=ev[:time]+(((self.altgain+self.altloss)/self.distance)-gs.altgain)*gs.time
+     est=tpkm*self.distance
+     var=(ev.distance+gs.time*(1-gs.distance))*self.distance
+  end
+  {time: est, var: var}
+end
+
+def split(splitplace)
+  # check that splitplace in within tolerance of route
+  if(distance=self.distance_from_place(splitplace)) < 200 then
+
+    # create duplicate route
+    r2=self.dup
+
+    # split the route
+    route_segments=Route.find_by_sql [ "select (ST_Dump(ST_Split(ST_Snap(b.location, a.location, 1), a.location))).geom from places a join routes b on b.id=? where a.id=?", self.id, splitplace.id ]
+    startroute=route_segments[0].location
+    endroute=route_segments[1].location
+
+    if startroute.length>0 and endroute.length>0 then
+      # insert segments into routes
+      self.location=startroute
+      r2.location=endroute
+
+      # change startplace of new route
+      r2.startplace=splitplace
+      r2.save 
+      # change endplace of old route
+      self.endplace=splitplace
+      self.save
+
+      # copy links
+      self.links.each do |l|
+        l2=l.dup
+        l2.parent_id=r2.id
+        l2.save 
+      end
+       
+      # insert newroute after oldroute in trips (or -newroute before -oldroute)
+      trip_ids=(TripDetails.find_by_sql ["select trip_id from trip_details where route_id = ? or route_id=?", self.id, -self.id]).uniq
+      trip_ids.each do |tid|
+        t=Trip.find_by_id(tid)
+        
+        #find this route within this trip and add new route before / after
+        after=[]
+        before=[]
+        order=1
+        t.trip_details.order(:order).each do |td|
+          if td.route_id==self.id then
+             #insert after this td
+             td.order=order
+             td.save
+             order+=1
+             td2=TripDetails.create(:order => order, :route_id => r2.id, :trip_id => t.id)
+             order+=1
+          else 
+            #insert before this td
+            if td.route_id==-self.id then
+               td2=TripDetails.create(:order => order, :route_id => -r2.id, :trip_id => t.id)
+               order+=1
+               td.order=order
+               td.save
+               order+=1
+            else
+               #just copy original td
+               td.order=order
+               td.save
+            end
+          end
+        end
+      end
+    else 
+
+      if defined? flash then flash[:error]="Cannot split. One of split routes had zero length" end
+      puts "Cannot split. One of split routes had zero length"
+    end
+  else
+    if defined? flash then flash[:error]="Cannot split. Place is "+distance.to_i.to_s+"m from the route (>200m)"  end
+    puts "Cannot split. Place is "+distance.to_i.to_s+"m from the route (>200m)" 
+  end
+distance
+end
+
 def reverse
 
 
@@ -67,12 +189,14 @@ def reverse
    self.startplace_id=self.endplace_id
    self.endplace_id = temp
    self.id=-self.id
-   linestr="LINESTRING("
-   self.location.points.reverse.each do |p|
-     if linestr.length>11 then linestr+="," end
-     linestr+=p.x.to_s+" "+p.y.to_s+" "+p.z.to_s
+   if self.location then
+     linestr="LINESTRING("
+     self.location.points.reverse.each do |p|
+       if linestr.length>11 then linestr+="," end
+       linestr+=p.x.to_s+" "+p.y.to_s+" "+p.z.to_s
+     end
+     self.location=linestr+")"
    end
-   self.location=linestr+")"
 
 
    tempstr=self.description
@@ -97,6 +221,20 @@ def default_values
     calc_altloss
     calc_minalt
     calc_maxalt
+
+
+    if self.published==true
+      str=""
+      str+="location (route points) is blank, " if !self.location
+      str+="time is blank or 0, " if !self.time or self.time==0
+      str+="descriptions are both blank, " if (!self.description or self.description.strip=="") and (!self.reverse_description or self.reverse_description.strip=="")
+      if str!="" then 
+        self.customerrors="This form contains errors: "+str[0..-3]+". Enter this information and save again, or uncheck 'published' if you wish to save this draft version"
+        false
+      else
+        true
+      end
+    end
   end
 
 def handle_negatives_before_save
@@ -222,7 +360,7 @@ def calc_altloss
 end
 
 def queue_regenerate_route_index
-        Resque.enqueue(Indexer,self.id)
+        if Rails.env.production? then Resque.enqueue(Indexer,self.id) end
 end
 
 def regenerate_route_index
@@ -431,9 +569,9 @@ def createRI(startplace, baseRoute, endplace)
       ri2.url=reverseRouteUrl(baseRoute)
       ri2.altgain=ri.altloss
       ri2.altloss=ri.altgain
-      if endPlace.place_type=="Hut" then direct=direct+1 end
-      if place.place_type=="Hut" then direct=direct-1 end
-      ri2.direct=(direct==0)
+      ri2.fromdest=ri.isdest
+      ri2.isdest=ri.fromdest
+
 
 
       ri2.save

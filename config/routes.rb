@@ -27,8 +27,9 @@ resources :password_resets, only: [:new, :create, :edit, :update]
 #end
 
 root 'static_pages#home'
-  match '/messages', to: 'messages#update',    via:'post'
+  match '/sessions', to: 'static_pages#home',    via:'get'
   match '/forums', to: 'forums#update',    via:'post'
+  match '/messages', to: 'messages#update',    via:'post'
   match '/trips/move', to: 'trips#move', via: 'post'
   match '/places/select', to: 'places#select', via: 'post'
   match '/routes/find', to: 'routes#find', via: 'post'

@@ -1,0 +1,2 @@
+#!/bin/bash
+tail -f /var/www/html/route_guides/log/production.log | grep '\ for\ \|Completed'

@@ -10,13 +10,14 @@
    reset_map_controllers();
 
 </script>
+<% if @trip %>
 <div id='place_details'>
    <% if !@edit %>
       <div class="erow">
          <%  if(signed_in? and ((@trip.createdBy_id == current_user.id) or (@current_user.role==Role.find_by( :name => 'root'))) or (is_guest? and @trip.id == @current_guest.currenttrip_id)) %>
             <div class="leftbuttons">
                 <%= form_for @trip, remote: true do |f| %>
-                   <span title="Edit">
+                   <span title="Edit" id="editbutton">
                        <%= f.submit "edit", :type => :image, :src => '/assets/pencil_edit.png', :style => 'margin-bottom:0;border:none',onclick: "linkHandler('editbutton')", id:  "editbutton" %>
                    </span>
                 <% end %>
@@ -32,51 +33,37 @@
             </div>
          <% end %>
 
-         <div class="rowtitle" <% if (signed_in?) %>  <% end %> >
-            Trip:
+         <div class="sectiontitle">
+            <span id="page_title"><%="(draft) " if !@trip.published %>Trip: <%= link_to @trip.name, @trip, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %></span>
+            <%= link_to "Download GPX", '/trips/'+@trip.id.to_s+'.gpx', class: "btn btn-small btn-primary no-print", style: "font-weight:normal" %>
          </div>
-         <div class="sectiontitle" > 
-            <%= link_to @trip.name, @trip, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
-         </div>
+
       </div>
          <% if (@trip.lengthmin) and (@trip.lengthmin>0) or (@trip.lengthmax) and (@trip.lengthmax>0) %>
-           <div class="erow"><div class="rowtitle">Length:</div>
-           <div class="rowtext">
-              <% if (@trip.lengthmin) and (@trip.lengthmin>0)  %>
-                 From <%=@trip.lengthmin%> 
-              <% end %>
-              <% if (@trip.lengthmax) and (@trip.lengthmax>0)  %>
-                 up to <%=@trip.lengthmax %>
-              <% end %>
-              days
-           </div></div>
+           <div class="erow" id="trip_length">Length:<% if (@trip.lengthmin) and (@trip.lengthmin>0)  %> from <%=@trip.lengthmin%><% end %><% if (@trip.lengthmax) and (@trip.lengthmax>0)  %> up to <%=@trip.lengthmax %><% end %> days</div>
          <% end %>
-       <% if (@trip.distance) %>
-            <div class="erow"><div class="rowtitle">Distance:</div><div class="rowtext"> <%= number_with_precision(@trip.distance, :precision => 2) %> km</div></div>
-       <% end %>
-       <% if @trip.walkingtime %>
-             <div class="erow"><div class="rowtitle">Walking time:</div><div class="rowtext"> <%= @trip.walkingtime %> DOC hours </div></div>
-       <% end %>
-       <p>
+       <% @url=@trip.to_url %>
+       <%= render '/routes/summary_stats' %>
+       <div id="trip_description"><p>
             <%=simple_format(@trip.description).html_safe%>
-      </p>
+      </p></div>
    <% else %>
 
       <%= form_for @trip, remote: true do |f| %>
          <div class="erow">
             <div class="leftbuttons">
-               <span title="Save trip">
-                  <%= f.submit "Save", :type => :image, :src => '/assets/save.png', :style => 'margin-bottom:0;border:none',onclick: "linkHandler('editbutton')", id:  "editbutton" %>
+               <span title="Save trip" id="save_button">
+                  <%= f.submit "Save", :type => :image, :src => '/assets/save.png', :style => 'margin-bottom:0;border:none',onclick: "linkHandler('savebutton')", id:  "savebutton" %>
                </span>
             </div>
             <div class="leftbuttons">
-               <span title="Cancel edit">
+               <span title="Cancel edit" id="cancel_button">
                   <%= link_to image_tag("/assets/red-x.png", :border=>0, :class => 'dock-item'), '/trips/'+@trip.id.to_s, remote: true, onclick: "linkHandler('cancelbutton')", id:  "cancelbutton"  %>
                </span>
             </div>
 
             <div class="rightbuttons">
-               <span title="Delete trip">
+               <span title="Delete trip" id="delete_button">
                   <%= submit_tag "Delete",  :type => :image, :src => '/assets/trash.png', :style => 'margin-bottom:0;border:none'  %>
                </span>
             </div>
@@ -122,7 +109,7 @@
             </div>
             <div class="erow">
                <%=render :partial => 'help_buttons',  :locals => {:expName => "thelpdistance", :initialSt => 0} %>
-               <div class="rowtitlesmall">Distance:</div><div class="rowtext"> <%= number_with_precision(@trip.distance, :precision => 2) %> km</div>
+               <div class="rowtitlesmall">Distance:</div><div class="rowtext" id="trip_distance"> <%= number_with_precision(@trip.distance, :precision => 2) %> km</div>
             </div>
          <% end %>
          <% if @trip.walkingtime %>
@@ -134,7 +121,7 @@
             </div>
              <div class="erow">
                <%=render :partial => 'help_buttons',  :locals => {:expName => "thelptime", :initialSt => 0} %>
-                 <div class="rowtitlesmall">Walking time:</div><div class="rowtext"> <%= @trip.walkingtime %> DOC hours </div>
+                 <div class="rowtitlesmall">Walking time:</div><div class="rowtext" id="trip_time"> <%= @trip.walkingtime %> DOC hours </div>
              </div>
          <% end %>
          <% if signed_in? %>
@@ -184,7 +171,11 @@
      <input type="hidden" name="cutFrom"  /> 
      <input type="hidden" name="pasteAfter" /> 
      <input type="hidden" name="id", value=<%=@trip.id.to_s%>>
-
+     <% if @edit %>
+     <div class="erow">
+         <i><small>Note: cutting/pasting, deleting or reversing the items below has immediate effect and cannot be cancelled</small></i>
+     </div>
+     <% end %>
 
       <% @trip.trip_details.order(:order).each do |td| %>
          <div class="hrline">
@@ -193,8 +184,14 @@
          <div class="erow">
             <% if @edit %>
                <span title="Cut following section and ...">
-                  <div class="cutbutton"> <%= submit_tag "cut"+td.id.to_s, :id => "cutItem", :type => :image, :src => '/assets/cut.png', :style => 'margin-bottom:0;border:none', :onclick => "cutItem("+td.id.to_s+"); return false;" %> </div>
+                  <div class="cutbutton" id="cutItem<%=td.id.to_s%>"> <%= submit_tag "cut"+td.id.to_s, :id => "cutItem", :type => :image, :src => '/assets/cut.png', :style => 'margin-bottom:0;border:none', :onclick => "cutItem("+td.id.to_s+"); return false;" %> 
                </span>
+               <% if td.route_id and td.route_id.abs>0 %> 
+                 <span title="Reverse direction of this route" >
+                   <%= submit_tag "reverse"+td.id.to_s, :id => "reverseItem", :type => :image, :src => '/assets/switch24.png', :style => 'margin-bottom:0;border:none', :onclick => "linkHandler('reverseItem')" %> 
+                 </span>
+               <% end %>
+               </div>
                <span title="... paste cut section here">
                   <div class="pastebutton"  id='pasteItem<%=td.id.to_s%>'style="display:none"> <%= submit_tag "paste"+td.id.to_s, :id => "pasteItem", :type => :image, :src => '/assets/big-insert.png', :style => 'margin-bottom:0;border:none' %> </div>
                </span>
@@ -246,47 +243,50 @@
       </span>
    </form>
 
-<div id="links_section">
-  <% if @editlinks and !@edit and signed_in?%>
-    <div class="erow">
-      <div class="leftbuttons">
-         <span title="Close editing">
-           <%=  link_to image_tag("/assets/red-x.png", :border=>0, :class => 'dock-item'), '/trips/'+@trip.id.to_s, remote: true, onclick: "linkHandler('editbutton')", id:  "editbutton"  %>
-         </span>
-      </div>
-      <div class="sectiontitle-bold">
-        Edit Links:
-      </div>
-    </div>
-    <div id="editlinks">
-      <%=render :partial => 'links_form',  :locals => {:parent => @trip, :parent_type=>'trip'} %>
-    </div>
-  <% else %>
-    <div class="erow">
-      <% if signed_in? %>
+<% if !@edit %>
+  <div id="links_section">
+    <% if @editlinks and !@edit and signed_in?%>
+      <div class="erow">
         <div class="leftbuttons">
-          <span title="Edit links"%>
-            <%=  link_to image_tag("/assets/pencil_edit.png", :border=>0, :class => 'dock-item'), '/trips/'+@trip.id.to_s+'/?editlinks=true', remote: true, onclick: "linkHandler('editbutton')", id:  "editbutton"  %>
-          </span>
+           <span title="Close editing">
+             <%=  link_to image_tag("/assets/red-x.png", :border=>0, :class => 'dock-item'), '/trips/'+@trip.id.to_s, remote: true, onclick: "linkHandler('cnclbutton')", id:  "cnclbutton"  %>
+           </span>
         </div>
-      <% end %>
-      <div class="sectiontitle-bold">
-        Links:
+        <div class="sectiontitle-bold">
+          Edit Links:
+        </div>
+      </div>
+      <div id="editlinks">
+          <%=render :partial => 'links_form',  :locals => {:parent => @trip, :parent_type=>'trip'} %>
+      </div>
+    <% else %>
+      <div class="erow">
+        <% if signed_in? %>
+          <div class="leftbuttons">
+            <span title="Edit links"%>
+              <%=  link_to image_tag("/assets/pencil_edit.png", :border=>0, :class => 'dock-item'), '/trips/'+@trip.id.to_s+'/?editlinks=true', remote: true, onclick: "linkHandler('editbutton')", id:  "editbutton"  %>
+            </span>
+            </div>
+        <% end %>
+        <div class="sectiontitle-bold">
+          Links:
+        </div>
+      </div>
+      <%=render :partial => 'links_photos',  :locals => {:parent => @trip} %>
+      <div class="erow"><div class="hrline"> <hr noshade size="2"> </div></div>
+      <%=render :partial => 'links_details',  :locals => {:parent => @trip} %>
+    <% end %>
+    <div class="erow">
+      <div class="hrline">
+        <hr noshade size="4">
       </div>
     </div>
-    <%=render :partial => 'links_photos',  :locals => {:parent => @trip} %>
-    <div class="erow"><div class="hrline"> <hr noshade size="2"> </div></div>
-    <%=render :partial => 'links_details',  :locals => {:parent => @trip} %>
-  <% end %>
-     <div class="erow">
-        <div class="hrline">
-           <hr noshade size="4">
-        </div>
-     </div>
+  </div>
  
   <div id="comments_section">
      <%=render :partial => 'comments/comments_brief',  :locals => {:itemType => "trip", :itemId => @trip.id} %>  
   </div>
 
+<% end %>
 
-</div>
+<% end %>

@@ -7,8 +7,18 @@
    update_title('<%=@title%>');
    reset_map_controllers();
    document.getElementById("page_status").innerHTML = '';
+
+$(function () {
+  $('#right_panel .pagination a').on('click', function () {
+    $.getScript(this.href);
+    return false;
+  });
+});
+
 </script>
   <% if @threads %>
+    <div class="name_pagination"> <%= will_paginate(@threads) %></div>
+
     <% count=0%>
     <% @threads.each do |thread| %>
       <div class="erow">
@@ -26,5 +36,6 @@
 
        <% count+=1%>
     <% end %>
+    <div class="erow"><div class="name_pagination"> <%= will_paginate(@threads) %></div></div>
   <% end %>
-<%=render 'message_form'%>
+  <%=render 'message_form'%>

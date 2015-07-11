@@ -33,7 +33,7 @@
    <!-- Place author details (if any) -->
     <% if @report.createdBy_id %>
        <small color="greyLight">
-	  Created by: <%= link_to @report.createdBy.name.capitalize, '/users/'+@report.createdBy.name, remote: true%> on <%=@report.firstcreated_at%>. Last updated: <%=@report.updated_at%> 
+          Created by: <%= link_to @report.createdBy.name.capitalize, '/users/'+@report.createdBy.name, remote: true%> on <%=@report.firstcreated_at.localtime().strftime("%F %T")%>. Last updated: <%=@report.updated_at.localtime().strftime("%F %T")%>
           <% if !@history %>
              <%= link_to "View history", '/history/report-'+@report.id.to_s, remote: true, :id => 'history', :onclick =>"linkHandler('history')" %>
           <% end %>

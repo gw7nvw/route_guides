@@ -6,7 +6,6 @@
     <% @title=" | Trips" %>
 <% end %>
 
-<%= render 'flash' %>
 <%= render 'application/mail_status' %>
 
 
@@ -35,13 +34,13 @@ $(function () {
          <div class="erow">
             <%=render :partial => 'help_buttons',  :locals => {:expName => "thelptitle", :initialSt => 0} %>
 
-            <div class="rowtitlesmall">
+            <div class="rowtitlesmall" id="page_title">
               <%="My Trips"%>
             </div>
          <% if signed_in? %> 
                <div class="rightbuttons">
                <span title="Add new trip">
-                 <%= link_to image_tag("/assets/add.png", :border=>0, :class => 'dock-item'), '/trips/new', remote: true, onclick: "linkHandler('addbutton')", id:  "addbutton"  %>
+                 <%= link_to image_tag("/assets/add.png", :border=>0, :class => 'dock-item'), '/trips/new', remote: true, onclick: "linkHandler('addbutton')", id:  "addbutton", alt: "Add"  %>
                </span>
                </div>
          <% end %>
@@ -60,62 +59,71 @@ $(function () {
 
     <% else %>
        <div class="erow">
-         <div class="sectiontitle">
+         <div class="sectiontitle" id="page_title">
             <%="Trips"%>
          </div>
        </div>
     <% end %>
   <div class="erow">
-  <ul class="places">
-   <% if @trips %>
-    <% @trips.each do |trip| %>
-      <% if  signed_in? and trip.id==@current_user.currenttrip_id %>
-         <div class="selectedrow">
-      <% else %>
-         <div>
-      <% end %>
-      <li>
-       <%= form_tag '/trips/move', :remote=> true, :method=> 'post'%>
+  <%= render 'flash' %>
+    <ul class="places">
+      <% if @trips %>
+        <%cnt=1%>
+        <% @trips.each do |trip| %>
+          <div <%='class=selectedrow id=selectedrow'+cnt.to_s if ((signed_in? and trip.id==@current_user.currenttrip_id) or (is_guest? and trip.id==@current_guest.currenttrip_id))%>>
+            <li>
+              <%= form_tag '/trips/move', :remote=> true, :method=> 'post'%>
 
-         <input type="hidden" name="selected_id" value='<%=trip.id%>' />
-         <input type="hidden" name="referring_page" value='<%=@referring_page%>' />
-         <div class="erow">
-         <% if signed_in? %>
-            <% if trip.createdBy_id == @current_user.id or @current_user.role.name=='root'%>
-               <div class="leftbuttons">
-               <span title="Select this as my current trip">
-                 <%= submit_tag "Select as current",  :type => :image, :src => '/assets/tick.png', :style => 'margin-bottom:0;border:none',  id: "selectCurrent", onclick: "linkHandler('selectCurrent')"  %>
-               </span>
-               </div>
-            <% end %>
-         <% end %>
-
-       <%= link_to trip.createdBy.name.capitalize+" - "+trip.name, trip, remote: true, :id => 'trip_link_'+trip.id.to_s, :onclick => "linkHandler('trip_link_"+trip.id.to_s+"')" %>
+                <input type="hidden" name="selected_id" value='<%=trip.id%>' />
+                <input type="hidden" name="referring_page" value='<%=@referring_page%>' />
+                <div class="erow">
+                <% if signed_in? %>
+                  <% if trip.createdBy_id == @current_user.id or @current_user.role.name=='root'%>
+                    <div class="leftbuttons">
+                      <span title="Select this as my current trip">
+                        <%= submit_tag "Select as current",  :type => :image, :src => '/assets/tick.png', :style => 'margin-bottom:0;border:none',  id: "selectCurrent", onclick: "linkHandler('selectCurrent')"  %>
+                      </span>
+                    </div>
+                  <% end %>
+                <% end %>
+                <span id="triprow<%=cnt%>">
+                  <%="(draft) " if !trip.published%><%= link_to trip.name, trip, remote: true, :id => 'trip_link_'+trip.id.to_s, :onclick => "linkHandler('trip_link_"+trip.id.to_s+"')" %><% if trip.createdBy %> by <%= link_to trip.createdBy.name.capitalize, '/users/'+trip.createdBy.name, remote: true%> <% end %>
+                </span>
       
-         <% if signed_in? and @referring_page=="wishlist"%>
-            <% if trip.createdBy_id == @current_user.id or @current_user.role.name=='root'%>
-               <div class="rightbuttons">
-               <span title="Delete this trip">
-                 <%= submit_tag "Delete",  :type => :image, :src => '/assets/trash.png', :style => 'margin-bottom:0;border:none',  id: "Delete", onclick: "linkHandler('Delete')", data: { confirm: "Detete trip: are you sure?" } %>
-               </span>
-               </div>
-            <% end %>
-         <% end %>
-       <br/>
-       <%= trip.lengthmin%> to <%= trip.lengthmax%> days |
-       <%= number_with_precision(trip.distance, :precision => 2) %> km |
-       <%= number_with_precision(trip.walkingtime, :precision => 1) %> DOC hrs
-       </form>
-      </li>
-      </div>
-    <% end %>
-    </form>
-   <% end %>
-  </ul>
+                <% if  @referring_page=="wishlist" and ((signed_in? and (trip.createdBy_id == @current_user.id or @current_user.role.name=='root')) or (is_guest? and @current_guest.currenttrip_id==trip.id))%>
+                  <div class="rightbuttons">
+                    <span title="Delete this trip">
+                      <%= submit_tag "Delete",  :type => :image, :src => '/assets/trash.png', :style => 'margin-bottom:0;border:none',  id: "Delete", onclick: "linkHandler('Delete')", data: { confirm: "Detete trip: are you sure?" } %>
+                    </span>
+                  </div>
+                <% end %>
+                <div class="erow" id="tripstats<%=cnt%>"> 
+                  <% str="" %>
+
+                  <% if trip.lengthmin and trip.lengthmin>0%>
+                    <%str+=trip.lengthmin.to_s%>
+                    <%str+=" to "+trip.lengthmax.to_s if trip.lengthmax and trip.lengthmax>0%>
+                    <%str+=" days | "%>
+                  <% end %>
+                 <% if  trip.distance and trip.distance>0 %>
+                   <%str+= number_with_precision(trip.distance, :precision => 2).to_s+" km | "%>
+                 <% end %>
+                 <% if trip.walkingtime and trip.walkingtime>0 %>
+                   <%str+= number_with_precision(trip.walkingtime, :precision => 1).to_s+" DOC hrs | "%>
+                 <% end %>
+                 <%=str[0..-3] if str.length>0%><%="(updated "+trip.updated_at.strftime("%F")+")" if trip.updated_at and trip.updated_at.strftime("%F")>'1900-01-01'%>
+                </div>
+              </form>
+            </li>
+          </div>
+          <%cnt+=1%>
+        <% end %>
+      <% end %>
+    </ul>
   </div>
 
-<%if @order=='latest'%>
-  <div class="date_pagination"> <%= will_paginate(@trips, :renderer => PaginationListLinkRenderer, :order => @order, :inner_window => 3) %></div>
-<% else %>
-  <div class="name_pagination"> <%= will_paginate(@trips, :renderer => PaginationListLinkRenderer, :order => @order) %></div>
-<% end %>
+  <%if @order=='latest'%>
+    <div class="date_pagination"> <%= will_paginate(@trips, :renderer => PaginationListLinkRenderer, :order => @order, :inner_window => 3) %></div>
+  <% else %>
+    <div class="name_pagination"> <%= will_paginate(@trips, :renderer => PaginationListLinkRenderer, :order => @order) %></div>
+  <% end %>

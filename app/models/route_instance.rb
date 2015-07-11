@@ -31,9 +31,12 @@ def revision_number
 end
 
 def readable_name
-   if !self.updated_at then self.updated_at="1/1/1900" end
-   if !self.experienced_at then self.experienced_at="1/1/1900" end
-   self.updated_at.strftime("%F")+" by "+self.createdBy.name.capitalize+". Experienced: "+self.experienced_at.strftime("%F")
+   str=""
+   if self.updated_at then str+=self.updated_at.localtime().strftime("%F %T")+" " end
+   if self.createdBy then str+="by "+self.createdBy.name.capitalize end
+   if self.experienced_at and self.experienced_at.strftime("%F")!="1900-01-01" then str+=". Experienced: "+self.experienced_at.strftime("%F") end
+   if str=="" then str=self.id.to_s end
+   str
 end
 
 end

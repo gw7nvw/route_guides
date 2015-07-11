@@ -7,14 +7,25 @@
    update_title('<%=@title%>');
    reset_map_controllers();
    document.getElementById("page_status").innerHTML = '';
+
+$(function () {
+  $('#right_panel .pagination a').on('click', function () {
+    $.getScript(this.href);
+    return false;
+  });
+});
 </script>
+
+  <%=render 'message_form'%>
   <% if @messages %>
+    <div class="name_pagination"> <%= will_paginate(@messages) %></div>
     <% @messages.each do |message| %>
       <div class="erow">
            <% @show_message=message %>
            <%= render 'message_details' %>
        </div>
     <% end %>
+    <div class="name_pagination"> <%= will_paginate(@messages) %></div>
   <% end %>
 <div class="erow">
  <div class="hrline">
@@ -22,4 +33,3 @@
  </div>
 <div>
 
-<%=render 'message_form'%>

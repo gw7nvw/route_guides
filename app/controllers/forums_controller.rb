@@ -56,6 +56,7 @@ def show_thread
      @message.subject=@messages.last.subject
      @message.forum_id=@id
    end
+   @hide_to=true
    render 'show_thread'
 end
 

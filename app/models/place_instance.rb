@@ -13,7 +13,11 @@ def firstexperienced_at
 end
 
 def readable_name
-   self.updated_at.strftime("%F")+" by "+self.createdBy.name.capitalize+". Experienced: "+self.experienced_at.strftime("%F")
+   str=""
+   if self.updated_at then str+=self.updated_at.localtime().strftime("%F %T")+" " end
+   str+="by "+self.createdBy.name.capitalize
+   if self.experienced_at and self.experienced_at.strftime("%F")!="1900-01-01" then str+=". Experienced: "+self.experienced_at.strftime("%F") end
+   str
 end
 
 def revision_number

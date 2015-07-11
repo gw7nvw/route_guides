@@ -46,6 +46,8 @@ def index
      @threads=[]
    end
    @message=Message.new() 
+   @threads=@threads.paginate(:per_page => 20, :page => params[:page])
+
 end
 
 def show
@@ -64,11 +66,12 @@ def show
    @message=Message.new() 
    if @messages and @messages.count>0 then
      if @messages.first.toUser_id==@current_user.id then  @message.toUser_id=@messages.first.fromUser_id 
-     else  @message.toUser_id=@messages.last.toUser_id end
-   
+     else  @message.toUser_id=@messages.first.toUser_id end
+     @hide_to=true 
      @message.subject=@messages.last.subject
    end
 
+   @messages=@messages.reverse.paginate(:per_page => 20, :page => params[:page])
 end
 
 

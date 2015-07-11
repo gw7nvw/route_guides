@@ -1,0 +1,118 @@
+  <%
+     distance=0
+     time=0
+     altgain=0
+     altloss=0
+     minalt=99999
+     maxalt=0
+     maxgradient=1
+     maxalpines=1
+     maxriver=1
+     maxalpinew=1
+     maxterrain=1
+     maxroutetype=1
+     maxgradient_name='Unknown'
+     maxalpines_name='Unknown'
+     maxriver_name='Unknown'
+     maxalpinew_name='Unknown'
+     maxterrain_name='Unknown'
+     maxroutetype_name='Unknown'
+
+     rt_arr=[]
+     @place_list=[]
+  %>
+  <% if @url and (@url.include?('rv') or @url.include?('qv')) %>
+    <% items=@url.split('x')[1..-1] %>
+    <% items.reverse.each do |rt_str| %>
+      <%
+         if rt_str[0..1]=='rv' or rt_str[0..1]=='qv' then
+           if rt_str[0..1]=='rv' then
+             rt_id=rt_str[2..-1].to_i
+             route=Route.find_by_signed_id(rt_id)
+           else
+             rtarr=rt_str[2..-1].split('y')
+             if rtarr.count<3 then abort() end
+             rt_id=rtarr[0].to_i
+             route=Route.find_by_signed_id(rt_id)
+             route.startplace_id=rtarr[1].to_i
+             route.endplace_id=rtarr[2].to_i
+           end
+           if route then
+               rt_arr=rt_arr+[rt_id]
+             if(route.distance) then distance+=route.distance end
+             if(route.time) then time+=route.time end
+             if(route.altgain) then altgain=altgain+route.altgain end
+             if(route.altloss) then altloss=altloss+route.altloss end
+             if(route.maxalt>maxalt) then maxalt=route.maxalt end
+             @place_list+=[route.startplace_id]
+             if(route.minalt<minalt) then minalt=route.minalt end
+             maxgradient=route.gradient_id if(route.gradient_id>maxgradient)
+             maxalpines=route.alpinesummer_id if(route.alpinesummer_id>maxalpines)
+             maxriver=route.river_id if(route.river_id>maxriver)
+             maxalpinew=route.alpinewinter_id if(route.alpinewinter_id>maxalpinew)
+             maxterrain=route.terrain_id if(route.terrain_id>maxterrain)
+             maxroutetype=route.routetype_id if(route.routetype_id>maxroutetype)
+           end
+         end
+         maxgradient_name=Gradient.find_by_id(maxgradient).name
+         maxalpines_name=Alpine.find_by_id(maxalpines).name
+         maxriver_name=River.find_by_id(maxriver).name
+         maxalpinew_name=Alpinew.find_by_id(maxalpinew).name
+         maxterrain_name=Terrain.find_by_id(maxterrain).name
+         maxroutetype_name=Routetype.find_by_id(maxroutetype).name
+       %>
+      <% end %>
+      <span id="agg_dist">
+        <% if distance and distance>0%>
+          <%= "Distance: "+distance.round(1).to_s+" km " %>
+        <%end %>
+      </span>
+      <% if @endplace then @place_list+=[@endplace.id] end %>
+      <span id="agg_time">
+        <% if time and time>0%>
+          <%="("+time.round(1).to_s+" DOC hours)"  %>
+        <% end %>
+      </span>
+      <span id="maxroutetype">
+            <% if maxroutetype_name!='Unknown'%>
+               <%=" - "+maxroutetype_name%>
+            <% end %>
+      </span>
+      <span id="maxterrain">
+            <% if maxterrain_name!='Unknown'%>
+               <%=" - "+maxterrain_name+" terrain"%>
+            <% end %>
+      </span>
+
+      <br/>
+      <span id="agg_alt">
+        <% if minalt+maxalt>0 %>
+          <%= "Altitude: "+minalt.to_i.to_s+"m to "+maxalt.to_i.to_s+"m.  Gain: "+altgain.to_i.to_s+"m.  Loss: "+altloss.to_i.to_s+"m" %>
+        <% end %>
+      </span>
+      <span id="agg_grad">
+        <% if distance and distance>0 %>
+          <%=".  Gradient: "+(Math.tan((altgain+altloss)/(distance*1000))*180/Math::PI).round().to_s+" deg"%>
+        <% end %>
+      </span>
+      <span id="maxgradient">
+        <% if maxgradient_name!='Unknown'%>
+            <%="("+maxgradient_name+")"%>
+        <% end %>
+      </span><br/>
+      Skills:
+            <span id="maxalpines"><% if maxalpines_name!='Unknown' and maxalpines_name!='None' %>
+               <%=maxalpines_name%><%=" ("+(maxalpines-@alpines.minimum(:id)).to_s+"/"+(@alpines.maximum(:id)-@alpines.minimum(:id)).to_s+") "%>
+            <% end %></span>
+      
+            <span id="maxriver"><% if maxriver_name!='Unknown' and maxriver_name!='None' %>
+               <%=" - "+maxriver_name%>
+               <%=" ("+(maxriver-@rivers.minimum(:id)).to_s+"/"+(@rivers.maximum(:id)-@rivers.minimum(:id)).to_s+") "%>
+            <% end %></span>
+            <span id="maxalpinew"><% if maxalpinew_name!='Unknown' and maxalpinew_name!='None' %>
+               Winter - <%=maxalpinew_name%>
+               <%=" ("+(maxalpinew-@alpinews.minimum(:id)).to_s+"/"+(@alpinews.maximum(:id)-@alpinews.minimum(:id)).to_s+")"%>
+            <% end %></span>
+
+    <br/>
+  <% end %>

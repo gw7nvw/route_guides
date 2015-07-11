@@ -1,0 +1,8 @@
+integration/users_test.rb
+integration/users_signup_test.rb
+integration/trips_view_test.rb
+integration/trips_index_test.rb
+integration/guest_login_test.rb
+integration/trips_test.rb
+integration/site_layout_test.rb
+integration/trips_edit_test.rb

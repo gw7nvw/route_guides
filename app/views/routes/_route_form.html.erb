@@ -1,4 +1,4 @@
-<div id='route_details' <% if @route.errors.any? %> style="border-color:#f00;border-style:solid;border-width:1px" <% end %> >
+<div id='route_details' <% if @route.errors.any? or @route.customerrors %> style="border-color:#f00;border-style:solid;border-width:1px" <% end %> >
      <%= form_for  @route, :html => {:name => 'routeform'}, :remote => 'true'  do |f| %>
       <%= render 'shared/error_messages' %>
 
@@ -32,7 +32,11 @@
         </div>
       </div>
 
+<% if Rails.env.production? %>
       <%= f.hidden_field :startplace_id %> 
+<% else %>
+      <%= f.text_field :startplace_id %>
+<% end %>
       <input disabled="disabled" id="route_startplace_name" name="route[startplace_name]" type="text" <%if @route.startplace %>value='<%=@route.startplace.name%>'<%end%>>
       <input  type="hidden" id="route_startplace_location" name="route[startplace_location]" type="text" <%if @route.startplace %>value='<%=@route.startplace.location%>'<%end%>>
 
@@ -66,7 +70,11 @@
           use Places -&gt; Add to add start and end places before you can create a route.
         </div>
       </div>
+<% if Rails.env.production? %>
       <%= f.hidden_field :endplace_id %>
+<% else %>
+      <%= f.text_field :endplace_id %>
+<% end %>
       <input disabled="disabled" id="route_endplace_name" name="route[endplace_name]" type="text"  <%if @route.endplace %>value='<%=@route.endplace.name%>'<%end%>>
       <input type="hidden" id="route_endplace_location" name="route[endplace_location]" type="text"  <%if @route.endplace %>value='<%=@route.endplace.location%>'<%end%>>
 

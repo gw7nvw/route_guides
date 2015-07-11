@@ -1,10 +1,17 @@
 module SessionsHelper
 
   def sign_in(user)
+    if is_guest? then
+      @current_guest.destroy
+    end
     remember_token = User.new_token
     cookies[:remember_token] = {value: remember_token, expires: 1.month.from_now.utc}
     user.update_attribute(:remember_token, User.digest(remember_token))
     self.current_user = user
+    session[:user_id]=user.id
+    user.touch
+    self.current_guest=nil
+    session[:guest_id]=nil
   end
 
   def sign_out
@@ -12,6 +19,8 @@ module SessionsHelper
                                   User.digest(User.new_token))
     cookies.delete(:remember_token)
     self.current_user = nil
+    session[:user_id]=nil
+    
   end
 
   def create_guest
@@ -22,6 +31,7 @@ module SessionsHelper
     guest=Guest.create(:remember_token => digest, :currenttrip_id => trip.id)
     self.current_guest=guest
     tidy_guests()
+    session[:guest_id]=guest.id
   end
 
 

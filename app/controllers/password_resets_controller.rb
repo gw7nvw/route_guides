@@ -31,7 +31,7 @@ class PasswordResetsController < ApplicationController
       @user.activate
       sign_in @user
       flash[:success] = "Password has been reset."
-      redirect_to '/users/'+@user.name
+      redirect_to '/users/'+URI.escape(@user.name)
     else
       render 'edit'
     end

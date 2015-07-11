@@ -10,7 +10,7 @@
          </div>
       <% end %>
 
-      <div class="sectiontitle25">
+      <div class="sectiontitle25" id="route_title<%=@itemNumber.to_s%>">
          <% if @real_startplace then startplace= @real_startplace else startplace=@route.startplace end %>
          <% if @real_endplace then endplace= @real_endplace else endplace=@route.endplace end %>
          <% if !@route.published then %>Draft:<% end %>
@@ -115,22 +115,22 @@
        </div>
        <div class="subrow">
           <div class="leftbuttons">
-             <img id='switch' src="/assets/switch.png" <%=%q[onclick=clickswitch(']+@itemNumber.to_s+%q[')]%>>
+            <% if !@edittrippage %>
+              <img id='switch' src="/assets/switch.png" <%=%q[onclick=clickswitch(']+@itemNumber.to_s+%q[')]%>>
+            <% end %>
           </div>
           <% if (!@route.description or @route.description.length<2)  and ( @route.reverse_description and @route.reverse_description.length>2) then @showForward=0 end%>
-          <div id='<%="fw_t"+@itemNumber.to_s%>' class="sectiontitle" style=<%=if (@showForward==1) then "display:block" else "display:none" end %>>  
+          <div id='<%="fw_t"+@itemNumber.to_s%>' class="sectiontitle" style='display:<%=if @showForward==1 then "block" else "none" end%>'>  
              <% if (!@trip and !@history) %>
                 <%= form_for  @route, :html => {:name => 'routeform'}, remote: true  do |f| %>
-                    From <%= link_to @route.startplace.name,    @route.startplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
-                    to <%= link_to @route.endplace.name,    @route.endplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %> 
+                    From <%= link_to @route.startplace.name,    @route.startplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %> to <%= link_to @route.endplace.name,    @route.endplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %> 
                     <%= f.submit "Add to trip", class: "btn btn-small btn-primary", name: "addfw", onclick: "linkHandler('addbutton')", id:  "addbutton" %>  
                 <% end %>
              <% else %>
-                From <%= link_to @route.startplace.name,    @route.startplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
-                to <%= link_to @route.endplace.name,    @route.endplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %> 
+                From <%= link_to @route.startplace.name,    @route.startplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %> to <%= link_to @route.endplace.name,    @route.endplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %> 
              <% end %>
           </div>
-          <div id='<%="fw_r"+@itemNumber.to_s%>' class="sectiontext" style=<%=if (@showForward==1) then "display:block" else "display:none" end %> >
+          <div id='<%="fw_r"+@itemNumber.to_s%>' class="sectiontext" style="display:<%=if @showForward==1 then "block" else "none" end%>">         
               <p>
                  <% if @route.description and @route.description.length>0 %>
                     <%= simple_format(@route.description).html_safe %>
@@ -141,7 +141,7 @@
           </div>
 
 
-          <div id='<%="rv_t"+@itemNumber.to_s%>' class="sectiontitle" style=<%=if (@showForward!=1) then "display:block" else "display:none" end %>>
+          <div id='<%="rv_t"+@itemNumber.to_s%>' class="sectiontitle" style='display:<%=if @showForward!=1 then "block" else "none" end%>'>
              <% if (!@trip and !@history) %>
                 <%= form_for  @route, :html => {:name => 'routeform'}, remote: true  do |f| %>
                     From <%= link_to @route.endplace.name,    @route.endplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %> 
@@ -154,7 +154,7 @@
              <% end %>
 
           </div>
-          <div id='<%="rv_r"+@itemNumber.to_s%>' class="sectiontext" style=<%=if (@showForward!=1) then "display:block" else "display:none" end %>>
+          <div id='<%="rv_r"+@itemNumber.to_s%>' class="sectiontext" style='display:<%=if @showForward!=1 then "block" else "none" end%>'>
              <p style='color:red'>Note: Described in the reverse direction to your journey</p>
              <p>
                 <% if @route.reverse_description and @route.reverse_description.length>0 %>
@@ -167,10 +167,17 @@
        </div>
 
     
-       <% if @history or @trip%>
+       <% if @history or @trip or @routeInstances.count<2%>
           <div class="erow">
              <small color="greyLight">
-                 Created by: <%= link_to @route.createdBy.name.capitalize, '/users/'+@route.createdBy.name, remote: true%> on <%=@route.firstcreated_at.to_date%>. Experieced <%=@route.firstexperienced_at%>.
+              Created by: <%= link_to @route.createdBy.name.capitalize, '/users/'+@route.createdBy.name, remote: true%> on <%=@route.firstcreated_at.localtime().strftime("%F")%>
+              <% if @history %>
+                <% if @route.firstexperienced_at and @route.firstexperienced_at.strftime("%F")>"1900-01-01"%>. Experieced <%=@route.firstexperienced_at.strftime("%F")%>.<%end%>
+              <% else %>
+                 Last updated: <%=@route.updated_at.localtime().strftime("%F %T")%>
+                <% if @route.experienced_at and @route.experienced_at.strftime("%F")>"1900-01-01"%>. Experieced <%=@route.experienced_at.strftime("%F")%>.<%end%>
+              <% end %>
+               
              </small>
           </div>
        <% else %>
