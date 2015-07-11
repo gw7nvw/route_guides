@@ -72,7 +72,7 @@ def update
        ri.updated_at=Time.new()
 
        route=Route.find_by_id(itemId)
-       route.attributes=ri.attributes.except('id', 'route_id')
+       route.attributes=ri.attributes.except('id', 'route_id', 'published')
        route.save
  
   

@@ -6,9 +6,10 @@
    reset_map_controllers();
    document.getElementById("page_status").innerHTML = '';
 </script>
+  <%=render 'message_form'%>
   <% if @messages %>
     <b><%=@messages.first.subject.capitalize%></b>
-    <% @messages.each do |message| %>
+    <% @messages.reverse.each do |message| %>
       <div class="erow">
            <% @show_message=message %>
            <%= render 'message_details' %>
@@ -21,4 +22,3 @@
  </div>
 </div>
 
-<%=render 'message_form'%>

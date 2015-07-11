@@ -1,27 +1,54 @@
 class TripsController < ApplicationController
- before_action :signed_in_user, only: [:new, :create,  :wishlish]
+require "rexml/document"
+ before_action :signed_in_user, only: [:new, :create]
  before_action :touch_user
 
 
 def index
-  if params[:order]=='latest' then
-      @order='latest'
-      @trips=Trip.where(published: true).order('updated_at desc').paginate(:per_page => 20, :page => params[:page])
+  if signed_in?  then 
+      if @current_user.role.name=="root" then
+        @trips=Trip.all
+      else
+        @trips=Trip.where('"createdBy_id" = ? or published = true ',@current_user.id)
+      end
   else 
-    if signed_in?  then @trips=Trip.where('"createdBy_id" = ? or published = true ',@current_user.id).order(:name).paginate(:per_page => 20, :page => params[:page])
-    else @trips=Trip.where(published: true).order(:name).paginate(:per_page => 20, :page => params[:page])
-    end
+      if is_guest? then
+      @trips=Trip.where('id = ? or published = true ',@current_guest.currenttrip_id)
+      else
+        @trips=Trip.where(published: true)
+      end
   end
 
+  if params[:order]=='latest' then
+      @order='latest'
+      @trips=@trips.order('updated_at desc')
+  else  
+      @trips=@trips.sort_by(&:starty)
+  end
+
+  @trips=@trips.paginate(:per_page => 20, :page => params[:page])
   @referring_page="index"
 end
 
 def wishlist
   current_user()
+  current_guest()
+  @trips=Trip.none
 
-  @trips=Trip.where('"createdBy_id" = ?',@current_user.id).order(:name).paginate(:per_page => 20, :page => params[:page])
+  if (signed_in?) then @trips=Trip.where('"createdBy_id" = ?',@current_user.id) end
+  if (is_guest?) then @trips=Trip.where('"id" = ?',@current_guest.currenttrip_id) end
 
-  @referring_page="wishlist"
+  if @trips
+    if params[:order]=='latest' then
+      @order='latest'
+      @trips=@trips.order('updated_at desc')
+    else  
+      @trips=@trips.sort_by(&:starty)
+    end
+
+    @trips=@trips.paginate(:per_page => 20, :page => params[:page])
+    @referring_page="wishlist"
+  end
   render 'index'
 end
 
@@ -37,133 +64,177 @@ def currenttrip
   if params[:id] then  
     show()
     @trip=Trip.find_by_id(params[:id])
-    render 'show'
+    #render 'show'
   else
       redirect_to root_path
   end
 end
 
 def move
-  if signed_in? or (is_guest? and params[:id].to_i==@current_guest.currenttrip_id) then
-     @edit=true
-     @referring_page=params[:referring_page]
-     if !@referring_page or @referring_page.length==0 then @referring_page='index' end
+  #do stuff from edit page with page
+  @id=params[:id] 
+  @trip=Trip.find_by_id(@id) if @id
+  prepare_route_vars()
+  @referring_page=params[:referring_page]
+  if !@referring_page or @referring_page.length==0 then @referring_page='index' end
+  if @trip and ((signed_in? and (@trip.createdBy_id==@current_user.id or @current_user.role.name=="root")) or (is_guest? and @id.to_i==@current_guest.currenttrip_id))
+    @edit=true
+   
+    @place_types = PlaceType.all
+ 
     
-        prepare_route_vars()
-        @place_types = PlaceType.all
-  
-     @trip=Trip.find_by_id(params[:id])
-  
-    if (params[:commit][0..5] == 'delete')
-       trip_details=TripDetail.find_by_id(params[:cutFrom])
-       if (trip_details)
-          if(trip_details.destroy)
-             flash[:success] = "Removed item from trip:"+params[:cutFrom]
-          end
-       else
-          flash[:error] = "Cannot find item to delete:"+params[:cutFrom]
-       end
-    end
-    if (params[:commit][0..4] == 'paste')
-       thistrip_details=TripDetail.find_by_id(params[:cutFrom])
-       above_id=params[:commit][5..-1]
-       order=1
-       logger.debug above_id
-       trip_details=TripDetail.where(trip_id: params[:id]).order(:order)
-       trip_details.each do |td|
-         if td.id == above_id.to_i then
-           thistrip_details.order=order
+    if (params[:commit])  
+      if (params[:commit][0..5] == 'delete')
+        trip_details=TripDetail.find_by_id(params[:cutFrom])
+        if (trip_details)
+           if(trip_details.destroy)
+              flash[:success] = "Removed item from trip:"+params[:cutFrom]
+           end
+        else
+           flash[:error] = "Cannot find item to delete:"+params[:cutFrom]
+        end
+      end
+      if (params[:commit][0..6] == 'reverse')
+        td_id=params[:commit][7..-1]
+        trip_details=TripDetail.find_by_id(td_id)
+        if (trip_details)
+           trip_details.route_id=-trip_details.route_id
+           trip_details.save
+           flash[:success] = "Reversed direction of specified route in this trip"
+        else
+           flash[:error] = "Cannot find item to reverse:"+params[:cutFrom]
+        end
+      end
+
+      if (params[:commit][0..4] == 'paste')
+         thistrip_details=TripDetail.find_by_id(params[:cutFrom])
+         above_id=params[:commit][5..-1]
+         order=1
+         logger.debug above_id
+         trip_details=TripDetail.where(trip_id: @id).order(:order)
+         trip_details.each do |td|
+           if td.id == above_id.to_i then
+             thistrip_details.order=order
+               thistrip_details.save
+             order=order+1
+           end
+           if td.id != thistrip_details.id then
+               td.order=order
+             td.save
+             order=order+1
+            end
+         end
+          # if we pasted at bottom
+         if above_id=="" then
+              thistrip_details.order=order
              thistrip_details.save
-           order=order+1
          end
-         if td.id != thistrip_details.id then
-             td.order=order
-           td.save
-           order=order+1
-         end
-       end
-         # if we pasted at bottom
-       if above_id=="" then
-           thistrip_details.order=order
-           thistrip_details.save
        end
      end
-   else 
-        redirect_to root_path
    end
 
-   if (params[:commit] == 'Select as current')
-      @trip=Trip.find_by_id(params[:selected_id])
+   #do stuff from index with a row
+   if params[:selected_id] then index=true end
 
-      @current_user.currenttrip_id = @trip.id
-      @current_user.save
-
-      index=true
+   #user only - selct new trip
+   if params[:selected_id] and signed_in?  then
+     if (params[:commit] == 'Select as current')
+          @trip=Trip.find_by_id(params[:selected_id])
+   
+          if @trip.createdBy_id==@current_user.id or @current_user.role.name=="root" 
+            @current_user.currenttrip_id = @trip.id
+            @current_user.save
+          end  
+          index=true
+     end
    end
 
-   if (params[:commit] == 'Make my own copy')
-      old_trip=Trip.find_by_id(params[:selected_id])
-      if is_guest? then
-        @current_guest.currenttrip.destroy_tree
-      end
-      @trip= old_trip.dup
-      if signed_in?
-        @trip.createdBy_id=@current_user.id
-        @trip.name = @current_user.name+"'s copy of "+@trip.name
-      else
-        @trip.name = "My Trip"
-      end
-      @trip.published=false
-      @trip.save
-      params[:id]=@trip.id
-      old_trip.trip_details.each do |td|
-         new_td=td.dup
-         new_td.trip_id=@trip.id
-         new_td.save
-      end
+   #guest and used ...
+   if params[:selected_id] and (signed_in? or is_guest?)
 
-      if signed_in?
-        @current_user.currenttrip_id = @trip.id
-        @current_user.save
-      else
-        @current_guest.currenttrip_id = @trip.id
-        @current_guest.save
-      end
-   end
+     if (params[:commit] == 'Delete')
+          trip=Trip.find_by_id(params[:selected_id])
+          if trip and ((signed_in? and (trip.createdBy_id==@current_user.id or @current_user.role.name=="root")) or (is_guest? and @current_guest.currenttrip_id==trip.id)) then
+    
+            # if we delete current trip of any user, selct first remainingtrip as current, or else make a new one ...
+            affectedUsers=User.find_by_sql [ "select * from users where currenttrip_id=?", trip.id ]
+            affectedUsers.each do |u|
+                trips=Trip.where('"createdBy_id" = ? and "id" <> ?',u.id, trip.id).order(:name)
+                if trips.count>0 then 
+                  @trip=trips.first 
+                else
+                  @trip=Trip.new()
+                  @trip.createdBy_id=u.id
+                  @trip.name="Default" 
+                  @trip.save
+                end
+                u.currenttrip_id = @trip.id
+                u.save
+                if signed_in? and @current_user.id=u.id then @current_user.reload end
+            end     
+            #affectedGuests ...
+            affectedGuests=Guest.find_by_sql [ "select * from guests where currenttrip_id=?", trip.id ]
+            affectedGuests.each do |u|
+                  @trip=Trip.new()
+                  @trip.name="My Trip"
+                  @trip.save
+                  u.currenttrip_id = @trip.id
+                  u.save
+                if is_guest? and @current_guest.id=u.id then @current_guest.reload end
+            end
 
-   if (params[:commit] == 'Delete')
-      trip=Trip.find_by_id(params[:selected_id])
+            if trip.destroy_tree then
+              flash[:success]="Trip deleted"
+            else
+              flash[:error]="Error: falied to delete trip"
+            end
+          else
+            flash[:error]="Error: You cannot delete this trip"
+          end
+          index=true
+     end
 
-      # if we delete current trip, selct first remainingtrip as current, or else make a new one ...
-      if trip.id == @current_user.currenttrip_id
-        trips=Trip.where('"createdBy_id" = ? and "id" <> ?',@current_user.id, trip.id).order(:name)
-        if trips.count>0 then 
-          @trip=trips.first 
-        else
-          @trip=Trip.new()
-          @trip.createdBy_id=@current_user.id
-          @trip.name="Default" 
+   #copy someone elses trip
+       if (params[:commit] and params[:commit] == 'Make my own copy')
+          old_trip=Trip.find_by_id(params[:selected_id])
+          if is_guest? then
+            @current_guest.currenttrip.destroy_tree
+          end
+          @trip= old_trip.dup
+          if signed_in?
+            @trip.createdBy_id=@current_user.id
+            @trip.name = @current_user.name+"'s copy of "+@trip.name
+          else
+            @trip.name = "My Trip"
+          end
+          @trip.published=false
           @trip.save
-        end
-        @current_user.currenttrip_id = @trip.id
-        @current_user.save
-      end
+          @id=params[:id]=@trip.id
+          old_trip.trip_details.each do |td|
+             new_td=td.dup
+             new_td.trip_id=@trip.id
+             new_td.save
+          end
 
-      trip.destroy_tree
-      index=true
-      @referring_page="wishlist"
-   end
-
-   if index==true 
+          if signed_in?
+            @current_user.currenttrip_id = @trip.id
+            @current_user.save
+          else
+            @current_guest.currenttrip_id = @trip.id
+            @current_guest.save
+          end
+       end
+    end
+    if index==true 
       if @referring_page=="wishlist" then 
         wishlist() 
       else 
         index() 
         render 'index'
       end
-   else
+    else
       render 'show'
-   end
+    end
 end
 
 
@@ -172,6 +243,7 @@ def new
   @trip.createdBy_id=@current_user.id
   @trip.name="Default"
   @trip.save
+  flash[:success]="New trip created and assigned as your current trip"
   user=User.find_by_id(@current_user.id)
   user.currenttrip_id = @trip.id
   user.save
@@ -185,15 +257,37 @@ def new
 end
 
 def show
-    if params[:editlinks] then @editlinks=true end
+  @edittrippage=true if @edit
+  if params[:editlinks] then @editlinks=true end
 
   if !@trip=Trip.find_by_id(params[:id]) then
     redirect_to root_url
-  end
-  prepare_route_vars()
-  @place_types = PlaceType.all
-  @referring_page='/trips/'+@trip.id.to_s
+  else
+    prepare_route_vars()
+    @place_types = PlaceType.all
+    @referring_page='/trips/'+@trip.id.to_s
+   
+    respond_to do |wants|
+      wants.js do
+          render '/trips/show'
+      end
+      wants.html do
+          render '/trips/show'
+      end
+      wants.gpx do
+        if(@trip.startplace and @trip.endplace)
+          routes=[] 
+          @trip.trip_details.each do |item|
+             if item.route_id and item.route_id!=0 then routes=routes+[Route.find_by_signed_id(item.route_id)] end
+          end
   
+          xml = route_to_gpx(routes)
+          response.headers['Content-Disposition'] = 'attachment; filename=' + (@trip.name).gsub(/[\\\/\s]/, '_') + '.gpx'
+          render :xml => xml
+        end
+      end
+    end 
+  end
 end
 
 def edit
@@ -204,9 +298,9 @@ def edit
   
   if (signed_in? and (@trip.createdBy_id==@current_user.id or @current_user.role==Role.find_by( :name => 'root')) or (is_guest? and @trip.id == @current_guest.currenttrip_id))
     @edit=true
+    @edittrippage=true
   else
     show()
-    render 'show'
   end
 end
 
@@ -325,13 +419,18 @@ def update
           @referring_page="currenttrip"
       end
 
-      trip.destroy_tree
+      if trip.destroy_tree then flash[:success]="Trip deleted" end
       index=true
       @edit=false
-      if @referring_page=="wishlist" then 
-        wishlist() 
+      if @referring_page=="currenttrip" then
+        currenttrip()
       else 
-        currenttrip() 
+        if @referring_page=="wishlist" then 
+          wishlist() 
+        else 
+          index() 
+          render 'index'
+        end
       end
    else
 
@@ -340,7 +439,6 @@ def update
          render 'edit' 
       else
          show()
-         render 'show'
       end
    end
 end

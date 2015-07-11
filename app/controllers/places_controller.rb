@@ -126,11 +126,13 @@ def create
     @edit=false
     if params[:version] then
       @place = Place.find_by_id(@id)
-      @place.assign_attributes(PlaceInstance.find_by_id(params[:version]).attributes.except("id", "place_id"))
-      @version=params[:version]
+      if @place then
+        @place.assign_attributes(PlaceInstance.find_by_id(params[:version]).attributes.except("id", "place_id"))
+        @version=params[:version]
+      end
     else
       @place = Place.find_by_id(@id) 
-      @version=(PlaceInstance.find_by_sql [ "select id from place_instances where place_id=? order by updated_at desc limit 1", @place.id.to_s ]).first.try('id')
+      if @place then @version=(PlaceInstance.find_by_sql [ "select id from place_instances where place_id=? order by updated_at desc limit 1", @place.id.to_s ]).first.try('id') end
     end
     if !@place
     #place does not exist - return to home
@@ -219,7 +221,7 @@ def create
   
         flash[:success] = "Added place to trip"
       else
-        flash[:error] = "couldn't find you trip"
+        flash[:error] = "couldn't find your trip"
       end
       #refrese show' variables 
       show()

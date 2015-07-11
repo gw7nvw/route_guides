@@ -1,4 +1,4 @@
-<div class="place_details">
+<div id="place_details">
    <% if !@itemNumber then @itemNumber=1 else @itemNumber+=1 end %>
    <!-- Place title and add/remove buttons if in edit mode-->
    <div class="erow">
@@ -50,11 +50,10 @@
       <!-- Place author details (if any) -->
        <% if @photo.createdBy_id %>
           <small color="greyLight">
-      	     Created by: <%= link_to @photo.createdBy.name.capitalize, '/users/'+@photo.createdBy.name, remote: true%> on <%=@photo.created_at%>. Last updated: <%=@photo.updated_at%><br/>
+      	     Created by: <%= link_to @photo.createdBy.name.capitalize, '/users/'+@photo.createdBy.name, remote: true%> on <%=@photo.created_at.localtime().strftime("%F")%>. Last updated: <%=@photo.updated_at.localtime().strftime("%F %T")%><br/>
           <%= if (@photo.author and @photo.author.length>0) or @photo.taken_at then "Taken" end %>
           <%= if @photo.author and @photo.author.length>0 then " by: "+@photo.author+" " end  %>
-          <%= if @photo.taken_at then " on "+@photo.taken_at.to_s end  %>
-
+          <%= if @photo.taken_at then " on "+@photo.taken_at.strftime("%F") end  %>
           </small>
        <% end %>
     </div>

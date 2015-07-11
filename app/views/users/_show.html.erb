@@ -1,4 +1,4 @@
-<% provide(:title, @user.name) %>
+<% provide(:title, "User | "+@user.name) %>
 <% @title=" | User | "+@user.name %>
 <%= render 'flash' %>
 <%= render 'application/mail_status' %>
@@ -8,15 +8,15 @@
    update_title('<%=@title%>'); 
    document.getElementById("page_status").innerHTML = '';
 </script>
-<div class="sectiontitle">
+<div class="sectiontitle" id="page_title">
 <%= @user.name.capitalize %><br/>
 <br/>
 
 </div>
- <div class="erow">
+ <div class="erow" id="realname">
     <% if(signed_in? and ((@user.id==@current_user.id) or (@current_user.role==Role.find_by( :name => 'root')))) %>
        <%= @user.firstName.capitalize+" "+@user.lastName.capitalize %><br/>
-       </div><div class="erow">
+       </div><div class="erow" id="privacy">
        Anonymity enabled: <%if @user.hide_name%>True<%else%>False<%end%><br/>
     <% else %>
        <% if (@user.firstName and @user.lastName and !@user.hide_name) %> 
@@ -27,16 +27,16 @@
     <% end %>
  </div>
 <%     if(signed_in? and ((@user.id==@current_user.id) or (@current_user.role==Role.find_by( :name => 'root')))) %>
- <div class="erow">
+ <div class="erow" id="email">
      Email: <%= @user.email %>
  </div>
 <%end%>
- <div class="erow">
-     Last visited: <%= @user.lastVisited.to_s %><br/><br/>
+ <div class="erow" id="lastvisited">
+     Last visited: <% if @user.lastVisited %><%= @user.lastVisited.localtime().strftime("%F %T") %><%else%>Never<%end%><br/><br/>
  </div>
 <%     if(signed_in? and ((@user.id==@current_user.id) or (@current_user.role==Role.find_by( :name => 'root')))) %>
- <div class="erow">
-  <%=  link_to "Edit", '/users/'+@user.name+'/edit', class: "btn btn-small btn-primary", remote: true %><br/>
+ <div class="erow" id="editbutton">
+  <%=  link_to "Edit", '/users/'+URI.escape(@user.name)+'/edit', class: "btn btn-small btn-primary", remote: true %><br/>
  </div>
 <%end%>
 <% @reports = @user.reports %>
@@ -44,7 +44,8 @@
 
 <div class="erow">&nbsp;</div>
 
-<% @trips = @user.trips.select{ |trip| trip.published }  %>
+<% @trips = @user.trips.sort_by(&:starty)
+  %>
 <%= render 'trips/index_details' %>
 
 

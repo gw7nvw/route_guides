@@ -5,7 +5,11 @@
    update_title('<%=@title%>'); 
    document.getElementById("page_status").innerHTML = '';
 </script>
-      <%="Historic version of "+@itemType+" "+@item.id.to_s+", revision "+@item_instance.revision_number.to_s+"/"+@item.revision_number.to_s+" from "+@item_instance.created_at.to_s%>
+ <div class="erow">
+   <div class="sectiontitle"><%="Historical version of "+@itemType+" "+@item.id.to_s+", revision "+@item_instance.revision_number.to_s+"/"+@item.revision_number.to_s+" from "+@item_instance.created_at.localtime().strftime("%F %T")%></div>
+ </div>
+ <div class="erow"><div class="hrline"> <hr noshade size="4"> </div></div>
+
 <% if @itemType == 'report' %>
    <div id='place_details'>
       <%= render 'reports/report_details' %>

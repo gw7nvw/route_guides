@@ -3,6 +3,45 @@ class Trip < ActiveRecord::Base
 
   belongs_to :createdBy, class_name: "User"
 
+def startplace
+  p=nil
+  td=TripDetail.where(:trip_id => self.id).order(:order).first
+  if td  and td.place_id then
+     p=Place.find_by_id(td.place_id)
+  end
+
+  if td  and td.route_id then
+     r=Route.find_by_signed_id(td.route_id)
+     p=r.startplace
+  end
+
+  p
+end
+
+
+def endplace
+  p=nil
+  td=TripDetail.where(:trip_id => self.id).order(:order).last
+  if td  and td.place_id then
+     p=Place.find_by_id(td.place_id)
+  end
+
+  if td  and td.route_id then
+     r=Route.find_by_signed_id(td.route_id)
+     p=r.endplace
+  end
+
+  p
+end
+
+def startx
+   self.startplace.try('x') || 0
+end
+
+def starty
+  self.startplace.try('y') || 0
+end
+
 def self.find_latest_by_user(count)
   trips=[]
   contributors=Trip.find_by_sql [ 'select "createdBy_id" from trips where published=true group by "createdBy_id" order by max(updated_at) desc limit ?', count ]
@@ -15,28 +54,39 @@ def self.find_latest_by_user(count)
 end
 
 def destroy_tree
+    success=true
       self.links.each do |l|
-         l.destroy
+         success=success && l.destroy
       end
       self.trip_details.each do |td|
-        td.destroy
+        success=success && td.destroy
       end
-      self.destroy
+      success=success && self.destroy
+   success
 end
+
 def distance
      t=Trip.find_by_sql ["select sum(r.distance) id from trip_details td 
-                inner join routes r on r.id = td.route_id 
+                inner join routes r on r.id = abs(td.route_id)
                 where td.trip_id = ?", self.id]
      t.first.try(:id).to_f
 end
 
 def walkingtime
      t=Trip.find_by_sql ["select sum(r.time) id from trip_details td 
-                inner join routes r on r.id = td.route_id 
+                inner join routes r on r.id = abs(td.route_id) 
                 where td.trip_id = ?", self.id]
      t.first.try(:id).to_f
 
+end
 
+def to_url
+    url=""
+    self.trip_details.each do |td|
+      url+="xrv"+td.route_id.to_s if td.route_id
+      url+="xpv"+td.place_id.to_s if td.place_id
+    end
+    url
 end
 
 def reports

@@ -139,7 +139,7 @@ require "rexml/document"
        render nothing: true, status: 409
     else 
       success=@route.save
-      if success
+      if success and !@route.customerrors
         flash[:success] = "New route added, id:"+@route.id.to_s
   
 
@@ -164,11 +164,11 @@ require "rexml/document"
           render 'show'
         end
       else
+        flash[:error]=@route.customerrors if @route.customerrors 
         if(@url and @url.include?('x')) then 
            @id=@url
            show_many() 
         end
-  
         @edit=true
         render 'new'
       end
@@ -234,19 +234,22 @@ end
     @showLinks=1
 
     @route = Route.find_by_signed_id(params[:id])
-    puts "doing instances"
+  if @route then
     @routeInstances=RouteInstance.where(:route_id => @route.id.abs)
     if params[:version] then
-      @route.assign_attributes(RouteInstance.find_by_id(params[:version]).attributes.except("id", "route_id"))
-      if params[:id].to_i<0 then @route.reverse end
-      @route.calc_altgain
-      @route.calc_altloss
-      @route.calc_maxalt
-      @route.calc_minalt
-      @version=params[:version]
-    else
-      @version=(RouteInstance.find_by_sql [ "select id from route_instances where route_id=? order by updated_at desc limit 1", @route.id.abs.to_s ]).first.try('id')
+      ri=RouteInstance.find_by_id(params[:version])
+      if ri.route_id==@route.id then 
+        @route.assign_attributes(ri.attributes.except("id", "route_id", "published"))
+        if params[:id].to_i<0 then @route.reverse end
+        @route.calc_altgain
+        @route.calc_altloss
+        @route.calc_maxalt
+        @route.calc_minalt
+        @version=params[:version]
+      end
     end
+    if !@version then  @version=(RouteInstance.find_by_sql [ "select id from route_instances where route_id=? order by updated_at desc limit 1", @route.id.abs.to_s ]).first.try('id') end
+  end
 
     if( @route) then
       if(@route.location)
@@ -263,6 +266,7 @@ end
       wants.js do
       end 
       wants.gpx do  
+        if !@route.name then @route.name="route" end
         xml = route_to_gpx([@route])
         response.headers['Content-Disposition'] = 'attachment; filename=' + @route.name.gsub(/[\\\/\s]/, '_') + '.gpx'
         render :xml => xml 
@@ -343,7 +347,9 @@ end
        redirect_to signin_path
      else
        @url=params[:url]
-       @viewurl=@url.tr("e","v")
+       @viewurl=@url.gsub('xrn','xrv'+@route.id.to_s)
+       @viewurl=@viewurl+'xps'
+       @viewurl=@viewurl.tr("e","v")
 
 
       prepare_route_vars()
@@ -355,7 +361,7 @@ end
       @route.datasource=params[:datasource]
       @route.updated_at=Time.new()
       @route.updatedBy_id = @current_user.id #current_user.id
-      if @route.save
+      if @route.save and !@route.customerrors
         flash[:success] = "Route updated, id:"+@route.id.to_s
         if @url and @url.include?('x')
             #show routes screen
@@ -373,7 +379,11 @@ end
 
 
       else
-        flash[:error] = "Error creating route"
+        if @route.customerrors then
+          flash[:error]=@route.customerrors 
+        else
+          flash[:error] = "Error creating route"
+        end
         @edit=true
         render 'edit'
       end
@@ -434,44 +444,6 @@ def route_add_altitude
       @route.location=linestr+")"
     end
   end
-end
-
-
-def route_to_gpx(routes)
-
-   xml = REXML::Document.new
-   gpx = xml.add_element 'gpx', {'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance',
-     'xmlns' => 'http://www.topografix.com/GPX/1/0',
-     'xsi:schemaLocation' => 'http://www.topografix.com/GPX/1/0 http://www.topografix.com/GPX/1/0/gpx.xsd',
-     'version' => '1.0', 'creator' => 'http://routeguides.co.nz/'}
-   
-   route=routes.first
-
-   #currently just use data from first route segment for creator, etc 
-   trk = gpx.add_element 'trk'
-   trk.add_element('name').add REXML::Text.new(route.name)
-   trk.add_element('author').add REXML::Text.new(route.createdBy.name) 
-   trk.add_element('url').add REXML::Text.new('http://routeguides.co.nz/routes/'+route.id.to_s)
-   trk.add_element('time').add REXML::Text.new(route.created_at.to_s)
-
-   routes.each do |route|
-
-     trkseg = trk.add_element 'trkseg'
-
-     #and reverse the direction if required
-    
-     if route.location and route.location.points and route.location.points.count>0 then
-       route.location.points.each do |pt|
-         elem = trkseg.add(REXML::Element.new('trkpt'))
-         elem.add_attributes({'lat' => pt.y.to_s, 'lon' => pt.x.to_s})
-         elem.add_element('ele').add(REXML::Text.new(pt.z.to_s))
-       end
-     end
-  end
-  output = String.new
-  formatter = REXML::Formatters::Pretty.new
-  formatter.write(gpx, output)
-  return output
 end
 
   private

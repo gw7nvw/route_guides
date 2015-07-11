@@ -1,4 +1,5 @@
 class ApplicationController < ActionController::Base
+
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
   #  protect_from_forgery with: :exception
@@ -64,4 +65,45 @@ class ApplicationController < ActionController::Base
       end
       if @startplace and @endplace then @description="An NZ Route Guide to the track/route from "+@startplace.name+" to "+@endplace.name end
    end 
+
+def route_to_gpx(routes)
+
+   xml = REXML::Document.new
+   gpx = xml.add_element 'gpx', {'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance',
+     'xmlns' => 'http://www.topografix.com/GPX/1/0',
+     'xsi:schemaLocation' => 'http://www.topografix.com/GPX/1/0 http://www.topografix.com/GPX/1/0/gpx.xsd',
+     'version' => '1.0', 'creator' => 'http://routeguides.co.nz/'}
+
+   if routes and routes.count>0 then 
+     route=routes.first
+
+     #currently just use data from first route segment for creator, etc 
+     trk = gpx.add_element 'trk'
+     trk.add_element('name').add REXML::Text.new(route.name||"route")
+     if route.createdBy_id then trk.add_element('author').add REXML::Text.new(route.createdBy.name) end
+     trk.add_element('url').add REXML::Text.new('http://routeguides.co.nz/routes/'+route.id.to_s)
+     trk.add_element('time').add REXML::Text.new(route.created_at.to_s)
+  
+     routes.each do |route|
+  
+       trkseg = trk.add_element 'trkseg'
+  
+       #and reverse the direction if required
+  
+       if route.location and route.location.points and route.location.points.count>0 then
+         route.location.points.each do |pt|
+           elem = trkseg.add(REXML::Element.new('trkpt'))
+           elem.add_attributes({'lat' => pt.y.to_s, 'lon' => pt.x.to_s})
+           elem.add_element('ele').add(REXML::Text.new(pt.z.to_s))
+         end
+       end
+    end
+    output = String.new
+    formatter = REXML::Formatters::Pretty.new
+    formatter.write(gpx, output)
+    return output
+  else
+    return nil
+  end
+end
 end

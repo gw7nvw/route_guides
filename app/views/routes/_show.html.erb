@@ -1,9 +1,11 @@
-<% provide(:title, "Route | "+@route.name) %>
-<% @title=" | Route | "+@route.name %>
+<% if @route.name %>
+  <% provide(:title, "Route | "+@route.name) %>
+  <% @title=" | Route | "+@route.name %>
+<% end %>
 <%= render 'flash' %>
 
 <script> 
-   update_title('<%=@title%>'); 
+   update_title('<%=@title||""%>'); 
    document.getElementById("page_status").innerHTML = '';
    reset_map_controllers();
 

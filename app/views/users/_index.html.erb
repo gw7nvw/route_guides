@@ -12,7 +12,7 @@
   <ul class="places">
     <% @users.each do |user| %>
       <li>
-        <%= link_to user.name.capitalize, '/users/'+user.name, remote: true, :id => 'user_link_'+user.id.to_s, :onclick => "linkHandler('user_link_"+user.id.to_s+"')" %></li>
+        <%= link_to user.name.capitalize, '/users/'+URI.encode(user.name), remote: true, :id => 'user_link_'+user.id.to_s, :onclick => "linkHandler('user_link_"+user.id.to_s+"')" %></li>
       </li>
     <% end %>
   </ul>

@@ -1486,3 +1486,8 @@ function loadLink(linkurl) {
 function showVersion() {
   loadLink(location.protocol + '//' + location.host + location.pathname+"/?version="+document.getElementById("versions").value);
 }
+
+function show_div(div) {
+   document.getElementById(div).style.display="block";
+}
+

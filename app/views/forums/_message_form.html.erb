@@ -4,15 +4,21 @@
      <%= form_for  @message, :remote=> true, :html => {:name => 'messageform'}, :url => '/forums'   do |f| %>
       <%= render 'shared/error_messages' %>
 
-      <%= f.label :Subject %>
-      <%= f.text_field :subject, :disabled=>!@edit %>
+      <div id="subject" <%="style=display:none" if @hide_to %>>
+        <%= f.label :Subject %>
+        <%= f.text_field :subject, :disabled=>!@edit %>
+      </div>
 
       <%= f.label :Message %>
-      <%= f.text_area :message, :disabled=>!@edit, :rows=>"8"   %>
+      <%= f.text_area :message, :disabled=>!@edit, :rows=>"1", :onfocus=>'if (document.getElementById("message_message").rows==1) { document.getElementById("message_message").rows=8;  document.getElementById("subject").style.display="block";}'  %>
 
       <%= f.hidden_field :forum_id %>
       <% if @edit %>
-        <%= f.submit "Send", class: "btn btn-small btn-primary", name: "save", onclick: "linkHandler('savebutton')", id:  "savebutton" %>
+        <% if @hide_to %>
+          <%= f.submit "Reply", class: "btn btn-small btn-primary", name: "save", onclick: "linkHandler('savebutton')", id:  "savebutton" %>
+        <% else %>
+          <%= f.submit "Send", class: "btn btn-small btn-primary", name: "save", onclick: "linkHandler('savebutton')", id:  "savebutton" %>
+        <% end %>
       <% end %>
     <% end %>
   </div>
