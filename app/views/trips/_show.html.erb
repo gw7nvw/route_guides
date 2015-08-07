@@ -1,6 +1,5 @@
 <% provide(:title, "Trip | "+(@trip.name or "")) %>
 <% @title=" | Trip | "+(@trip.name or "") %>
-<%= render 'flash' %>
 <%= render 'application/mail_status' %>
 
 
@@ -12,6 +11,7 @@
 </script>
 <% if @trip %>
 <div id='place_details'>
+   <%= render 'flash' %>
    <% if !@edit %>
       <div class="erow">
          <%  if(signed_in? and ((@trip.createdBy_id == current_user.id) or (@current_user.role==Role.find_by( :name => 'root'))) or (is_guest? and @trip.id == @current_guest.currenttrip_id)) %>
@@ -50,7 +50,9 @@
    <% else %>
 
       <%= form_for @trip, remote: true do |f| %>
+
          <div class="erow">
+            <%= render 'shared/error_messages' %>
             <div class="leftbuttons">
                <span title="Save trip" id="save_button">
                   <%= f.submit "Save", :type => :image, :src => '/assets/save.png', :style => 'margin-bottom:0;border:none',onclick: "linkHandler('savebutton')", id:  "savebutton" %>
@@ -204,8 +206,9 @@
          </div>
          <% 
             #convert show boolean to int
-            @showForward=if(td.showForward) then 1 else 0 end
-            @showReverse=if(td.showReverse) then 1 else 0 end
+#            @showForward=if(td.showForward) then 1 else 0 end
+             @showForward=1
+#            @showReverse=if(td.showReverse) then 1 else 0 end
             @showConditions=if(td.showConditions) then 1 else 0 end
             @showLinks=if(td.showLinks) then 1 else 0 end 
          %>
@@ -263,12 +266,12 @@
       <div class="erow">
         <% if signed_in? %>
           <div class="leftbuttons">
-            <span title="Edit links"%>
+            <span title="Edit links" id="edit_links">
               <%=  link_to image_tag("/assets/pencil_edit.png", :border=>0, :class => 'dock-item'), '/trips/'+@trip.id.to_s+'/?editlinks=true', remote: true, onclick: "linkHandler('editbutton')", id:  "editbutton"  %>
             </span>
             </div>
         <% end %>
-        <div class="sectiontitle-bold">
+        <div class="sectiontitle-bold" id="links_title">
           Links:
         </div>
       </div>

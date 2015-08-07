@@ -3,7 +3,7 @@
       <%= render 'shared/error_messages' %>
 
 
-      <input type="hidden" name="url" value="<%=@url%>"/>
+      <input type="hidden" name="url" id="urlfield" value="<%=@url%>"/>
  
 
       <div class="erow">
@@ -231,7 +231,7 @@ sufficient to differentiate it from other routes between the same two places. <b
       </div>
       <div class="difficulty">
           <div class="diff_label">Route Importance</div>
-          <div class="diff_name" id="importance_name"></div>
+          <div class="diff_name" id="importance_name"><%=@route.importance.name if @route.importance_id%></div>
             <%= f.text_field :importance_id, id: 'route_importance', type: 'text',
                          data: {'slider-id' => 'ex1Slider',
                           'slider-min' => @importances.minimum(:id),
@@ -240,7 +240,7 @@ sufficient to differentiate it from other routes between the same two places. <b
                           'slider-value' => @route.importance_id || 1,
                           'slider-tooltip' => 'hide' } %>
       </div>
-      <div class="diff_details" id="importance_text"></div>
+      <div class="diff_details" id="importance_text"><%=@route.importance.description if @route.importance_id%></div>
 
       <div class="erow">
          <%=render :partial => 'help_buttons',  :locals => {:expName => "rhelpnormal", :initialSt => 0} %>
@@ -257,7 +257,7 @@ sufficient to differentiate it from other routes between the same two places. <b
 
       <div class="difficulty">
           <div class="diff_label">Route Type</div>
-          <div class="diff_name" id="rt_name"></div>
+          <div class="diff_name" id="rt_name"><%=@route.routetype.name if @route.routetype_id%></div>
             <%= f.text_field :routetype_id, id: 'route_type', type: 'text',
                          data: {'slider-id' => 'ex1Slider',
                           'slider-min' => @route_types.minimum(:id),
@@ -266,10 +266,10 @@ sufficient to differentiate it from other routes between the same two places. <b
                           'slider-value' => @route.routetype_id || 1,
                           'slider-tooltip' => 'hide' } %>
       </div>
-      <div class="diff_details" id="rt_text"></div>
+      <div class="diff_details" id="rt_text"><%=@route.routetype.description if @route.routetype_id%></div>
       <div class="difficulty">
           <div class="diff_label">Gradient</div> 
-          <div class="diff_name" id="gradient_name"></div>
+          <div class="diff_name" id="gradient_name"><%=@route.gradient.name if @route.gradient_id%></div>
           <%= f.text_field :gradient_id, id: 'gradient', type: 'text',
                          data: {'slider-id' => 'ex1Slider',
                           'slider-min' => @gradients.minimum(:id),
@@ -278,11 +278,11 @@ sufficient to differentiate it from other routes between the same two places. <b
                           'slider-value' => @route.gradient_id || 1,
                           'slider-tooltip' => 'hide' } %>
       </div>
-      <div class="diff_details" id="gradient_text"></div>
+      <div class="diff_details" id="gradient_text"><%=@route.gradient.description if @route.gradient_id%></div>
 
       <div class="difficulty">
         <div class="diff_label">Veg/Terrain</div> 
-        <div class="diff_name" id="terr_name"></div>
+        <div class="diff_name" id="terr_name"><%=@route.terrain.name if @route.terrain_id%></div>
         <%= f.text_field :terrain_id, id: 'terrain', type: 'text',
                          data: {'slider-id' => 'ex1Slider',
                           'slider-min' => @terrains.minimum(:id),
@@ -291,11 +291,11 @@ sufficient to differentiate it from other routes between the same two places. <b
                           'slider-value' => @route.terrain_id || 1, 
                           'slider-tooltip' => 'hide'  } %>
       </div>
-      <div class="diff_details" id="terr_text"></div>
+      <div class="diff_details" id="terr_text"><%=@route.terrain.description if @route.terrain_id%></div>
       
       <div class="difficulty">
         <div class="diff_label">Alpine</div> 
-        <div class="diff_name" id="alps_name"></div>
+        <div class="diff_name" id="alps_name"><%=@route.alpinesummer.name if @route.alpinesummer_id%></div>
         <%= f.text_field :alpinesummer_id, id: 'alpinesummer', type: 'text',
                          data: {'slider-id' => 'ex1Slider',
                           'slider-min' => @alpines.minimum(:id),
@@ -304,11 +304,11 @@ sufficient to differentiate it from other routes between the same two places. <b
                           'slider-value' => @route.alpinesummer_id || 1, 
                           'slider-tooltip' => 'hide'  } %>
       </div>
-      <div class="diff_details" id="alps_text"></div>
+      <div class="diff_details" id="alps_text"><%=@route.alpinesummer.description if @route.alpinesummer_id%></div>
       
       <div class="difficulty">
         <div class="diff_label">Rivers</div> 
-        <div class="diff_name" id="river_name"></div>
+        <div class="diff_name" id="river_name"><%=@route.river.name if @route.river_id%></div>
         <%= f.text_field :river_id, id: 'river', type: 'text',
                          data: {'slider-id' => 'ex1Slider',
                           'slider-min' => @rivers.minimum(:id),
@@ -316,7 +316,7 @@ sufficient to differentiate it from other routes between the same two places. <b
                           'slider-step' => '1',
                           'slider-value' => @route.river_id || 1, 
                           'slider-tooltip' => 'hide'  } %>
-        <div class="diff_details" id="river_text"></div>
+        <div class="diff_details" id="river_text"><%=@route.river.description if @route.river_id%></div>
       </div>
 
       <div class="erow">
@@ -334,7 +334,7 @@ sufficient to differentiate it from other routes between the same two places. <b
 
       <div class="difficulty">
         <div class="diff_label">Alpine</div> 
-        <div class="diff_name" id="alpw_name"></div>
+        <div class="diff_name" id="alpw_name"><%=@route.alpinewinter.name if @route.alpinewinter_id%></div>
         <%= f.text_field :alpinewinter_id, id: 'alpinewinter', type: 'text',
                          data: {'slider-id' => 'ex1Slider',
                           'slider-min' => @alpinews.minimum(:id),
@@ -342,7 +342,7 @@ sufficient to differentiate it from other routes between the same two places. <b
                           'slider-step' => '1',
                           'slider-value' => @route.alpinewinter_id || 1,
                           'slider-tooltip' => 'hide'  } %>
-        <div class="diff_details" id="alpw_text"></div>
+        <div class="diff_details" id="alpw_text"><%=@route.alpinewinter.description if @route.alpinewinter_id%></div>
       </div>
 
       <br/><br/>

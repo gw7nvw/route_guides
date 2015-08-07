@@ -40,3 +40,17 @@
     </div>
   <% end %>
 <% end %>
+<% if @trip and @trip.class.to_s=="Trip" %>
+  <% if @trip.errors.any? %>
+    <div id="error_explanation" class="erow">
+      <div class="alert alert-error">
+        The form contains <%= pluralize(@trip.errors.count, "error") %>.
+      </div>
+      <ul>
+      <% @trip.errors.full_messages.each do |msg| %>
+        <li>* <%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+<% end %>

@@ -9,10 +9,10 @@
           <% if !@history %>
             <% if (!@trip) %>
                <%= form_for  @place, :html => {:name => 'placeform'}, remote: true  do |f| %>
-                 <%= link_to link_name, @place, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
+                 <%= link_to link_name, @place, remote:true,  remote: true, :id => 'place_link'+@itemNumber.to_s, :onclick => "linkHandler('place_link"+@itemNumber.to_s+"')" %>
                <% end %>
              <% else %>
-               <%= link_to link_name, @place, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %> 
+               <%= link_to link_name, @place, remote:true,  remote: true, :id => 'place_link'+@itemNumber.to_s, :onclick => "linkHandler('place_link"+@itemNumber.to_s+"')" %> 
              <% end %>
           <% else %>
              <%=link_name%>

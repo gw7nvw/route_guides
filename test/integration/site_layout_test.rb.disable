@@ -32,14 +32,14 @@ class SiteLayoutTest < ActionDispatch::IntegrationTest
 
   end
   test "layout_links loggedin" do
-     @role = Role.new(name: "user", id: 1)
-     @role.save
-     @user = User.new(name: "Example User", email: "user@example.com",
+     @testrole = Role.new(name: "user", id: 1)
+     @testrole.save
+     @testuser = User.new(name: "Example User", email: "user@example.com",
                      password: "password", password_confirmation: "password", firstName: "test", lastName: "test2", role_id: 1)
-     @user.activate
-     @user.save
+     @testuser.activate
+     @testuser.save
      get signin_path
-     post sessions_path, session: { email: @user.email, password: 'password' }
+     post sessions_path, session: { email: @testuser.email, password: 'password' }
      assert_redirected_to root_path
      follow_redirect!
      assert_select "a[href=?]", drafts_path
@@ -50,20 +50,20 @@ class SiteLayoutTest < ActionDispatch::IntegrationTest
   end
 
   test "layout_links hastrip" do
-     @role = Role.new(name: "user", id: 1)
-     @role.save
-     @user = User.new(name: "Example User", email: "user@example.com",
+     @testrole = Role.new(name: "user", id: 1)
+     @testrole.save
+     @testuser = User.new(name: "Example User", email: "user@example.com",
                      password: "password", password_confirmation: "password", firstName: "test", lastName: "test2", role_id: 1)
-     @user.activate
-     @user.save
+     @testuser.activate
+     @testuser.save
      get signin_path
-     post sessions_path, session: { email: @user.email, password: 'password' }
+     post sessions_path, session: { email: @testuser.email, password: 'password' }
      assert_redirected_to root_path
      follow_redirect!
-     @trip=Trip.new(:name=>'test', :createdBy=>@user)
-     @trip.save
-     @user.currenttrip=@trip
-     @user.save
+     @testtrip=Trip.new(:name=>'test', :createdBy=>@testuser)
+     @testtrip.save
+     @testuser.currenttrip=@testtrip
+     @testuser.save
      get root_path
      assert_select "a[href=?]", '/currenttrip'
   end

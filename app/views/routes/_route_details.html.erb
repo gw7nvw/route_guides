@@ -2,10 +2,24 @@
    <% if !@itemNumber then @itemNumber=1 else @itemNumber+=1 end %>
    <div class="erow">
       <%=render :partial => 'expand_buttons',  :locals => {:expName => "route"+@itemNumber.to_s, :initialSt => (if @hideAll then 0 else 1 end)} %>
-      <%  if(signed_in? and !@trip and !@history) %>
+  
+      <%  if(signed_in? and @trip and @trip.class.to_s!="Trip" and !@history) %>
+         <%
+            thisEditUrl=@url.gsub('xrv'+@route.id.to_s,'xre'+@route.id.to_s).gsub('xqv'+@route.id.to_s,'xqe'+@route.id.to_s)
+         %>
          <div class="leftbuttons">
+            <span title="Edit" id="edit<%=@itemNumber.to_s%>">
+               <%=  link_to image_tag("/assets/pencil_edit.png", :border=>0, :class => 'dock-item'), thisEditUrl, remote: true, onclick: "linkHandler('editbutton')", id:  "editbutton"  %>
+            </span>
+         </div>
+      <% end %> 
+      <%  if(signed_in? and !@trip and !@history) %>
+         <div class="leftbuttons50">
             <span title="Edit">
                <%=  link_to image_tag("/assets/pencil_edit.png", :border=>0, :class => 'dock-item'), '/routes/'+@route.id.to_s+'/edit', remote: true, onclick: "linkHandler('editbutton')", id:  "editbutton"  %>
+            </span>
+            <span title="Split">
+               <%=  link_to image_tag("/assets/axe16.png", :border=>0, :class => 'dock-item'), '/routes/xrc'+@route.id.to_s+'xps', remote: true, onclick: "linkHandler('splitbutton')", id:  "splitbutton"  %>
             </span>
          </div>
       <% end %>
@@ -28,43 +42,55 @@
       <div class="subrow">
          <%=render :partial => 'expand_buttons',  :locals => {:expName => "cn_r"+@itemNumber.to_s, :initialSt => @showConditions} %>
          <div class="sectiontext25">
-           <% if @route.distance %>
-              <%= "Distance: "+@route.distance.round(1).to_s+" km  " %>
-           <%end %>
+           <span id="route_dist<%=@itemNumber.to_s%>">
+             <% if @route.distance and @route.distance>0%>
+                <%= "Distance: "+@route.distance.round(1).to_s+" km  " %>
+             <%end %>
+           </span>
+           <span id="route_time<%=@itemNumber.to_s%>">
            <% if @route.time %>
               <%="("+@route.time.round(1).to_s+" DOC hours)"  %>
            <% end %>
+           </span>
+           <span id="route_type<%=@itemNumber.to_s%>">
            <% if @route.routetype.name!='Unknown'%>
               <%=" - "+@route.routetype.name%>
            <% end %>
+           </span>
+           <span id="route_terr<%=@itemNumber.to_s%>">
            <% if @route.terrain.name!='Unknown'%>
               <%=" - "+@route.terrain.name+" terrain"%>
            <% end %>
-           <% if @route.location and !@history%>
+           </span>
+           <% if @route.location and !@history and (@route.maxalt+@route.minalt)>0%>
               <br/>
-              <%= "Altitude - max: "+@route.maxalt.to_i.to_s+"m  min: "+@route.minalt.to_i.to_s+"m"+
-                 "  gain: "+@route.altgain.to_i.to_s+"m  loss: "+@route.altloss.to_i.to_s+"m" %>
+              <span id="route_alti<%=@itemNumber.to_s%>">
+              <%= "Altitude: "+@route.minalt.to_i.to_s+"m to "+@route.maxalt.to_i.to_s+"m."+
+                 "  Gain: "+@route.altgain.to_i.to_s+"m.  Loss: "+@route.altloss.to_i.to_s+"m" %>
+              </span>
+              <span id="route_grad<%=@itemNumber.to_s%>">
               <% if @route.distance>0 %>
-                 <%="  gradient: "+(Math.tan((@route.altgain+@route.altloss)/(@route.distance*1000))*180/Math::PI).to_i.to_s+" deg"%>
+                 <%=".  Gradient: "+(Math.tan((@route.altgain+@route.altloss)/(@route.distance*1000))*180/Math::PI).round().to_s+" deg"%>
               <% end %>
-              <% if @route.gradient.name!='Unknown'%>
+              </span>
+              <span id="gradien_smry<%=@itemNumber.to_s%>"><% if @route.gradient.name!='Unknown'%>
                  <%="("+@route.gradient.name+")"%>
-              <% end %>
+              <% end %></span>
            <% end %><br/>
            Skills:  
-           <% if @route.alpinesummer.name!='Unknown' and @route.alpinesummer.name!='None' %>
+           <span id="alpines_smry<%=@itemNumber.to_s%>"><% if @route.alpinesummer.name!='Unknown' and @route.alpinesummer.name!='None' %>
               <%=@route.alpinesummer.name%><%=" ("+(@route.alpinesummer_id-@alpines.minimum(:id)).to_s+"/"+(@alpines.maximum(:id)-@alpines.minimum(:id)).to_s+") "%> 
-           <% end %>
-           <% if @route.river.name!='Unknown' and @route.river.name!='None' %>
+           <% end %></span>
+           <span id="rivers_smry<%=@itemNumber.to_s%>"><% if @route.river.name!='Unknown' and @route.river.name!='None' %>
               <%=" - "+@route.river.name%>
               <%=" ("+(@route.river_id-@rivers.minimum(:id)).to_s+"/"+(@rivers.maximum(:id)-@rivers.minimum(:id)).to_s+") "%>
-           <% end %>
-           <% if @route.alpinewinter.name!='Unknown' and @route.alpinewinter.name!='None' %>
+           <% end %></span>
+           <span id="alpinew_smry<%=@itemNumber.to_s%>"><% if @route.alpinewinter.name!='Unknown' and @route.alpinewinter.name!='None' %>
               Winter - <%=@route.alpinewinter.name%>
               <%=" ("+(@route.alpinewinter_id-@alpinews.minimum(:id)).to_s+"/"+(@alpinews.maximum(:id)-@alpinews.minimum(:id)).to_s+")"%>
-           <% end %>
+           <% end %></span>
            <br/>
-           <div class="no-print">
+           <div class="no-print" id="gpx<%=@itemNumber.to_s%>">
                 <i><%= "GPX info source: "+@route.datasource %></i>
            </div>
          </div>
@@ -72,51 +98,51 @@
        <div class="subrow">
          <div id='<%="cn_r"+@itemNumber.to_s%>' class="sectiontext" style=<%=if (@showConditions==1) then "display:block" else "display:none" end %>>
            <p>
-              <div class="diff_label">Route Type:</div> <%=@route.routetype.name%>
+              <div class="diff_label">Route Type:</div> <span id="type_text<%=@itemNumber.to_s%>"><%=@route.routetype.name%></span>
               <%="("+(@route.routetype_id-@route_types.minimum(:id)).to_s+"/"+(@route_types.maximum(:id)-@route_types.minimum(:id)).to_s+")"%><br/>
               <i><%=@route.routetype.description%></i>
            </p>
            <p>
-              <div class="diff_label">Route Importance:</div> <%=@route.importance.name%>
+              <div class="diff_label">Route Importance:</div> <span id="impo_text<%=@itemNumber.to_s%>"><%=@route.importance.name%></span>
               <%="("+(@route.importance_id-@importances.minimum(:id)+1).to_s+"/"+(@importances.maximum(:id)-@importances.minimum(:id)+1).to_s+")"%><br/>
               <i><%=@route.importance.description%></i>
            </p>
            <p>
-              <div class="diff_label">Gradient:</div> <%=@route.gradient.name%>
+              <div class="diff_label">Gradient:</div> <span id="grad_text<%=@itemNumber.to_s%>"><%=@route.gradient.name%></span>
               <%="(difficulty: "+(@route.gradient_id-@gradients.minimum(:id)).to_s+"/"+(@gradients.maximum(:id)-@gradients.minimum(:id)).to_s+")"%><br/>
               <i><%=@route.gradient.description%></i>
            </p>
            <p>
-              <div class="diff_label">Terrain:</div> <%=@route.terrain.name%>
+              <div class="diff_label">Terrain:</div> <span id="terr_text<%=@itemNumber.to_s%>"><%=@route.terrain.name%></span>
               <%="(difficulty: "+(@route.terrain_id-@terrains.minimum(:id)).to_s+"/"+(@terrains.maximum(:id)-@terrains.minimum(:id)).to_s+")"%><br/>
               <i><%=@route.terrain.description%></i>
            </p>
            <p>
-              <div class="diff_label">Alpine:</div> <%=@route.alpinesummer.name%>
+              <div class="diff_label">Alpine:</div> <span id="alps_text<%=@itemNumber.to_s%>"><%=@route.alpinesummer.name%></span>
               <%="(difficulty: "+(@route.alpinesummer_id-@alpines.minimum(:id)).to_s+"/"+(@alpines.maximum(:id)-@alpines.minimum(:id)).to_s+")"%><br/>
               <i><%=@route.alpinesummer.description%></i>
            </p>
            <p>
-              <div class="diff_label">Rivers:</div> <%=@route.river.name%>
+              <div class="diff_label">Rivers:</div> <span id="rive_text<%=@itemNumber.to_s%>"><%=@route.river.name%></span>
               <%="(difficulty: "+(@route.river_id-@rivers.minimum(:id)).to_s+"/"+(@rivers.maximum(:id)-@rivers.minimum(:id)).to_s+")"%><br/>
               <i><%=@route.river.description%></i>
            </p>
 
            <div class="sectiontitle">Winter conditions:</div><br/>
            <p>
-              <div class="diff_label">Alpine:</div> <%=@route.alpinewinter.name%>
+              <div class="diff_label">Alpine:</div> <span id="alpw_text<%=@itemNumber.to_s%>"><%=@route.alpinewinter.name%></span>
               <%="(difficulty: "+(@route.alpinewinter_id-@alpinews.minimum(:id)).to_s+"/"+(@alpinews.maximum(:id)-@alpinews.minimum(:id)).to_s+")"%><br/>
               <i><%=@route.alpinewinter.description%></i>
            </p>
-           <p>
+           <p><span id="winterdesc<%=@itemNumber.to_s%>">
               <%= simple_format(@route.winterdescription).html_safe %>
-           </p>
+           </span></p>
          </div>
        </div>
        <div class="subrow">
           <div class="leftbuttons">
             <% if !@edittrippage %>
-              <img id='switch' src="/assets/switch.png" <%=%q[onclick=clickswitch(']+@itemNumber.to_s+%q[')]%>>
+              <img id='switch<%=@itemNumber.to_s%>' src="/assets/switch.png" <%=%q[onclick=clickswitch(']+@itemNumber.to_s+%q[')]%>>
             <% end %>
           </div>
           <% if (!@route.description or @route.description.length<2)  and ( @route.reverse_description and @route.reverse_description.length>2) then @showForward=0 end%>
@@ -144,44 +170,41 @@
           <div id='<%="rv_t"+@itemNumber.to_s%>' class="sectiontitle" style='display:<%=if @showForward!=1 then "block" else "none" end%>'>
              <% if (!@trip and !@history) %>
                 <%= form_for  @route, :html => {:name => 'routeform'}, remote: true  do |f| %>
-                    From <%= link_to @route.endplace.name,    @route.endplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %> 
-                    to <%= link_to @route.startplace.name,    @route.startplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
+                    From <%= link_to @route.endplace.name,    @route.endplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %> to <%= link_to @route.startplace.name,    @route.startplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
                     <%= f.submit "Add to trip", class: "btn btn-small btn-primary", name: "addrv", onclick: "linkHandler('addbutton')", id:  "addbutton" %>
                 <% end %>
              <% else %>
-                From <%= link_to @route.endplace.name,    @route.endplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %> 
-                to <%= link_to @route.startplace.name,    @route.startplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
+                From <%= link_to @route.endplace.name,    @route.endplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %> to <%= link_to @route.startplace.name,    @route.startplace, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
              <% end %>
 
           </div>
           <div id='<%="rv_r"+@itemNumber.to_s%>' class="sectiontext" style='display:<%=if @showForward!=1 then "block" else "none" end%>'>
              <p style='color:red'>Note: Described in the reverse direction to your journey</p>
              <p>
+                <span id='<%="rv_d"+@itemNumber.to_s%>'>
                 <% if @route.reverse_description and @route.reverse_description.length>0 %>
                   <%= simple_format(@route.reverse_description).html_safe %>
                 <% else %>
                   No description
                 <% end %>
+                </span>
              </p>
           </div>
        </div>
 
     
        <% if @history or @trip or @routeInstances.count<2%>
-          <div class="erow">
-             <small color="greyLight">
-              Created by: <%= link_to @route.createdBy.name.capitalize, '/users/'+@route.createdBy.name, remote: true%> on <%=@route.firstcreated_at.localtime().strftime("%F")%>
-              <% if @history %>
-                <% if @route.firstexperienced_at and @route.firstexperienced_at.strftime("%F")>"1900-01-01"%>. Experieced <%=@route.firstexperienced_at.strftime("%F")%>.<%end%>
-              <% else %>
-                 Last updated: <%=@route.updated_at.localtime().strftime("%F %T")%>
-                <% if @route.experienced_at and @route.experienced_at.strftime("%F")>"1900-01-01"%>. Experieced <%=@route.experienced_at.strftime("%F")%>.<%end%>
-              <% end %>
+          <div class="erow" id="created"> <small color="greyLight">
+              Created by: <%= link_to @route.createdBy.name.capitalize, '/users/'+@route.createdBy.name, remote: true%> on <%=@route.firstcreated_at.localtime().strftime("%F")%><% if @route.firstexperienced_at and @route.firstexperienced_at.strftime("%F")>"1900-01-01"%>. Experienced: <%=@route.firstexperienced_at.strftime("%F")%><%end%>
+          </small></div>
+          <% if !@history and @route.updated_at.to_i!=@route.firstcreated_at.to_i%>
+             <div class="erow" id="updated"> <small color="greyLight">
+               Last updated by: <%= link_to @route.updatedBy.name.capitalize, '/users/'+@route.createdBy.name, remote: true%> at <%=@route.updated_at.localtime().strftime("%F %T")%><% if @route.experienced_at and @route.experienced_at.strftime("%F")>"1900-01-01"%>. Experienced: <%=@route.experienced_at.strftime("%F")%><%end%>
+             </small> </div>
+          <% end %>
                
-             </small>
-          </div>
        <% else %>
-          <div class="erow">
+          <div class="erow" id="versions">
             <div class="rowtitle">Versions:
               <% if !@history and signed_in?%>
                 <small color="greyLight" style="font-weight:normal">

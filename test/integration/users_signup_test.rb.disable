@@ -14,7 +14,7 @@ end
                                email: " test3@invalid.net ",
                                firstName: " test 1 ",
                                lastName: " test 2 ",
-                               role_id: @role.id,
+                               role_id: @testrole.id,
                                password:              "foo",
                                password_confirmation: "foo",
                                hide_name: 0,
@@ -24,13 +24,13 @@ end
     assert_redirected_to signin_path
     follow_redirect!
     assert_select  "div.alert", "Please check your email for details on how to activate your account" 
-    @user2=User.last
-    assert @user2.name=="test 3"
-    assert @user2.firstName=="test 1"
-    assert @user2.lastName=="test 2"
-    assert @user2.email=="test3@invalid.net"
-    assert @user2.hide_name==false
-    assert @user2.role.name=="user"
+    @testuser2=User.last
+    assert @testuser2.name=="test 3"
+    assert @testuser2.firstName=="test 1"
+    assert @testuser2.lastName=="test 2"
+    assert @testuser2.email=="test3@invalid.net"
+    assert @testuser2.hide_name==false
+    assert @testuser2.role.name=="user"
   end
 
   test "valid signup information2" do
@@ -41,7 +41,7 @@ end
                                email: " test4@invalid.net ",
                                firstName: " test 1 ",
                                lastName: " test 2 ",
-                               role_id: @role.id,
+                               role_id: @testrole.id,
                                password:              "foo",
                                password_confirmation: "foo",
                                hide_name: 1,
@@ -51,13 +51,13 @@ end
     assert_redirected_to signin_path
     follow_redirect!
     assert_select  "div.alert", "Please check your email for details on how to activate your account" 
-    @user2=User.last
-    assert @user2.name=="test 4"
-    assert @user2.firstName=="test 1"
-    assert @user2.lastName=="test 2"
-    assert @user2.email=="test4@invalid.net"
-    assert @user2.hide_name==true
-    assert @user2.role.name=="user"
+    @testuser2=User.last
+    assert @testuser2.name=="test 4"
+    assert @testuser2.firstName=="test 1"
+    assert @testuser2.lastName=="test 2"
+    assert @testuser2.email=="test4@invalid.net"
+    assert @testuser2.hide_name==true
+    assert @testuser2.role.name=="user"
   end
 
   test "duplicate email" do
@@ -66,7 +66,7 @@ end
                                email: " test4@invalid.net ",
                                firstName: " test 1 ",
                                lastName: " test 2 ",
-                               role_id: @role.id,
+                               role_id: @testrole.id,
                                password:              "foo",
                                password_confirmation: "foo",
                                hide_name: 1,
@@ -80,7 +80,7 @@ end
                                email: "test4@invalid.net",
                                firstName: "test1",
                                lastName: "test2",
-                               role_id: @role.id,
+                               role_id: @testrole.id,
                                password:              "foo",
                                password_confirmation: "foo",
                                answer: Securityquestion.find_by_id(session[:id1].to_i).answer+(Securityoperator.find_by_id(session[:op].to_i).sign*Securityquestion.find_by_id(session[:id2].to_i).answer) }
@@ -96,7 +96,7 @@ end
                                email: " test4@invalid.net ",
                                firstName: " test 1 ",
                                lastName: " test 2 ",
-                               role_id: @role.id,
+                               role_id: @testrole.id,
                                password:              "foo",
                                password_confirmation: "foo",
                                hide_name: 1,
@@ -110,7 +110,7 @@ end
                                email: "test5@invalid.net",
                                firstName: "test1",
                                lastName: "test2",
-                               role_id: @role.id,
+                               role_id: @testrole.id,
                                password:              "foo",
                                password_confirmation: "foo",
                                answer: Securityquestion.find_by_id(session[:id1].to_i).answer+(Securityoperator.find_by_id(session[:op].to_i).sign*Securityquestion.find_by_id(session[:id2].to_i).answer) }
@@ -127,7 +127,7 @@ end
                                email: "test3@invalid.net",
                                firstName: "test1",
                                lastName: "test2",
-                               role_id: @role.id,
+                               role_id: @testrole.id,
                                password:              "foo",
                                password_confirmation: "bar",
                                answer: Securityquestion.find_by_id(session[:id1].to_i).answer+(Securityoperator.find_by_id(session[:op].to_i).sign*Securityquestion.find_by_id(session[:id2].to_i).answer) }
@@ -144,7 +144,7 @@ end
                                email: "test3@invalid.net",
                                firstName: "test1",
                                lastName: "test2",
-                               role_id: @role.id,
+                               role_id: @testrole.id,
                                password:              "foo",
                                password_confirmation: "foo",
                                answer: Securityquestion.find_by_id(session[:id1].to_i).answer+(Securityoperator.find_by_id(session[:op].to_i).sign*Securityquestion.find_by_id(session[:id2].to_i).answer) }
@@ -162,7 +162,7 @@ end
                                email: "test3@invalid.net",
                                firstName: "",
                                lastName: "test2",
-                               role_id: @role.id,
+                               role_id: @testrole.id,
                                password:              "foo",
                                password_confirmation: "foo",
                                answer: Securityquestion.find_by_id(session[:id1].to_i).answer+(Securityoperator.find_by_id(session[:op].to_i).sign*Securityquestion.find_by_id(session[:id2].to_i).answer) }
@@ -178,7 +178,7 @@ end
                                email: "test3@invalid.net",
                                firstName: "test1",
                                lastName: "",
-                               role_id: @role.id,
+                               role_id: @testrole.id,
                                password:              "foo",
                                password_confirmation: "foo",
                                answer: Securityquestion.find_by_id(session[:id1].to_i).answer+(Securityoperator.find_by_id(session[:op].to_i).sign*Securityquestion.find_by_id(session[:id2].to_i).answer) }
@@ -194,7 +194,7 @@ end
                                email: "test3@invalid",
                                firstName: "test1",
                                lastName: "test2",
-                               role_id: @role.id,
+                               role_id: @testrole.id,
                                password:              "foo",
                                password_confirmation: "foo",
                                answer: Securityquestion.find_by_id(session[:id1].to_i).answer+(Securityoperator.find_by_id(session[:op].to_i).sign*Securityquestion.find_by_id(session[:id2].to_i).answer) }
@@ -211,7 +211,7 @@ end
                                email: "test3@invalid",
                                firstName: "test1",
                                lastName: "test2",
-                               role_id: @role.id,
+                               role_id: @testrole.id,
                                password:              "foo",
                                password_confirmation: "foo",
                                answer: 99}

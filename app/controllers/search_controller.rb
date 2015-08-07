@@ -2,16 +2,18 @@ class SearchController < ApplicationController
 
 
 def find
-  if !@inname then @inname=true end
-  if !@findplaces then @findplaces=true end
-  if !@findroutes then @findroutes=true end
-  if !@findtrips then @findtrips=true end
-  if !@findstories then @findstories=true end
-  if !@findphotos then @findphotos=true end
+  if @inname.class==NilClass then @inname=true end
+  if @findplaces.class==NilClass then @findplaces=true end
+  if @findroutes.class==NilClass then @findroutes=true end
+  if @findtrips.class==NilClass then @findtrips=true end
+  if @findstories.class==NilClass then @findstories=true end
+  if @findphotos.class==NilClass then @findphotos=true end
 end
 
 def findresults
     @respond_to=params[:referer]
+    @refpage=params[:refpage]
+    puts @refpage
     @searchtext=params[:searchtext]
     searchtext='%'+params[:searchtext]+'%'
     @findplaces=params[:Places]=="1"

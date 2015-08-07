@@ -1,0 +1,13 @@
+ id |         name          | linecolor 
+----+-----------------------+-----------
+  1 | Unknown               | #000000
+  2 | Road                  | #009900
+  3 | Surfaced walkway      | #006600
+  4 | Benched track         | #004433
+  5 | Tramping track        | #000099
+  6 | Unmaintained track    | #660066
+  7 | Marked route          | #660066
+  8 | Unmarked route, clear | #440022
+  9 | Unmarked route, hard  | #000000
+(9 rows)
+

@@ -25,7 +25,7 @@ $(function () {
 <%if @order=='latest'%>
   <div class="date_pagination"> <%= will_paginate(@trips, :renderer => PaginationListLinkRenderer, :order => @order, :inner_window => 3) %></div>
 <% else %>
-  <div class="name_pagination"> <%= will_paginate(@trips, :renderer => PaginationListLinkRenderer, :order => @order) %></div>
+  <div class="name_pagination"> <%= will_paginate(@trips, :renderer => PaginationListLinkRenderer, :order => 'y') %></div>
 <% end %>
 
 

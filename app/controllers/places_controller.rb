@@ -84,13 +84,24 @@ def create
           #show routes screen
           #if this is 1st place, next url is select next place.
           #if this s asubsequent place, then next url is create route
-          if @url.include?('xpb') then
+
+          #cut and split
+          if @url and @url.include?('xrc') then
+            @id=split_route(@url, @place) 
+            if !flash[:error] then flash[:success]="Success: route split. Now please edit the details of the first half of the split route" end
+            match=true
+          end 
+
+          if !match and @url and @url.include?('xpb') then
             @id=@url.gsub('xpn','xrnxpb'+@id.to_s)
-          else
+            match=true
+          end
+ 
+          if !match then
             @id=@url.gsub('xpn','xpb'+@id.to_s+'xps')
           end
           show_many()
-  
+
           #show the show many screen
           render '/routes/show_many'
         else
@@ -99,12 +110,17 @@ def create
         end
       else
         flash[:error] = "Error creating place"
-        @edit=true
-        if(@url and @url.include?('x')) then 
-           @id=@url
-           show_many() 
-        end
-        render 'new'
+         if @url and @url.include?('x')
+            #show routes screen
+            #get all data for show many
+            @id=@url
+            @editplace=@place
+            show_many()
+            render '/routes/show_many'   
+         else
+           @edit=true
+           render 'new'
+         end
       end
     end
   end
@@ -136,7 +152,7 @@ def create
     end
     if !@place
     #place does not exist - return to home
-       redirect_to root_url
+       redirect_to '/places'
     else    
        @referring_page='/places/'+@place.id.to_s
     end
@@ -150,9 +166,17 @@ def create
         #show routes screen
         #if this is 1st place, next url is select next place.
         #if this s asubsequent place, then next url is create route
-        if @url.include?('xpb') then
+        if @url and @url.include?('xrc') then
+          @id=split_route(@url, place) 
+            if !flash[:error] then flash[:success]="Success: route split. Now please edit the details of the first half of the split route" end
+          match=true
+        end 
+
+        if !match and @url and @url.include?('xpb') then
           @id=@url.gsub('xps','xrnxpb'+@id.to_s)
-        else
+          match=true
+        end
+         if !match then
           @id=@url.gsub('xps','xpb'+@id.to_s+'xps')
         end
 
@@ -180,11 +204,11 @@ def create
       ystr = @place.location.y.to_s
       
       @place.location = xstr+" "+ystr
-      @place.experienced_at=nil
+      @place.experienced_at=nil if @current_user!=@place.updatedBy 
 
     else
     #place does not exist - return to home
-    redirect_to root_url
+      redirect_to '/places'
     end
 
   end
@@ -233,11 +257,10 @@ def create
       end
     end
 
-    if signed_in?
     # Save current place
-     if (params[:save]) 
-       @url=params[:url]
-       @viewurl=@url.tr("e","v")
+    if (params[:save]) 
+      if signed_in?
+       @url=params[:url] || ""
 
        if( !@place = Place.find_by_id(params[:id]))
          flash[:error] = "Place does not exist: "+@place.id.to_s
@@ -247,13 +270,20 @@ def create
           render 'edit'
        end
 
+       if @url and @url.include?('xrc') then
+          @viewurl=split_route(@url, @place)
+            if !flash[:error] then flash[:success]="Success: route split. Now please edit the details of the first half of the split route" end
+          match=true
+       else
+         @viewurl=@url.tr("e","v")
+       end
 
        @place.attributes=place_params
        convert_location_params()
 
        #timestanps
        @place.updatedBy_id = @current_user.id #current_user.id
-       @place.updated_at = Time.new()
+#       @place.updated_at = Time.new()
 
        if @place.save
          @place.create_new_instance
@@ -271,29 +301,45 @@ def create
            render 'show'
          end
        else
-         flash[:error] = "Form contains errors"+@place.id.to_s
-         @edit=true
-         render 'edit'
-       end
-    end
-
-  if (params[:delete])
-
-   if(!trip=TripDetail.find_by(:place_id => params[:id]))
-
-     if(!route=Route.find_by(:startplace_id => params[:id]))
-
-       if(!route=Route.find_by(:endplace_id => params[:id]))
-         place=Place.find_by_id(params[:id])
-         links=place.links
-         links.each do |l|
-           l.destroy
-         end
-
-         if place.destroy
-           flash[:success] = "Place deleted, id:"+params[:id]
-           redirect_to '/'
+         #flash[:error] = "Form contains errors"+@place.id.to_s
+         if @url and @url.include?('x')
+            #show routes screen
+            #get all data for show many
+            @id=@url
+            @editplace=@place
+            show_many()
+            render 'routes/show_many'
          else
+           @edit=true
+           render 'edit'
+         end
+       end
+    else #signed_in
+      redirect_to signin_path
+    end
+  end
+  if (params[:delete])
+   if signed_in? then
+     if(!trip=TripDetail.find_by(:place_id => params[:id]))
+  
+       if(!route=Route.find_by(:startplace_id => params[:id]))
+  
+         if(!route=Route.find_by(:endplace_id => params[:id]))
+           place=Place.find_by_id(params[:id])
+           links=place.links
+           links.each do |l|
+             l.destroy
+           end
+  
+           if place.destroy
+             flash[:success] = "Place deleted, id:"+params[:id]
+             redirect_to '/places'
+           else
+             edit()
+             render 'edit'
+           end
+         else
+           flash[:error] = "Route "+route.name+" uses this place, cannot delete"
            edit()
            render 'edit'
          end
@@ -302,24 +348,38 @@ def create
          edit()
          render 'edit'
        end
-     else
-       flash[:error] = "Route "+route.name+" uses this place, cannot delete"
-       edit()
-       render 'edit'
-     end
-    else
-
-      flash[:error] = "Trip "+trip.id.to_s+" uses this place, cannot delete"
-      edit()
-      render 'edit'
-    end
+      else
   
-   end
-  end # signed in
+        flash[:error] = "Trip "+trip.id.to_s+" uses this place, cannot delete"
+        edit()
+        render 'edit'
+      end
+   
+    else #signed in
+      redirect_to signin_path
+    end
+  end 
 end
 
   def destroy
   end
+
+def split_route(url, place)
+  route_id=url.split('xrc')[1].split('x')[0].to_f
+  route=Route.find_by_signed_id(route_id)
+  if route then
+  r2=route.split(place) 
+    if (!route.customerrors) and r2 then
+      url=url.gsub('xrc','xrm').gsub('xps','').gsub('xpn','').gsub('xpe','')+"xrv"+r2.id.to_s
+    else
+      url=url.gsub('xpn','xpe'+place.id.to_s)
+      flash[:error]=place.customerrors
+    end
+  else
+    flash[:error]="Error: Route does not exist"
+  end
+  url
+end
 
   private 
   def place_params
@@ -328,11 +388,11 @@ end
 
   def convert_location_params
     #recalculate location from passed x,y params
-    if(place_params[:x] and place_params[:x].length>0) then @place.x=place_params[:x].to_f end
-    if(place_params[:y] and place_params[:y].length>0) then @place.y=place_params[:y].to_f end
-    @place.altitude = place_params[:altitude].to_i
+  #  if(place_params[:x] and place_params[:x].length>0) then @place.x=place_params[:x].to_f end
+  #  if(place_params[:y] and place_params[:y].length>0) then @place.y=place_params[:y].to_f end
+  #  @place.altitude = place_params[:altitude].to_i
 
-    if(@place.x and @place.y)
+    if(@place.x and @place.y and @place.projection)
        # convert to WGS84 (EPSG4326) fro database 
        fromproj4s= @place.projection.proj4
        toproj4s=  Projection.find_by_id(4326).proj4

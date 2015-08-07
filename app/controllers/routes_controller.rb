@@ -167,10 +167,13 @@ require "rexml/document"
         flash[:error]=@route.customerrors if @route.customerrors 
         if(@url and @url.include?('x')) then 
            @id=@url
+           @editroute=@route
            show_many() 
+           render 'routes/show_many'
+        else
+          @edit=true
+          render 'new'
         end
-        @edit=true
-        render 'new'
       end
    
     end 
@@ -234,31 +237,31 @@ end
     @showLinks=1
 
     @route = Route.find_by_signed_id(params[:id])
-  if @route then
-    @routeInstances=RouteInstance.where(:route_id => @route.id.abs)
-    if params[:version] then
-      ri=RouteInstance.find_by_id(params[:version])
-      if ri.route_id==@route.id then 
-        @route.assign_attributes(ri.attributes.except("id", "route_id", "published"))
-        if params[:id].to_i<0 then @route.reverse end
-        @route.calc_altgain
-        @route.calc_altloss
-        @route.calc_maxalt
-        @route.calc_minalt
-        @version=params[:version]
+    if @route then
+      @routeInstances=RouteInstance.where(:route_id => @route.id.abs)
+      if params[:version] then
+        ri=RouteInstance.find_by_id(params[:version])
+        if ri.route_id==@route.id then 
+          @route.assign_attributes(ri.attributes.except("id", "route_id", "published"))
+          if params[:id].to_i<0 then @route.reverse end
+          @route.calc_altgain
+          @route.calc_altloss
+          @route.calc_maxalt
+          @route.calc_minalt
+          @version=params[:version]
+        end
       end
+      if !@version then  @version=(RouteInstance.find_by_sql [ "select id from route_instances where route_id=? order by updated_at desc limit 1", @route.id.abs.to_s ]).first.try('id') end
     end
-    if !@version then  @version=(RouteInstance.find_by_sql [ "select id from route_instances where route_id=? order by updated_at desc limit 1", @route.id.abs.to_s ]).first.try('id') end
-  end
 
-    if( @route) then
-      if(@route.location)
-        @route.location=@route.location.as_text
+      if( @route) then
+        if(@route.location)
+          @route.location=@route.location.as_text
+        end
+        @referring_page='/routes/'+@route.id.to_s
+      else
+        redirect_to '/legs'
       end
-      @referring_page='/routes/'+@route.id.to_s
-    else
-      redirect_to root_url
-    end
 
     respond_to do |wants|
       wants.html do
@@ -281,10 +284,10 @@ end
       if(@route.location) 
          @route.location=@route.location.as_text
       end
-      @route.experienced_at=nil
+      @route.experienced_at=nil if @current_user!=@route.updatedBy
       prepare_route_vars()
     else
-      redirect_to root_url
+      redirect_to '/legs'
     end
   end
 
@@ -313,11 +316,7 @@ end
         if is_guest? then trip=Trip.find_by_id(@current_guest.currenttrip) end
         if signed_in? then trip=Trip.find_by_id(@current_user.currenttrip) end
         trip_details = TripDetail.new
-        if ((!route.description or route.description.length<1) and route.reverse_description and route.reverse_description.length>0) then
-          trip_details.showForward=false;
-        else
-          trip_details.showForward=true;
-        end
+        trip_details.showForward=true;
         trip_details.trip_id = trip.id
         trip_details.route_id = route.id
         trip_details.showConditions=false;
@@ -346,11 +345,17 @@ end
      if (!signed_in?) then 
        redirect_to signin_path
      else
-       @url=params[:url]
+       @url=params[:url]||""
        @viewurl=@url.gsub('xrn','xrv'+@route.id.to_s)
-       @viewurl=@viewurl+'xps'
-       @viewurl=@viewurl.tr("e","v")
-
+       if @viewurl.include?('xrm') then 
+         @viewurl=@viewurl.gsub('xrv','xre').gsub('xrm','xrv') 
+         @editmany=true
+       else
+         @editmany=false
+         #if we added new, then next step is select next place 
+         if @url.include?('xrn') then @viewurl=@viewurl+'xps' end
+         @viewurl=@viewurl.tr("e","v")
+       end
 
       prepare_route_vars()
 
@@ -361,8 +366,14 @@ end
       @route.datasource=params[:datasource]
       @route.updated_at=Time.new()
       @route.updatedBy_id = @current_user.id #current_user.id
+      signed_route_id=@route.id
       if @route.save and !@route.customerrors
-        flash[:success] = "Route updated, id:"+@route.id.to_s
+        if signed_route_id<0 then @route=@route.reverse end #save sets route to 'forwards'
+        if @editmany then
+          flash[:success]="First segment updated. Now please update the details of the second part of the split route"
+        else
+          flash[:success] = "Route updated, id:"+@route.id.to_s 
+        end
         if @url and @url.include?('x')
             #show routes screen
             #get all data for show many
@@ -381,11 +392,20 @@ end
       else
         if @route.customerrors then
           flash[:error]=@route.customerrors 
-        else
-          flash[:error] = "Error creating route"
         end
-        @edit=true
-        render 'edit'
+        if @url and @url.include?('x') then
+            #show routes screen
+            #get all data for show many
+            @id=@url
+            @editroute=@route
+            show_many()
+
+            #show the show many screen
+            render '/routes/show_many'
+        else
+          @edit=true
+          render 'edit'
+        end
       end
      end
     end

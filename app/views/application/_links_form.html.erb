@@ -1,12 +1,21 @@
+<%
+  if @inname.class==NilClass then @inname=true end
+  if @findplaces.class==NilClass then @findplaces=true end
+  if @findroutes.class==NilClass then @findroutes=true end
+  if @findtrips.class==NilClass then @findtrips=true end
+  if @findstories.class==NilClass then @findstories=true end
+  if @findphotos.class==NilClass then @findphotos=true end
+%>
+
 <% if signed_in? %>
  <%= form_tag '/links', :name => 'linksform', :remote => true, :method => 'post' %>
-
+  <% linkcnt=0 %>
   <% parent.links.each do |rl| %>
       <div class="erow" style="margin-left:25px;width:calc(100% - 25px)">
-        <div class="rowtitle" >
+        <div class="rowtitle" id="linktitle<%=linkcnt.to_s%>">
           <%= rl.item_type.capitalize+": "%>
         </div>
-        <div class="rowtext">
+        <div class="rowtext" id="linktext<%=linkcnt.to_s%>">
           <% case rl.item_type %>
           <% when 'about' %>
             <%= link_to 'About', '/about' , remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
@@ -19,6 +28,7 @@
 
         </div>
       </div>
+      <% linkcnt+=1 %>
    <% end %>
 
    <div id="add-link">

@@ -41,7 +41,8 @@ Matt (madpom)
   <% @reports=Report.find_by_sql [%q[select r.* from reports r 
      inner join "links" rl on (rl."baseItem_id" = r.id and rl."baseItem_type"='report')  or  (rl.item_id = r.id and rl.item_type='report')
      where rl.item_type='about']] %>
+<div id="report_list">
   <%= render 'reports/index_details' %>
-
+</div>
 
 </p>

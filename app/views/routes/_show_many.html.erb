@@ -15,21 +15,20 @@
    reset_map_controllers();
 </script>
 
-
-<% if @items and @startplace and @endplace and @url and (@url.include?('rv') or @url.include?('qv'))%>
+<% if @items and @startplace and @endplace and @url #and (@url.include?('rv') or @url.include?('qv'))%>
   <%= form_tag '/routes/many', :remote=> true, :name => "AddMany", :name=> 'listForm', :method=> 'post'%>
     <div class="erow">
       <div class="sectiontitle">
-        <%=  link_to @startplace.name+' to '+@endplace.name, '/routes/'+@url, remote: true, onclick: %q[linkHandler('r]+@url+%q[')], id:  'r'+@url  %>
+        <span id="page_title"><%=  link_to @startplace.name+' to '+@endplace.name, '/routes/'+@url, remote: true, onclick: %q[linkHandler('r]+@url+%q[')], id:  'r'+@url  %></span>
         <input type="hidden" name="route" value='<%=@url%>' />
         <%= submit_tag  "Add to trip", id: "Add Many", class: "btn btn-small btn-primary", remote: true, id: "addbutton", onclick: "linkHandler('addbutton')" %>      
-        <%=  link_to "Download GPX", @id+'.gpx', class: "btn btn-small btn-primary no-print", style: "font-weight:normal" %>
+        <%=  link_to "Download GPX", '/routes/'+@id+'.gpx', class: "btn btn-small btn-primary no-print", style: "font-weight:normal" %>
       </div>
     </div>
   </form>
 <% end %>
 <% if @url.split('q').count>1 %>
-  <p style='color:red'> Note: End-to-end route leaves / joins <%=@url.split('q').count-1%> of the route segments listed part-way along.  Distances / times shown do not reflect this</p>
+  <p style='color:red' id="e2ewarning"> Note: End-to-end route leaves / joins <%=@url.split('q').count-1%> of the route segments listed part-way along.  Distances / times shown do not reflect this</p>
 <% end %>
 <% if @items %>
   <%=render '/routes/summary_stats'%>
@@ -40,7 +39,7 @@
     </div>
   </div>
   <% @trip=true %>
-  <% index=0 %>
+  <% @index=1 %>
   <% @placecount=0%>
   <% @items.each do |item| %>
      <% if item[0]=='p' then @place=Place.find_by_id(item[2..-1].to_i)  %>
@@ -54,19 +53,23 @@
            <%= render '/places/place_summary' %>
          <% end %>
   
-         <% if item[1]=="e" and @place then %>
+         <% if item[1]=="e" and @place and signed_in? then %>
+           <% @place=@editplace if @editplace %>
+           <% @place.experienced_at=nil if @current_user!=@place.updatedBy %>
            <div id="place_form">
              <%= render '/places/place_form' %> 
            </div>
          <% end %>
-         <% if item[1]=="s" then %>
+         <% if item[1]=="s" and signed_in? then %>
            <div id="place_form">
              <%= render '/places/place_select' %> 
            </div>
          <% end %>
-         <% if item[1]=="n" then %>
+         <% if item[1]=="n" and signed_in? then %>
+           <% if @editplace then @place=@editplace else @place=Place.new 
+                 @place.projection_id=2193
+              end %>
            <div id="place_form">
-             <% @place=Place.new %>
              <div class='erow'>
                <div class='sectiontitle'>
                  <%='Enter details of '+@placecount.ordinalize+' place'%>
@@ -82,7 +85,7 @@
           @showReverse=0 
        %>
        <% if item[0]=='q' %>
-          <p style='color:red'> Note: your end-to-end journey joins or leaves this route segment part way along.  Distances / times shown to not reflect this</p>
+          <p style='color:red' id="r<%=@index.to_s%>warning"> Note: your end-to-end journey joins or leaves this route segment part way along.  Distances / times shown do not reflect this</p>
           <% arr=item[2..-1].split('y')
              routeId=arr[0].to_i
              @real_startplace=Place.find_by_id(arr[1].to_i)
@@ -97,17 +100,23 @@
          <% if item[1]=="v" and @route then %>
            <%= render '/routes/route_details' %> 
          <% end %>
-         <% if item[1]=="e" and @route then %>
+         <% if item[1]=="c" and @route then %>
+           <%= render '/routes/route_details' %> 
+         <% end %>
+         <% if (item[1]=="e" or item[1]=="m") and @route and signed_in? then %>
+           <% @route=@editroute if @editroute %>
+           <% if(@route.location) then @route.location=@route.location.as_text end %>
+           <% @route.experienced_at=nil if @current_user!=@route.updatedBy %>
            <div id="route_form">
              <%= render '/routes/route_form' %>
            </div>
          <% end %>
-         <% if item[1]=="n" and @segment_start then %>
+         <% if item[1]=="n" and @segment_start and signed_in? then %>
            <div id="route_form">
-             <% @route=Route.new   
+             <% if !@editroute then @route=Route.new  else @route=@editroute end
                 @route.published=true
                 @route.startplace_id=@segment_start   
-                nextitem=@items[index+1]
+                nextitem=@items[@index]
                 if nextitem[0]=='p' then endplace=Place.find_by_id(nextitem[2..-1].to_i) 
                    if endplace then 
                      @route.endplace_id=endplace.id %>
@@ -123,7 +132,7 @@
            </div>
          <% end %>
      <% end %>
-     <% index=index+1%>
+     <% @index=@index+1%>
      <div class="erow">
         <div class="hrline">
            <hr noshade size="4">
@@ -134,9 +143,9 @@
   <% @trip=false %>
 <% end %>
 
-<% if @url and (@url.include?('rv') or @url.include?('qv')) and not @url.include?('s') and not @url.include?('n') and  not @url.include?('e') %>
-  <div id="links_section">
-     <div class="erow" style="margin-top:12px">
+<% if @url and (@url.include?('rv') or @url.include?('qv')) and not @url.include?('s') and not @url.include?('n') and  not @url.include?('e') and not @url.include?('m') and @startplace and @endplace%>
+  <div id="links_section2">
+     <div class="erow" style="margin-top:12px" id="adjplaces">
        <div class="sectiontitle-bold">
           Places you can go from here:
        </div>

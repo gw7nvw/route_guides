@@ -10,11 +10,11 @@
      <div class="erow">
          <div class="sectiontext25">
               <div style="float:left">
-              <%=  link_to ap.name, '/places/'+ap.id.to_s, remote: true, onclick: %q[linkHandler('p]+ap.id.to_s+%q[')], id:  'p'+ap.id.to_s  %>
+              <%=  link_to ap.name+" ("+ap.place_type+")", '/places/'+ap.id.to_s, remote: true, onclick: %q[linkHandler('p]+ap.id.to_s+%q[')], id:  'p'+ap.id.to_s  %>
               <% if ap.linked('place').count>0 %>
                  <% ap.linked('place').each do |p| %>
                    <% pl=Place.find_by_id(p.item_id) %>
-                   /&nbsp;<%=  link_to pl.name, '/places/'+pl.id.to_s, remote: true, onclick: %q[linkHandler('p]+pl.id.to_s+%q[')], id:  'p'+pl.id.to_s  %> 
+                   /&nbsp;<%=  link_to pl.name+" ("+pl.place_type+")", '/places/'+pl.id.to_s, remote: true, onclick: %q[linkHandler('p]+pl.id.to_s+%q[')], id:  'p'+pl.id.to_s  %> 
                  <% end %>
               <% end %>
               &nbsp;<%= "("+rt_count.to_s+" route"+(if(rt_count!=1) then "s"  else "" end) %>
