@@ -8,6 +8,7 @@ class Place < ActiveRecord::Base
   validates :experienced_at, :presence => true
 
   validates :name, presence: true
+  validates :place_type, presence: true
   validates :location, presence: true
   validates :x, presence: true
   validates :y, presence: true
@@ -30,14 +31,14 @@ end
 def firstexperienced_at
      t=Place.find_by_sql ["select created_at, experienced_at from place_instances  
                 where place_id = ? order by created_at limit 1", self.id]
-     t.first.try(:experienced_at)
+     t.first.try(:experienced_at) || "1900-01-01".to_datetime
 end
 
 def firstcreated_at
      t=Place.find_by_sql ["select min(pd.created_at) id from place_instances pd 
                 where pd.place_id = ?", self.id]
-     t.first.try(:id)
-
+     tt=t.first.try(:id) || self.created_at 
+     tt.localtime()
 end
 
 def revision_number
@@ -57,7 +58,7 @@ def default_values
 end
 
 def create_new_instance
-     place_instance=PlaceInstance.new(self.attributes.except('affected_at'))
+     place_instance=PlaceInstance.new(self.attributes.except('affected_at', 'created_at', 'updated_at'))
      place_instance.place_id=self.id
      place_instance.id=nil
      place_instance.createdBy_id = self.updatedBy_id #current_user.id
@@ -67,13 +68,14 @@ end
 
 def adjoiningRoutesWithLinks
 
+  pls=[self.id]; self.linked('place').each do |pl| pls+=[pl.item_id] end
   ars=self.adjoiningRoutes
   allars=[]
 
   ars.each do |ar|
     allars=allars+[ar]
     ar.linked('place').each do |l|
-      if l.item_id!=self.id then
+      if !(pls.include? l.item_id) then 
         nr=ar.dup
         nr.id=ar.id
         nr.endplace_id=l.item_id
@@ -95,13 +97,22 @@ def adjoiningRoutes
    self.links.each do |l|
      #routes from places linked to us
      if l.item_type=="place" then
+         pl2=Place.find_by_id(l.item_id)
          lt=Route.find_by_sql ["select *  from routes where startplace_id = ? and published=true", l.item_id]
          lt2=Route.find_by_sql ["select *  from routes where endplace_id = ? and published=true", l.item_id]
          t=t+lt
          lt2.each do |ti|
             t=t+[ti.reverse]
          end
+         #routes linked to linked place  
+         pl2.linked('route').each do |ll|
+             lr=Route.find_by_signed_id(ll.item_id)
+             lr2=Route.find_by_signed_id(-ll.item_id)
+             if lr then t=t+[lr] end
+             if lr2 then t=t+[lr2] end
+         end
      end
+
      #routes linked to us
      if l.item_type=="route" then
          lr=Route.find_by_signed_id(l.item_id)
@@ -245,15 +256,15 @@ def adjoiningPlaces(placeb, destOnly, maxHopCount, baseRoute, ignoreRoute)
            thisRoute=rs[2..-1].to_i
            currentLeg=Route.find_by_signed_id(thisRoute)
            placeSoFar[0]=[currentLeg.endplace_id]+placeSoFar[0]
-           currentDirect=(currentLeg.endplace.place_type=="Hut")
+           currentDirect=(currentLeg.endplace.isLocatedAtHut)
          else
            rtarr=rs[2..-1].split('y')
            if rtarr.count<3 then abort() end
            thisRoute=rtarr[0].to_i
            currentLeg=Route.find_by_signed_id(thisRoute)
-           placeSoFar[0]=rtarr[2].to_i+placeSoFar[0] 
+           placeSoFar[0]=[rtarr[2].to_i]+placeSoFar[0] 
            nextPlace=Place.find_by_id(rtarr[2].to_i)
-           currentDirect=(nextPlace.place_type=="Hut")
+           currentDirect=(nextPlace.isLocatedAtHut)
          end
          routeSoFar[0]=[thisRoute]+routeSoFar[0] 
          urlindex+=1
@@ -292,6 +303,7 @@ def adjoiningPlaces(placeb, destOnly, maxHopCount, baseRoute, ignoreRoute)
     if ((placeb and (pbarr.include? nextDest.id)) or (!placeb and  nextDest.isDest)  or (!placeb and lastIsDirect)) then
          goodRoute[goodPathCount]={
               :place => nextDest.id, 
+              :placelist => placeSoFar[0],
               :route=>routeSoFar[0], 
               :url=>urlSoFar[0],
               :direct => lastIsDirect,
@@ -379,7 +391,7 @@ def adjoiningPlaces(placeb, destOnly, maxHopCount, baseRoute, ignoreRoute)
           end
 
           if (!beenThere) and (!ignorePlace or !(ignorePlace.include? nextDest.id)) then
-             #big hack to check if endpoint weve been gioven is same as saved route. If not is an intermediate point
+             #big hack to check if endpoint weve been given is same as saved route. If not is an intermediate point
              oldr=Route.find_by_signed_id(ar.id)
              if oldr then oldep=oldr.endplace_id else oldep=0 end
              prefix="xrv"
@@ -393,10 +405,11 @@ def adjoiningPlaces(placeb, destOnly, maxHopCount, baseRoute, ignoreRoute)
                  suffix="y"+here.id.to_s+"y"+ar.endplace_id.to_s
                end
    
-               if ((placeb and (pbarr.include? nextDest.id)) or (!placeb and  nextDest.isDest) or (!placeb and thisIsDirect[currentRouteIndex])) then
+               if ((placeb and (pbarr.include? nextDest.id)) or (!placeb)) then # and  nextDest.isDest) or (!placeb and thisIsDirect[currentRouteIndex])) then
                   tmpDist=thisDistance[currentRouteIndex]+(ar.distance or 0)
                   goodRoute[goodPathCount]=
                        {:place => nextDest.id, 
+                        :placelist => [nextDest.id]+thisPath,
                         :route=>[ar.id]+routeSoFar[currentRouteIndex], 
                         :url=>urlSoFar[currentRouteIndex]+prefix+ar.id.to_s+suffix, 
                         :direct => thisIsDirect[currentRouteIndex], 
@@ -424,7 +437,7 @@ def adjoiningPlaces(placeb, destOnly, maxHopCount, baseRoute, ignoreRoute)
                   goodPathCount+=1 
                   goodRoutesFromThisPlace+=1     
                   matchedThisRoute=true
-                  endOfLine=(nextDest.place_type=="Hut")
+                  endOfLine=(nextDest.isLocatedAtHut)
              end
   
              #only look beyond a destination if destOnly=false
@@ -434,7 +447,7 @@ def adjoiningPlaces(placeb, destOnly, maxHopCount, baseRoute, ignoreRoute)
                   nextPlaceSoFar[placeCountThisHop]=[nextDest.id]+thisPath
                   nextDistance[placeCountThisHop]=thisDistance[currentRouteIndex]+(ar.distance or 0)
                   nextTime[placeCountThisHop]=thisTime[currentRouteIndex]+(ar.time or 0)
-                  nextIsDirect[placeCountThisHop]=!(!thisIsDirect[currentRouteIndex] or nextDest.place_type=="Hut")
+                  nextIsDirect[placeCountThisHop]=!(!thisIsDirect[currentRouteIndex] or nextDest.isLocatedAtHut)
                   nextAltGain[placeCountThisHop]=thisAltGain[currentRouteIndex]+ar.altgain
                   nextAltLoss[placeCountThisHop]=thisAltLoss[currentRouteIndex]+ar.altloss
                   nextMinAlt[placeCountThisHop]=[thisMinAlt[currentRouteIndex],(ar.minalt.to_i or 9999)].min
@@ -499,6 +512,21 @@ def adjoiningPlaces(placeb, destOnly, maxHopCount, baseRoute, ignoreRoute)
 
 end
 
+def isLocatedAtHut
+   lhs=Place.find_by_sql [%[select * from places where id in (select distinct item_id from links l
+              where (l."baseItem_type"='place' and l."baseItem_id"=? and item_type='place') 
+        union select distinct "baseItem_id" as item_id from links l
+              where  (l.item_type='place' and l.item_id=? and "baseItem_type"='place')) and place_type='Hut'], self.id, self.id]
+   lhs.count>0 or self.place_type=="Hut" 
+end
+def isLocatedAtDest
+   lhs=Place.find_by_sql [%[select * from places p inner join place_types pt on pt.name=p.place_type where p.id in (select distinct item_id from links l
+              where (l."baseItem_type"='place' and l."baseItem_id"=? and item_type='place') 
+        union select distinct "baseItem_id" as item_id from links l
+              where  (l.item_type='place' and l.item_id=? and "baseItem_type"='place')) and pt."isDest"=true], self.id, self.id]
+    (lhs.count>0 or self.placeType.isDest  or self.adjoiningRoutes.count<2)
+end
+
 def trips
    t=Place.find_by_sql ["select distinct t.* from trips t
        inner join trip_details td on td.trip_id = t.id
@@ -508,8 +536,8 @@ end
 def links
    r=Link.find_by_sql [%q[select distinct id, item_id, item_type, item_url from links l
               where (l."baseItem_type"='place' and l."baseItem_id"=?) 
-        union select distinct id, "baseItem_id" as item_id, "baseItem_type" as item_type, '' as item_url from links l
-              where  (l.item_type='place' and l.item_id=?)],self.id, self.id]
+        union (select distinct id, "baseItem_id" as item_id, "baseItem_type" as item_type, '' as item_url from links l 
+              where  (l.item_type='place' and l.item_id=?))],self.id, self.id]
 end
 
 def linked(type)

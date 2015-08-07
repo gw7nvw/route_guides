@@ -22,6 +22,10 @@ var star_red;
 var star_green;
 var star_blue;
 var line_red;
+var  containerWidth;
+var  nbpanels;
+var  padding;
+var currentPercentage=0.45
 
 var show_route;
 var show_accomodation;
@@ -60,26 +64,28 @@ window.onpopstate = function(event)  {
 function init(){
   if(typeof(map_map)=='undefined') {
 
+containerWidth= $("#main_page").width()-25;
+nbpanels = 2;
+padding = 5;
   //resizable div
-//  var containerWidth =900;
-  var containerWidth= $("#main_page").width()-5;
-  var nbpanels = 2;
-  var padding = 5;
- 
   window.onresize = function()
   {
-    setTimeout( function() { map_map.updateSize();}, 1000);
+   setTimeout( function() { map_map.updateSize();}, 1000);
+   containerWidth= $("#main_page").width()-25;
+   var currentWidth = $("#left_panel").width();
+   $("#right_panel").width(containerWidth*(1-currentPercentage));
+   $("#right_panel").css('margin-left', (containerWidth*currentPercentage+padding*2)+'px' );
+   $("#left_panel").width(containerWidth*currentPercentage);
   } 
 //  $(".panel").width( (containerWidth / nbpanels) - (nbpanels * padding - 2 * padding));
 
   $(".panel").resizable({
     handles: 'e',
-    maxWidth: containerWidth-120,
-    minWidth: 120,
     resize: function(event, ui){
       var currentWidth = ui.size.width;
+      currentPercentage=currentWidth/containerWidth;
       // set the content panel width
-      $(".panel").width( ( (containerWidth - currentWidth + padding ) / (nbpanels - 1) ) - ((nbpanels - 1) * padding) );
+      $("#right_panel").width(containerWidth*(1-currentPercentage));
       $("#right_panel").css('margin-left', currentWidth+padding*2+'px' );
       $(this).width(currentWidth);
     }
@@ -189,7 +195,9 @@ projection: new OpenLayers.Projection("EPSG:2193"),
     map_map.addLayer(routes_simple_layer);
 
     map_map.zoomToExtent(extent); 
-    map_map.addControl(new OpenLayers.Control.MousePosition());
+    map_map.addControl(new OpenLayers.Control.MousePosition({
+        prefix: 'NZTM2000: ',
+        numDigits: 0}));
     map_map.addControl(new OpenLayers.Control.Scale());
    
     var switcherControl = new OpenLayers.Control.LayerSwitcher();

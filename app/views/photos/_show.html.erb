@@ -28,7 +28,7 @@
            <%=  link_to image_tag("/assets/red-x.png", :border=>0, :class => 'dock-item'), '/photos/'+@photo.id.to_s, remote: true, onclick: "linkHandler('editbutton')", id:  "editbutton"  %>
          </span>
       </div>
-      <div class="sectiontitle-bold">
+      <div class="sectiontitle-bold" id="links_title">
         Edit Links:
       </div>
     </div>
@@ -39,12 +39,12 @@
     <div class="erow">
       <% if signed_in? %>
         <div class="leftbuttons">
-          <span title="Edit links"%>
+          <span title="Edit links" id="edit_links">
             <%=  link_to image_tag("/assets/pencil_edit.png", :border=>0, :class => 'dock-item'), '/photos/'+@photo.id.to_s+'/?editlinks=true', remote: true, onclick: "linkHandler('editbutton')", id:  "editbutton"  %>
           </span>
         </div>
       <% end %>
-      <div class="sectiontitle-bold">
+      <div class="sectiontitle-bold" id="links_title">
         Links:
       </div>
     </div>

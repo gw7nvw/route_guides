@@ -27,7 +27,7 @@
            <%=  link_to image_tag("/assets/red-x.png", :border=>0, :class => 'dock-item'), '/routes/'+@route.id.to_s, remote: true, onclick: "linkHandler('editbutton')", id:  "editbutton"  %>
          </span>
       </div>
-      <div class="sectiontitle-bold">
+      <div class="sectiontitle-bold" id="links_title">
         Edit Links:
       </div>
     </div>
@@ -38,12 +38,12 @@
     <div class="erow">
       <% if signed_in? %>
         <div class="leftbuttons">
-          <span title="Edit links"%>
+          <span title="Edit links" id="edit_links">
             <%=  link_to image_tag("/assets/pencil_edit.png", :border=>0, :class => 'dock-item'), '/routes/'+@route.id.to_s+'/?editlinks=true', remote: true, onclick: "linkHandler('editbutton')", id:  "editbutton"  %>
           </span>
         </div>
       <% end %>
-      <div class="sectiontitle-bold">
+      <div class="sectiontitle-bold" id="links_title">
         Links:
       </div>
     </div>
@@ -53,7 +53,7 @@
   <% end %>
 </div>
 <div id="links_section2">
-   <div class="erow" style="margin-top:12px">
+   <div class="erow" style="margin-top:12px" id="adjroutes">
      <div class="sectiontitle">
         Route segments connecting with this one:
      </div>
@@ -62,13 +62,13 @@
      <div class="erow">
         <div class="sectiontext">
            <li style="margin-bottom:10px;list-style-type: none">
-              <%=  link_to r.name, '/routes/'+r.id.to_s, remote: true, onclick: %q[linkHandler('r]+r.id.to_s+%q[')], id:  'r'+r.id.to_s  %>
+              <%=  link_to r.name, '/routes/'+r.id.to_s, remote: true, onclick: %q[linkHandler('rs]+r.id.to_s+%q[')], id:  'rs'+r.id.to_s  %>
            </li>
         </div>
      </div>
    <% end %>
 
-   <div class="erow" style="margin-top:12px">
+   <div class="erow" style="margin-top:12px" id="adjplaces">
      <div class="sectiontitle">
         Places you can go from here:
      </div>
@@ -79,7 +79,7 @@
    <% @ignore_pl_list=[@route.startplace_id, @route.endplace_id] %>
    <%= render '/places/adj_pl_list' %>
 
-   <div class="erow" style="margin-top:12px">
+   <div class="erow" style="margin-top:12px" id="adjtrips">
      <div class="sectiontitle">
         Trips passing through here:
      </div>
@@ -88,7 +88,7 @@
      <div class="erow">
         <div class="sectiontext">
            <li>
-              <%=  link_to r.name+" by "+r.createdBy.name.capitalize, '/trips/'+r.id.to_s, remote: true, onclick: %q[linkHandler('r]+r.id.to_s+%q[')], id:  'r'+r.id.to_s  %>
+              <%=  link_to r.name+" by "+r.createdBy.name.capitalize, '/trips/'+r.id.to_s, remote: true, onclick: %q[linkHandler('t]+r.id.to_s+%q[')], id:  't'+r.id.to_s  %>
            </li>
         </div>
      </div>

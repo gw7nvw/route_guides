@@ -12,7 +12,7 @@ class UsersTest < ActionDispatch::IntegrationTest
                                email: " test1@invalid.net ",
                                firstName: "test1a ",
                                lastName: "test1b",
-                               role_id: @role.id,
+                               role_id: @testrole.id,
                                password:              "foo",
                                password_confirmation: "foo",
                                hide_name: 0,
@@ -35,7 +35,7 @@ class UsersTest < ActionDispatch::IntegrationTest
                                email: "test2@invalid.net ",
                                firstName: "test 2a",
                                lastName: "test 2b",
-                               role_id: @role.id,
+                               role_id: @testrole.id,
                                password:              "foo",
                                password_confirmation: "foo",
                                hide_name: 1,
@@ -58,7 +58,7 @@ class UsersTest < ActionDispatch::IntegrationTest
                                email: " test1@invalid.net ",
                                firstName: "test1a ",
                                lastName: "test1b",
-                               role_id: @role.id,
+                               role_id: @testrole.id,
                                password:              "foo",
                                password_confirmation: "foo",
                                hide_name: 0,
@@ -93,7 +93,7 @@ class UsersTest < ActionDispatch::IntegrationTest
                                email: " test1@invalid.net ",
                                firstName: "test1a ",
                                lastName: "test1b",
-                               role_id: @role.id,
+                               role_id: @testrole.id,
                                password:              "foo",
                                password_confirmation: "foo",
                                hide_name: 0,
@@ -105,7 +105,7 @@ class UsersTest < ActionDispatch::IntegrationTest
                                email: "test2@invalid.net ",
                                firstName: "test 2a",
                                lastName: "test 2b",
-                               role_id: @role.id,
+                               role_id: @testrole.id,
                                password:              "foo",
                                password_confirmation: "foo",
                                hide_name: 1,
@@ -136,7 +136,7 @@ class UsersTest < ActionDispatch::IntegrationTest
                                email: "test2@invalid.net ",
                                firstName: "test 2a",
                                lastName: "test 2b",
-                               role_id: @role.id,
+                               role_id: @testrole.id,
                                password:              "foo",
                                password_confirmation: "foo",
                                hide_name: 1,
@@ -170,7 +170,7 @@ class UsersTest < ActionDispatch::IntegrationTest
                                email: "test2@invalid.net ",
                                firstName: "test 2a",
                                lastName: "test 2b",
-                               role_id: @role.id,
+                               role_id: @testrole.id,
                                password:              "foo",
                                password_confirmation: "foo",
                                hide_name: 1,
@@ -256,7 +256,7 @@ class UsersTest < ActionDispatch::IntegrationTest
                                email: "test2@invalid.net ",
                                firstName: "test 2a",
                                lastName: "test 2b",
-                               role_id: @role.id,
+                               role_id: @testrole.id,
                                password:              "foo",
                                password_confirmation: "foo",
                                hide_name: 1,
@@ -302,23 +302,23 @@ end
 
 #cannot edit someone else using URL
 test "cannot edit another user" do
-    login_as(@user.name, "password")
+    login_as(@testuser.name, "password")
     assert is_logged_in?
 
     #try to edit another user 
-    get "/users/"+URI.escape(@user2.name)+"/edit" 
+    get "/users/"+URI.escape(@testuser2.name)+"/edit" 
     #get resirected to show page
     follow_redirect!
-    assert_select "title", "#{@base_title} | User | "+@user2.name
-    assert_select "div#page_title", @user2.name.capitalize
+    assert_select "title", "#{@base_title} | User | "+@testuser2.name
+    assert_select "div#page_title", @testuser2.name.capitalize
     assert_select "div#editbutton", false
 end
 #cannot edit someone else using PATCH
 test "canot change another user using patch" do
-    login_as(@user.name, "password")
+    login_as(@testuser.name, "password")
     assert is_logged_in?
     #try to patch anothe ruser
-    patch "/users/"+@user2.id.to_s, user: { name:  "atest1",
+    patch "/users/"+@testuser2.id.to_s, user: { name:  "atest1",
                               email: " atest1@invalid.net ",
                                firstName: " atest1a ",
                                lastName: " atest1b ",
@@ -333,37 +333,37 @@ end
 
 #root can see everyones details
 test "root can see / edit anyone" do 
-    login_as(@user3.name, "password")
+    login_as(@testuser3.name, "password")
     assert is_logged_in?
 
     #View another user.  Verify root can see everything
-    get '/users/'+URI.escape(@user.name)
+    get '/users/'+URI.escape(@testuser.name)
     assert_response :success
-    assert_select "title", "#{@base_title} | User | "+@user.name
-    assert_select "div#page_title", @user.name.capitalize
-    assert_select "div#realname", @user.firstName.capitalize+" "+@user.lastName.capitalize
+    assert_select "title", "#{@base_title} | User | "+@testuser.name
+    assert_select "div#page_title", @testuser.name.capitalize
+    assert_select "div#realname", @testuser.firstName.capitalize+" "+@testuser.lastName.capitalize
     assert_select "div#lastvisited", "Last visited: Never"
-    assert_select "div#email", "Email: "+@user.email
+    assert_select "div#email", "Email: "+@testuser.email
     assert_select "div#editbutton", "Edit"
 #root can edit someone else (no passwd)
     #edit
-    get '/users/'+URI.escape(@user.name)+"/edit"
+    get '/users/'+URI.escape(@testuser.name)+"/edit"
     assert_response :success
-    assert_select "title", "#{@base_title} | Edit User | "+@user.name
+    assert_select "title", "#{@base_title} | Edit User | "+@testuser.name
     assert_select 'input#user_name' do
-      assert_select "[value=?]", @user.name
+      assert_select "[value=?]", @testuser.name
     end
     assert_select 'input#user_firstName' do
-      assert_select "[value=?]", @user.firstName
+      assert_select "[value=?]", @testuser.firstName
     end
     assert_select 'input#user_lastName' do
-      assert_select "[value=?]", @user.lastName
+      assert_select "[value=?]", @testuser.lastName
     end
     assert_select 'input#user_hide_name' do
-      assert_select "[value=?]", if @user.hide_name then 1 else 0 end
+      assert_select "[value=?]", if @testuser.hide_name then 1 else 0 end
     end
     assert_select 'input#user_email' do
-      assert_select "[value=?]", @user.email
+      assert_select "[value=?]", @testuser.email
     end
     assert_select 'input#user_password' do
       assert_select "[type=?]", "password"
@@ -376,7 +376,7 @@ test "root can see / edit anyone" do
     end
 
     #change and save
-    patch "/users/"+@user.id.to_s, user: { name:  "atest1",
+    patch "/users/"+@testuser.id.to_s, user: { name:  "atest1",
                                email: " atest1@invalid.net ",
                                firstName: " atest1a ",
                                lastName: " atest1b ",
@@ -386,29 +386,29 @@ test "root can see / edit anyone" do
     }
     follow_redirect!
     assert_select  "div.alert", "User details updated"
-    @user.reload
+    @testuser.reload
     assert_select "title", "#{@base_title} | User | atest1"
     assert_select "div#page_title", "Atest1"
     assert_select "div#realname", "Atest1a Atest1b"
     assert_select "div#lastvisited", "Last visited: Never"
     assert_select "div#email", "Email: atest1@invalid.net"
     assert_select "div#editbutton", "Edit"
-    assert_equal @user.hide_name, true
+    assert_equal @testuser.hide_name, true
 
     #check can still login using old password
     delete signout_path
     follow_redirect!
     assert_not is_logged_in?
-    login_as(@user.name, "password")
+    login_as(@testuser.name, "password")
     assert is_logged_in?
 end
 
 
 #root can reset someone elses password
 test "root can chaneg other users passwords" do
-    login_as(@user3.name, "password")
+    login_as(@testuser3.name, "password")
     assert is_logged_in?
-    patch "/users/"+@user.id.to_s, user: { name:  "atest1",
+    patch "/users/"+@testuser.id.to_s, user: { name:  "atest1",
                                email: " atest1@invalid.net ",
                                firstName: " atest1a ",
                                lastName: " atest1b ",
@@ -418,28 +418,28 @@ test "root can chaneg other users passwords" do
     }
     follow_redirect!
     assert_select  "div.alert", "User details updated"
-    @user.reload
+    @testuser.reload
     assert_select "title", "#{@base_title} | User | atest1"
     assert_select "div#page_title", "Atest1"
     assert_select "div#realname", "Atest1a Atest1b"
     assert_select "div#lastvisited", "Last visited: Never"
     assert_select "div#email", "Email: atest1@invalid.net"
     assert_select "div#editbutton", "Edit"
-    assert_equal @user.hide_name, true
+    assert_equal @testuser.hide_name, true
 
     #check can still login using old password
     delete signout_path
     follow_redirect!
     assert_not is_logged_in?
-    login_as(@user.name, "foo")
+    login_as(@testuser.name, "foo")
     assert is_logged_in?
 end
 
 #invalid values and cannot change role
 test "invalid values in user form" do
-    login_as(@user.name, "password")
+    login_as(@testuser.name, "password")
     assert is_logged_in?
-    patch "/users/"+@user.id.to_s, user: { name:  "",
+    patch "/users/"+@testuser.id.to_s, user: { name:  "",
                                email: " atest1@invalid.net ",
                                firstName: " atest1a ",
                                lastName: " atest1b ",
@@ -451,7 +451,7 @@ test "invalid values in user form" do
     assert_select  "div.alert", "The form contains 1 error."
     assert_select  "div#error_explanation>ul>li", "* Name can&#39;t be blank"
  
-    patch "/users/"+@user.id.to_s, user: { name:  " atest1 ",
+    patch "/users/"+@testuser.id.to_s, user: { name:  " atest1 ",
                                email: " ",
                                firstName: " atest1a ",
                                lastName: " atest1b ",
@@ -467,7 +467,7 @@ test "invalid values in user form" do
 
 
 
-    patch "/users/"+@user.id.to_s, user: { name:  " atest1 ",
+    patch "/users/"+@testuser.id.to_s, user: { name:  " atest1 ",
                                email: " atest1@invalid.net ",
                                firstName: "  ",
                                lastName: " atest1b ",
@@ -479,7 +479,7 @@ test "invalid values in user form" do
     assert_select  "div.alert", "The form contains 1 error."
     assert_select  "div#error_explanation>ul>li", "* Firstname can&#39;t be blank"
 
-    patch "/users/"+@user.id.to_s, user: { name:  " atest1 ",
+    patch "/users/"+@testuser.id.to_s, user: { name:  " atest1 ",
                                email: " atest1@invalid.net ",
                                firstName: " atest1a ",
                                lastName: "  ",
@@ -491,7 +491,7 @@ test "invalid values in user form" do
     assert_select  "div.alert", "The form contains 1 error."
     assert_select  "div#error_explanation>ul>li", "* Lastname can&#39;t be blank"
 
-    patch "/users/"+@user.id.to_s, user: { name:  " atest1 ",
+    patch "/users/"+@testuser.id.to_s, user: { name:  " atest1 ",
                                email: " atest1@invalid.net ",
                                firstName: " atest1a ",
                                lastName: " atest1b  ",
@@ -503,7 +503,7 @@ test "invalid values in user form" do
     assert_select  "div.alert", "The form contains 1 error."
     assert_select  "div#error_explanation>ul>li", "* Password confirmation doesn&#39;t match Password"
 
-    patch "/users/"+@user.id.to_s, user: { name:  " Example User2  ",
+    patch "/users/"+@testuser.id.to_s, user: { name:  " Example User2  ",
                                email: " atest1@invalid.net ",
                                firstName: " atest1a ",
                                lastName: " atest1b  ",
@@ -515,7 +515,7 @@ test "invalid values in user form" do
     assert_select  "div.alert", "The form contains 1 error."
     assert_select  "div#error_explanation>ul>li", "* Name has already been taken"
 
-    patch "/users/"+@user.id.to_s, user: { name:  " Example User1  ",
+    patch "/users/"+@testuser.id.to_s, user: { name:  " Example User1  ",
                                email: " user2@example.com ",
                                firstName: " atest1a ",
                                lastName: " atest1b  ",
@@ -528,12 +528,12 @@ test "invalid values in user form" do
     assert_select  "div#error_explanation>ul>li", "* Email has already been taken"
 
     #check details unchanged
-    get '/users/'+URI.escape(@user.name)
+    get '/users/'+URI.escape(@testuser.name)
     assert_response :success
-    assert_select "title", "#{@base_title} | User | "+@user.name
-    assert_select "div#page_title", @user.name.capitalize
-    assert_select "div#realname", @user.firstName.capitalize+" "+@user.lastName.capitalize
-    assert_select "div#email", "Email: "+@user.email
+    assert_select "title", "#{@base_title} | User | "+@testuser.name
+    assert_select "div#page_title", @testuser.name.capitalize
+    assert_select "div#realname", @testuser.firstName.capitalize+" "+@testuser.lastName.capitalize
+    assert_select "div#email", "Email: "+@testuser.email
     assert_select "div#editbutton", "Edit"
 
 end

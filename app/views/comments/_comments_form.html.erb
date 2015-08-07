@@ -1,11 +1,15 @@
 <% if !@comment then @comment=Comment.new() end %>
 <div id='comment_form' style="display:none<% if @comment.errors.any? %>;border-color:#f00;border-style:solid;border-width:1px<% end %>" >
      <%= render 'shared/error_messages' %>
+      <% if (@route or @place) and !(@trip and @trip.class.to_s=="Trip") %>
+        <div class="erow"><small>
+           Enter your comments below.  If you have corrections / additions to the information above then edit the information by clicking on the pencil next to the title, rather than leaving comments.  This is a wiki so don't be shy about editing other people's contributions. All current and past versions are available to view.
+        </small></div>
+      <% end %>
      <%= form_for  @comment, :remote=> true, :html => {:name => 'commentform'}  do |f| %>
       <input type="hidden" name="url" value="<%=@referring_page%>"/>
       <%= f.hidden_field :item_type, :value => itemType %>
       <%= f.hidden_field :item_id, :value => itemId %>
-
       <div class="erow">
         <div id="helpcomment" class="helptext" style="display:none">
            Enter your comment. Comments are personal opinions, experiences, thoughts, etc.  

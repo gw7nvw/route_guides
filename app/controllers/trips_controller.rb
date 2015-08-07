@@ -23,7 +23,8 @@ def index
       @order='latest'
       @trips=@trips.order('updated_at desc')
   else  
-      @trips=@trips.sort_by(&:starty)
+#      @trips=@trips.sort_by(&:starty)
+      @trips=@trips.order('name')
   end
 
   @trips=@trips.paginate(:per_page => 20, :page => params[:page])
@@ -71,9 +72,15 @@ def currenttrip
 end
 
 def move
-  #do stuff from edit page with page
-  @id=params[:id] 
-  @trip=Trip.find_by_id(@id) if @id
+ #do stuff from edit page with page
+ if params[:selected_id] then
+    @id=params[:selected_id]
+ else
+    @id=params[:id] 
+ end
+
+ if @id then @trip=Trip.find_by_id(@id) end
+ if @trip then 
   prepare_route_vars()
   @referring_page=params[:referring_page]
   if !@referring_page or @referring_page.length==0 then @referring_page='index' end
@@ -139,7 +146,7 @@ def move
    #user only - selct new trip
    if params[:selected_id] and signed_in?  then
      if (params[:commit] == 'Select as current')
-          @trip=Trip.find_by_id(params[:selected_id])
+          #@trip=Trip.find_by_id(params[:selected_id])
    
           if @trip.createdBy_id==@current_user.id or @current_user.role.name=="root" 
             @current_user.currenttrip_id = @trip.id
@@ -153,7 +160,7 @@ def move
    if params[:selected_id] and (signed_in? or is_guest?)
 
      if (params[:commit] == 'Delete')
-          trip=Trip.find_by_id(params[:selected_id])
+          trip=@trip
           if trip and ((signed_in? and (trip.createdBy_id==@current_user.id or @current_user.role.name=="root")) or (is_guest? and @current_guest.currenttrip_id==trip.id)) then
     
             # if we delete current trip of any user, selct first remainingtrip as current, or else make a new one ...
@@ -196,7 +203,7 @@ def move
 
    #copy someone elses trip
        if (params[:commit] and params[:commit] == 'Make my own copy')
-          old_trip=Trip.find_by_id(params[:selected_id])
+          old_trip=@trip
           if is_guest? then
             @current_guest.currenttrip.destroy_tree
           end
@@ -235,6 +242,9 @@ def move
     else
       render 'show'
     end
+ else #if !@trip
+   redirect_to '/trips/'
+ end
 end
 
 
@@ -259,9 +269,9 @@ end
 def show
   @edittrippage=true if @edit
   if params[:editlinks] then @editlinks=true end
-
-  if !@trip=Trip.find_by_id(params[:id]) then
-    redirect_to root_url
+  if !@trip then @trip=Trip.find_by_id(params[:id]) end 
+  if !@trip then
+    redirect_to '/trips'
   else
     prepare_route_vars()
     @place_types = PlaceType.all
@@ -292,32 +302,35 @@ end
 
 def edit
 
-  @trip=Trip.find_by_id(params[:id])
-  prepare_route_vars()
-  @place_types = PlaceType.all
-  
-  if (signed_in? and (@trip.createdBy_id==@current_user.id or @current_user.role==Role.find_by( :name => 'root')) or (is_guest? and @trip.id == @current_guest.currenttrip_id))
-    @edit=true
-    @edittrippage=true
+  @trip=Trip.find_by_id(params[:id]) if !@trip
+  if @trip then
+    prepare_route_vars()
+    @place_types = PlaceType.all
+    
+    if (signed_in? and (@trip.createdBy_id==@current_user.id or @current_user.role==Role.find_by( :name => 'root')) or (is_guest? and @trip.id == @current_guest.currenttrip_id))
+      @edit=true
+        @edittrippage=true
+    else
+      show()
+    end
   else
-    show()
+    redirect_to '/trips'
   end
 end
 
 def update 
- @trip=Trip.find_by_id(params[:id])
-
+ if @trip=Trip.find_by_id(params[:id]) then
+ 
   @edit = true
 
   if (params[:commit] == "Save") and (signed_in? and (@trip.createdBy_id==@current_user.id or @current_user.role==Role.find_by( :name => 'root')) or (is_guest? and @trip.id == @current_guest.currenttrip_id))
      @trip=Trip.find_by_id(params[:id])
-     @trip.name=params[:trip]['name']
+     if params[:trip]['name'] then @trip.name=params[:trip]['name'].strip else @trip.name="" end
      @trip.description=params[:trip]['description']
-     @trip.lengthmin=params[:trip]['lengthmin'].to_f
-     @trip.lengthmax=params[:trip]['lengthmax'].to_f
+     if params[:trip]['lengthmin'] then @trip.lengthmin=params[:trip]['lengthmin'].to_f  else @trip.lengthmin=0 end
+     if params[:trip]['lengthmax'] then @trip.lengthmax=params[:trip]['lengthmax'].to_f  else @trip.lengthmax=0 end
      if signed_in? then @trip.published=params[:trip]['published'] else @trip.published=false end
-     @trip.save
-     @edit=false
+     if @trip.save then @edit=false else @edit=true end
   end 
 
   if (params[:commit] == 'delete') and (signed_in? and (@trip.createdBy_id==@current_user.id or @current_user.role==Role.find_by( :name => 'root')) or (is_guest? and @trip.id == @current_guest.currenttrip_id))
@@ -441,5 +454,8 @@ def update
          show()
       end
    end
+ else #if !@trip
+   redirect_to '/trips'
+ end
 end
 end

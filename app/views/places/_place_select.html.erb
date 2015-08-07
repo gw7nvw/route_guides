@@ -25,11 +25,17 @@
               </span>
            </div>
          <% end %>
+
          <% if @url and (@url.include?('pb') or @url.include?('pv')) %>
-           <div class="sectiontitle75">Select next place on route:</div>
+           <div class="sectiontitle75" id="actiontitle<%=@index%>">Select next place on route:</div>
          <% else %>
-           <div class="sectiontitle75">Select start place of route:</div>
-         <% end%>
+           <% if @url and (@url.include?('rc')) %>
+             <div class="sectiontitle75" id="actiontitle<%=@index%>">Select place at which to split this route:</div>
+           <% else %> 
+             <div class="sectiontitle75" id="actiontitle<%=@index%>">Select start place of route:</div>
+           <% end %>
+         <% end %>
+
       </div>
       <div class="erow">
         <div id="rhelpstart" class="helptext" style="display:none">
@@ -51,7 +57,12 @@
       <div class="rowtext">
         <input type="text" name="route_startplace_name" value='<%=@startplacename%>' disabled="disabled"/>
       </div>
-      <input type="hidden" name="route_startplace_id" value='<%=@startplace%>'/>
+<% if Rails.env.production? %>
+      <input type="hidden" name="route_startplace_id" value='<%=@startplace.id%>'/>
+<% else %>
+      <input type="text" name="route_startplace_id" value='<%=@startplace.id%>'/>
+<% end %>
+
       <input type="hidden" name="route_startplace_location"/>
 
       <input type="hidden" name="route_endplace_id"/>

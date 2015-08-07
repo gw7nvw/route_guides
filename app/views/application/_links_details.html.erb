@@ -1,11 +1,12 @@
-<% parent.links.each do |rl| %>
+<%linkcnt=0%>
+  <% parent.links.each do |rl| %>
       <div class="erow" style="margin-left:25px;width:calc(100% - 25px)">
         <% if rl.item_type!='photo'%>
-          <div class="rowtitle" >
+          <div class="rowtitle" id="linktitle<%=linkcnt.to_s%>">
             <%= rl.item_type.capitalize+": "%>
           </div>
         <% end %>
-        <div class="rowtext">
+        <div class="rowtext" id="linktext<%=linkcnt.to_s%>">
           <% case rl.item_type %>
           <% when 'about' %>
             <%= link_to 'About', '/about' , remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
@@ -17,6 +18,7 @@
           <% end %>
         </div>
       </div>
+      <% linkcnt+=1%>
 <% end%>
 
 

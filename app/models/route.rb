@@ -27,9 +27,9 @@ class Route < ActiveRecord::Base
   validates :endplace, presence: true
   belongs_to :endplace, class_name: "Place"
 
-  before_save { |route| route.name = route.startplace.name + " to " + route.endplace.name + " via " + route.via }
+  before_save { |route| route.name = route.startplace.name + " to " + route.endplace.name + " via " + route.via + " ("+route.routetype.name+")" }
   validates :name, uniqueness: true
-  before_save :default_values
+  after_validation :default_values
   before_save :handle_negatives_before_save
 
   after_save :create_new_instance
@@ -54,7 +54,7 @@ def self.find_by_signed_id(id)
    id=id.to_i
    route=Route.find_by_id(id.abs)
 
-   if id<0 then
+   if id<0 and route then
      route=route.reverse
    end
 
@@ -107,79 +107,97 @@ def esttime2
 end
 
 def split(splitplace)
+   r2=nil
   # check that splitplace in within tolerance of route
-  if(distance=self.distance_from_place(splitplace)) < 200 then
-
+  if(distance=self.distance_from_place(splitplace)) > 200 then
+    self.customerrors="Cannot split. Place is >200m from route ("+distance.to_s+"m)"
+  end
+  if !self.customerrors then
     # create duplicate route
     r2=self.dup
 
     # split the route
-    route_segments=Route.find_by_sql [ "select (ST_Dump(ST_Split(ST_Snap(b.location, a.location, 1), a.location))).geom from places a join routes b on b.id=? where a.id=?", self.id, splitplace.id ]
+    route_segments=Route.find_by_sql [ "select (ST_Dump(ST_Split(ST_Snap(b.location, a.location, 0.003), a.location))).geom as location from places a join routes b on b.id=? where a.id=?", self.id, splitplace.id ]
+    if route_segments.count<2 then self.customerrors="Fewer than 2 segments resulted from split - " end
+  end
+  if !self.customerrors then
     startroute=route_segments[0].location
     endroute=route_segments[1].location
+    if !(startroute and endroute and startroute.length>0 and endroute.length>0) then
+      self.customerrors="One of resulting segments had zero length - "
+    end
+  end
 
-    if startroute.length>0 and endroute.length>0 then
-      # insert segments into routes
-      self.location=startroute
-      r2.location=endroute
+  if !self.customerrors then
+    # insert segments into routes
+    self.location=location_without_nan(startroute)
+    r2.location=location_without_nan(endroute)
 
-      # change startplace of new route
-      r2.startplace=splitplace
-      r2.save 
-      # change endplace of old route
-      self.endplace=splitplace
-      self.save
+    # change startplace of new route
+    r2.startplace=splitplace
+    r2.name=r2.startplace.name+" to "+r2.endplace.name+" via "+r2.via+" part 1"
+    r2.distance=r2.location.length
+    if !r2.save  then self.customerrors="Failed to save new route - "+r2.errors.messages.to_s end
 
-      # copy links
-      self.links.each do |l|
-        l2=l.dup
-        l2.parent_id=r2.id
-        l2.save 
-      end
-       
-      # insert newroute after oldroute in trips (or -newroute before -oldroute)
-      trip_ids=(TripDetails.find_by_sql ["select trip_id from trip_details where route_id = ? or route_id=?", self.id, -self.id]).uniq
-      trip_ids.each do |tid|
-        t=Trip.find_by_id(tid)
+  end
+
+  if !self.customerrors then
+    # change endplace of old route
+    self.endplace=splitplace
+    self.name=self.startplace.name+" to "+self.endplace.name+" via "+self.via+" part 2"
+    self.distance=self.location.length
+    if !self.save then self.customerrors="Failed to update old route - "+route.errors.messages.to_s end
+  end
+  
+  if !self.customerrors then
+  
+    # copy links
+    self.links.each do |l|
+      l2=l.dup
+      l2.baseItem_id=r2.id
+      if !l2.save  then self.customerrors="Failed to copy link "+l2.errors.messages.to_s end
+    end
+  end
+
+  if !self.customerrors then     
+    # insert newroute after oldroute in trips (or -newroute before -oldroute)
+    trip_ids=(TripDetail.find_by_sql ["select trip_id from trip_details where route_id = ? or route_id=?", self.id, -self.id]).uniq
+    trip_ids.each do |tid|
+      t=Trip.find_by_id(tid)
         
-        #find this route within this trip and add new route before / after
-        after=[]
-        before=[]
-        order=1
-        t.trip_details.order(:order).each do |td|
-          if td.route_id==self.id then
-             #insert after this td
-             td.order=order
-             td.save
-             order+=1
-             td2=TripDetails.create(:order => order, :route_id => r2.id, :trip_id => t.id)
-             order+=1
-          else 
-            #insert before this td
-            if td.route_id==-self.id then
-               td2=TripDetails.create(:order => order, :route_id => -r2.id, :trip_id => t.id)
-               order+=1
-               td.order=order
-               td.save
-               order+=1
-            else
-               #just copy original td
-               td.order=order
-               td.save
-            end
+      #find this route within this trip and add new route before / after
+      after=[]
+      before=[]
+      order=1
+      t.trip_details.order(:order).each do |td|
+        if td.route_id==self.id then
+          #insert after this td
+          td.order=order
+          td.save
+          order+=1
+          if !td2=TripDetail.create(:order => order, :route_id => r2.id, :trip_id => t.id) then 
+            self.customerrors="Failed to copy tripdetail "+td2.errors.messages.to_s end
+          order+=1
+        else 
+          #insert before this td
+          if td.route_id==-self.id then
+            if !td2=TripDetail.create(:order => order, :route_id => -r2.id, :trip_id => t.id) then
+              self.customerrors="Failed to copy tripdetail "+td2.errors.messages.to_s end
+            order+=1
+            td.order=order
+            td.save
+            order+=1
+          else
+            #just copy original td
+            td.order=order
+            if !td.save then self.customerrors="Failed to updated tripdetail "+td.errors.messages.to_s end
           end
         end
       end
-    else 
-
-      if defined? flash then flash[:error]="Cannot split. One of split routes had zero length" end
-      puts "Cannot split. One of split routes had zero length"
     end
-  else
-    if defined? flash then flash[:error]="Cannot split. Place is "+distance.to_i.to_s+"m from the route (>200m)"  end
-    puts "Cannot split. Place is "+distance.to_i.to_s+"m from the route (>200m)" 
   end
-distance
+ #puts self.customerrors
+ r2
 end
 
 def reverse
@@ -222,14 +240,23 @@ def default_values
     calc_minalt
     calc_maxalt
 
+    starterr=self.errors.count
 
     if self.published==true
       str=""
-      str+="location (route points) is blank, " if !self.location
-      str+="time is blank or 0, " if !self.time or self.time==0
-      str+="descriptions are both blank, " if (!self.description or self.description.strip=="") and (!self.reverse_description or self.reverse_description.strip=="")
-      if str!="" then 
-        self.customerrors="This form contains errors: "+str[0..-3]+". Enter this information and save again, or uncheck 'published' if you wish to save this draft version"
+     # str+="location (route points) is blank, " if !self.location
+     self.errors.messages[:location]=["can't be blank for a published route"] if !self.location
+     # str+="time is blank or 0, " if !self.time or self.time==0
+     self.errors.messages[:time]=["can't be blank for a published route"] if !self.time or self.time==0
+
+     # str+="date experienced is blank, " if !self.experienced_at 
+     self.errors.messages[:experienced_at]=["can't be blank for a published route"] if !self.experienced_at
+
+     # str+="descriptions are both blank, " if (!self.description or self.description.strip=="") and (!self.reverse_description or self.reverse_description.strip=="")
+     self.errors.messages[:description]=["or Reverse description is required for a published route"] if (!self.description or self.description.strip=="") and (!self.reverse_description or self.reverse_description.strip=="")
+
+      if self.errors.count>starterr then 
+        self.customerrors="Enter the required information and save again, or uncheck 'published' if you wish to save this as a draft version without this information"
         false
       else
         true
@@ -251,7 +278,7 @@ def create_new_instance
    else route=self
    end
 
-   route_instance=RouteInstance.new(route.attributes)
+   route_instance=RouteInstance.new(route.attributes.except('created_at', 'updated_at'))
    route_instance.route_id=route.id
    route_instance.id=nil
    route_instance.createdBy_id = route.updatedBy_id #current_user.id
@@ -263,14 +290,14 @@ end
 def firstexperienced_at
      t=Route.find_by_sql ["select created_at, experienced_at from route_instances  
                 where route_id = ? order by created_at limit 1", self.id.abs]
-     t.first.try(:experienced_at)
+     t.first.try(:experienced_at) || "1900-01-01".to_datetime
+
 end
 
 def firstcreated_at
      t=Route.find_by_sql ["select min(rd.created_at) id from route_instances rd 
                 where rd.route_id = ?", self.id.abs]
-     t.first.try(:id)
-
+     t.first.try(:id)  || "1900-01-01".to_datetime
 end
 
 def revision_number
@@ -280,8 +307,26 @@ def revision_number
 end
 
 def adjoiningRoutes
-   t=Route.find_by_sql ["select distinct *  from routes r 
-       where published=true and (startplace_id = ? or endplace_id = ? or startplace_id = ? or endplace_id = ?) and id <> ?",self.startplace_id, self.startplace_id, self.endplace_id, self.endplace_id, self.id.abs]
+#   t=Route.find_by_sql ["select distinct *  from routes r 
+#       where published=true and (startplace_id = ? or endplace_id = ? or startplace_id = ? or endplace_id = ?) and id <> ?",self.startplace_id, self.startplace_id, self.endplace_id, self.endplace_id, self.id.abs]
+   t=self.startplace.adjoiningRoutes
+   t+=self.endplace.adjoiningRoutes
+   self.linked('place').each do |lp|
+     pl=Place.find_by_id(lp.item_id)
+     t+=pl.adjoiningRoutes
+   end
+ 
+   adjr=[] 
+   rsofar=[]
+   t.each do |lr|
+      drop=false
+      if lr.id.abs==self.id.abs then  drop=true  end
+      if rsofar.include? lr.id then drop=true end
+      if drop==false then adjr+=[lr] end
+      rsofar+=[lr.id]
+   end
+   adjr
+      
 end
 
 def adjoiningPlaces
@@ -295,7 +340,7 @@ end
 def trips
    t=Route.find_by_sql ["select distinct t.* from trips t
        inner join trip_details td on td.trip_id = t.id
-       where td.route_id = ? and t.published=true",self.id.abs]
+       where (td.route_id = ? or td.route_id = ?) and t.published=true",self.id, -self.id]
 end
 def links
    r=Link.find_by_sql [%q[select distinct id, item_id, item_type, item_url from links l
@@ -369,13 +414,14 @@ def regenerate_route_index
   newcount=0
 
   #delete old entries using this route
-  puts "Deleting old entries"
+  puts "Deleting old entries" if ENV["RAILS_ENV"] != "test"
+
   RouteIndex.where("url ~ ? or url ~ ?",'x[rq]v[-]{0,1}'+self.id.to_s+'x', 'x[rq]v[-]{0,1}'+self.id.to_s+'$').destroy_all
 
   if self.published==true then
-    puts "Finding routes from start: "+(Time.now()-starttime).to_s+" seconds"
+    puts "Finding routes from start: "+(Time.now()-starttime).to_s+" seconds" if ENV["RAILS_ENV"] != "test"
     #find all place-to-place routes of length < <maxhops-1> for the start or endplace
-    startAffectedRoutes=[{:place => self.startplace.id, :route => [], :url => ''}]+self.startplace.adjoiningPlaces(nil,false,maxLegCount-1, nil,self.id)
+    startAffectedRoutes=[{:place => self.startplace.id, :placelist => [self.startplace.id], :route => [], :url => ''}]+self.startplace.adjoiningPlaces(nil,false,maxLegCount-1, nil,self.id)
     
     rsar=[]
     startAffectedRoutes.each do |ar|
@@ -385,8 +431,8 @@ def regenerate_route_index
     end
 
 
-    puts "Finding routes from end: "+(Time.now()-starttime).to_s+" seconds"
-    endAffectedRoutes=[{:place => self.endplace.id, :route => [], :url => ''}]+self.endplace.adjoiningPlaces(nil,false,maxLegCount-1, nil,-self.id)
+    puts "Finding routes from end: "+(Time.now()-starttime).to_s+" seconds" if ENV["RAILS_ENV"] != "test"
+    endAffectedRoutes=[{:place => self.endplace.id, :placelist => [self.endplace.id], :route => [], :url => ''}]+self.endplace.adjoiningPlaces(nil,false,maxLegCount-1, nil,-self.id)
 
     rear=[]
     endAffectedRoutes.each do |ar|
@@ -396,13 +442,13 @@ def regenerate_route_index
     end
   
     #and any linked places
-    puts "Finding routes from links: "+(Time.now()-starttime).to_s+" seconds"
+    puts "Finding routes from links: "+(Time.now()-starttime).to_s+" seconds" if ENV["RAILS_ENV"] != "test"
     linkedAffectedRoutes=[]
     rlar=[]
     link=0
     self.linked('place').each do |lp|
       linkplace=Place.find_by_id(lp.item_id)
-      linkedAffectedRoutes[link]=[{:place => linkplace.id, :route => [], :url => ''}]+linkplace.adjoiningPlaces(nil,false,maxLegCount-1, nil,self.id)
+      linkedAffectedRoutes[link]=[{:place => linkplace.id, :placelist => [linkplace.id], :route => [], :url => ''}]+linkplace.adjoiningPlaces(nil,false,maxLegCount-1, nil,self.id)
 
       rlar[link]=[]
       #routes traversing us link->end
@@ -413,7 +459,7 @@ def regenerate_route_index
       link+=1
     end
     
-    puts "Generating start<->end: "+(Time.now()-starttime).to_s+" seconds"
+    puts "Generating start<->end: "+(Time.now()-starttime).to_s+" seconds" if ENV["RAILS_ENV"] != "test"
     #recalculate all routes from the route's startplace that go via us
     #start <-> end
     ourUrl="xrv"+self.id.to_s 
@@ -421,7 +467,7 @@ def regenerate_route_index
       endAffectedRoutes.each do |ear|
         fullroute= sar[:url]+ourUrl+ear[:url] 
         if fullroute and fullroute.split('x').count<maxLegCount+1 then
-          if (sar[:route].map!(&:abs) & ear[:route].map!(&:abs)).count ==0
+          if ((sar[:route].map!(&:abs) & ear[:route].map!(&:abs)).count ==0)  and ((sar[:placelist] & ear[:placelist]).count == 0) # count of matching abs(route.id) in both URLs=0
             createRI(sar[:startplace],fullroute,ear[:place])
             newcount+=2
           end
@@ -430,7 +476,7 @@ def regenerate_route_index
       end
     end 
 
-    puts "Generating start<->links: "+(Time.now()-starttime).to_s+" seconds"
+    puts "Generating start<->links: "+(Time.now()-starttime).to_s+" seconds" if ENV["RAILS_ENV"] != "test"
     #start <-> links   
     link=0
     self.linked('place').each do |lp|
@@ -439,7 +485,10 @@ def regenerate_route_index
         linkedAffectedRoutes[link].each do |lr|
           fullroute= sar[:url]+ourUrl+lr[:url]
           if fullroute and fullroute.split('x').count<maxLegCount+1 then
-            if (sar[:route].map!(&:abs) & lr[:route].map!(&:abs)).count ==0
+            if ((sar[:route].map!(&:abs) & lr[:route].map!(&:abs)).count ==0) and ((sar[:placelist] & lr[:placelist]).count == 0)
+              #this should to be adapted to check _linked_places too
+              #placesWithLinks(sar[:placelist]) & placesWithLinks(lr[:placelist])
+              #but at what cost in time ...?
               createRI(sar[:startplace],fullroute,lr[:place])
               newcount+=2
             end
@@ -450,7 +499,7 @@ def regenerate_route_index
     link+=1
     end
 
-    puts "Generating end<->links: "+(Time.now()-starttime).to_s+" seconds"
+    puts "Generating end<->links: "+(Time.now()-starttime).to_s+" seconds" if ENV["RAILS_ENV"] != "test"
     #end <-> links
     link=0
     self.linked('place').each do |lp|
@@ -459,7 +508,7 @@ def regenerate_route_index
         linkedAffectedRoutes[link].each do |lr|
           fullroute= ear[:url]+ourUrl+lr[:url]
           if fullroute and fullroute.split('x').count<maxLegCount+1 then
-            if (ear[:route].map!(&:abs) & lr[:route].map!(&:abs)).count ==0
+            if ((ear[:route].map!(&:abs) & lr[:route].map!(&:abs)).count ==0) and ((ear[:placelist] & lr[:placelist]).count == 0)
               createRI(ear[:startplace],fullroute,lr[:place])
               newcount+=2
             end
@@ -470,7 +519,7 @@ def regenerate_route_index
     link+=1
     end
 
-    puts "Generating links<->links: "+(Time.now()-starttime).to_s+" seconds"
+    puts "Generating links<->links: "+(Time.now()-starttime).to_s+" seconds" if ENV["RAILS_ENV"] != "test"
     #links <-> links
     linka=0
     self.linked('place').each do |lpa|
@@ -483,7 +532,7 @@ def regenerate_route_index
               ourUrl="xqv"+self.id.to_s+"y"+lpa.item_id.to_s+"y"+lpb.item_id.to_s
               fullroute= lra[:url]+ourUrl+lrb[:url]
               if fullroute and fullroute.split('x').count<maxLegCount+1 then
-                if (lra[:route].map!(&:abs) & lrb[:route].map!(&:abs)).count ==0
+                if ((lra[:route].map!(&:abs) & lrb[:route].map!(&:abs)).count ==0) and ((lra[:placelist] & lrb[:placelist]).count == 0)
                   createRI(lra[:startplace],fullroute,lrb[:place])
                   newcount+=2
                 end
@@ -497,8 +546,9 @@ def regenerate_route_index
     end
    
   end
-  puts "Completed: "+newcount.to_s+" routes added/updated in "+(Time.now()-starttime).to_s+" seconds"
+  puts "Completed: "+newcount.to_s+" routes added/updated in "+(Time.now()-starttime).to_s+" seconds" if ENV["RAILS_ENV"] != "test"
 end
+
 def createRI(startplace, baseRoute, endplace)
    place=Place.find_by_id(startplace)
    endPlace=Place.find_by_id(endplace)
@@ -521,19 +571,34 @@ def createRI(startplace, baseRoute, endplace)
      if  r[0]=='q' then
         rtarr=r[2..-1].split('y')
         nextPlace=Place.find_by_id(rtarr[2].to_i)
-        direct+=1 if nextPlace.place_type=="Hut"
+        direct+=1 if nextPlace.isLocatedAtHut
      end
    end
    query="select sum(distance) as distance, sum(time) as time, max(maxalt) as maxAlt, min(minalt) as minAlt, max(importance_id) as maxImportance, max(routetype_id) as maxRouteType, max(gradient_id) as maxGradient, max(terrain_id) as maxTerrain, max(alpinesummer_id) as maxAlpineS,  max(alpinewinter_id) as maxAlpineW, max(river_id) as maxRiver,   sum(routetype_id*distance)/nullif(sum(distance),0) as avgRouteType, sum(importance_id*distance)/nullif(sum(distance),0) as avgImportance, sum(gradient_id*distance)/nullif(sum(distance),0) as avgGradient, sum(alpinesummer_id*distance)/nullif(sum(distance),0) as avgAlpineS, sum(alpinewinter_id*distance)/nullif(sum(distance),0) as avgAlpineW, sum(river_id*distance)/nullif(sum(distance),0) as avgRiver from routes where id in ("+routelist[1..-1]+")"
    ri=RouteIndex.new((RouteIndex.find_by_sql [ query ]).first.attributes)
 
   if rrlz!="" then 
-    query="select count(r.id) as direct from routes r inner join places p on p.id=r.startplace_id where r.id in ("+rrlz[1..-1]+") and p.place_type='Hut'"
-    direct+=(RouteIndex.find_by_sql [ query ]).first.direct
+    places=(Route.find_by_sql [ "select startplace_id as id  from routes where id in ("+rrlz[1..-1]+")" ]).map { |f| f.id }.join ","
+
+    #main places
+    query="select count(p.id) as id from places p where p.id in ("+places+") and p.place_type='Hut'"
+    direct+=(RouteIndex.find_by_sql [ query ]).first.id
+    #now linked places
+    query=%q{select count(l.id) as id from links l inner join places p on p.id=l.item_id where l.item_type='place' and l."baseItem_type"='place' and p.place_type='Hut' and l."baseItem_id" in (}+places+")"
+    direct+=(Link.find_by_sql [ query ]).first.id
+    query=%q{select count(l.id) as id from links l inner join places p on p.id=l."baseItem_id" where l.item_type='place' and l."baseItem_type"='place' and p.place_type='Hut' and l.item_id in (}+places+")"
+    direct+=(Link.find_by_sql [ query ]).first.id
   end
   if rrgz!="" then 
-    query="select count(r.id) as direct from routes r inner join places p on p.id=r.endplace_id where r.id in ("+rrgz[1..-1]+") and p.place_type='Hut'"
-    direct+=(RouteIndex.find_by_sql [ query ]).first.direct
+    places=(Route.find_by_sql [ "select endplace_id as id  from routes where id in ("+rrgz[1..-1]+")" ]).map { |f| f.id }.join ","
+    #main places
+    query="select count(p.id) as id from places p where p.id in ("+places+") and p.place_type='Hut'"
+    direct+=(RouteIndex.find_by_sql [ query ]).first.id
+    #now linked places
+    query=%q{select count(l.id) as id from links l inner join places p on p.id=l.item_id where l.item_type='place' and l."baseItem_type"='place' and p.place_type='Hut' and l."baseItem_id" in (}+places+")"
+    direct+=(Link.find_by_sql [ query ]).first.id
+    query=%q{select count(l.id) as id from links l inner join places p on p.id=l."baseItem_id" where l.item_type='place' and l."baseItem_type"='place' and p.place_type='Hut' and l.item_id in (}+places+")"
+    direct+=(Link.find_by_sql [ query ]).first.id
   end
   rigz=nil
   if gzrl!="" then
@@ -551,10 +616,10 @@ def createRI(startplace, baseRoute, endplace)
  
   ri.startplace_id = place.id
   ri.endplace_id = endPlace.id
-  ri.isdest = (endPlace.isDest or isStub)
-  ri.fromdest = place.isDest
+  ri.isdest = (endPlace.isLocatedAtDest or isStub)
+  ri.fromdest = place.isLocatedAtDest
   ri.url = baseRoute
-  if endPlace.place_type=="Hut" then direct=direct-1 end
+  if endPlace.isLocatedAtHut then direct=direct-1 end
   ri.direct=(direct==0)
 
 
@@ -633,7 +698,7 @@ def createRIold(startplace, baseRoute, endplace)
            thisRoute=rs[2..-1].to_i
            currentLeg=Route.find_by_signed_id(thisRoute)
            placeSoFar=[currentLeg.endplace_id]+placeSoFar
-           currentDirect=(currentLeg.endplace.place_type=="Hut")
+           currentDirect=(currentLeg.endplace.isLocatedAtHut)
          else
            rtarr=rs[2..-1].split('y')
            if rtarr.count<3 then abort() end
@@ -641,7 +706,7 @@ def createRIold(startplace, baseRoute, endplace)
            currentLeg=Route.find_by_signed_id(thisRoute)
            placeSoFar[0]=rtarr[2].to_i+placeSoFar[0]
            nextPlace=Place.find_by_id(rtarr[2].to_i)
-           currentDirect=(nextPlace.place_type=="Hut")
+           currentDirect=(nextPlace.isLocatedAtHut)
          end
          routeSoFar=[thisRoute]+routeSoFar
          urlindex+=1
@@ -707,9 +772,9 @@ def regenerate_route_index_old
   maxLegCount=15 #15
 
   #delete old entries using this route
-  puts "Deleting old entries"
+  puts "Deleting old entries" if ENV["RAILS_ENV"] != "test"
   RouteIndex.where("url ~ ? or url ~ ?",'x[rq]v[-]{0,1}'+self.id.to_s+'x', 'x[rq]v[-]{0,1}'+self.id.to_s+'$').destroy_all
-  puts "Finding affected places"
+  puts "Finding affected places" if ENV["RAILS_ENV"] != "test"
 
   if self.published==true then
     #find all place-to-place routes of length < <maxhops-1> for the start or endplace
@@ -802,7 +867,7 @@ def regenerate_route_index_old
 
     #recalculate all routes from the route's startplace that go via us
 
-    puts "Regenerating "+allAR.count.to_s+" routes from affected places via us"
+    puts "Regenerating "+allAR.count.to_s+" routes from affected places via us" if ENV["RAILS_ENV"] != "test"
     #recalculate all routes from the route's startplace that go via us
     newcount=0
     allAR.each do |ar|
@@ -856,7 +921,7 @@ def regenerate_route_index_old
        end
     end  
   end
-  puts "Completed: "+newcount.to_s+" routes added/updated in "+(Time.now()-starttime).to_s+" seconds"
+  puts "Completed: "+newcount.to_s+" routes added/updated in "+(Time.now()-starttime).to_s+" seconds" if ENV["RAILS_ENV"] != "test"
 end
 
 def reverseRouteUrl(urlstr)
@@ -877,6 +942,7 @@ end
 
 def reverseRouteHash(routeHash)
    route=[]
+   placelist=[]
    url=""
    if routeHash[:route].count>0 then 
      oldurl=routeHash[:url].split('x')[1..-1]
@@ -891,17 +957,42 @@ def reverseRouteHash(routeHash)
        end
        urlindex-=1
      end
+     routeHash[:placelist].each do |pl|
+       placelist=[pl]+placelist
+     end
      #get endplace (remembering that we need to reverse the last leg direction first)
      rt=routeHash[:route].last
      place=Route.find_by_signed_id(rt).try(:startplace_id)
    else
      place=routeHash[:place]
    end
-   {:place => place, :route => route, :url => url, :startplace => routeHash[:place]}
+   {:place => place, :placelist => placelist, :route => route, :url => url, :startplace => routeHash[:place]}
 end
 
 def prune_route_index
   #delete old entries using this route
   RouteIndex.where("url ~ ? or url ~ ?",'x[rq]v[-]{0,1}'+self.id.abs.to_s+'x', 'x[rq]v[-]{0,1}'+self.id.abs.to_s+'$').destroy_all
 end
+
+def location_without_nan(locn)
+   if locn then
+     lastz=nil
+     linestr="LINESTRING("
+     locn.points.each do |p|
+       if linestr.length>11 then linestr+="," end
+       z=p.z
+       if z.nan? then
+         if lastz then 
+           z=lastz 
+         else
+           if locn.points.count>1 then z=locn.points[1].z else z=0 end
+         end
+       end
+       linestr+=p.x.to_s+" "+p.y.to_s+" "+z.to_s
+       lastz=p.z
+     end
+     locn=linestr+")"
+   end
+ locn
+ end
 end

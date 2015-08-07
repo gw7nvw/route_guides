@@ -22,13 +22,13 @@ class ApplicationController < ActionController::Base
   end
 
   def prepare_route_vars()
-    @importances = RouteImportance.all
-    @route_types = Routetype.all
-    @gradients = Gradient.all
-    @alpines = Alpine.all
-    @alpinews = Alpinew.all
-    @rivers = River.all
-    @terrains = Terrain.all
+    @importances = RouteImportance.all.order(:id)
+    @route_types = Routetype.all.order(:id)
+    @gradients = Gradient.all.order(:id)
+    @alpines = Alpine.all.order(:id)
+    @alpinews = Alpinew.all.order(:id)
+    @rivers = River.all.order(:id)
+    @terrains = Terrain.all.order(:id)
   end
 
   def show_many()
@@ -54,8 +54,8 @@ class ApplicationController < ActionController::Base
         arr=@items.first[2..-1].split('y')
         if arr.count==3 then @startplace=Place.find_by_id(arr[1].to_i) end
       end
-      if @items.last[0]=='p' and @items.first[2..-1].to_i>0 then @endplace=Place.find_by_id(@items.last[2..-1].to_i) end
-      if (@items.last[0]=='r') and @items.first[2..-1].to_i!=0 then  routeId=@items.last[2..-1].to_i
+      if @items.last[0]=='p' and @items.last[2..-1].to_i>0 then @endplace=Place.find_by_id(@items.last[2..-1].to_i) end
+      if (@items.last[0]=='r') and @items.last[2..-1].to_i!=0 then  routeId=@items.last[2..-1].to_i
         route=Route.find_by_signed_id(routeId)
         if route then @endplace=Place.find_by_id(route.endplace_id) end
       end
@@ -77,9 +77,15 @@ def route_to_gpx(routes)
    if routes and routes.count>0 then 
      route=routes.first
 
+     if routes and routes.first.startplace and routes.last.endplace then
+       name=routes.first.startplace.name+" to "+routes.last.endplace.name
+       if routes.count==1 then name+=" via "+routes.first.via end
+     else
+       name="route"
+     end
      #currently just use data from first route segment for creator, etc 
      trk = gpx.add_element 'trk'
-     trk.add_element('name').add REXML::Text.new(route.name||"route")
+     trk.add_element('name').add REXML::Text.new(name)
      if route.createdBy_id then trk.add_element('author').add REXML::Text.new(route.createdBy.name) end
      trk.add_element('url').add REXML::Text.new('http://routeguides.co.nz/routes/'+route.id.to_s)
      trk.add_element('time').add REXML::Text.new(route.created_at.to_s)
@@ -98,12 +104,10 @@ def route_to_gpx(routes)
          end
        end
     end
-    output = String.new
-    formatter = REXML::Formatters::Pretty.new
-    formatter.write(gpx, output)
-    return output
-  else
-    return nil
   end
+  output = String.new
+  formatter = REXML::Formatters::Pretty.new
+  formatter.write(gpx, output)
+  return output
 end
 end

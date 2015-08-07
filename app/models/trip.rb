@@ -1,6 +1,6 @@
 class Trip < ActiveRecord::Base
-   has_many :trip_details
-
+  has_many :trip_details
+  validates :name,  presence: true
   belongs_to :createdBy, class_name: "User"
 
 def startplace

@@ -1,6 +1,7 @@
- <% links.each do |link| %>
+<% @linkcnt=0 if !@linkcnt %> 
+<% links.each do |link| %>
          <div class="erow"><div class="hrline"> <hr noshade size="2"> </div></div>
-         <div class="erow">
+         <div class="erow" id="linkrow<%=@linkcnt.to_s%>">
           <% case parent_type
              when 'place' 
                     linktext=link.place_type
@@ -15,7 +16,7 @@
                 <img id="placeplus" src="/assets/tick.png" onclick="link_confirm('<%=parent_type%>',<%=link.id.to_s%>,'<%=link.name%>')" width="16" style="display:block">
               </span>
              </div>
-             <div class="rowtext">
+             <div class="rowtext" id="linktext<%=@linkcnt.to_s%>">
                <%=link.name+" ("+linktext+")"%>
              </div>
            <% else %>

@@ -707,7 +707,8 @@ input {
     .date_pagination a:hover, .date_pagination a:focus { 
       text-decoration: underline; }
 
-.olTileImage.olImageLoadError {
-    display: none !important;
+div.olControlMousePosition, div.olControlScale {
+    text-shadow: 0 0 0.2em #FFF, 0 0 0.2em #FFF, 0 0 0.2em #FFF;
+
 }
 /* mobile specific */

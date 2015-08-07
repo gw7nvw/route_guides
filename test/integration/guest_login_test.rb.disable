@@ -15,18 +15,18 @@ end
   test "add to trip (place) creates guest" do
     get root_path
     assert_not is_guest?
-    get '/places/'+@place.id.to_s
+    get '/places/'+@testplace.id.to_s
     assert_template 'places/show'
     guestCnt=Guest.count
     tripCnt=Trip.count
-    patch 'places/'+@place.id.to_s, add: "Add to trip"
+    patch 'places/'+@testplace.id.to_s, add: "Add to trip"
     #check we created gues, created trip, added to trip
     assert Guest.count==guestCnt+1
     assert Trip.count==tripCnt+1
     assert is_guest?
     guest=Guest.last
     trip=guest.currenttrip
-    assert trip.trip_details.first.place_id=@place.id
+    assert trip.trip_details.first.place_id=@testplace.id
     assert guest.currenttrip_id==Trip.last.id
     follow_redirect!
     assert_template 'places/show'
@@ -36,25 +36,25 @@ end
     get '/currenttrip' 
 
     assert_template 'trips/show'
-    assert_select "div#place_details>div.erow>div.sectiontitle25", {:count =>1, :text=> @place.name+" ("+@place.place_type+")"}
+    assert_select "div#place_details>div.erow>div.sectiontitle25", {:count =>1, :text=> @testplace.name+" (DOC Hut)"}
     assert_select "div#place1"
     assert_select "div#place2", false
 
 
     #2nd add adds but doesnt create new guest
-    get '/places/'+@place2.id.to_s
+    get '/places/'+@testplace2.id.to_s
     assert_template 'places/show'
     guestCnt=Guest.count
     tripCnt=Trip.count
     tripDCnt=TripDetail.count
-    patch 'places/'+@place2.id.to_s, add: "Add to trip"
+    patch 'places/'+@testplace2.id.to_s, add: "Add to trip"
     #check we created gues, created trip, added to trip
     assert Guest.count==guestCnt
     assert Trip.count==tripCnt
     assert TripDetail.count==tripDCnt+1
     assert is_guest?
-    assert trip.trip_details.first.place_id=@place.id
-    assert trip.trip_details.last.place_id=@place2.id
+    assert trip.trip_details.first.place_id=@testplace.id
+    assert trip.trip_details.last.place_id=@testplace2.id
     assert guest.currenttrip_id==Trip.last.id
     assert_template 'places/show'
     assert_select  "div.alert", "Added place to trip"
@@ -72,18 +72,18 @@ end
   test "add to trip (route) creates guest" do
     get root_path
     assert_not is_guest?
-    get '/routes/'+@route.id.to_s
+    get '/routes/'+@testroute.id.to_s
     assert_template 'routes/show'
     guestCnt=Guest.count
     tripCnt=Trip.count
-    patch 'routes/'+@route.id.to_s, addfw: "Add to trip"
+    patch 'routes/'+@testroute.id.to_s, addfw: "Add to trip"
     #check we created gues, created trip, added to trip
     assert Guest.count==guestCnt+1
     assert Trip.count==tripCnt+1
     assert is_guest?
     guest=Guest.last
     trip=guest.currenttrip
-    assert trip.trip_details.first.route_id=@route.id
+    assert trip.trip_details.first.route_id=@testroute.id
     assert guest.currenttrip_id==Trip.last.id
     follow_redirect!
     assert_template 'routes/show'
@@ -94,25 +94,26 @@ end
 
     assert_template 'trips/show'
     #Will be Draft/n/t<title>
-    assert_select "div#route_details>div.erow>div.sectiontitle25", {:count =>1, :text=> /.*#{@route.name}/}
+    thisname=@testroute.startplace.name+" to "+@testroute.endplace.name+" via "+@testroute.via
+    assert_select "div#route_details>div.erow>div.sectiontitle25", {:count =>1, :text=> /.*#{thisname}/}
     assert_select "div#route1"
     assert_select "div#route2", false
 
 
     #2nd add adds but doesnt create new guest
-    get '/routes/'+@route2.id.to_s
+    get '/routes/'+@testroute2.id.to_s
     assert_template 'routes/show'
     guestCnt=Guest.count
     tripCnt=Trip.count
     tripDCnt=TripDetail.count
-    patch 'routes/'+@route2.id.to_s, addfw: "Add to trip"
+    patch 'routes/'+@testroute2.id.to_s, addfw: "Add to trip"
     #check we created gues, created trip, added to trip
     assert Guest.count==guestCnt
     assert Trip.count==tripCnt
     assert TripDetail.count==tripDCnt+1
     assert is_guest?
-    assert trip.trip_details.first.route_id=@route.id
-    assert trip.trip_details.last.route_id=@route2.id
+    assert trip.trip_details.first.route_id=@testroute.id
+    assert trip.trip_details.last.route_id=@testroute2.id
     assert guest.currenttrip_id==Trip.last.id
     assert_template 'routes/show'
     assert_select  "div.alert", "Added route to trip"
@@ -129,18 +130,18 @@ end
   test "add (reverse) to trip (route) creates guest" do
     get root_path
     assert_not is_guest?
-    get '/routes/'+@route.id.to_s
+    get '/routes/'+@testroute.id.to_s
     assert_template 'routes/show'
     guestCnt=Guest.count
     tripCnt=Trip.count
-    patch 'routes/'+@route.id.to_s, addrv: "Add to trip"
+    patch 'routes/'+@testroute.id.to_s, addrv: "Add to trip"
     #check we created gues, created trip, added to trip
     assert Guest.count==guestCnt+1
     assert Trip.count==tripCnt+1
     assert is_guest?
     guest=Guest.last
     trip=guest.currenttrip
-    assert trip.trip_details.first.route_id==-@route.id
+    assert trip.trip_details.first.route_id==-@testroute.id
     assert guest.currenttrip_id==Trip.last.id
     follow_redirect!
     assert_template 'routes/show'
@@ -151,26 +152,26 @@ end
 
     assert_template 'trips/show'
     #Will be Draft/n/t<title>
-    revname=@route.endplace.name+" to "+@route.startplace.name+" via "+@route.via
+    revname=@testroute.endplace.name+" to "+@testroute.startplace.name+" via "+@testroute.via
     assert_select "div#route_details>div.erow>div.sectiontitle25", {:count =>1, :text=> /.*#{revname}/}
     assert_select "div#route1"
     assert_select "div#route2", false
 
 
     #2nd add adds but doesnt create new guest
-    get '/routes/'+@route2.id.to_s
+    get '/routes/'+@testroute2.id.to_s
     assert_template 'routes/show'
     guestCnt=Guest.count
     tripCnt=Trip.count
     tripDCnt=TripDetail.count
-    patch 'routes/'+@route2.id.to_s, addrv: "Add to trip"
+    patch 'routes/'+@testroute2.id.to_s, addrv: "Add to trip"
     #check we created gues, created trip, added to trip
     assert Guest.count==guestCnt
     assert Trip.count==tripCnt
     assert TripDetail.count==tripDCnt+1
     assert is_guest?
-    assert trip.trip_details.first.route_id==-@route.id
-    assert trip.trip_details.last.route_id==-@route2.id
+    assert trip.trip_details.first.route_id==-@testroute.id
+    assert trip.trip_details.last.route_id==-@testroute2.id
     assert guest.currenttrip_id==Trip.last.id
     assert_template 'routes/show'
     assert_select  "div.alert", "Added route to trip"
@@ -186,24 +187,24 @@ end
   end
 
   test "guest expiry" do
-    @trip=Trip.create(name: "Test trip", created_at: 4.months.ago, updated_at: 4.months.ago)
-    @guest=Guest.create(created_at: 4.months.ago, updated_at: 4.months.ago, currenttrip_id: @trip.id)
-    @td1=TripDetail.create(trip_id: @trip.id, place_id: @place.id, order: 1)
-    @td2=TripDetail.create(trip_id: @trip.id, route_id: @route.id, order: 2)
-    @trip.reload
+    @testtrip=Trip.create(name: "Test trip", created_at: 4.months.ago, updated_at: 4.months.ago)
+    @guest=Guest.create(created_at: 4.months.ago, updated_at: 4.months.ago, currenttrip_id: @testtrip.id)
+    @td1=TripDetail.create(trip_id: @testtrip.id, place_id: @testplace.id, order: 1)
+    @td2=TripDetail.create(trip_id: @testtrip.id, route_id: @testroute.id, order: 2)
+    @testtrip.reload
     @guest.reload
-    assert @trip.created_at<=4.months.ago()
+    assert @testtrip.created_at<=4.months.ago()
     assert @guest.created_at<=4.months.ago()
 
     #now trigger new guest 
     get root_path
     assert_not is_guest?
-    get '/routes/'+@route.id.to_s
+    get '/routes/'+@testroute.id.to_s
     assert_template 'routes/show'
     guestCnt=Guest.count
     tripCnt=Trip.count
     tdCnt=TripDetail.count
-    patch 'routes/'+@route.id.to_s, addrv: "Add to trip"
+    patch 'routes/'+@testroute.id.to_s, addrv: "Add to trip"
     #check we created guest and deleted 1 guest, created /deleted trip, added 1 element to trip, deleted 2
     assert_equal Guest.count, guestCnt
     assert_equal Trip.count, tripCnt
@@ -211,7 +212,7 @@ end
     assert is_guest?
     guest=Guest.last
     trip=guest.currenttrip
-    assert_equal trip.trip_details.first.route_id, -@route.id
+    assert_equal trip.trip_details.first.route_id, -@testroute.id
     assert_equal guest.currenttrip_id, Trip.last.id
     follow_redirect!
     assert_response :success
@@ -219,7 +220,7 @@ end
     assert_select  "div.alert", "Added route to trip"
 
     #verify old trip and guestgone
-    assert_not Trip.find_by_id(@trip.id)
+    assert_not Trip.find_by_id(@testtrip.id)
     assert_not Guest.find_by_id(@guest.id)
     assert_not TripDetail.find_by_id(@td1.id)
     assert_not TripDetail.find_by_id(@td2.id)
@@ -229,12 +230,12 @@ end
   test "geust user signs up" do
     get root_path
     assert_not is_guest?
-    get '/routes/'+@route.id.to_s
+    get '/routes/'+@testroute.id.to_s
     assert_template 'routes/show'
     guestCnt=Guest.count
     tripCnt=Trip.count
     tdCnt=TripDetail.count
-    patch 'routes/'+@route.id.to_s, addfw: "Add to trip"
+    patch 'routes/'+@testroute.id.to_s, addfw: "Add to trip"
     #check we created guest and deleted 1 guest, created /deleted trip, added 1 element to trip, deleted 2
     guest=Guest.last
     assert_equal Guest.count, guestCnt+1
@@ -259,7 +260,8 @@ end
     #guest can still view trip 
     get '/currenttrip' 
     assert_template 'trips/show'
-    assert_select "div#route_details>div.erow>div.sectiontitle25", {:count =>1, :text=> /.*#{@route.name}/}
+    thisname=@testroute.startplace.name+" to "+@testroute.endplace.name+" via "+@testroute.via
+    assert_select "div#route_details>div.erow>div.sectiontitle25", {:count =>1, :text=> /.*#{thisname}/}
     assert_select "div#route1"
     assert_select "div#route2", false
     
@@ -277,7 +279,7 @@ end
     #and our trip is ours
     get '/currenttrip' 
     assert_template 'trips/show'
-    assert_select "div#route_details>div.erow>div.sectiontitle25", {:count =>1, :text=> /.*#{@route.name}/}
+    assert_select "div#route_details>div.erow>div.sectiontitle25", {:count =>1, :text=> /.*#{thisname}/}
     assert_select "div#route1"
     assert_select "div#route2", false
         

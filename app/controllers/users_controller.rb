@@ -1,7 +1,11 @@
 class UsersController < ApplicationController
   before_action :signed_in_user, only: [:edit, :update, :drafts] 
   def index
-    @users=User.where(:activated=>true).order(:lastVisited).reverse
+    if signed_in? and @current_user.role.name=='root' then
+      @users=User.all.order(:lastVisited).reverse
+    else
+      @users=User.where(:activated=>true).order(:lastVisited).reverse
+    end
   end
 
   def show
