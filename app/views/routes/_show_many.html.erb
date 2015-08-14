@@ -56,7 +56,14 @@
          <% if item[1]=="e" and @place and signed_in? then %>
            <% @place=@editplace if @editplace %>
            <% @place.experienced_at=nil if @current_user!=@place.updatedBy %>
-           <div id="place_form">
+             <div id="place_form">
+               <div class="sectiontitle" id="actiontitle">
+                 <% if @url and (@url.include?('rc')) %>
+                    Enter details of place at which to split this route:
+                 <% else %>
+                    <%='Enter details of '+@placecount.ordinalize+' place'%>
+                 <% end %>
+               </div>
              <%= render '/places/place_form' %> 
            </div>
          <% end %>
@@ -71,8 +78,12 @@
               end %>
            <div id="place_form">
              <div class='erow'>
-               <div class='sectiontitle'>
-                 <%='Enter details of '+@placecount.ordinalize+' place'%>
+               <div class='sectiontitle' id="actiontitle">
+                   <% if @url and (@url.include?('rc')) %>
+                      Enter details of place at which to split this route:
+                   <% else %>
+                      <%='Enter details of '+@placecount.ordinalize+' place'%>
+                   <% end %>
                </div>
              </div>
              <%= render '/places/place_form' %> 

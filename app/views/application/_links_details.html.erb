@@ -1,7 +1,8 @@
 <%linkcnt=0%>
-  <% parent.links.each do |rl| %>
+<% if @ourlinks then ourlinks=@ourlinks else ourlinks=parent.links end %>
+  <% ourlinks.each do |rl| %>
       <div class="erow" style="margin-left:25px;width:calc(100% - 25px)">
-        <% if rl.item_type!='photo'%>
+        <% if rl.item_type!='photo'and  rl.item_type!='done'%>
           <div class="rowtitle" id="linktitle<%=linkcnt.to_s%>">
             <%= rl.item_type.capitalize+": "%>
           </div>
@@ -13,6 +14,7 @@
           <% when 'URL' %>
             <%= link_to rl.item_url, rl.item_url, :target=>"_blank" %>
           <% when 'photo' %>
+          <% when 'done' %>
           <% else %>
             <%= link_to rl.child.name, rl.child, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
           <% end %>
