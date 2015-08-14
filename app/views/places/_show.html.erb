@@ -45,8 +45,10 @@
           </span>
         </div>
       <% end %>
-      <div class="sectiontitle-bold" id="links_title">
+      <div class="sectiontitle-bold" style="margin-bottom: 5px" id="links_title">
         Links:
+        <%@ourlinks=@place.links%>
+        <%=render :partial => 'links_icons', :locals => {:parent => @place} %>
       </div>
     </div>
     <%=render :partial => 'links_photos',  :locals => {:parent => @place} %>

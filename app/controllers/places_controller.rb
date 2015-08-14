@@ -270,14 +270,6 @@ def create
           render 'edit'
        end
 
-       if @url and @url.include?('xrc') then
-          @viewurl=split_route(@url, @place)
-            if !flash[:error] then flash[:success]="Success: route split. Now please edit the details of the first half of the split route" end
-          match=true
-       else
-         @viewurl=@url.tr("e","v")
-       end
-
        @place.attributes=place_params
        convert_location_params()
 
@@ -286,8 +278,16 @@ def create
 #       @place.updated_at = Time.new()
 
        if @place.save
-         @place.create_new_instance
          flash[:success] = "Updated place, id:"+@place.id.to_s
+         if @url and @url.include?('xrc') then
+            @viewurl=split_route(@url, @place)
+              if !flash[:error] then flash[:success]="Success: route split. Now please edit the details of the first half of the split route" end
+            match=true
+         else
+           @viewurl=@url.tr("e","v")
+         end
+
+         @place.create_new_instance
          if @url and @url.include?('x')
             #show routes screen
             #get all data for show many
@@ -368,12 +368,14 @@ def split_route(url, place)
   route_id=url.split('xrc')[1].split('x')[0].to_f
   route=Route.find_by_signed_id(route_id)
   if route then
-  r2=route.split(place) 
+    route.updatedBy=@current_user if @current_user
+    r2=route.split(place) 
     if (!route.customerrors) and r2 then
-      url=url.gsub('xrc','xrm').gsub('xps','').gsub('xpn','').gsub('xpe','')+"xrv"+r2.id.to_s
+      url=url.gsub('xrc','xrm').gsub('xps','').gsub('xpn','').gsub(/xpe.*/,'')+"xrv"+r2.id.to_s
     else
       url=url.gsub('xpn','xpe'+place.id.to_s)
-      flash[:error]=place.customerrors
+      flash[:error]=route.customerrors+'. Update the place (below) and save to try again'
+      puts route.customerrors
     end
   else
     flash[:error]="Error: Route does not exist"

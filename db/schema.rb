@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150709030333) do
+ActiveRecord::Schema.define(version: 20150814190321) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -52,6 +52,15 @@ ActiveRecord::Schema.define(version: 20150709030333) do
     t.spatial "geom",       limit: {:srid=>4326, :type=>"point"}
   end
 
+  create_table "dochuts", force: true do |t|
+    t.integer "doc_id"
+    t.string  "name"
+    t.string  "url"
+    t.integer "place_id"
+    t.integer "distance"
+    t.spatial "location", limit: {:srid=>4326, :type=>"point"}
+  end
+
   create_table "gradients", force: true do |t|
     t.string   "name"
     t.string   "description"
@@ -68,6 +77,17 @@ ActiveRecord::Schema.define(version: 20150709030333) do
   end
 
   add_index "guests", ["remember_token"], :name => "index_guests_on_remember_token"
+
+  create_table "hutbaggerhuts", force: true do |t|
+    t.string   "name"
+    t.string   "url"
+    t.integer  "place_id"
+    t.integer  "distance"
+    t.boolean  "removed"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.spatial  "location",   limit: {:srid=>4326, :type=>"point"}
+  end
 
   create_table "links", force: true do |t|
     t.integer  "item_id"
@@ -346,6 +366,14 @@ ActiveRecord::Schema.define(version: 20150709030333) do
     t.integer  "difficulty"
     t.datetime "created_at"
     t.datetime "updated_at"
+  end
+
+  create_table "tramperhuts", force: true do |t|
+    t.string  "name"
+    t.string  "url"
+    t.integer "place_id"
+    t.integer "distance"
+    t.spatial "location", limit: {:srid=>4326, :type=>"point"}
   end
 
   create_table "trip_details", force: true do |t|

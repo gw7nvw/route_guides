@@ -27,7 +27,7 @@ class Route < ActiveRecord::Base
   validates :endplace, presence: true
   belongs_to :endplace, class_name: "Place"
 
-  before_save { |route| route.name = route.startplace.name + " to " + route.endplace.name + " via " + route.via + " ("+route.routetype.name+")" }
+  before_validation { |route| route.name = route.startplace.name + " to " + route.endplace.name + " via " + route.via + " ("+route.routetype.name+")" }
   validates :name, uniqueness: true
   after_validation :default_values
   before_save :handle_negatives_before_save
@@ -118,13 +118,13 @@ def split(splitplace)
 
     # split the route
     route_segments=Route.find_by_sql [ "select (ST_Dump(ST_Split(ST_Snap(b.location, a.location, 0.003), a.location))).geom as location from places a join routes b on b.id=? where a.id=?", self.id, splitplace.id ]
-    if route_segments.count<2 then self.customerrors="Fewer than 2 segments resulted from split - " end
+    if route_segments.count<2 then self.customerrors="Fewer than 2 segments resulted from split" end
   end
   if !self.customerrors then
     startroute=route_segments[0].location
     endroute=route_segments[1].location
     if !(startroute and endroute and startroute.length>0 and endroute.length>0) then
-      self.customerrors="One of resulting segments had zero length - "
+      self.customerrors="One of resulting segments had zero length"
     end
   end
 
@@ -135,8 +135,13 @@ def split(splitplace)
 
     # change startplace of new route
     r2.startplace=splitplace
-    r2.name=r2.startplace.name+" to "+r2.endplace.name+" via "+r2.via+" part 1"
-    r2.distance=r2.location.length
+    r2.via=r2.via+" part 2"
+    r2.distance=r2.location.length/1000
+    r2.calc_altgain
+    r2.calc_altloss
+    r2.calc_minalt
+    r2.calc_maxalt
+
     if !r2.save  then self.customerrors="Failed to save new route - "+r2.errors.messages.to_s end
 
   end
@@ -144,18 +149,29 @@ def split(splitplace)
   if !self.customerrors then
     # change endplace of old route
     self.endplace=splitplace
-    self.name=self.startplace.name+" to "+self.endplace.name+" via "+self.via+" part 2"
-    self.distance=self.location.length
-    if !self.save then self.customerrors="Failed to update old route - "+route.errors.messages.to_s end
+    self.via=self.via+" part 1"
+    self.distance=self.location.length/1000
+    self.calc_altgain
+    self.calc_altloss
+    self.calc_minalt
+    self.calc_maxalt
+
+    if !self.save then 
+      self.customerrors="Failed to update old route - "+self.errors.messages.to_s 
+      r2.destroy
+    end
   end
   
   if !self.customerrors then
   
     # copy links
-    self.links.each do |l|
+    self.links.each do |lnk|
+      l=Link.find_by_id(lnk)
       l2=l.dup
-      l2.baseItem_id=r2.id
-      if !l2.save  then self.customerrors="Failed to copy link "+l2.errors.messages.to_s end
+      if l2.baseItem_id==self.id then l2.baseItem_id=r2.id else l2.item_id=r2.id end
+      if !l2.save  then 
+           self.customerrors="Route has been split, but failed creating a link for the new route: "+l2.errors.messages.to_s
+      end
     end
   end
 
@@ -163,7 +179,7 @@ def split(splitplace)
     # insert newroute after oldroute in trips (or -newroute before -oldroute)
     trip_ids=(TripDetail.find_by_sql ["select trip_id from trip_details where route_id = ? or route_id=?", self.id, -self.id]).uniq
     trip_ids.each do |tid|
-      t=Trip.find_by_id(tid)
+      t=Trip.find_by_id(tid.trip_id)
         
       #find this route within this trip and add new route before / after
       after=[]
@@ -176,13 +192,13 @@ def split(splitplace)
           td.save
           order+=1
           if !td2=TripDetail.create(:order => order, :route_id => r2.id, :trip_id => t.id) then 
-            self.customerrors="Failed to copy tripdetail "+td2.errors.messages.to_s end
+            self.customerrors="Route has been split, but failed to update a trip to use the new split route: "+td2.errors.messages.to_s end
           order+=1
         else 
           #insert before this td
           if td.route_id==-self.id then
             if !td2=TripDetail.create(:order => order, :route_id => -r2.id, :trip_id => t.id) then
-              self.customerrors="Failed to copy tripdetail "+td2.errors.messages.to_s end
+              self.customerrors="Route has been split, but failed to update a trip to use the new split route:  "+td2.errors.messages.to_s end
             order+=1
             td.order=order
             td.save
@@ -190,7 +206,8 @@ def split(splitplace)
           else
             #just copy original td
             td.order=order
-            if !td.save then self.customerrors="Failed to updated tripdetail "+td.errors.messages.to_s end
+            if !td.save then self.customerrors="Route has been split, but failed to update a trip to use the new split route:  "+td.errors.messages.to_s end
+            order+=1
           end
         end
       end

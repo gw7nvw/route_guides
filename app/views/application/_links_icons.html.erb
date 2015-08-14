@@ -1,0 +1,26 @@
+<%linkcnt=0%>
+  <% @ourlinks.each do |rl| %>
+        <% if rl.item_type=='URL' %>
+          <% if rl.item_url[0..17]=="http://doc.govt.nz" or rl.item_url[0..21]=="http://www.doc.govt.nz" %>
+             <span title="Further information at the DOC website">
+               <%=  link_to image_tag("/assets/doc-logo.png", :border=>5, :class => 'dock-item'), rl.item_url, :target=>"_blank" %>
+             </span>
+             <% @ourlinks[linkcnt].item_type="done"%>
+          <% end %>
+          <% if rl.item_url[0..16]=="http://tramper.nz" or rl.item_url[0..20]=="http://www.tramper.nz"%>
+             <span title="Further information at New Zealand Tramper">
+               <%=  link_to image_tag("/assets/tramper-logo.png", :border=>5, :class => 'dock-item'), rl.item_url, :target=>"_blank" %>
+             </span>
+             <% @ourlinks[linkcnt].item_type="done"%>
+          <% end %>
+          <% if rl.item_url[0..21]=="http://hutbagger.co.nz" or rl.item_url[0..25]=="http://www.hutbagger.co.nz" %>
+             <span title="Bag this hut at Hutbagger NZ">
+               <%=  link_to image_tag("/assets/hutbagger-logo.png", :border=>5, :class => 'dock-item'), rl.item_url, :target=>"_blank" %>
+             </span>
+             <% @ourlinks[linkcnt].item_type="done"%>
+          <% end %>
+         <% end %>
+      <% linkcnt+=1%>
+<% end%>
+
+
