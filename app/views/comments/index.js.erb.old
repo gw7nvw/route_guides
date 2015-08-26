@@ -1,0 +1,1 @@
+$('#comments_section').html("<%= escape_javascript(render(:partial => 'comments/comments_index')).html_safe %>");

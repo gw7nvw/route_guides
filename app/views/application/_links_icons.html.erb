@@ -15,7 +15,7 @@
           <% end %>
           <% if rl.item_url[0..21]=="http://hutbagger.co.nz" or rl.item_url[0..25]=="http://www.hutbagger.co.nz" %>
              <span title="Bag this hut at Hutbagger NZ">
-               <%=  link_to image_tag("/assets/hutbagger-logo.png", :border=>5, :class => 'dock-item'), rl.item_url, :target=>"_blank" %>
+               <%=  link_to image_tag("/assets/hutbagger-plus1-logo.png", :border=>5, :class => 'dock-item'), rl.item_url, :target=>"_blank" %>
              </span>
              <% @ourlinks[linkcnt].item_type="done"%>
           <% end %>

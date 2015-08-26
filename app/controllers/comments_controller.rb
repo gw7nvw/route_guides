@@ -3,6 +3,9 @@ class CommentsController < ApplicationController
 
 
 def index
+    @order='latest'
+
+    @comments=Comment.all.order('created_at desc').paginate(:per_page => 80, :page => params[:page])
 end
 
 

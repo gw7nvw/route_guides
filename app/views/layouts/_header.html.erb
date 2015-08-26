@@ -1,5 +1,8 @@
     <header class="navbar navbar-fixed-top navbar-inverse">
       <div class="navbar-inner" style="font-size:0.8em">
+        <div style="float:left;width=44;height:40;margin-left:4px">
+        <img src='/assets/logo-rg-sml.png'>
+        </div>
 <!--        <div class="container"> -->
         <div id="our_logo">
           <%= link_to "Route Guides"+@title, root_path, id: "logo" %>
@@ -61,6 +64,7 @@
                 </a>
                 <ul class="dropdown-menu">
                   <li><%= link_to "Forum", '/forums',  remote: true,  :id => 'forum_link', :onclick => "linkHandler('forum_link')" %></li>
+                  <li><%= link_to "Comments", '/comments',  remote: true,  :id => 'comments_link', :onclick => "linkHandler('comments_link')" %></li>
                   <% if signed_in? %>
                       <li><%= link_to "Mail", '/messages',  remote: true,  :id => 'mail_link', :onclick => "linkHandler('mail_link')" %></li>
                   <% end %>

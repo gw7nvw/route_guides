@@ -40,7 +40,7 @@ test "edit links on places page as user" do
   assert_select "div#linktitle4", "Photo:"
   assert_select "div#linktext4", @testphoto1.name
   assert_select "div#linktitle5", "Url:"
-  assert_select "div#linktext5", "http://tramper.nz/"
+  assert_select "div#linktext5", "http://stuff.nz/"
   assert_select "div#linktitle6", "About:"
   assert_select "div#linktext6", "About"
   assert_select "input#deletelink", 7    #delete for each row

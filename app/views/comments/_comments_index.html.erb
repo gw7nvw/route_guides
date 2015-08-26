@@ -1,0 +1,41 @@
+<% provide(:title, 'Comments') %>
+<% @title=" | Comments" %>
+<%= render 'flash' %>
+<script>
+   update_title('<%=@title%>');
+   reset_map_controllers();
+   document.getElementById("page_status").innerHTML = '';
+
+$(function () {
+  $('#right_panel .pagination a').on('click', function () {
+    $.getScript(this.href);
+    return false;
+  });
+})
+</script>
+
+<div class="erow">
+   <div class="sectiontitle">
+      Comments:
+   </div>
+</div>
+<div class="erow">
+  <div class="date_pagination"> <%= will_paginate(@comments, :renderer => PaginationListLinkRenderer, :order => @order, :inner_window => 3) %></div>
+</div>
+
+<div class="erow">
+  <ul class="places">
+   <% @comments.each do |comment| %>
+
+      <li>
+         <%= link_to comment.createdBy.name.capitalize, '/users/'+comment.createdBy.name, remote: true%>
+         <%= "("+comment.created_at.to_date.to_s+"). "%> commented on  <%= link_to comment.item.name+" ("+comment.item_type+")", comment.item, remote: true, :id => 'comment_link_'+comment.id.to_s, :onclick => "linkHandler('comment_link_"+comment.id.to_s+"')" %>
+         <%= simple_format(comment.comment).html_safe %>
+      </li>
+   <% end %>
+  </ul>
+</div>
+<div class="erow">
+  <div class="date_pagination"> <%= will_paginate(@comments, :renderer => PaginationListLinkRenderer, :order => @order, :inner_window => 3) %></div>
+</div>
+

@@ -27,7 +27,7 @@ class Route < ActiveRecord::Base
   validates :endplace, presence: true
   belongs_to :endplace, class_name: "Place"
 
-  before_validation { |route| route.name = route.startplace.name + " to " + route.endplace.name + " via " + route.via + " ("+route.routetype.name+")" }
+  before_validation { |route| route.name = route.startplace.name + " to " + route.endplace.name + " via " + route.via + " ("+route.routetype.name+")" if route.startplace and route.endplace and route.routetype }
   validates :name, uniqueness: true
   after_validation :default_values
   before_save :handle_negatives_before_save
@@ -136,7 +136,7 @@ def split(splitplace)
     # change startplace of new route
     r2.startplace=splitplace
     r2.via=r2.via+" part 2"
-    r2.distance=r2.location.length/1000
+    r2.distance=r2.location.length
     r2.calc_altgain
     r2.calc_altloss
     r2.calc_minalt
@@ -150,7 +150,7 @@ def split(splitplace)
     # change endplace of old route
     self.endplace=splitplace
     self.via=self.via+" part 1"
-    self.distance=self.location.length/1000
+    self.distance=self.location.length
     self.calc_altgain
     self.calc_altloss
     self.calc_minalt

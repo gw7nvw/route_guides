@@ -97,20 +97,8 @@ p {
  margin-top: 28px;
 }
 
-#map_status{
-  width: calc(100% - 10px);
-  height: 24px;
-  float: left;
-  padding-left: 5px;
-  padding-right: 5px;
-  border-right: 2px solid;
-//  border-style: none double none none;
-  border-color: #999999;
-}
 #page_status{
-  width: 80px;
   height: 24px;
-  float: right;
 }
 
 #header
@@ -481,8 +469,8 @@ img.photo {
 }
 
 #map_map {
-        width: calc(100% - 10px);
-        height: calc(100% - 72px); 
+        width: calc(100% - 15px);
+        height: calc(100% - 48px); 
         border: 0px;
         margin: 0px;
  /*       margin-top: 100px; */
@@ -707,8 +695,142 @@ input {
     .date_pagination a:hover, .date_pagination a:focus { 
       text-decoration: underline; }
 
+        .olControlPanel {
+          margin-left: 40px;
+          margin-top: 8px;
+        }
+        .olControlPanel button {
+          position: relative;
+          display: block;
+          margin: 2px;
+          border: 1px solid;
+          padding: 0px 2px;
+          border-radius: 4px;
+          height: 32px;
+          background-color: white;
+          float: left;
+          overflow: visible; /* needed to remove padding from buttons in IE */
+        }
+        .olControlPanel button span {
+          padding-left: 25px;
+        }
+        .olControlPanel button span:first-child {
+          padding-left: 0;
+          display: block;
+          position: absolute;
+          left: 2px;
+        }
+        .olControlPanel .olControlPinItemInactive span:first-child {
+          background-image: url("/assets/pin24.png");
+          height: 24px;
+          width: 24px;
+          top: 2px;
+          left: 2px;
+        }
+       .olControlPanel .olControlCentreItemInactive span:first-child {
+          background-image: url("/assets/target24.png");
+          height: 24px;
+          width: 24px;
+          top: 2px;
+          left: 2px;
+        }
+        .olControlPanel .olControlLayersItemInactive span:first-child {
+          background-image: url("/assets/layers24.png");
+          height: 24px;
+          width: 24px;
+          top: 2px;
+          left: 2px;
+        }
+        .olControlPanel .olControlFilterItemInactive span:first-child {
+          background-image: url("/assets/filter24.png");
+          height: 24px;
+          width: 24px;
+          top: 2px;
+          left: 2px;
+        }
+        .olControlPanel .olControlPanItemInactive span:first-child {
+          background-image: url("/assets/pan24.png");
+          height: 24px;
+          width: 24px;
+          top: 2px;
+          left: 2px;
+        }
+        .olControlPanel .olControlBoxItemInactive span:first-child {
+          background-image: url("/assets/select-box.png");
+          height: 22px;
+          width: 22px;
+          top: 2px;
+          bottom: 2px;
+          left: 2px;
+          right: 2px;
+        }
+        .olControlPanel .olControlPrintItemInactive span:first-child {
+          background-image: url("/assets/save24.png");
+          height: 24px;
+          width: 24px;
+          top: 2px;
+          left: 2px;
+        }
+        .olControlPanel .olControlInfoItemInactive span:first-child {
+          background-image: url("/assets/info24.png");
+          height: 24px;
+          width: 24px;
+          top: 2px;
+          left: 2px;
+          cursor: default;
+        }
+        .olControlPanel .olControlSelectPointItemInactive span:first-child {
+          background-image: url("/assets/select-point24.png");
+          height: 24px;
+          width: 24px;
+          top: 2px;
+          left: 2px;
+          cursor: default;
+        }
+        .olControlPanel .olControlSelectLineItemInactive span:first-child {
+          background-image: url("/assets/select-line24.png");
+          height: 24px;
+          width: 24px;
+          top: 2px;
+          left: 2px;
+          cursor: default;
+        }
+        .olControlPanel .olControlDrawPointItemInactive span:first-child {
+          background-image: url("/assets/draw-point24.png");
+          height: 24px;
+          width: 24px;
+          top: 2px;
+          left: 2px;
+          cursor: default;
+        }
+        .olControlPanel .olControlDrawLineItemInactive span:first-child {
+          background-image: url("/assets/draw24.png");
+          height: 24px;
+          width: 24px;
+          top: 2px;
+          left: 2px;
+          cursor: default;
+        }
+        .olControlPanel .olControlDisabledItemInactive span:first-child {
+          background-image: url("/assets/white24.png");
+          height: 24px;
+          width: 24px;
+          top: 2px;
+          left: 2px;
+          cursor: default;
+        }
 div.olControlMousePosition, div.olControlScale {
     text-shadow: 0 0 0.2em #FFF, 0 0 0.2em #FFF, 0 0 0.2em #FFF;
 
 }
+.ui-resizable-e {
+  cursor: e-resize;
+  width: 7px;
+  right: -5px;
+  top: 0;
+  height: 100%;
+  float: right;
+  background-color: $grayLight;
+}
+
 /* mobile specific */
