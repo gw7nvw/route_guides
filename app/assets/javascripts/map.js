@@ -2,8 +2,8 @@ OpenLayers.IMAGE_RELOAD_ATTEMPTS = 3;
 OpenLayers.Util.onImageLoadErrorColor = "transparent";
 var map_map;
 var mapBounds = new OpenLayers.Bounds(748961,3808210, 2940563,  6836339);
-var mapMinZoom = 5;
-var mapMaxZoom = 15;
+var mapMinZoom = 0;
+var mapMaxZoom = 10;
 var map_pinned=false;
 
 var vectorLayer;
@@ -53,6 +53,16 @@ var tripsStale=false;
 var itemToCut;
 var positionToPaste;
 
+var mapset="mapspast";
+
+var pin_button;
+var pan_button;
+var info_button;
+var select_point_button;
+var select_line_button;
+var draw_point_button;
+var draw_line_button;
+var disabled_button;
 
 /* keep trtack of current page, and trigger refresh if we 'pop'
    a different page (back/forward buttons) */
@@ -61,8 +71,34 @@ window.onpopstate = function(event)  {
   if (document.URL != lastUrl) location.reload();
 };
 
+function init_mapspast() {
+  mapset="mapspast";
+  currentextent=mapBounds;
+  if(typeof(map_map)!='undefined') {
+     var currentextent=map_map.getExtent()
+     map_map.destroy();
+  }
+  do_init();
+  map_map.zoomToExtent(currentextent);
+}
+
+function init_linz() {
+  mapset="linz";
+  currentextent=mapBounds;
+  if(typeof(map_map)!='undefined') {
+     currentextent=map_map.getExtent()
+     map_map.destroy();
+  }
+  do_init();
+  map_map.zoomToExtent(currentextent);
+  map_map.zoomIn();
+}
 function init(){
   if(typeof(map_map)=='undefined') {
+    do_init();
+  }
+}
+function do_init(){
 
 containerWidth= $("#main_page").width()-25;
 nbpanels = 2;
@@ -99,17 +135,33 @@ padding = 5;
 	    /* define our point styles */
 	    create_styles();
 
-    var options = {
+    var mapspast_options = {
 projection: new OpenLayers.Projection("EPSG:2193"),
 	    displayProjection: new OpenLayers.Projection("EPSG:2193"),
 	    units: "m",
-	    //      max4Resolution: 156543.0339,
+	    //      maxResolution: 156543.0339,
       maxResolution: 4891.969809375,
+ //     resolutions: [8960, 4480, 2240, 1120, 560, 280, 140, 70, 28, 14, 7, 2.8, 1.4, 0.7, 0.28, 0.14, 0.07],
+//      maxResolution: 8960,
       numZoomLevels: 11,
       maxExtent: new OpenLayers.Bounds(-20037508, -20037508, 20037508, 20037508.34)
+ //    maxExtent:  new OpenLayers.Bounds(827933.23, 3729820.29, 3195373.59, 7039943.58)
  //       maxExtent: new OpenLayers.Bounds(545967,  3739728,  2507647, 6699370)
     };
-    map_map = new OpenLayers.Map('map_map', options);
+    var linz_options = {
+      projection: new OpenLayers.Projection("EPSG:2193"),
+            displayProjection: new OpenLayers.Projection("EPSG:2193"),
+            units: "m",
+      resolutions: [8960, 4480, 2240, 1120, 560, 280, 140, 70, 28, 14, 7, 2.8, 1.4, 0.7, 0.28, 0.14, 0.07],
+      numZoomLevels: 11,
+      maxExtent:  new OpenLayers.Bounds(827933.23, 3729820.29, 3195373.59, 7039943.58)
+    };
+
+    if (mapset=="mapspast") {
+      map_map = new OpenLayers.Map('map_map', mapspast_options);
+    } else {
+      map_map = new OpenLayers.Map('map_map', linz_options);
+    }
 
 
     renderer = OpenLayers.Util.getParameters(window.location.href).renderer;
@@ -123,59 +175,7 @@ projection: new OpenLayers.Projection("EPSG:2193"),
     layer_style.fillColor = "red";
 
     var extent=new OpenLayers.Bounds(545967,  3739728,  2507647, 6699370);
-
-    var basemap_layer =  new OpenLayers.Layer.TMS( "NZTM Topo 2009", "http://au.mapspast.org.nz/topo50/",
-        {    
-             type: 'png', 
-             getURL: overlay_getTileURL,
-             isBaseLayer: true,
-             tileOrigin: new OpenLayers.LonLat(0,-20037508),
-             displayInLayerSwitcher:true
-         });
-
-    var nzms1989_layer =  new OpenLayers.Layer.TMS( "NZMS1/260 1989", "http://au.mapspast.org.nz/nzms-1989/",
-        {    
-             type: 'png', 
-             getURL: overlay_getTileURL,
-             isBaseLayer: true,
-             tileOrigin: new OpenLayers.LonLat(0,-20037508),
-             displayInLayerSwitcher:true
-         });
-    var nzms1969_layer =  new OpenLayers.Layer.TMS( "NZMS1 1969", "http://au.mapspast.org.nz/nzms-1969/",
-        {    
-             type: 'png', 
-             getURL: overlay_getTileURL,
-             isBaseLayer: true,
-             tileOrigin: new OpenLayers.LonLat(0,-20037508),
-             displayInLayerSwitcher:true
-         });
-    
-    var nzms1979_layer =  new OpenLayers.Layer.TMS( "NZMS1 1979", "http://au.mapspast.org.nz/nzms-1979/",
-        {    
-             type: 'png', 
-             getURL: overlay_getTileURL,
-             isBaseLayer: true,
-           // tileOrigin: new OpenLayers.LonLat(0,-20037508),
-             displayInLayerSwitcher:true
-         });
-
-    var nzms1999_layer =  new OpenLayers.Layer.TMS( "NZMS260 1999", "http://au.mapspast.org.nz/nzms260-1999/",
-        {
-             type: 'png',
-             getURL: overlay_getTileURL,
-             isBaseLayer: true,
-           // tileOrigin: new OpenLayers.LonLat(0,-20037508),
-             displayInLayerSwitcher:true
-         });
-
-    var nzms1959_layer =  new OpenLayers.Layer.TMS( "NZMS1 1959", "http://au.mapspast.org.nz/nzms-1959/",
-        {
-             type: 'png',
-             getURL: overlay_getTileURL,
-             isBaseLayer: true,
-           // tileOrigin: new OpenLayers.LonLat(0,-20037508),
-             displayInLayerSwitcher:true
-         });
+//    var extent=new OpenLayers.Bounds(827933.23, 3729820.29, 3195373.59, 7039943.58)
 
     places_layer_add();
     places_layer.setVisibility(false);
@@ -184,12 +184,94 @@ projection: new OpenLayers.Projection("EPSG:2193"),
     routes_layer.setVisibility(false);
     routes_simple_layer_add();
 
-    map_map.addLayer(basemap_layer);
-    map_map.addLayer(nzms1999_layer);
-    map_map.addLayer(nzms1989_layer);
-    map_map.addLayer(nzms1979_layer);
-    map_map.addLayer(nzms1969_layer);
-    map_map.addLayer(nzms1959_layer);
+    if (mapset=="mapspast") {
+
+      var basemap_layer =  new OpenLayers.Layer.TMS( "NZTM Topo 2009", "http://au.mapspast.org.nz/topo50/",
+        {    
+             type: 'png', 
+             getURL: overlay_getTileURL,
+             isBaseLayer: true,
+             tileOrigin: new OpenLayers.LonLat(0,-20037508),
+             displayInLayerSwitcher:true
+         });
+
+      var nzms1989_layer =  new OpenLayers.Layer.TMS( "NZMS1/260 1989", "http://au.mapspast.org.nz/nzms-1989/",
+        {    
+             type: 'png', 
+             getURL: overlay_getTileURL,
+             isBaseLayer: true,
+             tileOrigin: new OpenLayers.LonLat(0,-20037508),
+             displayInLayerSwitcher:true
+         });
+      var nzms1969_layer =  new OpenLayers.Layer.TMS( "NZMS1 1969", "http://au.mapspast.org.nz/nzms-1969/",
+        {    
+             type: 'png', 
+             getURL: overlay_getTileURL,
+             isBaseLayer: true,
+             tileOrigin: new OpenLayers.LonLat(0,-20037508),
+             displayInLayerSwitcher:true
+         });
+    
+      var nzms1979_layer =  new OpenLayers.Layer.TMS( "NZMS1 1979", "http://au.mapspast.org.nz/nzms-1979/",
+        {    
+             type: 'png', 
+             getURL: overlay_getTileURL,
+             isBaseLayer: true,
+           // tileOrigin: new OpenLayers.LonLat(0,-20037508),
+             displayInLayerSwitcher:true
+         });
+
+      var nzms1999_layer =  new OpenLayers.Layer.TMS( "NZMS260 1999", "http://au.mapspast.org.nz/nzms260-1999/",
+        {
+             type: 'png',
+             getURL: overlay_getTileURL,
+             isBaseLayer: true,
+           // tileOrigin: new OpenLayers.LonLat(0,-20037508),
+             displayInLayerSwitcher:true
+         });
+
+      var nzms1959_layer =  new OpenLayers.Layer.TMS( "NZMS1 1959", "http://au.mapspast.org.nz/nzms-1959/",
+        {
+             type: 'png',
+             getURL: overlay_getTileURL,
+             isBaseLayer: true,
+           // tileOrigin: new OpenLayers.LonLat(0,-20037508),
+             displayInLayerSwitcher:true
+         });
+
+      map_map.addLayer(basemap_layer);
+      map_map.addLayer(nzms1999_layer);
+      map_map.addLayer(nzms1989_layer);
+      map_map.addLayer(nzms1979_layer);
+      map_map.addLayer(nzms1969_layer);
+      map_map.addLayer(nzms1959_layer);
+
+    } else {
+      var linztopo_layer =  new OpenLayers.Layer.TMS( "(LINZ) Topo50 latest", "http://tiles-a.data-cdn.linz.govt.nz/services;key=d8c83efc690a4de4ab067eadb6ae95e4/tiles/v4/layer=767/EPSG:2193/",
+        {
+             type: 'png',
+             getURL: overlay_getLinzTileURL,
+             isBaseLayer: true,
+             tileOrigin: new OpenLayers.LonLat(-1000000,10000000),
+//             tileOrigin: new OpenLayers.LonLat(20037508, -20037508),
+             displayInLayerSwitcher:true,
+             rowSign: 1
+         });
+      var air_layer =  new OpenLayers.Layer.TMS( "(LINZ) Airphoto latest", "http://tiles-a.data-cdn.linz.govt.nz/services;key=d8c83efc690a4de4ab067eadb6ae95e4/tiles/v4/set=2/EPSG:2193/",
+        {
+             type: 'png',
+             getURL: overlay_getLinzTileURL,
+             isBaseLayer: true,
+             tileOrigin: new OpenLayers.LonLat(-1000000,10000000),
+//             tileOrigin: new OpenLayers.LonLat(20037508, -20037508),
+             displayInLayerSwitcher:true,
+             rowSign: 1
+         });
+
+      map_map.addLayer(linztopo_layer);
+      map_map.addLayer(air_layer);
+    }
+
     map_map.addLayer(places_layer);
     map_map.addLayer(routes_layer);
     map_map.addLayer(routes_simple_layer);
@@ -199,9 +281,98 @@ projection: new OpenLayers.Projection("EPSG:2193"),
         prefix: 'NZTM2000: ',
         numDigits: 0}));
     map_map.addControl(new OpenLayers.Control.Scale());
-   
-    var switcherControl = new OpenLayers.Control.LayerSwitcher();
-    map_map.addControl(switcherControl);
+  
+    var layer_button = new OpenLayers.Control.Button({
+      displayClass: 'olControlLayers',
+      trigger: mapLayers,
+      title: 'Select basemap'
+    });
+    var filter_button = new OpenLayers.Control.Button({
+      displayClass: 'olControlFilter',
+      trigger: mapFilter,
+      title: 'Filter places / routes shown on map'
+    });
+    var centre_button = new OpenLayers.Control.Button({
+      displayClass: 'olControlCentre',
+      trigger: map_centre,
+      title: 'Centre map on current item'
+    });
+    pin_button = new OpenLayers.Control.Button({
+      displayClass: 'olControlPin',
+      trigger: pin_map,
+      title: 'Pin the map (disable centre on selected place/route)'
+    });
+    pan_button = new OpenLayers.Control.Button({
+      displayClass: 'olControlPan',
+      trigger: select_box,
+      title: 'Enable map panning (disables box-select)'
+    });
+    box_button = new OpenLayers.Control.Button({
+      displayClass: 'olControlBox',
+      trigger: select_box,
+      title: 'Enable box-select (disables panning)'
+    });
+    print_button = new OpenLayers.Control.Button({
+      displayClass: 'olControlPrint',
+      trigger: print_map,
+      title: 'Save / print the current map'
+    });
+    info_button = new OpenLayers.Control.Button({
+      displayClass: 'olControlInfo',
+      title: 'Current mouse action: click on map displays info on place/route segment'
+    });
+    select_point_button = new OpenLayers.Control.Button({
+      displayClass: 'olControlSelectPoint',
+      title: 'Current mouse action: click on map selects a place'
+    });
+    select_line_button = new OpenLayers.Control.Button({
+      displayClass: 'olControlSelectLine',
+      title: 'Current mouse action: click on map selects a route'
+    });
+    draw_point_button = new OpenLayers.Control.Button({
+      displayClass: 'olControlDrawPoint',
+      title: 'Current mouse action: click on map draws a place'
+    });
+    draw_line_button = new OpenLayers.Control.Button({
+      displayClass: 'olControlDrawLine',
+      title: 'Current mouse action: click on map draws a route'
+    });
+    disabled_button = new OpenLayers.Control.Button({
+      displayClass: 'olControlDisabled',
+      title: 'Current mouse action: click on map is currently disabled'
+    });
+
+      var panel = new OpenLayers.Control.Panel({
+          createControlMarkup: function(control) {
+              var button = document.createElement('button'),
+                  iconSpan = document.createElement('span'),
+                  textSpan = document.createElement('span');
+              iconSpan.innerHTML = '&nbsp;';
+              button.appendChild(iconSpan);
+              if (control.text) {
+                  textSpan.innerHTML = control.text;
+              }
+              button.appendChild(textSpan);
+              return button;
+         }
+      });
+
+    panel.addControls([info_button, select_point_button, select_line_button, draw_point_button, draw_line_button, disabled_button, layer_button, filter_button, centre_button, pin_button, pan_button, box_button, print_button]);
+    map_map.addControl(panel);
+    pan_button.panel_div.style.display="none";
+    info_button.panel_div.style.display="none";
+    select_point_button.panel_div.style.display="none";
+    select_line_button.panel_div.style.display="none";
+    draw_point_button.panel_div.style.display="none";
+    draw_line_button.panel_div.style.display="none";
+    info_button.panel_div.style.border="2px solid lightgreen";
+    select_point_button.panel_div.style.border="2px solid lightgreen";
+    select_line_button.panel_div.style.border="2px solid lightgreen";
+    draw_point_button.panel_div.style.border="2px solid lightgreen";
+    draw_line_button.panel_div.style.border="2px solid lightgreen";
+ 
+//    var switcherControl = new OpenLayers.Control.LayerSwitcher();
+//    map_map.addControl(switcherControl);
  
     // Create a select feature control and add it to the map.
     select = new OpenLayers.Control.SelectFeature([places_layer, routes_layer], {
@@ -257,12 +428,11 @@ projection: new OpenLayers.Projection("EPSG:2193"),
     click_to_select_all.activate();
     map_enable_info();
 
-    map_map.zoomToExtent( mapBounds.transform(map_map.displayProjection, map_map.projection ) );
+    //map_map.zoomToExtent( mapBounds.transform(map_map.displayProjection, map_map.projection ) );
 
     if(typeof(defzoom)!="undefined" &&  defzoom!=null)  {
         map_map.zoomTo(defzoom-5);
     }
-  }
 }
 
 function places_layer_add() {
@@ -760,7 +930,7 @@ function place_init(plloc, keep) {
 
       document.selectform.currentx.value=feaWGS.geometry.x;
       document.selectform.currenty.value=feaWGS.geometry.y;
-      if (map_pinned==false) centre_map();
+      if (map_pinned==false) map_centre();
     }
   }
 
@@ -818,7 +988,7 @@ function route_init(startloc, endloc, rtline, keep) {
   if (typeof(document.selectform)!='undefined' && endloc!="" && startloc!="") {
     document.selectform.currentx.value=(feaWGSs.geometry.x+feaWGSe.geometry.x)/2;
     document.selectform.currenty.value=(feaWGSs.geometry.y+feaWGSe.geometry.y)/2;
-    if (map_pinned==false) centre_map();
+    if (map_pinned==false) map_centre();
   }
 
 }
@@ -1127,12 +1297,25 @@ function linkWithExtent(entity_name) {
 
 }
 
+function overlay_getLinzTileURL(bounds,url) {
+    var res = this.map.getResolution();
+    var x = Math.round((bounds.left - this.tileOrigin.lon) / (res * this.tileSize.w));
+    var y = -Math.round((bounds.top - this.tileOrigin.lat) / (res * this.tileSize.h));
+    var z = this.map.getZoom();
+    //if (mapBounds.intersectsBounds( bounds ) && z >= mapMinZoom && z <= mapMaxZoom ) {
+       //console.log( this.url + z + "/" + x + "/" + y + "." + this.type);
+        return this.url + z + "/" + x + "/" + y + "." + this.type;
+    //} else {
+     //   return "http://www.maptiler.org/img/none.png";
+   // }
+
+}
 function overlay_getTileURL(bounds,url) {
     var res = this.map.getResolution();
     var x = Math.round((bounds.left - this.maxExtent.left) / (res * this.tileSize.w));
     var y = Math.round((bounds.bottom - this.tileOrigin.lat ) / (res * this.tileSize.h));
     var z = this.map.getZoom()+5;
-    if (mapBounds.intersectsBounds( bounds ) && z >= mapMinZoom && z <= mapMaxZoom ) {
+    if (mapBounds.intersectsBounds( bounds ) && z >= mapMinZoom+5 && z <= mapMaxZoom+5 ) {
        //console.log( this.url + z + "/" + x + "/" + y + "." + this.type);
         return this.url + z + "/" + x + "/" + y + "." + this.type;
     } else {
@@ -1144,39 +1327,39 @@ function overlay_getTileURL(bounds,url) {
 
 function map_disable_all() {
 
-  document.getElementById("info").style.display="none";
-  document.getElementById("select-point").style.display="none";
-  document.getElementById("select-line").style.display="none";
-  document.getElementById("draw-point").style.display="none";
-  document.getElementById("draw-line").style.display="none";
-  document.getElementById("map-none").style.display="inline";
+  info_button.panel_div.style.display="none";
+  select_point_button.panel_div.style.display="none";
+  select_line_button.panel_div.style.display="none";
+  draw_point_button.panel_div.style.display="none";
+  draw_line_button.panel_div.style.display="none";
+  disabled_button.panel_div.style.display="inline";
 
 }
 
 function map_enable_info() {
   map_disable_all();
-  document.getElementById("info").style.display="inline";
-  document.getElementById("map-none").style.display="none";
+  info_button.panel_div.style.display="inline";
+  disabled_button.panel_div.style.display="none";
 }
 function map_enable_select_point() {
   map_disable_all();
-  document.getElementById("select-point").style.display="inline";
-  document.getElementById("map-none").style.display="none";
+  select_point_button.panel_div.style.display="inline";
+  disabled_button.panel_div.style.display="none";
 }
 function map_enable_select_line() {
   map_disable_all();
-  document.getElementById("select-line").style.display="inline";
-  document.getElementById("map-none").style.display="none";
+  select_line_button.panel_div.style.display="inline";
+  disabled_button.panel_div.style.display="none";
 }
 function map_enable_draw_point() {
   map_disable_all();
-  document.getElementById("draw-point").style.display="inline";
-  document.getElementById("map-none").style.display="none";
+  draw_point_button.panel_div.style.display="inline";
+  disabled_button.panel_div.style.display="none";
 }
 function map_enable_draw_line() {
   map_disable_all();
-  document.getElementById("draw-line").style.display="inline";
-  document.getElementById("map-none").style.display="none";
+  draw_line_button.panel_div.style.display="inline";
+  disabled_button.panel_div.style.display="none";
 }
 
 function map_show_default() {
@@ -1228,6 +1411,11 @@ function toggle_routes() {
   } else {
     document.getElementById("show_route").style.border="2px solid lightgreen";
   };
+  //update dialog too
+  var dialog_filter=document.getElementById("dialog_filter");
+  var main_filter=document.getElementById("filterdiv");
+  dialog_filter.innerHTML=main_filter.innerHTML;
+
   show_route=!show_route;
   check_zoomend();
 
@@ -1238,13 +1426,18 @@ function toggle_routes() {
 function toggle_map(category){
   currentState=eval("show_"+category);
   var visibility=1;
-
   if (currentState) {
     visibility=0; 
     document.getElementById("show_"+category).style.border="2px solid orange";
   } else {
     document.getElementById("show_"+category).style.border="2px solid lightgreen";
   };
+
+  //update dialog too
+  var dialog_filter=document.getElementById("dialog_filter");
+  var main_filter=document.getElementById("filterdiv");
+  dialog_filter.innerHTML=main_filter.innerHTML;
+ 
   for (index=0; index<pt_styleMap.styles['default'].rules.length; ++index) {
      if (pt_styleMap.styles['default'].rules[index].filter != null)  {
        if ( pt_styleMap.styles['default'].rules[index].symbolizer.category == category ) {
@@ -1254,7 +1447,7 @@ function toggle_map(category){
      };
   };
   places_layer.refresh({force:true});
-
+  
   switch (category) {
    case "accomodation":
      show_accomodation=!currentState;
@@ -1286,6 +1479,9 @@ function check_moveend() {
 
 function check_zoomend() {
        var x = map_map.getZoom();
+       if(x>mapMaxZoom) setTimeout( function() { map_map.zoomTo(mapMaxZoom);}, 100);
+       if(x<mapMinZoom) setTimeout( function() { map_map.zoomTo(mapMinZoom);}, 100);
+
         // hide places above 7 zoom (too much data).  Turn back on if we drop below 
         if( x < 4) {
             places_layer.setVisibility(false);
@@ -1393,9 +1589,13 @@ function check_zoomend() {
     
     }
 
-    function centre_map()
+    function map_centre()
     {
-      map_map.setCenter([document.selectform.currentx.value,document.selectform.currenty.value]);
+      if(document.selectform.currentx.value>0) {
+        map_map.setCenter([document.selectform.currentx.value,document.selectform.currenty.value]);
+      } else {
+          map_map.zoomToExtent(mapBounds);
+      }
     }
 
     function pin_map()
@@ -1403,11 +1603,13 @@ function check_zoomend() {
       if (map_pinned==true)
       {
            map_pinned=false;
-           document.getElementById("pin-map").style.border="2px solid orange";
-           centre_map(); 
+           pin_button.panel_div.style.border="";
+//           document.getElementById("pin-map").style.border="2px solid orange";
+           map_centre(); 
       } else {
            map_pinned=true;
-           document.getElementById("pin-map").style.border="2px solid lightgreen";
+           pin_button.panel_div.style.border="2px solid lightgreen";
+//           document.getElementById("pin-map").style.border="2px solid lightgreen";
       }
     }
 
@@ -1422,11 +1624,12 @@ function check_zoomend() {
     }
     toggle_select();
     if(select.box==true) {
-           document.getElementById("select-box").style.border="2px solid lightgreen";
+           pan_button.panel_div.style.display="inline";
+           box_button.panel_div.style.display="none";
 
     } else {
-           document.getElementById("select-box").style.border="2px solid orange";
-
+           pan_button.panel_div.style.display="none";
+           box_button.panel_div.style.display="inline";
     }
   }
  
@@ -1497,5 +1700,97 @@ function showVersion() {
 
 function show_div(div) {
    document.getElementById(div).style.display="block";
+}
+
+function mapLayers() {
+        BootstrapDialog.show({
+            title: "Select basemap",
+            message: $('<div id="info_details2">Retrieving ...</div>'),
+            size: "size-small"
+        });
+
+        $.ajax({
+          beforeSend: function (xhr){
+            xhr.setRequestHeader("Content-Type","application/javascript");
+            xhr.setRequestHeader("Accept","text/javascript");
+          },
+          type: "GET",
+          timeout: 10000,
+          url: "/layerswitcher?baselayer="+map_map.baseLayer.name,
+          error: function() {
+              document.getElementById("info_details2").innerHTML = 'Error contacting server';
+          },
+          complete: function() {
+              document.getElementById("page_status").innerHTML = '';
+          }
+
+        });
+
+}
+function print_map() {
+        BootstrapDialog.show({
+            title: "Save / print map",
+            message: $('<div id="info_details2">Retrieving ...</div>'),
+            size: "size-small"
+        });
+
+        $.ajax({
+          beforeSend: function (xhr){
+            xhr.setRequestHeader("Content-Type","application/javascript");
+            xhr.setRequestHeader("Accept","text/javascript");
+          },
+          type: "GET",
+          timeout: 10000,
+          url: "/print",
+          error: function() {
+              document.getElementById("info_details2").innerHTML = 'Error contacting server';
+          },
+          complete: function() {
+              document.getElementById("page_status").innerHTML = '';
+          }
+
+        });
+
+}
+ function select_maplayer(name, url, basemap, minzoom, maxzoom) {
+    $.each(BootstrapDialog.dialogs, function(id, dialog){
+        dialog.close();
+    });
+      if(mapset=="mapspast" && basemap=="linz") {
+        init_linz()
+      }
+      if(mapset=="linz" && basemap=="mapspast") {
+        init_mapspast()
+      }
+      var thenewbase = map_map.getLayersByName(name)[0];
+      map_map.setBaseLayer(thenewbase);
+      map_map.baseLayer.setVisibility(true);
+      mapMinZoom=minzoom;
+      mapMaxZoom=maxzoom;
+}
+
+
+function mapFilter() {
+        var filterDivContent = document.getElementById('filterdiv');
+        BootstrapDialog.show({
+            title: "Selected map filters",
+            message: $("<div id='dialog_filter'>"+filterDivContent.innerHTML+"</div>"),
+            size: "size-small"
+        });
+        
+}
+function printmap(filetype) {
+  var xl=map_map.getExtent().left;
+  var xr=map_map.getExtent().right;
+  var yt=map_map.getExtent().top;
+  var yb=map_map.getExtent().bottom;
+  var width=document.printform.pix_width.value;
+  var height=document.printform.pix_height.value;
+  layerid=map_map.baseLayer.name;
+//  sheetid=document.extentform.layerid.value;
+  var maxzoom=mapMaxZoom;
+  var filename=document.printform.filename.value;
+  window.open('http://routeguides.co.nz/assets/print.html?print=true&left='+xl+'&right='+xr+'&top='+yt+'&bottom='+yb+'&layerid='+layerid+'&wwidth='+width+'&wheight='+height+'&maxzoom='+maxzoom+'&filetype='+filetype+'&filename='+filename, 'printwindow');
+  return false;
 }
 

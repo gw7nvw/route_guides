@@ -55,12 +55,12 @@
       </div>
 
       <div class="rowtext">
-        <input type="text" name="route_startplace_name" value='<%=@startplacename%>' disabled="disabled"/>
+        <input type="text" name="route_startplace_name" value='<%=@startplacename if @startplace%>' disabled="disabled"/>
       </div>
 <% if Rails.env.production? %>
-      <input type="hidden" name="route_startplace_id" value='<%=@startplace.id%>'/>
+      <input type="hidden" name="route_startplace_id" value='<%=@startplace.id if @startplace%>'/>
 <% else %>
-      <input type="text" name="route_startplace_id" value='<%=@startplace.id%>'/>
+      <input type="text" name="route_startplace_id" value='<%=@startplace.id if @startplace%>'/>
 <% end %>
 
       <input type="hidden" name="route_startplace_location"/>
