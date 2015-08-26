@@ -132,7 +132,7 @@ function init(){
   var places_layer = new OpenLayers.Layer.Vector("Places", {
                     strategies: [new OpenLayers.Strategy.BBOX()],
                     protocol: new OpenLayers.Protocol.WFS({
-                        url:  "/cgi-bin/mapserv?map=/ms4w/apps/matts_app/htdocs/places.map",
+                        url:  "http://routeguides.co.nz/cgi-bin/mapserv?map=/ms4w/apps/matts_app/htdocs/places.map",
                         featureType: "places",
                         extractAttributes: true
                     }),
@@ -143,7 +143,7 @@ function init(){
    var routes_layer = new OpenLayers.Layer.Vector("routes", {
                     strategies: [new OpenLayers.Strategy.BBOX()],
                     protocol: new OpenLayers.Protocol.WFS({
-                        url:  "/cgi-bin/mapserv?map=/ms4w/apps/matts_app/htdocs/routes.map",
+                        url:  "http://routeguides.co.nz/cgi-bin/mapserv?map=/ms4w/apps/matts_app/htdocs/routes.map",
                         featureType: "routes",
                         extractAttributes: true
                     }),
@@ -225,7 +225,7 @@ function init(){
   }
 
   if (filetype=='png') {
-    map.baseLayer.events.register("loadend", map.baseLayer, function() {
+    map.baseLayer.events.register("loadend", map.baseLayer, function() {setTimeout(function() {
       map.baseLayer.events.destroy("loadend");
       document.getElementById("map_status").innerHTML="";
       html2canvas(document.getElementById("map_map"),  
@@ -239,7 +239,7 @@ function init(){
            });          
          }
        });
-    });
+    }, 5000)});
   }
   if (filetype=='pgw') {
     map.baseLayer.events.register("loadend", map.baseLayer, function() {

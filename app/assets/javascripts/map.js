@@ -1790,7 +1790,14 @@ function printmap(filetype) {
 //  sheetid=document.extentform.layerid.value;
   var maxzoom=mapMaxZoom;
   var filename=document.printform.filename.value;
-  window.open('http://routeguides.co.nz/assets/print.html?print=true&left='+xl+'&right='+xr+'&top='+yt+'&bottom='+yb+'&layerid='+layerid+'&wwidth='+width+'&wheight='+height+'&maxzoom='+maxzoom+'&filetype='+filetype+'&filename='+filename, 'printwindow');
+  window.open('http://au.mapspast.org.nz/printrg.html?print=true&left='+xl+'&right='+xr+'&top='+yt+'&bottom='+yb+'&layerid='+layerid+'&wwidth='+width+'&wheight='+height+'&maxzoom='+maxzoom+'&filetype='+filetype+'&filename='+filename, 'printwindow');
   return false;
+}
+
+function updateDimensions() {
+   var papersize=document.printform.size.value
+
+   document.printform.pix_width.value=paperwidths[papersize];
+   document.printform.pix_height.value=paperheights[papersize];
 }
 
