@@ -292,6 +292,11 @@ projection: new OpenLayers.Projection("EPSG:2193"),
       trigger: mapFilter,
       title: 'Filter places / routes shown on map'
     });
+    var key_button = new OpenLayers.Control.Button({
+      displayClass: 'olControlKey',
+      trigger: mapKey,
+      title: 'Show legend / manage map colours'
+    });
     var centre_button = new OpenLayers.Control.Button({
       displayClass: 'olControlCentre',
       trigger: map_centre,
@@ -357,7 +362,7 @@ projection: new OpenLayers.Projection("EPSG:2193"),
          }
       });
 
-    panel.addControls([info_button, select_point_button, select_line_button, draw_point_button, draw_line_button, disabled_button, layer_button, filter_button, centre_button, pin_button, pan_button, box_button, print_button]);
+    panel.addControls([info_button, select_point_button, select_line_button, draw_point_button, draw_line_button, disabled_button, layer_button, filter_button, key_button, centre_button, pin_button, pan_button, box_button, print_button]);
     map_map.addControl(panel);
     pan_button.panel_div.style.display="none";
     info_button.panel_div.style.display="none";
@@ -439,7 +444,7 @@ function places_layer_add() {
     places_layer = new OpenLayers.Layer.Vector("Places", {
                     strategies: [new OpenLayers.Strategy.BBOX()],
                     protocol: new OpenLayers.Protocol.WFS({
-                        url:  "/cgi-bin/mapserv?map=/ms4w/apps/matts_app/htdocs/places.map",
+                        url:  "http://routeguides.co.nz/cgi-bin/mapserv?map=/ms4w/apps/matts_app/htdocs/places.map",
                         featureType: "places",
                         extractAttributes: true
                     }),
@@ -479,7 +484,7 @@ function routes_simple_layer_add() {
     routes_simple_layer = new OpenLayers.Layer.Vector("routes-simple", {
                     strategies: [new OpenLayers.Strategy.BBOX()],
                     protocol: new OpenLayers.Protocol.WFS({
-                        url:  "/cgi-bin/mapserv?map=/ms4w/apps/matts_app/htdocs/routes-simple.map",
+                        url:  "http://routeguides.co.nz/cgi-bin/mapserv?map=/ms4w/apps/matts_app/htdocs/routes-simple.map",
                         featureType: "routes-simple",
                         extractAttributes: true
                     }),
@@ -493,7 +498,7 @@ function routes_layer_add() {
     routes_layer = new OpenLayers.Layer.Vector("routes", {
                     strategies: [new OpenLayers.Strategy.BBOX()],
                     protocol: new OpenLayers.Protocol.WFS({
-                        url:  "/cgi-bin/mapserv?map=/ms4w/apps/matts_app/htdocs/routes.map",
+                        url:  "http://routeguides.co.nz/cgi-bin/mapserv?map=/ms4w/apps/matts_app/htdocs/routes.map",
                         featureType: "routes",
                         extractAttributes: true
                     }),
@@ -1702,6 +1707,29 @@ function show_div(div) {
    document.getElementById(div).style.display="block";
 }
 
+function mapKey() {
+        BootstrapDialog.show({
+            title: "Legend",
+            message: $('<div id="info_details2">Retrieving ...</div>'),
+            size: "size-small"
+        });
+
+        $.ajax({
+          beforeSend: function (xhr){
+            xhr.setRequestHeader("Content-Type","application/javascript");
+            xhr.setRequestHeader("Accept","text/javascript");
+          },
+          type: "GET",
+          timeout: 10000,
+          url: "/legend",
+          error: function() {
+              document.getElementById("info_details2").innerHTML = 'Error contacting server';
+          },
+          complete: function() {
+              document.getElementById("page_status").innerHTML = '';
+          }
+        });
+}
 function mapLayers() {
         BootstrapDialog.show({
             title: "Select basemap",

@@ -1,0 +1,7 @@
+<ul style="list-style-type:none;padding:0;margin:0;">
+<% @items.each do |i| %>
+  <li>
+  <span style="color:<%=i.linestyle.linecolor%>"><b>&mdash;&mdash;<b> <%=i.name%></span>
+  </li>
+<% end %>
+</ul>
