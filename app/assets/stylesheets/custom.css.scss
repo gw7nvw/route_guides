@@ -521,6 +521,8 @@ img.photo {
 	margin-bottom: 10px;
 }
 
+div#panel_div {
+}
 /*footer {
   margin-top: 45px;
   padding-top: 5px;
@@ -710,6 +712,12 @@ input {
           background-color: white;
           float: left;
           overflow: visible; /* needed to remove padding from buttons in IE */
+          opacity: 0.6;
+          filter: alpha(opacity=60); /* For IE8 and earlier */
+          &:hover {
+            opacity: 1;
+            filter: alpha(opacity=100); /* For IE8 and earlier */
+          }
         }
         .olControlPanel button span {
           padding-left: 25px;
@@ -743,6 +751,13 @@ input {
         }
         .olControlPanel .olControlFilterItemInactive span:first-child {
           background-image: url("/assets/filter24.png");
+          height: 24px;
+          width: 24px;
+          top: 2px;
+          left: 2px;
+        }
+        .olControlPanel .olControlKeyItemInactive span:first-child {
+          background-image: url("/assets/key24.png");
           height: 24px;
           width: 24px;
           top: 2px;
@@ -818,7 +833,8 @@ input {
           top: 2px;
           left: 2px;
           cursor: default;
-        }
+       }
+
 div.olControlMousePosition, div.olControlScale {
     text-shadow: 0 0 0.2em #FFF, 0 0 0.2em #FFF, 0 0 0.2em #FFF;
 
@@ -832,5 +848,6 @@ div.olControlMousePosition, div.olControlScale {
   float: right;
   background-color: $grayLight;
 }
+
 
 /* mobile specific */

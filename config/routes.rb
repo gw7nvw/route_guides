@@ -52,6 +52,7 @@ root 'static_pages#home'
   match '/reload',   to: 'static_pages#reload',   via: 'get'
   match 'layerswitcher', to: "maps#layerswitcher", via: 'get'
   match 'print', to: "maps#print", via: 'get'
+  match 'legend', to: "maps#legend", via: 'get'
   match '/styles.js', to: "maps#styles", via: 'get', as: "styles", defaults: { format: "js" }
   match '/sitemap.xml', to: 'sitemaps#index', via: 'get', as: "sitemap", defaults: { format: "xml" }
   # The priority is based upon order of creation: first created -> highest priority.

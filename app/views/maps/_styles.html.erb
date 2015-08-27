@@ -50,21 +50,20 @@ rt_styleMap = new OpenLayers.StyleMap({
             'select': {strokeColor: "darkred", fillColor: "darkred", strokeDashstyle: "solid"}
         });
 
-<% rts=Routetype.all %>
 
-<% rts.each do |rt| %>
+<% @items.each do |rt| %>
   <%="style_"+rt.code%> = OpenLayers.Util.extend({}, layer_style);
-  <%="style_"+rt.code%>.strokeColor = '<%=rt.linecolor%>';
-  <%="style_"+rt.code%>.fillColor = '<%=rt.linecolor%>';
+  <%="style_"+rt.code%>.strokeColor = '<%=rt.linestyle.linecolor%>';
+  <%="style_"+rt.code%>.fillColor = '<%=rt.linestyle.linecolor%>';
   <%="style_"+rt.code%>.strokeWidth = 2;
   <%="style_"+rt.code%>.strokeLinecap = "butt";
   <%="style_"+rt.code%>.rotation = 0;
-  <%="style_"+rt.code%>.strokeDashstyle = '<%=rt.linetype%>';
+  <%="style_"+rt.code%>.strokeDashstyle = '<%=rt.linestyle.linetype%>';
 
     rt_styleMap.styles['default'].addRules([
         new OpenLayers.Rule({
             filter: new OpenLayers.Filter.Comparison({
-            type: OpenLayers.Filter.Comparison.EQUAL_TO, property: "routetype_id", value: '<%=rt.id.to_s%>'
+            type: OpenLayers.Filter.Comparison.EQUAL_TO, property: "<%=@cat%>_id", value: '<%=rt.id.to_s%>'
             }),
             symbolizer: <%="style_"+rt.code%>
         }),
