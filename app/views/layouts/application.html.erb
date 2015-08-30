@@ -5,10 +5,11 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <script src="/assets/OpenLayers.js"></script>
 
-
-    <% if @zoomlevel and @zoomlevel.to_i>=5 and @zoomlevel.to_i<=15%>    
-      <script> var defzoom=<%=@zoomlevel%></script>
-    <% end %>
+    <script>
+      <% if @zoomlevel and @zoomlevel.to_i>=5 and @zoomlevel.to_i<=15%> var defzoom=<%=@zoomlevel%> <% end %>
+      <% if @map_x %> var def_x=<%=@map_x%> <% end %>
+      <% if @map_y %> var def_y=<%=@map_y%> <% end %>
+    </script>
     <%  @init_name = "init()" %>
 
     <title><%= full_title(yield(:title)) %></title>
@@ -39,6 +40,7 @@
      <input type="hidden" name="selecttype"/>
      <input type="hidden" name="currentx"/>
      <input type="hidden" name="currenty"/>
+     <input type="hidden" name="currentzoom"/>
     </div>
   </form>
 

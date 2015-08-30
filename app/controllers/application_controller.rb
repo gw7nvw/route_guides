@@ -8,7 +8,7 @@ class ApplicationController < ActionController::Base
   include RgeoHelper
 
   def signed_in_user
-      redirect_to signin_url, notice: "Please sign in." unless signed_in?
+      redirect_to signin_url+"?referring_url="+URI.escape(request.fullpath), notice: "Please sign in." unless signed_in?
   end
 
   def touch_user
@@ -19,6 +19,9 @@ class ApplicationController < ActionController::Base
     end
 
     if params[:zoom] then @zoomlevel=params[:zoom] end
+    if params[:x] then @map_x=params[:x] end
+    if params[:y] then @map_y=params[:y] end
+
   end
 
   def prepare_route_vars()

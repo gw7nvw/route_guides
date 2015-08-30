@@ -315,7 +315,8 @@ def create
          end
        end
     else #signed_in
-      redirect_to signin_path
+      redirect_to signin_url+"?referring_url="+URI.escape(request.fullpath), notice: "Please sign in." 
+
     end
   end
   if (params[:delete])
@@ -356,7 +357,7 @@ def create
       end
    
     else #signed in
-      redirect_to signin_path
+      redirect_to signin_url+"?referring_url="+URI.escape(request.fullpath), notice: "Please sign in." 
     end
   end 
 end

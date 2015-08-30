@@ -267,7 +267,7 @@ def default_values
      self.errors.messages[:time]=["can't be blank for a published route"] if !self.time or self.time==0
 
      # str+="date experienced is blank, " if !self.experienced_at 
-     self.errors.messages[:experienced_at]=["can't be blank for a published route"] if !self.experienced_at
+     #self.errors.messages[:experienced_at]=["can't be blank for a published route"] if !self.experienced_at
 
      # str+="descriptions are both blank, " if (!self.description or self.description.strip=="") and (!self.reverse_description or self.reverse_description.strip=="")
      self.errors.messages[:description]=["or Reverse description is required for a published route"] if (!self.description or self.description.strip=="") and (!self.reverse_description or self.reverse_description.strip=="")

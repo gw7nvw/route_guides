@@ -63,6 +63,10 @@ var select_line_button;
 var draw_point_button;
 var draw_line_button;
 var disabled_button;
+var route_class="routetype"
+var current_proj="2193"
+var current_projname="NZTM2000"
+var current_projdp=0;
 
 /* keep trtack of current page, and trigger refresh if we 'pop'
    a different page (back/forward buttons) */
@@ -79,6 +83,7 @@ function init_mapspast() {
      map_map.destroy();
   }
   do_init();
+  apply_current_filters();
   map_map.zoomToExtent(currentextent);
 }
 
@@ -90,15 +95,19 @@ function init_linz() {
      map_map.destroy();
   }
   do_init();
+  apply_current_filters();
   map_map.zoomToExtent(currentextent);
   map_map.zoomIn();
 }
 function init(){
   if(typeof(map_map)=='undefined') {
+    map_show_default();
     do_init();
   }
 }
+
 function do_init(){
+  init_styles();
 
 containerWidth= $("#main_page").width()-25;
 nbpanels = 2;
@@ -131,13 +140,15 @@ padding = 5;
     Proj4js.defs["EPSG:900913"] = "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_defs";
     Proj4js.defs["EPSG:27200"] = "+proj=nzmg +lat_0=-41 +lon_0=173 +x_0=2510000 +y_0=6023150 +ellps=intl +datum=nzgd49 +units=m +no_defs";
     Proj4js.defs["ESPG:4326"] = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs '
+    Proj4js.defs["EPSG:27291"] = "+proj=tmerc +lat_0=-39 +lon_0=175.5 +k=1 +x_0=274319.5243848086 +y_0=365759.3658464114 +ellps=intl +datum=nzgd49 +to_meter=0.9143984146160287 +no_defs";
+    Proj4js.defs["EPSG:27292"] = "+proj=tmerc +lat_0=-44 +lon_0=171.5 +k=1 +x_0=457199.2073080143 +y_0=457199.2073080143 +ellps=intl +datum=nzgd49 +to_meter=0.9143984146160287 +no_defs";
 
 	    /* define our point styles */
 	    create_styles();
 
     var mapspast_options = {
 projection: new OpenLayers.Projection("EPSG:2193"),
-	    displayProjection: new OpenLayers.Projection("EPSG:2193"),
+	    displayProjection: new OpenLayers.Projection("EPSG:"+current_proj),
 	    units: "m",
 	    //      maxResolution: 156543.0339,
       maxResolution: 4891.969809375,
@@ -150,7 +161,7 @@ projection: new OpenLayers.Projection("EPSG:2193"),
     };
     var linz_options = {
       projection: new OpenLayers.Projection("EPSG:2193"),
-            displayProjection: new OpenLayers.Projection("EPSG:2193"),
+            displayProjection: new OpenLayers.Projection("EPSG:"+current_proj),
             units: "m",
       resolutions: [8960, 4480, 2240, 1120, 560, 280, 140, 70, 28, 14, 7, 2.8, 1.4, 0.7, 0.28, 0.14, 0.07],
       numZoomLevels: 11,
@@ -278,8 +289,8 @@ projection: new OpenLayers.Projection("EPSG:2193"),
 
     map_map.zoomToExtent(extent); 
     map_map.addControl(new OpenLayers.Control.MousePosition({
-        prefix: 'NZTM2000: ',
-        numDigits: 0}));
+        prefix: current_projname+": ",
+        numDigits: current_projdp}));
     map_map.addControl(new OpenLayers.Control.Scale());
   
     var layer_button = new OpenLayers.Control.Button({
@@ -295,7 +306,7 @@ projection: new OpenLayers.Projection("EPSG:2193"),
     var key_button = new OpenLayers.Control.Button({
       displayClass: 'olControlKey',
       trigger: mapKey,
-      title: 'Show legend / manage map colours'
+      title: 'Show legend / configure map'
     });
     var centre_button = new OpenLayers.Control.Button({
       displayClass: 'olControlCentre',
@@ -392,7 +403,6 @@ projection: new OpenLayers.Projection("EPSG:2193"),
     select.box=false;
     select.activate();
 
-    map_show_default();
 
     //callback for moveend event 
     map_map.events.register("zoomend", map_map, check_zoomend);
@@ -437,6 +447,11 @@ projection: new OpenLayers.Projection("EPSG:2193"),
 
     if(typeof(defzoom)!="undefined" &&  defzoom!=null)  {
         map_map.zoomTo(defzoom-5);
+    }
+    if(typeof(def_x)!="undefined" &&  def_x!=null && typeof(def_y)!="undefined" &&  def_y!=null)  {
+      document.selectform.currentx.value=def_x;
+      document.selectform.currenty.value=def_y;
+      map_centre();
     }
 }
 
@@ -1114,13 +1129,20 @@ function link_select_off() {
 
 // MISCELANEOUS PAGE EVENT HANDLING THAT HAVE NOTHING TO DO WITH THE MAP
 
+function signinHandler() {
+  var pos=map_map.getCenter();
+
+  document.getElementById("signin_x").value=pos.lon;
+  document.getElementById("signin_y").value=pos.lat;
+  document.getElementById("signin_zoom").value=map_map.getZoom()+5;
+}
+
 function linkHandler(entity_name) {
     /* close the dropdown */
     $('.dropdown').removeClass('open');
 
     /* show 'loading ...' */
     document.getElementById("page_status").innerHTML = 'Loading ...'
-
     $(function() {
      $.rails.ajax = function (options) {
        options.tryCount= (!options.tryCount) ? 0 : options.tryCount;0;
@@ -1212,7 +1234,11 @@ function linkWithExtent(entity_name) {
      if(document.routeform.route_location.value.length<1 && document.getElementById("route_published").checked==true) {
        alert("All routes must have a set of route points on the map. Please either draw / upload a set of route points, or uncheck the 'published' checkbox to save as draft");
      return false;
-     } }
+     } else { 
+     if(document.routeform.route_experienced_at.value.length<1 && document.getElementById("route_published").checked==true) {
+       rtnval=confirm("Date experienced is blank.  If you save the route will be greyed-out and marked as 'not experienced'. Did you really mean to save a route you haven't experienced?");
+       return rtnval;
+     } } }
      routesStale=true;
      linkHandler(buttonName); 
    }
@@ -1332,13 +1358,14 @@ function overlay_getTileURL(bounds,url) {
 
 function map_disable_all() {
 
-  info_button.panel_div.style.display="none";
-  select_point_button.panel_div.style.display="none";
-  select_line_button.panel_div.style.display="none";
-  draw_point_button.panel_div.style.display="none";
-  draw_line_button.panel_div.style.display="none";
-  disabled_button.panel_div.style.display="inline";
-
+  if (typeof(info_button)!='undefined') {
+    info_button.panel_div.style.display="none";
+    select_point_button.panel_div.style.display="none";
+    select_line_button.panel_div.style.display="none";
+    draw_point_button.panel_div.style.display="none";
+    draw_line_button.panel_div.style.display="none";
+    disabled_button.panel_div.style.display="inline";
+  }
 }
 
 function map_enable_info() {
@@ -1428,11 +1455,31 @@ function toggle_routes() {
 
   //routes_layer.refresh({force:true});
 }
+function apply_filter(category,newstate){
+  var visibility=0;
+  if (newstate) visibility=1;
+  for (index=0; index<pt_styleMap.styles['default'].rules.length; ++index) {
+     if (pt_styleMap.styles['default'].rules[index].filter != null)  {
+       if ( pt_styleMap.styles['default'].rules[index].symbolizer.category == category ) {
+         pt_styleMap.styles['default'].rules[index].symbolizer.strokeOpacity=visibility;
+         pt_styleMap.styles['default'].rules[index].symbolizer.fillOpacity=visibility;
+       };
+     };
+  };
+}
+
+function apply_current_filters() {
+  apply_filter("accomodation",show_accomodation);
+  apply_filter("roadend",show_roadend);
+  apply_filter("summit",show_summit);
+  apply_filter("scenic",show_scenic);
+  apply_filter("crossing",show_crossing);
+  apply_filter("other",show_other);
+}
+
 function toggle_map(category){
   currentState=eval("show_"+category);
-  var visibility=1;
   if (currentState) {
-    visibility=0; 
     document.getElementById("show_"+category).style.border="2px solid orange";
   } else {
     document.getElementById("show_"+category).style.border="2px solid lightgreen";
@@ -1443,14 +1490,7 @@ function toggle_map(category){
   var main_filter=document.getElementById("filterdiv");
   dialog_filter.innerHTML=main_filter.innerHTML;
  
-  for (index=0; index<pt_styleMap.styles['default'].rules.length; ++index) {
-     if (pt_styleMap.styles['default'].rules[index].filter != null)  {
-       if ( pt_styleMap.styles['default'].rules[index].symbolizer.category == category ) {
-         pt_styleMap.styles['default'].rules[index].symbolizer.strokeOpacity=visibility;
-         pt_styleMap.styles['default'].rules[index].symbolizer.fillOpacity=visibility;
-       };
-     };
-  };
+  apply_filter(category, !currentState);
   places_layer.refresh({force:true});
   
   switch (category) {
@@ -1721,7 +1761,7 @@ function mapKey() {
           },
           type: "GET",
           timeout: 10000,
-          url: "/legend",
+          url: "/legend?category="+route_class+"&projection="+current_proj,
           error: function() {
               document.getElementById("info_details2").innerHTML = 'Error contacting server';
           },
@@ -1829,3 +1869,54 @@ function updateDimensions() {
    document.printform.pix_height.value=paperheights[papersize];
 }
 
+function updateProjection() {
+            current_proj=document.getElementById("projections").value;
+            current_projname=getSelectedText("projections");
+            //WGS 4dp, otherwise 0
+            if(current_proj=="4326") { current_projdp=4 } else { current_projdp=0 }; 
+            $.each(BootstrapDialog.dialogs, function(id, dialog){
+                dialog.close();
+            });
+            if (mapset=="mapspast") {
+              init_mapspast();
+            } else {
+              init_linz();
+            }
+}
+
+function updateRouteClass() {
+   route_class=document.getElementById("routeclasses").value;
+        $.ajax({
+          beforeSend: function (xhr){
+            xhr.setRequestHeader("Content-Type","application/javascript");
+            xhr.setRequestHeader("Accept","text/javascript");
+          },
+          type: "GET",
+          timeout: 10000,
+          url: "/styles.js?category="+route_class,
+          error: function() {
+          },
+          complete: function() {
+            $.each(BootstrapDialog.dialogs, function(id, dialog){
+                dialog.close();
+            });
+            if (mapset=="mapspast") {
+              init_mapspast();
+            } else {
+              init_linz();
+            }
+          //  setTimeout( function() { mapKey();}, 300);
+          }
+
+        });
+    
+}
+
+function getSelectedText(elementId) {
+    var elt = document.getElementById(elementId);
+
+    if (elt.selectedIndex == -1)
+        return null;
+
+    return elt.options[elt.selectedIndex].text;
+}

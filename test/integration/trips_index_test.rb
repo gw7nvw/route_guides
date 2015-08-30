@@ -713,7 +713,7 @@ test "Cannot add a trip not signed in" do
    get '/trips/new'
 
    #dedirect to home
-   assert_redirected_to signin_path
+   assert_redirected_to signin_path+"?referring_url=/trips/new"
    follow_redirect!
 
    # no new trip created
@@ -731,7 +731,7 @@ test "Cannot add a trip not signed in" do
    get '/trips/new'
 
    #dedirect to home
-   assert_redirected_to signin_path
+   assert_redirected_to signin_path+"?referring_url=/trips/new"
    follow_redirect!
 
    # no new trip created

@@ -10,7 +10,12 @@ class SessionsController < ApplicationController
   if user && user.authenticate(params[:session][:password])
       if user.activated?
         sign_in user
-        redirect_to root_url
+        if params[:referring_url] then referring_url=params[:referring_url] else referring_url="/" end
+        if params[:signin_x] and params[:signin_y] and params[:signin_zoom] then
+          redirect_to referring_url+"?x="+params[:signin_x]+"&y="+params[:signin_y]+"&zoom="+params[:signin_zoom]
+        else 
+          redirect_to referring_url
+        end
       else
         message  = "Account not activated. "
         message += "Check your email for the activation link."

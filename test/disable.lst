@@ -1,6 +1,7 @@
 integration/users_test.rb
 integration/links_edit_test.rb
 integration/users_signup_test.rb
+integration/split_route_test.rb
 integration/places_editmany_test.rb
 integration/places_edit_test.rb
 integration/places_view_test.rb
@@ -13,6 +14,5 @@ integration/trips_test.rb
 integration/add_route_sequences.rb
 integration/routes_editmany_test.rb
 integration/site_layout_test.rb
-integration/split_route.rb
 integration/trips_edit_test.rb
 integration/links_view_test.rb
