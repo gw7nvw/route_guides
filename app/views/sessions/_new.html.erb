@@ -21,8 +21,13 @@
       </div>
       <%= f.password_field :password %>
       <br/>
+     <input type="hidden" name="signin_x" id="signin_x"/>
+     <input type="hidden" name="signin_y" id="signin_y"/>
+     <input type="hidden" name="signin_zoom" id="signin_zoom"/>
+     <input type="hidden" name="referring_url" id="referring_url" value="<%=params[:referring_url]%>"/>
 
-      <%= f.submit "Sign in", class: "btn btn-small btn-primary" %>
+      <%= f.submit "Sign in", class: "btn btn-small btn-primary", onclick: "signinHandler()" , id: "signin" %>
+
       <%= link_to "(forgotton password?)", new_password_reset_path, remote: true %>
     <% end %>
 

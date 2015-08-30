@@ -87,6 +87,7 @@ end
 def show
   prepare_route_vars()
   @history=true
+  @showForward=1
    logger.debug @id
   if !@id then @id=params[:id] end
   @itemType=@id.split("-")[0]

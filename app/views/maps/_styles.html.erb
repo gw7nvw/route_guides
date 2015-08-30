@@ -1,3 +1,4 @@
+function init_styles() {
 style_pt_default = {strokeColor: "red", strokeOpacity: "0.7", strokeWidth: 3, cursor: "pointer", pointRadius: 4, fillColor: "red", graphicName: "circle", title: '${name}'};
 
 var sty = OpenLayers.Util.applyDefaults(style_pt_default, OpenLayers.Feature.Vector.style["default"]);
@@ -6,7 +7,6 @@ pt_styleMap = new OpenLayers.StyleMap({
             'select': {strokeColor: "pink", fillColor: "pink"}
         });
 
-var layer_style
     layer_style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
     layer_style.fillOpacity = 0.2;
     layer_style.graphicOpacity = 1;
@@ -52,25 +52,44 @@ rt_styleMap = new OpenLayers.StyleMap({
 
 
 <% @items.each do |rt| %>
-  <%="style_"+rt.code%> = OpenLayers.Util.extend({}, layer_style);
-  <%="style_"+rt.code%>.strokeColor = '<%=rt.linestyle.linecolor%>';
-  <%="style_"+rt.code%>.fillColor = '<%=rt.linestyle.linecolor%>';
-  <%="style_"+rt.code%>.strokeWidth = 2;
-  <%="style_"+rt.code%>.strokeLinecap = "butt";
-  <%="style_"+rt.code%>.rotation = 0;
-  <%="style_"+rt.code%>.strokeDashstyle = '<%=rt.linestyle.linetype%>';
+  <%="style_"+rt.id.to_s%> = OpenLayers.Util.extend({}, layer_style);
+  <%="style_"+rt.id.to_s%>.strokeColor = '<%=rt.linestyle.linecolor%>';
+  <%="style_"+rt.id.to_s%>.fillColor = '<%=rt.linestyle.linecolor%>';
+  <%="style_"+rt.id.to_s%>.strokeWidth = 2;
+  <%="style_"+rt.id.to_s%>.strokeLinecap = "butt";
+  <%="style_"+rt.id.to_s%>.rotation = 0;
+  <%="style_"+rt.id.to_s%>.strokeDashstyle = '<%=rt.linestyle.linetype%>';
 
     rt_styleMap.styles['default'].addRules([
         new OpenLayers.Rule({
             filter: new OpenLayers.Filter.Comparison({
             type: OpenLayers.Filter.Comparison.EQUAL_TO, property: "<%=@cat%>_id", value: '<%=rt.id.to_s%>'
             }),
-            symbolizer: <%="style_"+rt.code%>
+            symbolizer: <%="style_"+rt.id.to_s%>
+        })
+    ]);
+
+<% end %>
+
+  style_notexperienced = OpenLayers.Util.extend({}, layer_style);
+  style_notexperienced.strokeColor = '#888888'
+  style_notexperienced.fillColor = '#8888888'
+  style_notexperienced.strokeWidth = 2;
+  style_notexperienced.strokeLinecap = "butt";
+  style_notexperienced.rotation = 0;
+  style_notexperienced.strokeDashstyle = 'solid'
+
+    rt_styleMap.styles['default'].addRules([
+        new OpenLayers.Rule({
+            filter: new OpenLayers.Filter.Comparison({
+            type: OpenLayers.Filter.Comparison.EQUAL_TO, property: "experienced_at", value: ''
+            }),
+            symbolizer: style_notexperienced
         }),
         new OpenLayers.Rule({
             elseFilter: true
         })
     ]);
 
-<% end %>
 
+}

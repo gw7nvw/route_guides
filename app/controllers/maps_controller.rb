@@ -10,6 +10,10 @@ end
 
 def legend
   load_styles()
+  @routeclasses=Routeclass.all.order(:name)
+  @projections=Projection.all.order(:name)
+  if params[:projection] then @projection=params[:projection] else @projection="2193" end
+
 end
 
 def styles
@@ -34,8 +38,8 @@ def load_styles
    when "gradient"
      @items=Gradient.all.order(:difficulty)
    when "importance"
-     @items=Importance.all.order(:importance)
-   when "rivers"
+     @items=RouteImportance.all.order(:importance)
+   when "river"
      @items=River.all.order(:difficulty)
    else 
      @items=Routetype.all.order(:difficulty)

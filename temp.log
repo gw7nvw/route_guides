@@ -1,0 +1,271 @@
+app/controllers/account_activations_controller.rb:    user = User.find_by(email: params[:email])
+app/controllers/account_activations_controller.rb:    if user && !user.activated? && user.authenticated?(:activation, params[:id])
+app/controllers/application_controller.rb:    if params[:zoom] then @zoomlevel=params[:zoom] end
+app/controllers/application_controller.rb:      if !@id then @id=params[:id] end
+app/controllers/comments_controller.rb:    @comments=Comment.all.order('created_at desc').paginate(:per_page => 80, :page => params[:page])
+app/controllers/comments_controller.rb:   @comment=Comment.new(comment_params)
+app/controllers/comments_controller.rb:  def comment_params
+app/controllers/comments_controller.rb:    params.require(:comment).permit(:comment, :experienced_at, :item_type, :item_id)
+app/controllers/forums_controller.rb:   if !@id then @id=params[:id].to_i end
+app/controllers/forums_controller.rb:   if !@subject then @subject=params[:thread] end
+app/controllers/forums_controller.rb:     @threads=@fullthreads.paginate(:per_page => 20, :page => params[:page])
+app/controllers/forums_controller.rb:   @message=Message.new(message_params)
+app/controllers/forums_controller.rb:  def message_params
+app/controllers/forums_controller.rb:    params.require(:message).permit(:subject, :toUser_id, :forum_id, :message)
+app/controllers/history_controller.rb:     @itemType=params[:id].split("-")[0]
+app/controllers/history_controller.rb:  itemId=params[:id].split("-")[1]
+app/controllers/history_controller.rb:  itemVersion=params[:id].split("-")[2]
+app/controllers/history_controller.rb:  if params[:delete]=="Delete"
+app/controllers/history_controller.rb:  if params[:current]=="Make current" 
+app/controllers/history_controller.rb:  params[:id]=@id
+app/controllers/history_controller.rb:  if !@id then @id=params[:id] end
+app/controllers/links_controller.rb:   @parent_type=params[:parent_type]
+app/controllers/links_controller.rb:   case params[:parent_type]
+app/controllers/links_controller.rb:     @parent=Report.find_by_id(params[:parent_id])
+app/controllers/links_controller.rb:     @parent=Route.find_by_id(params[:parent_id].to_i.abs)
+app/controllers/links_controller.rb:     @parent=Place.find_by_id(params[:parent_id])
+app/controllers/links_controller.rb:     @parent=Photo.find_by_id(params[:parent_id])
+app/controllers/links_controller.rb:     @parent=Trip.find_by_id(params[:parent_id])
+app/controllers/links_controller.rb:   if params[:commit] and params[:commit][0..5]=='delete' then
+app/controllers/links_controller.rb:     deleteId=params[:commit][6..-1].to_i
+app/controllers/links_controller.rb:    link=Link.find_by_id(params[:commit][6..-1].to_i)
+app/controllers/links_controller.rb:           flash[:success] = "Removed link from report:"+params[:commit][6..-1]
+app/controllers/links_controller.rb:        flash[:error] = "Cannot find link to delete:"+params[:commit][6..-1]
+app/controllers/links_controller.rb:   if params[:commit] and params[:commit]=='addLink' then
+app/controllers/links_controller.rb:        rl.baseItem_id=params[:parent_id].to_i.abs
+app/controllers/links_controller.rb:        rl.baseItem_type=params[:parent_type]
+app/controllers/links_controller.rb:        rl.item_id=params[:itemId].to_i.abs
+app/controllers/links_controller.rb:        rl.item_type=params[:itemType]
+app/controllers/links_controller.rb:          rl.item_url=params[:itemName]
+app/controllers/maps_controller.rb:  if params[:category] then @cat=params[:category] else @cat="routetype" end
+app/controllers/messages_controller.rb:   @threads=@threads.paginate(:per_page => 20, :page => params[:page])
+app/controllers/messages_controller.rb:        @messages=Message.find_by_sql ['select * from messages where ("fromUser_id"=? and "toUser_id"=?) or ("toUser_id"=? and "fromUser_id"=?) order by created_at', @current_user.id.to_s, params[:id], @current_user.id.to_s, params[:id]]
+app/controllers/messages_controller.rb:   @messages=@messages.reverse.paginate(:per_page => 20, :page => params[:page])
+app/controllers/messages_controller.rb:   @message=Message.new(message_params)
+app/controllers/messages_controller.rb:  def message_params
+app/controllers/messages_controller.rb:    params.require(:message).permit(:subject, :toUser_id, :forum_id, :message)
+app/controllers/password_resets_controller.rb:    @user = User.find_by(email: params[:password_reset][:email].downcase)
+app/controllers/password_resets_controller.rb:    elsif @user.update_attributes(user_params)
+app/controllers/password_resets_controller.rb:    params[:user][:password].blank? &&
+app/controllers/password_resets_controller.rb:    params[:user][:password_confirmation].blank?
+app/controllers/password_resets_controller.rb:      @user = User.find_by(email: params[:email])
+app/controllers/password_resets_controller.rb:      unless (@user && @user.authenticated?(:reset, params[:id]))
+app/controllers/password_resets_controller.rb:    def user_params
+app/controllers/password_resets_controller.rb:      params.require(:user).permit(:password, :password_confirmation)
+app/controllers/photos_controller.rb:    if params[:order]=='latest' then
+app/controllers/photos_controller.rb:      @photos=Photo.all.order('updated_at desc').paginate(:per_page => 20, :page => params[:page])
+app/controllers/photos_controller.rb:      @photos=Photo.all.order(:name).paginate(:per_page => 20, :page => params[:page])
+app/controllers/photos_controller.rb:    @photo = Photo.new(photo_params)
+app/controllers/photos_controller.rb:    convert_location_params()
+app/controllers/photos_controller.rb:    if !@id then @id=params[:id] end
+app/controllers/photos_controller.rb:  if (params[:save]) then
+app/controllers/photos_controller.rb:    if( !@photo= Photo.find_by_id(params[:id]))
+app/controllers/photos_controller.rb:    @photo.attributes = photo_params
+app/controllers/photos_controller.rb:    convert_location_params()
+app/controllers/photos_controller.rb:   if (params[:delete])
+app/controllers/photos_controller.rb:     photo=Photo.find_by_id(params[:id])
+app/controllers/photos_controller.rb:       flash[:success] = "Photo deleted, id:"+params[:id]
+app/controllers/photos_controller.rb:    if !@id then @id=params[:id] end
+app/controllers/photos_controller.rb:    if params[:editlinks] then @editlinks=true end
+app/controllers/photos_controller.rb:  def photo_params
+app/controllers/photos_controller.rb:    params.require(:photo).permit(:name, :author, :taken_at, :description, :location, :subject_location, :image, :projection_id, :x, :y)
+app/controllers/photos_controller.rb:  def convert_location_params
+app/controllers/photos_controller.rb:    #recalculate location from passed x,y params
+app/controllers/photos_controller.rb:    if(photo_params[:x] and photo_params[:x].length>0) then @photo.x=photo_params[:x].to_f end
+app/controllers/photos_controller.rb:    if(photo_params[:y] and photo_params[:y].length>0) then @photo.y=photo_params[:y].to_f end
+app/controllers/photos_controller.rb:       params[:location]=xyarr[0].to_s+" "+xyarr[1].to_s
+app/controllers/photos_controller.rb:       @photo.location='POINT('+params[:location]+')'
+app/controllers/places_controller.rb:   p=Place.find_by_id(params[:startplace_id])
+app/controllers/places_controller.rb:   rt_list=p.adjoiningPlacesFast(params[:endplace_id].to_i,false,nil,nil,nil)
+app/controllers/places_controller.rb:   if params[:show]=="fastest" then
+app/controllers/places_controller.rb:   if params[:show]=="shortest" then
+app/controllers/places_controller.rb:   if params[:show]=="all" then
+app/controllers/places_controller.rb:   @render_to=params[:loc]
+app/controllers/places_controller.rb:    @order=params[:order]
+app/controllers/places_controller.rb:    if params[:order]=='latest' then
+app/controllers/places_controller.rb:      @places=Place.all.order('updated_at desc').paginate(:per_page => 80, :page => params[:page])
+app/controllers/places_controller.rb:      @places = Place.all.order('name').paginate(:per_page => 80, :page => params[:page])
+app/controllers/places_controller.rb:    @place = Place.new(place_params)
+app/controllers/places_controller.rb:    convert_location_params()
+app/controllers/places_controller.rb:    @url=params[:url]
+app/controllers/places_controller.rb:    if params[:editlinks] then @editlinks=true end
+app/controllers/places_controller.rb:    if !@id then @id=params[:id] end
+app/controllers/places_controller.rb:    if params[:version] then
+app/controllers/places_controller.rb:        @place.assign_attributes(PlaceInstance.find_by_id(params[:version]).attributes.except("id", "place_id"))
+app/controllers/places_controller.rb:        @version=params[:version]
+app/controllers/places_controller.rb:  @url=params[:url]
+app/controllers/places_controller.rb:  @id=params[:route_startplace_id]
+app/controllers/places_controller.rb:    if( @place = Place.find_by_id(params[:id]))
+app/controllers/places_controller.rb:    if (params[:add]) 
+app/controllers/places_controller.rb:        @trip_details.place_id = params[:id]
+app/controllers/places_controller.rb:    if (params[:save]) 
+app/controllers/places_controller.rb:       @url=params[:url] || ""
+app/controllers/places_controller.rb:       if( !@place = Place.find_by_id(params[:id]))
+app/controllers/places_controller.rb:       @place.attributes=place_params
+app/controllers/places_controller.rb:       convert_location_params()
+app/controllers/places_controller.rb:  if (params[:delete])
+app/controllers/places_controller.rb:     if(!trip=TripDetail.find_by(:place_id => params[:id]))
+app/controllers/places_controller.rb:       if(!route=Route.find_by(:startplace_id => params[:id]))
+app/controllers/places_controller.rb:         if(!route=Route.find_by(:endplace_id => params[:id]))
+app/controllers/places_controller.rb:           place=Place.find_by_id(params[:id])
+app/controllers/places_controller.rb:             flash[:success] = "Place deleted, id:"+params[:id]
+app/controllers/places_controller.rb:  def place_params
+app/controllers/places_controller.rb:    params.require(:place).permit(:name, :place_type, :place_owner, :description, :location, :altitude, :x, :y, :projection_id, :links, :experienced_at)
+app/controllers/places_controller.rb:  def convert_location_params
+app/controllers/places_controller.rb:    #recalculate location from passed x,y params
+app/controllers/places_controller.rb:  #  if(place_params[:x] and place_params[:x].length>0) then @place.x=place_params[:x].to_f end
+app/controllers/places_controller.rb:  #  if(place_params[:y] and place_params[:y].length>0) then @place.y=place_params[:y].to_f end
+app/controllers/places_controller.rb:  #  @place.altitude = place_params[:altitude].to_i
+app/controllers/places_controller.rb:       params[:location]=xyarr[0].to_s+" "+xyarr[1].to_s
+app/controllers/places_controller.rb:       @place.location='POINT('+params[:location]+')'
+app/controllers/places_controller.rb:       if place_params[:altitude].to_i == 0
+app/controllers/places_controller.rb:               'POINT('+params[:location]+')',
+app/controllers/places_controller.rb:               'POINT('+params[:location]+')']
+app/controllers/reports_controller.rb:    if (!@id) then @id=params[:id] end
+app/controllers/reports_controller.rb:    if params[:order]=='latest' then
+app/controllers/reports_controller.rb:      @reports=Report.all.order('updated_at desc').paginate(:per_page => 20, :page => params[:page])
+app/controllers/reports_controller.rb:      @reports = Report.all.order(:name).paginate(:per_page => 20, :page => params[:page])
+app/controllers/reports_controller.rb:    if params[:help] then @help=params[:help] end
+app/controllers/reports_controller.rb:    if params[:editlinks] then @editlinks=true end
+app/controllers/reports_controller.rb:    if (!@id) then @id=params[:id] end
+app/controllers/reports_controller.rb:    @report = Report.new(report_params)
+app/controllers/reports_controller.rb:      params[:id]=@id.to_s
+app/controllers/reports_controller.rb: if (params[:save])
+app/controllers/reports_controller.rb:    @report = Report.find(params[:id])
+app/controllers/reports_controller.rb:    @report.attributes=report_params
+app/controllers/reports_controller.rb: if (params[:delete])
+app/controllers/reports_controller.rb:         report=Report.find_by_id(params[:id])
+app/controllers/reports_controller.rb:           flash[:success] = "Report deleted, id:"+params[:id]
+app/controllers/reports_controller.rb: if (params[:select])
+app/controllers/reports_controller.rb:      if (!@id) then @id=params[:id] end
+app/controllers/reports_controller.rb:  def report_params
+app/controllers/reports_controller.rb:    params.require(:report).permit(:name, :description)
+app/controllers/routes_controller.rb:    if params[:order]=='latest' then
+app/controllers/routes_controller.rb:      @routes=Route.where(published: true).order('updated_at desc').paginate(:per_page => 80, :page => params[:page])
+app/controllers/routes_controller.rb:      @routes = Route.all.order(:name).paginate(:per_page => 80, :page => params[:page])
+app/controllers/routes_controller.rb:#    @routes=route_index.where(:isDest => true, :fromDest => true).sort_by{|a| [a.startplace.name, a.endplace.name]}.paginate(:per_page => 80, :page => params[:page])
+app/controllers/routes_controller.rb:    @routes=route_index.paginate(:per_page => 80, :page => params[:page])
+app/controllers/routes_controller.rb:     if(params[:route_startplace_id] and params[:route_endplace_id]) then find() end
+app/controllers/routes_controller.rb:     if params[:route_startplace_id] and sp=Place.find_by_id(params[:route_startplace_id]) then
+app/controllers/routes_controller.rb:         @startplace=params[:route_startplace_id]
+app/controllers/routes_controller.rb:     if params[:route_endplace_id] and ep=Place.find_by_id(params[:route_endplace_id]) then
+app/controllers/routes_controller.rb:         @endplace=params[:route_endplace_id]
+app/controllers/routes_controller.rb:     placea=Place.find_by_id(params[:route_startplace_id].to_i)
+app/controllers/routes_controller.rb:       @route_ids=placea.adjoiningPlacesFast(params[:route_endplace_id].to_i,true,nil,nil,nil)
+app/controllers/routes_controller.rb:    @items=params[:route].split('x')[1..-1]
+app/controllers/routes_controller.rb:    @route = Route.new(route_params)    
+app/controllers/routes_controller.rb:    @route.datasource=params[:datasource]
+app/controllers/routes_controller.rb:    @url=params[:url]
+app/controllers/routes_controller.rb:          @id=params[:id]=@route.id
+app/controllers/routes_controller.rb:    if params[:editlinks] then @editlinks=true end
+app/controllers/routes_controller.rb:    if !@id then @id=params[:id] end
+app/controllers/routes_controller.rb:    @route = Route.find_by_signed_id(params[:id])
+app/controllers/routes_controller.rb:      if params[:version] then
+app/controllers/routes_controller.rb:        ri=RouteInstance.find_by_id(params[:version])
+app/controllers/routes_controller.rb:          if params[:id].to_i<0 then @route.reverse end
+app/controllers/routes_controller.rb:          @version=params[:version]
+app/controllers/routes_controller.rb:    if( @route = Route.find_by_signed_id(params[:id]))
+app/controllers/routes_controller.rb:    @route = Route.find_by_signed_id(params[:id])
+app/controllers/routes_controller.rb:    logger.debug params[:id]
+app/controllers/routes_controller.rb:    if (params[:addfw])
+app/controllers/routes_controller.rb:    if (params[:addrv])
+app/controllers/routes_controller.rb:        params[:id]=@trip.id
+app/controllers/routes_controller.rb:    if (params[:save])
+app/controllers/routes_controller.rb:       @url=params[:url]||""
+app/controllers/routes_controller.rb:      @route.attributes=route_params
+app/controllers/routes_controller.rb:      @route.datasource=params[:datasource]
+app/controllers/routes_controller.rb:          @id=params[:id]=@route.id
+app/controllers/routes_controller.rb:    if (params[:delete])
+app/controllers/routes_controller.rb:      if(!trip=TripDetail.find_by(:route_id => params[:id])) 
+app/controllers/routes_controller.rb:        route=Route.find_by_id(params[:id].to_i.abs)
+app/controllers/routes_controller.rb:          flash[:success] = "Route deleted, id:"+params[:id]
+app/controllers/routes_controller.rb:  def route_params
+app/controllers/routes_controller.rb:    params.require(:route).permit(
+app/controllers/search_controller.rb:    @respond_to=params[:referer]
+app/controllers/search_controller.rb:    @refpage=params[:refpage]
+app/controllers/search_controller.rb:    @searchtext=params[:searchtext]
+app/controllers/search_controller.rb:    searchtext='%'+params[:searchtext]+'%'
+app/controllers/search_controller.rb:    @findplaces=params[:Places]=="1"
+app/controllers/search_controller.rb:    @findroutes=params[:Routes]=="1"
+app/controllers/search_controller.rb:    @findtrips=params[:Trips]=="1"
+app/controllers/search_controller.rb:    @findstories=params[:Stories]=="1"
+app/controllers/search_controller.rb:    @findphotos=params[:Photos]=="1"
+app/controllers/search_controller.rb:    @inname=params[:Name]=="1"
+app/controllers/search_controller.rb:    @indescription=params[:Description]=="1"
+app/controllers/search_controller.rb:    @inextent=params[:Extent]=="1"
+app/controllers/search_controller.rb:    if @inextent then exttext="and location && ST_MakeEnvelope("+params[:extent_left]+", "+params[:extent_bottom]+", "+params[:extent_right]+", "+params[:extent_top]+")"
+app/controllers/search_controller.rb:     if(params[:route_startplace_id] and params[:route_endplace_id]) then searchresults() end
+app/controllers/search_controller.rb:     if params[:route_startplace_id] and sp=Place.find_by_id(params[:route_startplace_id]) then
+app/controllers/search_controller.rb:         @startplace=params[:route_startplace_id]
+app/controllers/search_controller.rb:     if params[:route_endplace_id] and ep=Place.find_by_id(params[:route_endplace_id]) then
+app/controllers/search_controller.rb:         @endplace=params[:route_endplace_id]
+app/controllers/search_controller.rb:     placea=Place.find_by_id(params[:route_startplace_id].to_i)
+app/controllers/search_controller.rb:       @route_ids=placea.adjoiningPlacesFast(params[:route_endplace_id].to_i,false,nil,nil,nil)
+app/controllers/sessions_controller.rb:  user = User.find_by(email: params[:session][:email].downcase)
+app/controllers/sessions_controller.rb:  if !user then  user = User.find_by(name: params[:session][:email].downcase) end
+app/controllers/sessions_controller.rb:  if user && user.authenticate(params[:session][:password])
+app/controllers/trips_controller.rb:  if params[:order]=='latest' then
+app/controllers/trips_controller.rb:  @trips=@trips.paginate(:per_page => 20, :page => params[:page])
+app/controllers/trips_controller.rb:    if params[:order]=='latest' then
+app/controllers/trips_controller.rb:    @trips=@trips.paginate(:per_page => 20, :page => params[:page])
+app/controllers/trips_controller.rb:    params[:id]=@current_user.currenttrip_id
+app/controllers/trips_controller.rb:    if is_guest? then params[:id]=@current_guest.currenttrip_id end
+app/controllers/trips_controller.rb:  if params[:id] then  
+app/controllers/trips_controller.rb:    @trip=Trip.find_by_id(params[:id])
+app/controllers/trips_controller.rb: if params[:selected_id] then
+app/controllers/trips_controller.rb:    @id=params[:selected_id]
+app/controllers/trips_controller.rb:    @id=params[:id] 
+app/controllers/trips_controller.rb:  @referring_page=params[:referring_page]
+app/controllers/trips_controller.rb:    if (params[:commit])  
+app/controllers/trips_controller.rb:      if (params[:commit][0..5] == 'delete')
+app/controllers/trips_controller.rb:        trip_details=TripDetail.find_by_id(params[:cutFrom])
+app/controllers/trips_controller.rb:              flash[:success] = "Removed item from trip:"+params[:cutFrom]
+app/controllers/trips_controller.rb:           flash[:error] = "Cannot find item to delete:"+params[:cutFrom]
+app/controllers/trips_controller.rb:      if (params[:commit][0..6] == 'reverse')
+app/controllers/trips_controller.rb:        td_id=params[:commit][7..-1]
+app/controllers/trips_controller.rb:           flash[:error] = "Cannot find item to reverse:"+params[:cutFrom]
+app/controllers/trips_controller.rb:      if (params[:commit][0..4] == 'paste')
+app/controllers/trips_controller.rb:         thistrip_details=TripDetail.find_by_id(params[:cutFrom])
+app/controllers/trips_controller.rb:         above_id=params[:commit][5..-1]
+app/controllers/trips_controller.rb:   if params[:selected_id] then index=true end
+app/controllers/trips_controller.rb:   if params[:selected_id] and signed_in?  then
+app/controllers/trips_controller.rb:     if (params[:commit] == 'Select as current')
+app/controllers/trips_controller.rb:          #@trip=Trip.find_by_id(params[:selected_id])
+app/controllers/trips_controller.rb:   if params[:selected_id] and (signed_in? or is_guest?)
+app/controllers/trips_controller.rb:     if (params[:commit] == 'Delete')
+app/controllers/trips_controller.rb:       if (params[:commit] and params[:commit] == 'Make my own copy')
+app/controllers/trips_controller.rb:          @id=params[:id]=@trip.id
+app/controllers/trips_controller.rb:  if params[:editlinks] then @editlinks=true end
+app/controllers/trips_controller.rb:  if !@trip then @trip=Trip.find_by_id(params[:id]) end 
+app/controllers/trips_controller.rb:  @trip=Trip.find_by_id(params[:id]) if !@trip
+app/controllers/trips_controller.rb: if @trip=Trip.find_by_id(params[:id]) then
+app/controllers/trips_controller.rb:  if (params[:commit] == "Save") and (signed_in? and (@trip.createdBy_id==@current_user.id or @current_user.role==Role.find_by( :name => 'root')) or (is_guest? and @trip.id == @current_guest.currenttrip_id))
+app/controllers/trips_controller.rb:     @trip=Trip.find_by_id(params[:id])
+app/controllers/trips_controller.rb:     if params[:trip]['name'] then @trip.name=params[:trip]['name'].strip else @trip.name="" end
+app/controllers/trips_controller.rb:     @trip.description=params[:trip]['description']
+app/controllers/trips_controller.rb:     if params[:trip]['lengthmin'] then @trip.lengthmin=params[:trip]['lengthmin'].to_f  else @trip.lengthmin=0 end
+app/controllers/trips_controller.rb:     if params[:trip]['lengthmax'] then @trip.lengthmax=params[:trip]['lengthmax'].to_f  else @trip.lengthmax=0 end
+app/controllers/trips_controller.rb:     if signed_in? then @trip.published=params[:trip]['published'] else @trip.published=false end
+app/controllers/trips_controller.rb:  if (params[:commit] == 'delete') and (signed_in? and (@trip.createdBy_id==@current_user.id or @current_user.role==Role.find_by( :name => 'root')) or (is_guest? and @trip.id == @current_guest.currenttrip_id))
+app/controllers/trips_controller.rb:     trip_details=TripDetail.find_by_id(params[:trip]['td'])
+app/controllers/trips_controller.rb:           flash[:success] = "Removed item from trip:"+params[:trip]['td']
+app/controllers/trips_controller.rb:        flash[:error] = "Cannot find item to delete:"+params[:trip]['td']
+app/controllers/trips_controller.rb:  if (params[:commit] == 'cut' ) and (signed_in? and (@trip.createdBy_id==@current_user.id or @current_user.role==Role.find_by( :name => 'root')) or (is_guest? and @trip.id == @current_guest.currenttrip_id))
+app/controllers/trips_controller.rb:  if (params[:commit] == 'move') and (signed_in? and (@trip.createdBy_id==@current_user.id or @current_user.role==Role.find_by( :name => 'root')) or (is_guest? and @trip.id == @current_guest.currenttrip_id))
+app/controllers/trips_controller.rb:     thistrip_details=TripDetail.find_by_id(params[:moveForm]['cutFrom'])
+app/controllers/trips_controller.rb:     above_id=params[:moveForm]['pasteBelow']
+app/controllers/trips_controller.rb:     trip_details=TripDetail.find_by(:trip_id => params[:id]).order(:order)
+app/controllers/trips_controller.rb:   if (params[:commit] == 'Make my own copy') and (signed_in? or is_guest?)
+app/controllers/trips_controller.rb:      old_trip=Trip.find_by_id(params[:id])
+app/controllers/trips_controller.rb:      params[:id]=@trip.id
+app/controllers/trips_controller.rb:   if (params[:commit] == 'Delete') and (signed_in? and (@trip.createdBy_id==@current_user.id or @current_user.role==Role.find_by( :name => 'root')) or (is_guest? and @trip.id == @current_guest.currenttrip_id))
+app/controllers/trips_controller.rb:      trip=Trip.find_by_id(params[:id])
+app/controllers/trips_controller.rb:      if (params[:commit] == 'edit')
+app/controllers/users_controller.rb:    if(!(@user = User.where(name: params[:id]).first)) 
+app/controllers/users_controller.rb:    @user = User.new(user_params)
+app/controllers/users_controller.rb:    if params['user'][:answer].to_i!=expected
+app/controllers/users_controller.rb:    @user = User.where(name: params[:id]).first
+app/controllers/users_controller.rb:    @user = User.find_by_id(params[:id])
+app/controllers/users_controller.rb:      @user.assign_attributes(user_params)
+app/controllers/users_controller.rb:    def user_params
+app/controllers/users_controller.rb:      params.require(:user).permit(:name, :firstName, :lastName, :email, :password, :hide_name, 

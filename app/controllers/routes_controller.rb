@@ -190,7 +190,8 @@ def show
     else
       show_many()
       if @id.include?('xps') and !signed_in? then 
-        redirect_to '/signin'
+        redirect_to signin_url+"?referring_url="+URI.escape(request.fullpath), notice: "Please sign in." 
+
       else
        respond_to do |wants|
         wants.js do
@@ -343,7 +344,7 @@ end
 
     if (params[:save])
      if (!signed_in?) then 
-       redirect_to signin_path
+       redirect_to signin_url+"?referring_url="+URI.escape(request.fullpath), notice: "Please sign in." 
      else
        @url=params[:url]||""
        @viewurl=@url.gsub('xrn','xrv'+@route.id.to_s)
@@ -413,7 +414,7 @@ end
 
     if (params[:delete])
      if !signed_in? then
-        redirect_to signin_path
+        redirect_to signin_url+"?referring_url="+URI.escape(request.fullpath), notice: "Please sign in." 
      else
  
       if(!trip=TripDetail.find_by(:route_id => params[:id])) 

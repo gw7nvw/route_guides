@@ -496,17 +496,6 @@ test "handle required-for-publication errors in edit route" do
     assert_equal tr, @testroute
 
 
-  # date experienced
-  patch '/routes/'+@testroute.id.to_s, route: { startplace_id: @testplace.id.to_s, endplace_id: @testplace2.id.to_s, via: "newvia", experienced_at: "", location: "LINESTRING (175.29328274238836 -41.53084479196681 90.0, 175.29534267891307 -41.53065203340396 96.0)", description: "M"*3000, reverse_description: "N"*3000, time: "1.1", distance: "2.2", importance_id: "3", routetype_id: "3", gradient_id: "3", terrain_id: "3", alpinesummer_id: "3", river_id: "3", alpinewinter_id: "3", winterdescription: "O"*3000, published: "1" }, datasource: "Uploaded from GPS", save: "Save"
-
-    assert :success
-    assert_template 'routes/edit'
-    assert_select "div.alert-error", "Enter the required information and save again, or uncheck &#39;published&#39; if you wish to save this as a draft version without this information"
-    assert_select  "div.alert", "The form contains 1 error."
-    assert_select  "div#error_explanation>ul>li", "* Experienced at can&#39;t be blank for a published route"
-    @testroute.reload
-    assert_equal tr, @testroute
-
 
   # NOT REQUIRED FOR DRAFT
   # allows one descriptiondd
@@ -627,16 +616,6 @@ test "handle required-for-publication errors in new route" do
     assert_equal tr, Route.count
 
 
-  # date experienced
-  post '/routes/', route: { startplace_id: @testplace.id.to_s, endplace_id: @testplace2.id.to_s, via: "newvia", experienced_at: "", location: "LINESTRING (175.29328274238836 -41.53084479196681 90.0, 175.29534267891307 -41.53065203340396 96.0)", description: "M"*3000, reverse_description: "N"*3000, time: "1.1", distance: "2.2", importance_id: "3", routetype_id: "3", gradient_id: "3", terrain_id: "3", alpinesummer_id: "3", river_id: "3", alpinewinter_id: "3", winterdescription: "O"*3000, published: "1" }, datasource: "Uploaded from GPS", save: "Save"
-
-    assert :success
-    assert_template 'routes/new'
-    assert_select "div.alert-error", "Enter the required information and save again, or uncheck &#39;published&#39; if you wish to save this as a draft version without this information"
-    assert_select  "div.alert", "The form contains 1 error."
-    assert_select  "div#error_explanation>ul>li", "* Experienced at can&#39;t be blank for a published route"
-    assert_equal tr, Route.count
-
 
   # NOT REQUIRED FOR DRAFT
   # allows one descriptiondd
@@ -654,6 +633,46 @@ test "handle required-for-publication errors in new route" do
     assert_equal tr.description, ""
     assert_equal tr.reverse_description, ""
 
+end
+
+test "edit route can save with no experienced_at date" do
+  login_as(@testuser2.name,"password")
+  assert is_logged_in?
+
+  # date experienced
+  patch '/routes/'+@testroute.id.to_s, route: { startplace_id: @testplace.id.to_s, endplace_id: @testplace2.id.to_s, via: "newervia", experienced_at: "", location: "LINESTRING (175.29328274238836 -41.53084479196681 90.0, 175.29534267891307 -41.53065203340396 96.0)", description: "M"*3000, reverse_description: "N"*3000, time: "1.1", distance: "2.2", importance_id: "3", routetype_id: "3", gradient_id: "3", terrain_id: "3", alpinesummer_id: "3", river_id: "3", alpinewinter_id: "3", winterdescription: "O"*3000, published: "1" }, datasource: "Uploaded from GPS", save: "Save"
+
+    assert :success
+
+    #show
+    get '/routes/'+@testroute.id.to_s
+    assert :success
+
+    assert_template 'routes/show'
+    routetitle=@testplace.name+" to "+@testplace2.name+" via newervia"
+   # assert_select "div#route_title1", /#{routetitle}.*/
+    assert_select "div#expwarning1", "Warning: this route segment has not been experienced by the author"
+end
+
+test "new route can save with no experienced_at date" do
+  login_as(@testuser2.name,"password")
+  assert is_logged_in?
+
+  # date experienced
+  rtcnt=Route.count
+  post '/routes/', route: { startplace_id: @testplace.id.to_s, endplace_id: @testplace2.id.to_s, via: "newestvia", experienced_at: "", location: "LINESTRING (175.29328274238836 -41.53084479196681 90.0, 175.29534267891307 -41.53065203340396 96.0)", description: "M"*3000, reverse_description: "N"*3000, time: "1.1", distance: "2.2", importance_id: "3", routetype_id: "3", gradient_id: "3", terrain_id: "3", alpinesummer_id: "3", river_id: "3", alpinewinter_id: "3", winterdescription: "O"*3000, published: "1" }, datasource: "Uploaded from GPS", save: "Save"
+
+    assert :success
+    assert_equal rtcnt+1, Route.count
+
+    tr=Route.last
+
+    #show many
+    get '/routes/xrv'+@testroute2.id.to_s+'xrv-'+tr.id.to_s
+    assert :success
+
+    assert_template 'routes/show'
+    assert_select "div#expwarning2", "Warning: this route segment has not been experienced by the author"
 end
 end
 
