@@ -20,4 +20,9 @@ class UserMailer < ActionMailer::Base
     @user = user
     mail to: user.email, subject: "Password reset"
   end
+  def address_auth(authlist)
+    @authlist = authlist
+    mail to: authlist.address, subject: "Address authentication"
+  end
+
 end

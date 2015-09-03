@@ -1,15 +1,27 @@
 <%
-    comments=Comment.find_by_sql [%q[select * from comments where "item_type"=? and "item_id"=? order by "created_at" desc],itemType,itemId]
+    if @comments then 
+       comments = @comments 
+       itemType = @item_type
+       itemId = @item_id
+    else 
+       if signed_in? and @current_user.role.id>1 then
+         comments=Comment.find_by_sql [%q[select * from comments where "item_type"=? and "item_id"=? order by "created_at" desc],itemType,itemId] 
+       else
+         comments=Comment.find_by_sql [%q[select * from comments where approved=true and "item_type"=? and "item_id"=? order by "created_at" desc],itemType,itemId] 
+       end
+    end
 %>
-
+<% if @comment_posted %>
+<div class="erow"><%=render 'flash' %></div>
+<% end %>
 <div class="erow">
-   <% if signed_in?%>
+   <%# if signed_in?%>
       <div class="leftbuttons" class="no-print">
          <span title="Add a comment">
            <img id='addComment' src="/assets/add.png" width="16" <%=%q[onclick=editcommenton()]%>>
          </span>
       </div>
-   <% end %>
+   <%# end %>
    <div class="sectiontitle">
       Comments:
    </div>
@@ -21,7 +33,36 @@
    <% comments.each do |comment| %>
 
       <div class="subrow">
-         <%= link_to comment.createdBy.name.capitalize, '/users/'+comment.createdBy.name, remote: true%>
+         <% if (signed_in? and @current_user.role.id>1) %>
+               <div class="leftbuttons">
+                 <% if comment.approved==false %>
+                    <%= form_tag '/comments/approve', :remote=> true, :method=> 'post'%>
+                      <input type="hidden" name="selected_id" value='<%=comment.id%>' />
+                    <input type="hidden" name="referring_page" value='item' />
+                      <span title="Approve comment">
+                        <%= submit_tag "Approve",  :type => :image, :src => '/assets/tick.png', :style => 'margin-bottom:0;border:none',  id: "Approve", onclick: "linkHandler('approve')"  %>
+                      </span>
+                    </form>
+                  <% end %>
+                </div>
+        <% end %>
+        <% if signed_in? and ((comment.approved==false and @current_user.role.id>1) or @current_user.role_id==3 or @current_user.id==comment.createdBy_id) %>
+                <div class="leftbuttons">
+                  <%= form_tag '/comments/destroy', :remote=> true, :method=> 'post'%>
+                    <input type="hidden" name="selected_id" value='<%=comment.id%>' />
+                    <input type="hidden" name="referring_page" value='item' />
+                    <span title="Delete comment">
+                      <%= submit_tag "Destroy",  :type => :image, :src => '/assets/red-x.png', :style => 'margin-bottom:0;border:none',  id: "Approve", onclick: "linkHandler('approve')", confirm: "Do you really ant to delete this comment?"  %>
+                     </span>
+                  </form>
+                </div>
+        <% end %>
+
+         <% if comment.createdBy_id %>
+           <%= link_to comment.createdBy.name.capitalize, '/users/'+comment.createdBy.name, remote: true%>
+         <% else %>
+            <%=comment.fromName+" (guest)" %>
+         <% end %>
          <%= "("+comment.created_at.to_date.to_s+"). "%>
          <% if comment.experienced_at %>
            <%="Experienced: "+comment.experienced_at.to_s%>

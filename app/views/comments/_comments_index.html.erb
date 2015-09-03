@@ -28,7 +28,36 @@ $(function () {
    <% @comments.each do |comment| %>
 
       <li>
-         <%= link_to comment.createdBy.name.capitalize, '/users/'+comment.createdBy.name, remote: true%>
+         <% if (signed_in? and @current_user.role.id>1) %>
+               <div class="leftbuttons">
+                 <% if comment.approved==false %>
+                    <%= form_tag '/comments/approve', :remote=> true, :method=> 'post'%>
+                      <input type="hidden" name="selected_id" value='<%=comment.id%>' />
+                      <input type="hidden" name="referring_page" value='index' />
+                      <span title="Approve comment">
+                        <%= submit_tag "Approve",  :type => :image, :src => '/assets/tick.png', :style => 'margin-bottom:0;border:none',  id: "Approve", onclick: "linkHandler('approve')"  %>
+                      </span>
+                    </form>
+                  <% end %>
+                </div>
+        <% end %>
+        <% if (comment.approved==false and @current_user.role.id>1) or (signed_in? and (@current_user.role_id==3 or @current_user.id==comment.createdBy_id)) %>
+                <div class="leftbuttons">
+                  <%= form_tag '/comments/destroy', :remote=> true, :method=> 'post'%>
+                    <input type="hidden" name="selected_id" value='<%=comment.id%>' />
+                    <input type="hidden" name="referring_page" value='index' />
+                    <span title="Delete comment">
+                      <%= submit_tag "Destroy",  :type => :image, :src => '/assets/red-x.png', :style => 'margin-bottom:0;border:none',  id: "Approve", onclick: "linkHandler('approve')", confirm: "Do you really ant to delete this comment?"  %>
+                     </span>
+                  </form>
+                </div> 
+        <% end %>
+         <% if comment.createdBy_id %>
+           <%= link_to comment.createdBy.name.capitalize, '/users/'+comment.createdBy.name, remote: true%>
+         <% else %>
+            <%=comment.fromName+" (guest)" %>
+         <% end %>
+
          <%= "("+comment.created_at.to_date.to_s+"). "%> commented on  <%= link_to comment.item.name+" ("+comment.item_type+")", comment.item, remote: true, :id => 'comment_link_'+comment.id.to_s, :onclick => "linkHandler('comment_link_"+comment.id.to_s+"')" %>
          <%= simple_format(comment.comment).html_safe %>
       </li>

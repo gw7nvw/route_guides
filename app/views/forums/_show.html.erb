@@ -16,6 +16,7 @@ $(function () {
 });
 
 </script>
+  <div class="erow-10px"><b><%= link_to "All topics ", '/forums/'+@id.to_s, remote: true, :id => 'all_link', :onclick => "linkHandler('all_link')" %></b></div>
 
   <% if @threads %>
   <div class="name_pagination"> <%= will_paginate(@threads) %></div>
