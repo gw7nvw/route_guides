@@ -347,7 +347,7 @@
             return this;
         },
         createModal: function() {
-            var $modal = $('<div class="modal" tabindex="-1" role="dialog" aria-hidden="true"></div>');
+            var $modal = $('<div class="modal" tabindex="-1" role="dialog" data-backdrop="false" aria-hidden="true"></div>');
             $modal.prop('id', this.getId()).attr('aria-labelledby', this.getId() + '_title');
 
             return $modal;

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150827220635) do
+ActiveRecord::Schema.define(version: 20150901175817) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -34,6 +34,16 @@ ActiveRecord::Schema.define(version: 20150827220635) do
     t.datetime "updated_at"
   end
 
+  create_table "authlists", force: true do |t|
+    t.string   "address"
+    t.string   "name"
+    t.boolean  "allow",       default: false
+    t.boolean  "forbid",      default: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.string   "auth_digest"
+  end
+
   create_table "comments", force: true do |t|
     t.string   "item_type"
     t.integer  "item_id"
@@ -42,6 +52,10 @@ ActiveRecord::Schema.define(version: 20150827220635) do
     t.date     "experienced_at"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "fromName"
+    t.string   "fromEmail"
+    t.boolean  "approved"
+    t.string   "auth_digest"
   end
 
   create_table "difficulties", force: true do |t|
@@ -127,6 +141,10 @@ ActiveRecord::Schema.define(version: 20150827220635) do
     t.boolean  "hasBeenRead"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "fromName"
+    t.string   "fromEmail"
+    t.boolean  "approved"
+    t.string   "auth_digest"
   end
 
   create_table "papersizes", force: true do |t|

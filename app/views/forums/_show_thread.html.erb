@@ -6,8 +6,15 @@
    reset_map_controllers();
    document.getElementById("page_status").innerHTML = '';
 </script>
+  <div class="erow-10px"><%= link_to "All topics-> ", '/forums/'+@id.to_s, remote: true, :id => 'all_link', :onclick => "linkHandler('all_link')" %>
+  <% if @messages and @messages.count>0 %>
+    <b><%=link_to @messages.first.subject.capitalize, '/forums/'+@id.to_s+'/?thread='+URI.escape(@messages.first.subject), remote: true, :id => 'thread_link', :onclick => "linkHandler('thread_link')" %> </b></div>
+  <% else %>
+    Empty thread
+  <% end %>
+
   <%=render 'message_form'%>
-  <% if @messages %>
+  <% if @messages and @messages.count>0%>
     <b><%=@messages.first.subject.capitalize%></b>
     <% @messages.reverse.each do |message| %>
       <div class="erow">

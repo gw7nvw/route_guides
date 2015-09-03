@@ -1161,7 +1161,13 @@ function linkHandler(entity_name) {
            }
          }
          if(thrownError=="error") {
-           document.getElementById("page_status").innerHTML = 'Error';
+           if(jqXHR.status=="409") {
+             document.getElementById("page_status").innerHTML = 'Item exists (duplicate save)';
+             alert("Error 409: Your item has been saved (we've checked), but the original response from the server was lost.  You can safely navigate away from this page using the menus at the top of the screen.  Use Add -> Route if you wish to continue adding route segments.");
+           } else {
+             document.getElementById("page_status").innerHTML = 'Error: '+jqXHR.status;
+           }
+
          } 
          if(thrownError=="success") {
            document.getElementById("page_status").innerHTML = ''
@@ -1728,10 +1734,10 @@ function loadLink(linkurl) {
                }
              }
              if(thrownError=="error") {
-               document.getElementById("page_status").innerHTML = 'Error';
+                  document.getElementById("page_status").innerHTML = 'Error: '+jqXHR.status;
              }
              if(thrownError=="success") {
-               document.getElementById("page_status").innerHTML = ''
+               document.getElementById("page_status").innerHTML = '';
              }
              lastUrl=document.URL;
           }

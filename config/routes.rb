@@ -1,3 +1,4 @@
+
 require 'resque/server'
 
 RouteGuides::Application.routes.draw do
@@ -8,6 +9,7 @@ RouteGuides::Application.routes.draw do
 mount Resque::Server.new, at: "/resque"
 resources :comments
 resources :account_activations, only: [:edit]
+resources :address_auths, only: [:edit]
 resources :users
 resources :photos
 resources :routes
@@ -19,7 +21,7 @@ resources :maps, only: [:index]
 resources :trips
 resources :history, only: [:index, :show, :update]
 resources :messages, only: [:index, :show, :update]
-resources :forums, only: [:index, :show, :update]
+resources :forums, only: [:index, :show, :update, :approve, :destroy]
 resources :password_resets, only: [:new, :create, :edit, :update]
 
 #controller :places do
@@ -28,7 +30,12 @@ resources :password_resets, only: [:new, :create, :edit, :update]
 
 root 'static_pages#home'
   match '/sessions', to: 'static_pages#home',    via:'get'
+  match '/comments/page_index', to: 'comments#page_index',    via:'get'
   match '/forums', to: 'forums#update',    via:'post'
+  match '/forums/approve', to: "forums#approve", via: 'post'
+  match '/forums/destroy', to: "forums#destroy", via: 'post'
+  match '/comments/approve', to: "comments#approve", via: 'post'
+  match '/comments/destroy', to: "comments#destroy", via: 'post'
   match '/messages', to: 'messages#update',    via:'post'
   match '/trips/move', to: 'trips#move', via: 'post'
   match '/places/select', to: 'places#select', via: 'post'

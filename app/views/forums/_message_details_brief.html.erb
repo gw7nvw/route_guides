@@ -1,23 +1,28 @@
            <p>
              <b> <%= @show_message.subject.capitalize%> </b>
-             <%=link_to @count.to_s+" messages - Latest: "+@show_message.created_at.strftime("%Y/%m/%d %H:%M"), '/forums/1/?thread='+URI.escape(@show_message.subject), remote: true%>
+             <%=link_to @count.to_s+" messages - Latest: "+@show_message.created_at.strftime("%Y/%m/%d %H:%M"), '/forums/1/?thread='+URI.escape(@show_message.subject), remote: true, onclick: "linkHandler('more')"%>
 
            </p>
 
 
-     <%if (signed_in? and @show_message.fromUser.id == @current_user.id)%>
+     <%if (signed_in? and @show_message.fromUser_id == @current_user.id)%>
           <p class="right-bubble-blue">
      <%else%>
           <p class="right-bubble">
      <% end %>
-            <b><%= @show_message.fromUser.name.capitalize+" >" %></b><br/>
-            <% message=@show_message.message.html_safe %>
-            <% if message.length>255 then  %>
-                  <%= message[0..245].html_safe %>
-                  <%= link_to "... (more)", '/forums/1/?thread='+URI.escape(@show_message.subject), remote: true%>
-            <% else %>
-                  <%= message.html_safe %>
-            <% end %>
+     <% if @show_message.fromUser_id %>
+          <b><%= link_to @show_message.fromUser.name.capitalize, '/users/'+@show_message.fromUser.name, remote: true, onclick: "linkHandler('user')"%> ></b><br>
+     <% else %>
+          <b><%=@show_message.fromName%></b> (guest)<b> ></b><br>
+     <% end %>
+
+          <% message=@show_message.message.html_safe %>
+     <% if message.length>255 then  %>
+          <%= message[0..245].html_safe %>
+          <%= link_to "... (more)", '/forums/1/?thread='+URI.escape(@show_message.subject), remote: true, onclick: "linkHandler('moredot')"%>
+     <% else %>
+          <%= message.html_safe %>
+     <% end %>
             
           </p>
 
