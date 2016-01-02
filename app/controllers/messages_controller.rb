@@ -79,8 +79,10 @@ end
 def update
    @edit=true
    @message=Message.new(message_params)
-
+   puts @message
+   puts message_params
    @message.fromUser_id=@current_user.id
+   @message.fromName=@current_user.name
    if @message.save
        index()
        render 'index'

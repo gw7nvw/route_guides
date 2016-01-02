@@ -42,6 +42,15 @@ pt_styleMap = new OpenLayers.StyleMap({
 
 <% end %>
 
+style_pcl_default = {strokeColor: "green", strokeOpacity: "0.3", strokeWidth: 1, cursor: "pointer", fillColor: "darkgreen", fillOpacity: "0.3", strokeDashstyle: "solid", title: '${name}', };
+
+var pcl_sty = OpenLayers.Util.applyDefaults(style_pcl_default, OpenLayers.Feature.Vector.style["default"]);
+pcl_styleMap = new OpenLayers.StyleMap({
+            'default': pcl_sty,
+            'select': {strokeColor: "darkred", fillColor: "darkred", strokeDashstyle: "solid"}
+        });
+
+
 style_rt_default = {strokeColor: "red", strokeOpacity: "0.7", strokeWidth: 3, cursor: "pointer", fillColor: "darkred", strokeDashstyle: "solid", title: '${name}', };
 
 var sty = OpenLayers.Util.applyDefaults(style_rt_default, OpenLayers.Feature.Vector.style["default"]);

@@ -10,6 +10,8 @@ var vectorLayer;
 var places_layer;
 var routes_layer;
 var routes_simple_layer;
+var docland_layer;
+var docland_simple_layer;
 var renderer;
 
 var layer_style;
@@ -28,6 +30,7 @@ var  padding;
 var currentPercentage=0.45
 
 var show_route;
+var show_docland;
 var show_accomodation;
 var show_roadend;
 var show_summit;
@@ -147,17 +150,12 @@ padding = 5;
 	    create_styles();
 
     var mapspast_options = {
-projection: new OpenLayers.Projection("EPSG:2193"),
+            projection: new OpenLayers.Projection("EPSG:2193"),
 	    displayProjection: new OpenLayers.Projection("EPSG:"+current_proj),
 	    units: "m",
-	    //      maxResolution: 156543.0339,
       maxResolution: 4891.969809375,
- //     resolutions: [8960, 4480, 2240, 1120, 560, 280, 140, 70, 28, 14, 7, 2.8, 1.4, 0.7, 0.28, 0.14, 0.07],
-//      maxResolution: 8960,
       numZoomLevels: 11,
       maxExtent: new OpenLayers.Bounds(-20037508, -20037508, 20037508, 20037508.34)
- //    maxExtent:  new OpenLayers.Bounds(827933.23, 3729820.29, 3195373.59, 7039943.58)
- //       maxExtent: new OpenLayers.Bounds(545967,  3739728,  2507647, 6699370)
     };
     var linz_options = {
       projection: new OpenLayers.Projection("EPSG:2193"),
@@ -194,6 +192,12 @@ projection: new OpenLayers.Projection("EPSG:2193"),
     routes_layer_add();
     routes_layer.setVisibility(false);
     routes_simple_layer_add();
+
+    docland_simple_layer_add();
+    docland_simple_layer.setVisibility(false);
+    docland_layer_add();
+    docland_layer.setVisibility(false);
+    //docland_layer.setVisibility(false);
 
     if (mapset=="mapspast") {
 
@@ -264,7 +268,6 @@ projection: new OpenLayers.Projection("EPSG:2193"),
              getURL: overlay_getLinzTileURL,
              isBaseLayer: true,
              tileOrigin: new OpenLayers.LonLat(-1000000,10000000),
-//             tileOrigin: new OpenLayers.LonLat(20037508, -20037508),
              displayInLayerSwitcher:true,
              rowSign: 1
          });
@@ -274,7 +277,6 @@ projection: new OpenLayers.Projection("EPSG:2193"),
              getURL: overlay_getLinzTileURL,
              isBaseLayer: true,
              tileOrigin: new OpenLayers.LonLat(-1000000,10000000),
-//             tileOrigin: new OpenLayers.LonLat(20037508, -20037508),
              displayInLayerSwitcher:true,
              rowSign: 1
          });
@@ -286,6 +288,8 @@ projection: new OpenLayers.Projection("EPSG:2193"),
     map_map.addLayer(places_layer);
     map_map.addLayer(routes_layer);
     map_map.addLayer(routes_simple_layer);
+    map_map.addLayer(docland_layer);
+    map_map.addLayer(docland_simple_layer);
 
     map_map.zoomToExtent(extent); 
     map_map.addControl(new OpenLayers.Control.MousePosition({
@@ -506,6 +510,33 @@ function routes_simple_layer_add() {
                     styleMap: rt_styleMap,
                     displayInLayerSwitcher:false
                 });
+}
+
+function docland_layer_add() {
+    docland_layer = new OpenLayers.Layer.Vector("DOC Land", {
+                    strategies: [new OpenLayers.Strategy.BBOX()],
+                    protocol: new OpenLayers.Protocol.WFS({
+                        url:  "http://routeguides.co.nz/cgi-bin/mapserv?map=/ms4w/apps/matts_app/htdocs/docland.map",
+                        featureType: "docland"
+                    }),
+                    styleMap: pcl_styleMap,
+                    displayInLayerSwitcher:false
+                });
+
+
+}
+function docland_simple_layer_add() {
+    docland_simple_layer = new OpenLayers.Layer.Vector("DOC Land", {
+                    strategies: [new OpenLayers.Strategy.BBOX()],
+                    protocol: new OpenLayers.Protocol.WFS({
+                        url:  "http://routeguides.co.nz/cgi-bin/mapserv?map=/ms4w/apps/matts_app/htdocs/docland500.map",
+                        featureType: "docland500"
+                    }),
+                    styleMap: pcl_styleMap,
+                    displayInLayerSwitcher:false
+                });
+
+
 }
 
 function routes_layer_add() {
@@ -1416,6 +1447,8 @@ function map_show_default() {
     show_crossing=true
     document.getElementById("show_other").style.border="2px solid lightgreen"; 
     show_other=true;
+    document.getElementById("show_docland").style.border="2px solid orange"; 
+    show_docland=false;
 }
 
 function map_show_grey() {
@@ -1427,6 +1460,7 @@ function map_show_grey() {
   if (show_scenic) { document.getElementById("show_scenic").style.border="2px solid lightgrey"};
   if (show_crossing) { document.getElementById("show_crossing").style.border="2px solid lightgrey"};
   if (show_other) { document.getElementById("show_other").style.border="2px solid lightgrey"};
+  if (show_docland) { document.getElementById("show_docland").style.border="2px solid lightgreen"};
 
 }
 
@@ -1439,8 +1473,26 @@ function map_show_green() {
   if (show_scenic) { document.getElementById("show_scenic").style.border="2px solid lightgreen"};
   if (show_crossing) { document.getElementById("show_crossing").style.border="2px solid lightgreen"};
   if (show_other) { document.getElementById("show_other").style.border="2px solid lightgreen"};
+  if (show_docland) { document.getElementById("show_docland").style.border="2px solid lightgreen"};
 }
 
+function toggle_docland() {
+  if (show_docland) {
+    document.getElementById("show_docland").style.border="2px solid orange";
+    docland_layer.setVisibility(false);
+    docland_simple_layer.setVisibility(false);
+  } else {
+    document.getElementById("show_docland").style.border="2px solid lightgreen";
+  };
+
+  var dialog_filter=document.getElementById("dialog_filter");
+  var main_filter=document.getElementById("filterdiv");
+  dialog_filter.innerHTML=main_filter.innerHTML;
+
+  show_docland=!show_docland;
+  check_zoomend();
+  //routes_layer.refresh({force:true});
+}
 function toggle_routes() {
   if (show_route) {
     document.getElementById("show_route").style.border="2px solid orange";
@@ -1456,9 +1508,6 @@ function toggle_routes() {
 
   show_route=!show_route;
   check_zoomend();
-
-  
-
   //routes_layer.refresh({force:true});
 }
 function apply_filter(category,newstate){
@@ -1548,6 +1597,17 @@ function check_zoomend() {
                   routes_simple_layer.setVisibility(false);
                 }
                 map_show_green();
+       }
+       if (x < 6) {
+            if (show_docland) {
+              docland_layer.setVisibility(false);
+              docland_simple_layer.setVisibility(true);
+            }
+       } else {
+                if(show_docland) {
+                  docland_layer.setVisibility(true);
+                  docland_simple_layer.setVisibility(false);
+                }
        }
     }
 
