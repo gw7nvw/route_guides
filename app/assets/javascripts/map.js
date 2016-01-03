@@ -5,6 +5,7 @@ var mapBounds = new OpenLayers.Bounds(748961,3808210, 2940563,  6836339);
 var mapMinZoom = 0;
 var mapMaxZoom = 10;
 var map_pinned=false;
+var map_size=1;
 
 var vectorLayer;
 var places_layer;
@@ -112,32 +113,32 @@ function init(){
 function do_init(){
   init_styles();
 
-containerWidth= $("#main_page").width()-25;
-nbpanels = 2;
-padding = 5;
+//containerWidth= $("#main_page").width()-25;
+//nbpanels = 2;
+//padding = 5;
   //resizable div
   window.onresize = function()
   {
    setTimeout( function() { map_map.updateSize();}, 1000);
-   containerWidth= $("#main_page").width()-25;
-   var currentWidth = $("#left_panel").width();
-   $("#right_panel").width(containerWidth*(1-currentPercentage));
-   $("#right_panel").css('margin-left', (containerWidth*currentPercentage+padding*2)+'px' );
-   $("#left_panel").width(containerWidth*currentPercentage);
+ //  containerWidth= $("#main_page").width()-25;
+ //  var currentWidth = $("#left_panel").width();
+ //  $("#right_panel").width(containerWidth*(1-currentPercentage));
+ //  $("#right_panel").css('margin-left', (containerWidth*currentPercentage+padding*2)+'px' );
+ //  $("#left_panel").width(containerWidth*currentPercentage);
   } 
 //  $(".panel").width( (containerWidth / nbpanels) - (nbpanels * padding - 2 * padding));
 
-  $(".panel").resizable({
-    handles: 'e',
-    resize: function(event, ui){
-      var currentWidth = ui.size.width;
-      currentPercentage=currentWidth/containerWidth;
-      // set the content panel width
-      $("#right_panel").width(containerWidth*(1-currentPercentage));
-      $("#right_panel").css('margin-left', currentWidth+padding*2+'px' );
-      $(this).width(currentWidth);
-    }
-  });
+  //$(".panel").resizable({
+  //  handles: 'e',
+  //  resize: function(event, ui){
+  //    var currentWidth = ui.size.width;
+  //    currentPercentage=currentWidth/containerWidth;
+  //    // set the content panel width
+  //    $("#right_panel").width(containerWidth*(1-currentPercentage));
+  //    $("#right_panel").css('margin-left', currentWidth+padding*2+'px' );
+  //    $(this).width(currentWidth);
+  // }
+ // });
     /* explicityly define the projections we will use */
     Proj4js.defs["EPSG:2193"] = "+proj=tmerc +lat_0=0 +lon_0=173 +k=0.9996 +x_0=1600000 +y_0=10000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs";
     Proj4js.defs["EPSG:900913"] = "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_defs";
@@ -1985,4 +1986,49 @@ function getSelectedText(elementId) {
         return null;
 
     return elt.options[elt.selectedIndex].text;
+}
+
+function map_bigger() {
+  document.getElementById('map_map').style.display="none";
+  if (map_size==1) {
+    $('#left_panel').toggleClass('span5 span12'); 
+    $('#right_panel').toggleClass('span7 span0');
+  setTimeout( function() {document.getElementById('right_panel').style.display="none";}, 100);
+    map_size=2;
+  }
+
+  if (map_size==0) {
+    $('#left_panel').toggleClass('span0 span5'); 
+    $('#right_panel').toggleClass('span12 span7');
+    document.getElementById('left_panel').style.display="block";
+    map_size=1;
+  }
+  setTimeout( function() { 
+    map_map.updateSize();
+    document.getElementById('map_map').style.display="block";
+    map_map.updateSize();
+  }, 200);
+}
+
+function map_smaller() {
+
+  document.getElementById('map_map').style.display="none";
+  if (map_size==1) {
+    $('#left_panel').toggleClass('span5 span0'); 
+    $('#right_panel').toggleClass('span7 span12');
+    document.getElementById('left_panel').style.display="none";
+    map_size=0;
+  }
+  if (map_size==2) {
+    document.getElementById('right_panel').style.display="block";
+    $('#left_panel').toggleClass('span12 span5'); 
+    $('#right_panel').toggleClass('span0 span7');
+    map_size=1;
+  }
+
+  setTimeout( function() { 
+    map_map.updateSize();
+    document.getElementById('map_map').style.display="block";
+    map_map.updateSize();
+  }, 200);
 }
