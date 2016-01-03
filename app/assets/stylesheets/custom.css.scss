@@ -55,6 +55,15 @@ textarea {
   }
 }
 
+.row-fluid div {
+    //height: 100%;
+    //width: 100%;
+    -webkit-transition: width 0.3s ease, margin 0.3s ease;
+    -moz-transition: width 0.3s ease, margin 0.3s ease;
+    -o-transition: width 0.3s ease, margin 0.3s ease;
+    transition: width 0.3s ease, margin 0.3s ease;
+}
+
 /* typography */
 
 h1, h2, h3, h4, h5, h6 {
@@ -94,6 +103,8 @@ p {
 #main_page{
  width: 100%;
  height: 100%;
+ padding-left: 0px;
+ padding-right: 0px;
  margin-top: 28px;
 }
 
@@ -107,6 +118,13 @@ p {
 	background-color: #666;
 	margin-bottom: 10px;
         font-size: 0.8em;
+}
+
+#rg-image {
+ float:left;
+ width:44;
+ height:40;
+ margin-left:4px
 }
 
 #our_logo {
@@ -152,15 +170,61 @@ p {
 
 #tooltip{
         position:absolute;
-        z-index:10000;
+        z-index:9999;
         background-color:#FFFFFF;
         display:none;
         padding:5px;
 }
+
+.wrapper {
+   z-index: 9998;
+    float: right;
+    position: fixed;
+    width: 100px;
+    padding-top: 12px;
+}
+#tab {
+//   z-index:10000;
+	position: fixed;
+	right: 0em;
+	width: 19em;
+   -webkit-transform:rotate(90deg) translate(19.6em,0); 
+      -moz-transform:rotate(90deg) translate(19.6em,0);
+        -o-transform:rotate(90deg) translate(19.6em,0);
+           transform:rotate(90deg) translate(19.6em,0);
+   -webkit-transform-origin: 100% 0;
+      -moz-transform-origin: 100% 0;
+        -o-transform-origin: 100% 0;
+           transform-origin: 100% 0;
+//   filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+}
+#tab li {
+   z-index:10000;
+    float: left;
+    width: 70px;
+    height: 30px;
+    border: 1px solid #000;  
+    list-style: none;
+	border-top: none;
+	border-bottom-width: 1px !important;
+	-moz-border-radius: 0px 4px 4px 0px;
+	-webkit-border-radius: 0px 4px 4px 0px;
+	border-radius: 0px 4px 4px 0px;
+    background: white;
+    opacity: 0.4;
+
+}
+#tab li a {
+   z-index:10000;
+    display: block;
+    padding: 2px;
+    font-weight:bold;
+    -color: black;
+}
 #left_panel
 {
         float: left;
-        width: calc(45% - 5px);
+//        width: calc(45% - 5px);
         height: 100%;
 //        padding: 2.5px;
         position: fixed;
@@ -414,21 +478,23 @@ html, body {
 }
 .sectiontitle25 {
         margin-top: 1px;
-        padding-left: 25px;
+        float: left;
         font-size: 1.2em;
         letter-spacing: -1px;
         font-weight: bold;
         color: $grayLight;
+        padding-left: 25px;
 }
 
 
 .sectiontitle50 {
         margin-top: 1px;
-        padding-left: 50px;
+        float: left;
         font-size: 1.2em;
         letter-spacing: -1px;
         font-weight: bold;
         color: $grayLight;
+        padding-left: 50px;
 }
 
 .sectiontitle-bold {
@@ -476,8 +542,8 @@ img.photo {
         border: 0px;
         margin: 0px;
  /*       margin-top: 100px; */
-	margin-left: 20px;
-	margin-right: 20px;
+//	margin-left: 20px;
+//	margin-right: 20px;
         padding: 0px;
         float: left;
 }
@@ -499,11 +565,12 @@ img.photo {
 
 #right_panel
 {
-	float: left;
-	margin-left: 45%;
-        padding-left: 5px;
-        padding-top: 28px;
-	width: calc(55% - 10px);
+	float: right;
+        margin-top: 12px;
+//	margin-left: 45%;
+//        padding-left: 5px;
+//        padding-top: 28px;
+//	width: calc(55% - 10px);
 	height: auto;    
 }
 
@@ -841,15 +908,59 @@ div.olControlMousePosition, div.olControlScale {
     text-shadow: 0 0 0.2em #FFF, 0 0 0.2em #FFF, 0 0 0.2em #FFF;
 
 }
-.ui-resizable-e {
-  cursor: e-resize;
-  width: 7px;
-  right: -5px;
-  top: 0;
-  height: 100%;
-  float: right;
-  background-color: $grayLight;
-}
 
 
 /* mobile specific */
+@media only screen and (max-width: 540px) {
+#menus {
+  /* rules that only apply for canvases narrower than 1000px */
+  font-size: 0.9em;
+}
+.navbar .nav > li > a {
+ padding: 10px 4px 10px;
+}
+#rg-image {
+ width:0;
+}
+
+.erow li {
+ line-height: 1;
+}
+
+body {
+ font-size: 0.7em;
+ line-height: 1em;
+}
+p {
+  font-size: 0.8em;
+}
+
+h1 {
+  font-size: 1.3em;
+}
+h2 { 
+  font-size: 1.1em;
+}
+.sectiontitle {
+  font-size: 1.0em;
+}
+.sectiontitle25 {
+  font-size: 1.0em;
+}
+.sectiontitle50 {
+  font-size: 1.0em;
+}
+.sectiontitle-bold {
+  font-size: 1.0em;
+}
+.rowtitleshort {
+  font-size: 1.0em;
+}
+.rowtitle {
+  font-size: 1.0em;
+}
+input {
+  font-size: 0.9em !important;
+  line-height: 1.1em !important;
+}
+}
