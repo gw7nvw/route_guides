@@ -1,0 +1,55 @@
+<% provide(:title, "Catchment | "+@catchment.name) %>
+<% @title=" | Catchment | "+@catchment.name %>
+<%= render 'flash' %>
+<%= render 'application/mail_status' %>
+
+<script> 
+   update_title('<%=@title%>'); 
+   document.getElementById("page_status").innerHTML = '';
+   // clear any existing map features and reset hover if map exists
+   if(typeof(vectorLayer)!='undefined') {
+    reset_map_controllers();
+   }
+
+</script>
+<div id='catchment_details'>
+  <%= render 'catchments/catchment_details' %>
+  <div class="erow">
+     <div class="hrline">
+        <hr noshade size="4">
+     </div>
+  </div>
+
+
+  <div id="links_section2">
+     <div class="erow">
+       <div class="sectiontitle-bold">
+          Places:
+       </div>
+     </div>
+     <% @trip=true %>
+     <% @dontMark=true %>
+     <%= render '/catchments/pl_list' %>
+  
+  
+     <% @trip=false %>
+     <% @dontMark=false %> 
+  
+     <div class="erow">
+        <div class="hrline">
+           <hr noshade size="4">
+        </div>
+     </div>
+     <%= render '/catchments/rt_list' %>
+
+     <div class="erow">
+        <div class="hrline">
+           <hr noshade size="4">
+        </div>
+     </div>
+
+     <div id="comments_section">
+       <%=render :partial => 'comments/comments_brief',  :locals => {:itemType => "catchment", :itemId => @catchment.id} %>
+     </div>
+   </div> 
+ </div>

@@ -117,8 +117,10 @@ def update
      @subject=@message.subject
      if @message.save
        if @message.forum_id then
+         @message=Message.new
          show()
        else
+         @message=Message.new
          index()
        end
      else

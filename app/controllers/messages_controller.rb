@@ -84,6 +84,7 @@ def update
    @message.fromUser_id=@current_user.id
    @message.fromName=@current_user.name
    if @message.save
+       @message=Message.new
        index()
        render 'index'
    else

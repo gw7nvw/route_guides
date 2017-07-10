@@ -27,7 +27,7 @@ $(function () {
   <ul class="places">
     <% @routes.each do |ri| %>
       <li>
-        <%= link_to ri.startplace.name+" to "+ri.endplace.name, '/search/?route_startplace_id='+ri.startplace.id.to_s+'&route_endplace_id='+ri.endplace.id.to_s, remote: true, :id => 'route_link_'+ri.id.to_s, :onclick => "linkHandler('route_link_"+ri.id.to_s+"')" %>
+        <%= link_to ri.url, '/search/?route_startplace_id='+ri.startplace_id.to_s+'&route_endplace_id='+ri.endplace_id.to_s, remote: true, :id => 'route_link_'+ri.id.to_s, :onclick => "linkHandler('route_link_"+ri.id.to_s+"')" %>
  
       </li>
    <% end %>

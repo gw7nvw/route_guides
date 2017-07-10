@@ -28,7 +28,7 @@
 </head>
 <% if @help=="true" %>
  <body>
-    <div id="right_panel" class="panel" class="style="margin-left: 0px; width: 100%">
+    <div id="right_panel" class="panel" class='style="margin-left: 0px; width: 100%'>
 <% else %>
  <body onload='<%=@init_name%>' style="cursor: auto;">
   <%= form_tag '/redisplay', :remote=> true, :id => "thelink", :name=> 'selectform', :method=> 'post'%>
@@ -47,8 +47,8 @@
     <%= render 'layouts/header' %>
       <div class="wrapper">
         <ul id="tab">
-            <li><%= link_to "Map ^^", "#",  remote: true,  :onclick => "map_bigger()" %></li>
-            <li><%= link_to "Info vv", "#",  remote: true,  :onclick => "map_smaller()" %></li>
+            <li><%= link_to "Map ^^", "#",    :onclick => "map_bigger(); return false;" %></li>
+            <li><%= link_to "Info vv", "#",    :onclick => "map_smaller(); return false;" %></li>
         </ul>
       </div>
     <div id="main_page" class="container-fluid"> 
