@@ -1,0 +1,35 @@
+<% provide(:title, 'Catchments') %>
+<% @title=" | Catchments" %>
+<%= render 'flash' %>
+<script>
+   update_title('<%=@title%>');
+   reset_map_controllers();
+   document.getElementById("page_status").innerHTML = '';
+
+$(function () {
+  $('#right_panel .pagination a').on('click', function () {
+    $.getScript(this.href);
+    return false;
+  });
+})
+</script>
+
+<%if @order=='latest'%>
+  <div class="date_pagination"> <%= will_paginate(@catchments, :renderer => PaginationListLinkRenderer, :order => @order, :inner_window => 3) %></div>
+<% else %>
+  <div class="name_pagination"> <%= will_paginate(@catchments, :renderer => PaginationListLinkRenderer, :order => @order) %></div>
+<% end %>
+
+  <ul class="places">
+    <% @catchments.each do |catchment| %>
+      <li>
+        <%= link_to catchment.name, '/catchments/'+catchment.id.to_s, remote: true, :id => 'place_link_'+catchment.id.to_s, :onclick => "linkHandler('place_link_"+catchment.id.to_s+"')" %></li>
+      </li>
+    <% end %>
+  </ul>
+
+<%if @order=='latest'%>
+  <div class="date_pagination"> <%= will_paginate(@catchments, :renderer => PaginationListLinkRenderer, :order => @order, :inner_window => 3) %></div>
+<% else %>
+  <div class="name_pagination"> <%= will_paginate(@catchments, :renderer => PaginationListLinkRenderer, :order => @order) %></div>
+<% end %>

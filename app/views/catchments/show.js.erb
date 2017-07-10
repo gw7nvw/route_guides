@@ -1,0 +1,2 @@
+if (window.history.pushState!=null) window.history.pushState({stt: "show"}, 'Route Guides | Catchments', '/catchments/<%=params[:id]%>');
+$('#right_panel').html("<%= escape_javascript(render(:partial => 'catchments/show')).html_safe %>");

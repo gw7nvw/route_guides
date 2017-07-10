@@ -17,6 +17,7 @@ resources :reports
 resources :sessions, only: [:new, :create, :destroy]
 resources :links, only: [:create, :destroy]
 resources :places
+resources :catchments
 resources :maps, only: [:index]
 resources :trips
 resources :history, only: [:index, :show, :update]

@@ -1,0 +1,54 @@
+<div id="catchment_details">
+   <!-- Place title and add/remove buttons if in edit mode-->
+
+      <%  if(signed_in? and !@trip and !@history) %>
+         <div class="leftbuttons">
+            <span title="Edit" id="Edit">
+                <%=  link_to image_tag("/assets/pencil_edit.png", :border=>0, :class => 'dock-item'), '/catchments/'+@catchment.id.to_s+'/edit', remote: true, onclick: "linkHandler('editbutton')", id:  "editbutton"  %>
+            </span>
+
+         </div>
+      <% end %>
+
+      <div class="sectiontitle25" id="catchment_title">
+          <% link_name=@catchment.name %>
+          <% if !@history %>
+               <%= link_to link_name, '/catchments/'+@catchment.id.to_s, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %> 
+          <% else %>
+             <%=link_name%>
+          <% end %>
+
+      </div>
+   </div>
+
+   <%  # convert to NZTM2000 (EPSG:2193) for display 
+#       fromproj4s= Projection.find_by_id(4326).proj4
+#       toproj4s= Projection.find_by_id(2193).proj4
+#       fromproj=RGeo::CoordSys::Proj4.new(fromproj4s)
+#       toproj=RGeo::CoordSys::Proj4.new(toproj4s)
+#
+#       xyarr=RGeo::CoordSys::Proj4::transform_coords(fromproj,toproj,@catchment.outflow.x, @catchment.outflow.y)
+#       #convery location to readable format
+#       x=xyarr[0]
+#       y=xyarr[1]
+   %>
+
+   <!-- Place location and max/mix buttons -->
+<div id='catchment1' style='display:<%=if @hideAll then "none" else "block" end%>'>
+   <div class="subrow">
+      <div class="sectiontitle25" style="font-weight:normal" id="catchment_locn">
+         <%#= "Outflow location (NZTM2000): "+x.round().to_s+", "+y.round().to_s %>
+      </div>
+   </div>
+
+   <!-- Place location in collapsable diiv -->
+   <div id='ca_description' class="sectiontext50">
+         <%#= simple_format(@catchment.description).html_safe %>
+   </div>
+
+</div>
+
+<script>
+/*    reset_map_controllers(); */
+    catchment_init(<%=@catchment.id%>)
+</script>

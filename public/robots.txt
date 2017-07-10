@@ -10,3 +10,6 @@ Disallow: /history/*
 Disallow: /*/adj_route/*
 Disallow: /adj_route/*
 Disallow: *.gpx
+Disallow: /routes/*x*
+Disallow: /search/*
+

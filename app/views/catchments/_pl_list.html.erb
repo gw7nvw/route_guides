@@ -1,0 +1,11 @@
+<% if @catchment.places %>
+  <div class="erow">
+    <ul>
+      <% @catchment.places.each do |place| %>
+         <li>
+           <%= link_to place.name+" ("+place.placeType.name+")", place, remote: true, :id => 'place_link_'+place.id.to_s, :onclick => "linkHandler('place_link_"+place.id.to_s+"')" %></li>
+         </li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>

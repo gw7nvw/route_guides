@@ -1,0 +1,174 @@
+<% if !@static_page %>
+  <% if(@searchtext) %>
+     <% provide(:title, 'Find | '+@searchtext) %>
+     <% @title=" | Find | "+@searchtext %>
+  <% else %>
+     <% provide(:title, 'Find') %> 
+     <% @title=" | Find" %>
+  <% end %>
+<% end %>
+<%= render 'flash' %>
+
+<script>
+   update_title('<%=@title%>'); 
+   document.getElementById("page_status").innerHTML = '';
+   reset_map_controllers();
+</script>
+
+
+    <%= form_tag '/find', :name => 'findform', :remote => true, :method => 'post', :style => 'margin-bottom: 0px' %>
+
+      <input type="hidden" name="extent_left">
+      <input type="hidden" name="extent_right">
+      <input type="hidden" name="extent_top">
+      <input type="hidden" name="extent_bottom">
+      <input type="hidden" name="referer" value='<%=@respond_to%>'>
+      <div class="erow">
+      <% if @static_page and @static_page==true %>
+        <div class="leftbuttons">
+          <img id="searchicon" src="/assets/search16.png" width="16" style="display:block">
+        </div>
+        <div class="rowtitleshort">Find:</div>
+        <div class="rowtextshort">     
+      <% else %>
+        <div class="rowtitle">Find:</div>
+        <div class="rowtext">
+      <% end %>
+          <input type="text" name="searchtext" value='<%=@searchtext%>'/>
+        </div>
+      <% if @static_page and @static_page==true %>
+        <input type="hidden" name="Places" value="1">
+        <input type="hidden" name="Routes" value="1">
+        <input type="hidden" name="Trips" value="1">
+        <input type="hidden" name="Stories" value="1">
+        <input type="hidden" name="Photos" value="1">
+        <input type="hidden" name="Name" value="1">
+        <input type="hidden" name="Description" value="0">
+        <input type="hidden" name="Extent" value="0">
+      <% else %> 
+      </div>
+      <div class="erow">
+        <div class="rowtitle">Search for:</div>
+      </div>
+      <div class="erow">
+        <div class="checktitle">Places</div>
+        <div class="checkbox"><%= check_box_tag 'Places', 1, @findplaces %></div>
+      </div>
+      <div class="erow">
+        <div class="checktitle">Route segments</div>
+        <div class="checkbox"><%= check_box_tag 'Routes', 1, @findroutes %></div>
+      </div>
+      <div class="erow">
+        <div class="checktitle">Trips</div>
+        <div class="checkbox"><%= check_box_tag 'Trips', 1, @findtrips %></div>
+      </div>
+      <div class="erow">
+        <div class="checktitle">Stories</div>
+        <div class="checkbox"><%= check_box_tag 'Stories', 1, @findstories%></div>
+      </div>
+      <div class="erow">
+        <div class="checktitle">Photos</div>
+        <div class="checkbox"><%= check_box_tag 'Photos', 1, @findphotos%></div>
+      </div>
+<br/>
+      <div class="erow">
+        <div class="rowtitle">Search in:</div>
+      </div>
+
+      <div class="erow">
+        <div class="checktitle">Name</div>
+        <div class="checkbox"><%= check_box_tag 'Name', 1, @inname %></div>
+      </div>
+      <div class="erow">
+        <div class="checktitle">Description</div>
+        <div class="checkbox"><%= check_box_tag 'Description', 1, @indescription %></div>
+      </div>
+      <div class="erow">
+        <div class="checktitle">Current map extent only</div>
+        <div class="checkbox"><%= check_box_tag 'Extent', 1, @inextent%></div>
+      </div>
+      <div class="erow"> 
+      <% end %>
+
+      <div class="buttonshort">
+      <%= submit_tag "Find", :id => "find", :onclick => "linkWithExtent('find')" %>
+      </div>
+    </div>
+  </form>
+<% if @findplaces or @findtrips or @findstories or @findphotos or @findroutes %>
+ <div id="links_section">
+  <% if @findplaces %>
+    <div class="erow">
+      <div class="rowtitle">
+         Places:
+      </div>
+    </div>
+    <% if @places %> 
+     <%=render :partial => 'links_index',  :locals => {:links => @places, :parent_type=>'place'} %>
+    <% end %>
+
+    <% if @places_text %>
+     <%=render :partial => 'links_index',  :locals => {:links => @places_text, :parent_type=>'place'} %>
+    <% end %>
+  <% end %>
+
+
+  <% if @findroutes %>
+    <div class="erow">
+      <div class="rowtitle">
+         Routes:
+      </div>
+    </div>
+    <% if @routes %>
+     <%=render :partial => 'links_index',  :locals => {:links => @routes, :parent_type=>'route'} %>
+    <% end %>
+
+    <% if @routes_text %>
+     <%=render :partial => 'links_index',  :locals => {:links => @routes_text, :parent_type=>'route'} %>
+    <% end %>
+
+  <% end %>
+
+  <% if @findtrips %>
+    <div class="erow">
+      <div class="rowtitle">
+         Trips:
+      </div>
+    </div>
+    <% if @trips%>
+     <%=render :partial => 'links_index',  :locals => {:links => @trips, :parent_type=>'trip'} %>
+    <% end %>
+    <% if @trips_text%>
+     <%=render :partial => 'links_index',  :locals => {:links => @trips_text, :parent_type=>'trip'} %>
+    <% end %>
+  <% end %>
+
+  <% if @findstories %>
+    <div class="erow">
+      <div class="sectiontitle">
+         <b>Stories / Trip Reports:</b>
+      </div>
+    </div>
+    <% if @stories %>
+     <%=render :partial => 'links_index',  :locals => {:links => @stories, :parent_type=>'report'} %>
+    <% end %>
+    <% if @stories_text%>
+     <%=render :partial => 'links_index',  :locals => {:links => @stories_text, :parent_type=>'report'} %>
+    <% end %>
+  <% end %>
+  
+ <% if @findphotos %>
+    <div class="erow">
+      <div class="sectiontitle">
+         <b>Photographs:</b>
+      </div>
+    </div>
+    <% if @photos %>
+     <%=render :partial => 'links_index',  :locals => {:links => @photos, :parent_type=>'photo'} %>
+    <% end %>
+    <% if @photos_text%>
+     <%=render :partial => 'links_index',  :locals => {:links => @photos_text, :parent_type=>'photo'} %>
+    <% end %>
+  <% end %>
+ </div>
+<% end %>

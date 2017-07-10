@@ -10,6 +10,7 @@ var map_size=1;
 var vectorLayer;
 var places_layer;
 var routes_layer;
+var catchments_layer;
 var routes_simple_layer;
 var docland_layer;
 var docland_simple_layer;
@@ -18,6 +19,7 @@ var renderer;
 var layer_style;
 var pt_styleMap;
 var rt_styleMap;
+var ca_styleMap;
 var style_pt_default;
 var style_rt_default;
 var star_purple;
@@ -45,6 +47,7 @@ var click_to_copy_start_point;
 var click_to_copy_link;
 var click_to_copy_end_point;
 var click_to_create;
+var select_catchment;
 var link_item_type="test";
 var draw;
 
@@ -192,13 +195,16 @@ function do_init(){
 
     routes_layer_add();
     routes_layer.setVisibility(false);
+
     routes_simple_layer_add();
+
+    catchments_layer_add();
+    catchments_layer.setVisibility(false);
 
     docland_simple_layer_add();
     docland_simple_layer.setVisibility(false);
     docland_layer_add();
     docland_layer.setVisibility(false);
-    //docland_layer.setVisibility(false);
 
     if (mapset=="mapspast") {
 
@@ -289,6 +295,7 @@ function do_init(){
     map_map.addLayer(places_layer);
     map_map.addLayer(routes_layer);
     map_map.addLayer(routes_simple_layer);
+    map_map.addLayer(catchments_layer);
     map_map.addLayer(docland_layer);
     map_map.addLayer(docland_simple_layer);
 
@@ -442,6 +449,8 @@ function do_init(){
     click_to_create = new OpenLayers.Control.Click();
     map_map.addControl(click_to_create);
 
+    select_catchment=new OpenLayers.Control.SelectFeature(catchments_layer);
+    map_map.addControl(select_catchment);
     add_draw_controller();
 
     /* by default, activate only xclick_to_select */
@@ -497,6 +506,21 @@ function places_layer_add() {
 
            }
     });
+}
+
+function catchments_layer_add() {
+
+    catchments_layer = new OpenLayers.Layer.Vector("catchments", {
+                    strategies: [new OpenLayers.Strategy.BBOX()],
+                    protocol: new OpenLayers.Protocol.WFS({
+                        url:  "http://routeguides.co.nz/cgi-bin/mapserv?map=/ms4w/apps/matts_app/htdocs/catchments.map",
+                        featureType: "catchments",
+                        extractAttributes: true
+                    }),
+                    styleMap: ca_styleMap,
+                    displayInLayerSwitcher:false
+                });
+
 }
 
 function routes_simple_layer_add() {
@@ -650,6 +674,7 @@ function add_click_to_select_all_controller() {
           url: document.selectform.selecttype.value+document.selectform.select.value,
           complete: function() {
               /* complete also fires when error ocurred, so only clear if no error has been shown */
+              if(map_size==2) map_smaller();
               document.getElementById("page_status").innerHTML = '';
           }
   
@@ -879,6 +904,7 @@ function add_draw_controller () {
   draw = new OpenLayers.Control.DrawFeature(
       vectorLayer, OpenLayers.Handler.Path
   );
+  draw.events.register('featureadded', draw, route_endSelectLocation); 
   map_map.addControl(draw);
 
   OpenLayers.Event.observe(document, "keydown", function(evt) {
@@ -986,6 +1012,15 @@ function place_init(plloc, keep) {
     }
   }
 
+}
+
+function catchment_init(catchment_id) {
+
+//  if (typeof(map_map)=='undefined') init();
+  catchments_layer.setVisibility(true);
+  select_catchment.activate();
+  select_catchment.unselectAll();
+  select_catchment.select(catchments_layer.features[catchment_id-1]);
 }
 
 function route_init(startloc, endloc, rtline, keep) {
@@ -1202,7 +1237,8 @@ function linkHandler(entity_name) {
 
          } 
          if(thrownError=="success") {
-           document.getElementById("page_status").innerHTML = ''
+           document.getElementById("page_status").innerHTML = '';
+           if(map_size==2) map_smaller();
          }
          lastUrl=document.URL;
        }
@@ -1798,6 +1834,7 @@ function loadLink(linkurl) {
                   document.getElementById("page_status").innerHTML = 'Error: '+jqXHR.status;
              }
              if(thrownError=="success") {
+               if(map_size==2) map_smaller();
                document.getElementById("page_status").innerHTML = '';
              }
              lastUrl=document.URL;
@@ -2006,8 +2043,10 @@ function map_bigger() {
   setTimeout( function() { 
     map_map.updateSize();
     document.getElementById('map_map').style.display="block";
+    setTimeout( function() { map_map.updateSize(); }, 1000);
     map_map.updateSize();
   }, 200);
+  return false ;
 }
 
 function map_smaller() {
@@ -2029,6 +2068,9 @@ function map_smaller() {
   setTimeout( function() { 
     map_map.updateSize();
     document.getElementById('map_map').style.display="block";
+    setTimeout( function() { map_map.updateSize(); }, 1000);
     map_map.updateSize();
   }, 200);
+
+  return false ;
 }

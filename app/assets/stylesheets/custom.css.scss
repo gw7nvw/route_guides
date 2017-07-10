@@ -42,6 +42,10 @@ textarea {
   resize: vertical;
 }
 
+.modal {
+  margin-left: -130px;
+}
+
 .body-select {
   font-size: 0.9em;
   max-width: 100%;
@@ -355,6 +359,7 @@ html, body {
 .rightbuttons {
         width: 25px;
         float: right;
+        margin-right: 25px;
 }
 
 .leftbuttons {
@@ -396,9 +401,10 @@ html, body {
         padding-left: 25px;
         font-size: 1.0em;
         line-height: 1.3em;
+        float: left;
 }
 .rowtitlesmall {
-        width: calc(25% - 25px);
+        width: calc(25% - 50px);
         margin-top: 1px;
         float: left;
         font-size: 1.2em;
@@ -463,7 +469,7 @@ html, body {
 }
 .rowtextsmall {
         float: left;
-        width: calc(75% - 25px);
+        width: calc(75% - 50px);
         font-size: 1.0em;
         line-height: 1.2em;
 }
@@ -931,6 +937,9 @@ body {
  font-size: 0.7em;
  line-height: 1em;
 }
+label {
+ font-size: 0.8em;
+}
 p {
   font-size: 0.8em;
 }
@@ -960,6 +969,10 @@ h2 {
   font-size: 1.0em;
 }
 input {
+  font-size: 0.9em !important;
+  line-height: 1.1em !important;
+}
+textarea {
   font-size: 0.9em !important;
   line-height: 1.1em !important;
 }

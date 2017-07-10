@@ -16,7 +16,7 @@ require "rexml/document"
   end
 
   def index
-    route_index = RouteIndex.find_by_sql ["select distinct startplace_id, endplace_id, sp.name, ep.name from route_indices inner join places sp on sp.id = startplace_id inner join places ep on ep.id=endplace_id order by sp.name, ep.name" ]
+    route_index = RouteIndex.find_by_sql ["select distinct startplace_id, endplace_id, CONCAT(sp.name, ' to ', ep.name) as url from route_indices inner join places sp on sp.id = startplace_id inner join places ep on ep.id=endplace_id where isdest=true and fromdest=true order by url" ]
 #    @routes=route_index.where(:isDest => true, :fromDest => true).sort_by{|a| [a.startplace.name, a.endplace.name]}.paginate(:per_page => 80, :page => params[:page])
     @routes=route_index.paginate(:per_page => 80, :page => params[:page])
 
@@ -219,7 +219,8 @@ def show
             end
 
             xml = route_to_gpx(routearr)
-            response.headers['Content-Disposition'] = 'attachment; filename=' + (@startplace.name+' to '+@endplace.name).gsub(/[\\\/\s]/, '_') + '.gpx'
+            puts ":"+@startplace.name+"::"+@endplace.name+":"
+            response.headers['Content-Disposition'] = 'attachment; filename=' + (@startplace.name+' to '+@endplace.name).gsub(/[\\\/\s\,\(\)]/, '_') + '.gpx'
             render :xml => xml
           end
         end
@@ -252,6 +253,7 @@ end
           @version=params[:version]
         end
       end
+      #followingis slow ... work out why. TODO
       if !@version then  @version=(RouteInstance.find_by_sql [ "select id from route_instances where route_id=? order by updated_at desc limit 1", @route.id.abs.to_s ]).first.try('id') end
     end
 
@@ -270,9 +272,8 @@ end
       wants.js do
       end 
       wants.gpx do  
-        if !@route.name then @route.name="route" end
         xml = route_to_gpx([@route])
-        response.headers['Content-Disposition'] = 'attachment; filename=' + @route.name.gsub(/[\\\/\s]/, '_') + '.gpx'
+        response.headers['Content-Disposition'] = 'attachment; filename=' + (@route.startplace.name+' to '+@route.endplace.name).gsub(/[\\\/\s\,\(\)]/, '_') + '.gpx'
         render :xml => xml 
       end 
     end 

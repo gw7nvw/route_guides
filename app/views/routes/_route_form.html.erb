@@ -118,8 +118,8 @@ sufficient to differentiate it from other routes between the same two places. <b
               <span title="Click to draw route on map">
                  <img id="locationplus" src="/assets/draw.png" onclick="route_selectLocation()" width="16" style="display:block">
               </span>
-              <span title="Click to confirm drawn route">
-                 <img id="locationtick" src="/assets/tick.png" onclick="route_endSelectLocation()" width="16" style="display:none">
+              <span title="Click to cancel drawn route">
+                 <img id="locationtick" src="/assets/red-x.png" onclick="route_endSelectLocation()" width="16" style="display:none">
               </span>
             </div>
          <% end %>
@@ -139,10 +139,10 @@ sufficient to differentiate it from other routes between the same two places. <b
           --- If you need to scroll the map you can do so by dragging the map in any direction during editing<br/>
           --- If you need to zoom the map you can do so with the mouse wheel during editing<br/>
           --- Try to include points at high and low points along the route, as the altitude profile of the route will only be calculated where you draw points.<br/>
-          (5) When complete, double click to end drawing.  The line drawn will change colour to red.<br/>
-          (6) Turn off map drawing by clicking the green tick.<br/>
+          (5) When complete, double click to end drawing.  The line drawn will change colour to red and will be copied to the Route Points box on the form.<br/>
           --- The route points will now be listed in the 'Route Points' box.<br/>
           --- If you made a mistake or if you are editing an existing route, then simply repeat the above process and the new route will overwrite the old one. <br/>
+          --- Click the red cross to cancel the drawing at any time. <br/>
           <br/>
           Option B: Drag and drop a GPX file into the location box.<br>
           (1) Use a file explorer to find your GPX file on your computer<br>

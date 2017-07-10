@@ -225,12 +225,13 @@ def reverse
    self.endplace_id = temp
    self.id=-self.id
    if self.location then
-     linestr="LINESTRING("
-     self.location.points.reverse.each do |p|
-       if linestr.length>11 then linestr+="," end
-       linestr+=p.x.to_s+" "+p.y.to_s+" "+p.z.to_s
-     end
-     self.location=linestr+")"
+   self.location=(Route.find_by_sql [ "select ST_Reverse('"+self.location.to_s+"') as location;"]).first.location
+#     linestr="LINESTRING("
+#     self.location.points.reverse.each do |p|
+#       if linestr.length>11 then linestr+="," end
+#       linestr+=p.x.to_s+" "+p.y.to_s+" "+p.z.to_s
+#     end
+#     self.location=linestr+")"
    end
 
 
@@ -326,8 +327,12 @@ end
 def adjoiningRoutes
 #   t=Route.find_by_sql ["select distinct *  from routes r 
 #       where published=true and (startplace_id = ? or endplace_id = ? or startplace_id = ? or endplace_id = ?) and id <> ?",self.startplace_id, self.startplace_id, self.endplace_id, self.endplace_id, self.id.abs]
+   t1=Time.now
    t=self.startplace.adjoiningRoutes
+   puts "Startplace adjoiningROutes :"+(Time.now-t1).to_s
+   t1=Time.now
    t+=self.endplace.adjoiningRoutes
+   puts "Endplace adjoiningROutes :"+(Time.now-t1).to_s
    self.linked('place').each do |lp|
      pl=Place.find_by_id(lp.item_id)
      t+=pl.adjoiningRoutes
