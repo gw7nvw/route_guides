@@ -14,7 +14,6 @@ development:
 #  database: route_guides_development
 #  pool: 5
 #  username: root
-#  password: 
 #  socket: /var/run/mysqld/mysqld.sock
   adapter: postgis
   encoding: unicode
@@ -34,7 +33,6 @@ test:
 #  database: route_guides_test
 #  pool: 5
 #  username: root
-#  password:
 #  socket: /var/run/mysqld/mysqld.sock
   adapter: postgis
   encoding: unicode
@@ -51,7 +49,6 @@ production:
 #  database: route_guides_production
 #  pool: 5
 #  username: root
-#  password: 
 #  socket: /var/run/mysqld/mysqld.sock
   adapter: postgis
   encoding: unicode
@@ -69,7 +66,6 @@ dem100:
 #  database: route_guides_production
 #  pool: 5
 #  username: root
-#  password:
 #  socket: /var/run/mysqld/mysqld.sock
   adapter: postgis
   encoding: unicode
@@ -86,7 +82,6 @@ dem30:
 #  database: route_guides_production
 #  pool: 5
 #  username: root
-#  password: 
 #  socket: /var/run/mysqld/mysqld.sock
   adapter: postgis
   encoding: unicode
@@ -103,7 +98,6 @@ dem15:
 #  database: route_guides_production
 #  pool: 5
 #  username: root
-#  password: 
 #  socket: /var/run/mysqld/mysqld.sock
   adapter: postgis
   encoding: unicode
