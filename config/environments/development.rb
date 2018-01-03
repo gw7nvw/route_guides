@@ -32,10 +32,11 @@ RouteGuides::Application.configure do
 
 config.action_mailer.delivery_method = :smtp
 ActionMailer::Base.smtp_settings = {
-   :address => "madpom",
+   :address => "localhost",
    :port => 25,
-   :domain => "wharncliffe.co.nz",
-   :authentication => :none
+   :domain => "routeguides.co.nz",
+   :authentication => :none,
+   :openssl_verify_mode => 'none'
 }
 
 end

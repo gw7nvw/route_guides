@@ -29,7 +29,7 @@ $(function () {
         
         <%= link_to route.name, route, remote: true, :id => 'route_link_'+route.id.to_s, :onclick => "linkHandler('route_link_"+route.id.to_s+"')" %>
         <% if @order and @order == 'latest' %>
-          <br/><%= "added by "+route.createdBy.name+" (last updated "+route.updated_at.strftime("%F")+")"%>
+          <br/><%if route.createdBy %> added by <%= link_to route.createdBy.name.capitalize, '/users/'+route.createdBy.name, remote: true%> <% end %> <% if route.updatedBy %> (last updated <%=route.updated_at.strftime("%F")%> by <%= link_to route.updatedBy.name.capitalize, '/users/'+route.updatedBy.name, remote: true%>) <% end %>
         <% end %> 
       </li>
     <% end %>
