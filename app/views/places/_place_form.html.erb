@@ -84,11 +84,11 @@
            <%=render :partial => 'help_buttons',  :locals => {:expName => "helplocation", :initialSt => 0} %>
            <div class="leftbuttons">
               <span title="Click to draw locstion on map">
-                 <img id="placeplus" src="/assets/draw-point.png" onclick="place_selectPlace()" width="16" style="display:block">
+                 <img id="placeplus" src="/assets/draw-point.png" onclick="site_drawPlace('placetick', 'placeplus','place_location','place_x','place_y')" width="16" style="display:block">
               </span>
 
               <span title="Click to confirm selection">
-                 <img id="placetick" src="/assets/tick.png" onclick="place_selectNothing()" width="16" style="display:none">
+                 <img id="placetick" src="/assets/tick.png" onclick="site_selectNothing('placetick', 'placeplus')" width="16" style="display:none">
               </span>
            </div>
          <% end %>
@@ -136,13 +136,13 @@
 
       <br/>
         <% if @edit %>
-              <%= f.submit "Save", class: "btn btn-small btn-primary", name: "save", onclick: "updatePlace('savebutton')", id:  "savebutton" %>
+              <%= f.submit "Save", class: "btn btn-small btn-primary", name: "save", onclick: "site_updatePlace('savebutton')", id:  "savebutton" %>
               <% if @url and @url.include?('x')%>   
                <%=  link_to "Cancel", '/routes/'+@viewurl, class: "btn btn-small btn-primary", remote: true %>
               <% else %>
                <%=  link_to "Cancel", '/places/'+@place.id.to_s, class: "btn btn-small btn-primary", remote: true %>
                <%     if((@place.createdBy_id==@current_user.id) or (@current_user.role==Role.find_by( :name => 'root'))) %>
-                 <%= f.submit "Delete", class: "btn btn-small btn-primary", name: "delete", onclick: "updatePlace('deletebutton')", id:  "deletebutton" %>
+                 <%= f.submit "Delete", class: "btn btn-small btn-primary", name: "delete", onclick: "site_updatePlace('deletebutton')", id:  "deletebutton" %>
                <% end %>
             <% end %>
 

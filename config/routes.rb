@@ -63,6 +63,8 @@ root 'static_pages#home'
   match 'legend', to: "maps#legend", via: 'get'
   match '/styles.js', to: "maps#styles", via: 'get', as: "styles", defaults: { format: "js" }
   match '/sitemap.xml', to: 'sitemaps#index', via: 'get', as: "sitemap", defaults: { format: "xml" }
+  match '/hb_extract.xml', to: 'extracts#index_brief', via: 'get', as: "extract", defaults: { format: "xml" }
+  match '/hb_extract_full.xml', to: 'extracts#index_full', via: 'get', as: "extract_full", defaults: { format: "xml" }
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 

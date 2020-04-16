@@ -26,7 +26,10 @@ def styles
 end
 
 def load_styles
-  if params[:category] then @cat=params[:category] else @cat="routetype" end
+ 
+ if params[:category] then @cat=params[:category] else @cat="routetype_id" end
+  if(@cat[@cat.length-3..@cat.length]=='_id') then @cat=@cat[0..@cat.length-4] end
+  puts "cat: "+@cat
   case @cat 
 
    when "alpinesummer"

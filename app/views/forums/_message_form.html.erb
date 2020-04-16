@@ -1,33 +1,21 @@
-<%# if signed_in?%>
+<% if !signed_in? %>
+   <small>You are not currently signed in. Register / sign in to make forum posts</small><br/> 
+<% end %>
+<% if signed_in?%>
 <div id='place_details' class='no-print'>
   <div>
      <%= form_for  @message, :remote=> true, :html => {:name => 'messageform'}, :url => '/forums'   do |f| %>
       <%= render 'shared/error_messages' %>
 
       <div id="subject" <%="style=display:none" if @hide_to %>>
-<% if !signed_in? %>
-   <small>You are not currently signed in. You can post a message as a guest by supplying a name and email below. If you do not supply or validate your email address then the message will appear only after approval by a moderator</small> 
-<% end %>
         <%= f.label :Subject %>
         <%= f.text_field :subject, :disabled=>!@edit %>
       </div>
 
-<% if signed_in? %>
       <div id="fromname"></div>
       <div id="fromemail"></div>
       <%= f.hidden_field :fromName, :default => @current_user.name %>
       <%= f.hidden_field :fromEmail, :default => @current_user.email %>
-<% else %>
-      <div id="fromname", class="small"<%="style=display:none" if @hide_to %>>
-
-        <%= f.label "Name*" %>
-        <%= f.text_field :fromName, :disabled=>!@edit%>
-      </div>
-      <div id="fromemail", class="small"<%="style=display:none" if @hide_to %>>
-        <%= f.label "Email" %>
-        <%= f.text_field :fromEmail, :disabled=>!@edit %>
-      </div>
-<% end %>
 
       <%= f.label :Message %>
       <%= f.text_area :message, :disabled=>!@edit, :rows=>"1", :onfocus=>'if (document.getElementById("message_message").rows==1) { document.getElementById("message_message").rows=8;  document.getElementById("subject").style.display="block"; document.getElementById("fromemail").style.display="block"; document.getElementById("fromname").style.display="block"}'  %>
@@ -43,7 +31,7 @@
     <% end %>
   </div>
 </div>
-<%# end %>
+<% end %>
 
 
 

@@ -5,6 +5,9 @@ class PhotosController < ApplicationController
 def new
    @edit=true
    @photo=Photo.new
+    # default preojection is NZTM2000
+    @photo.projection_id=2193
+
 end
 
 def index

@@ -1,0 +1,360 @@
+var clickMode;
+var searchMode;
+var site_map_size=1;
+var site_selected_layer;
+var places_layer;
+var routes_layer;
+var routes_simple_layer;
+var site_route_classifier="routetype_id";
+var site_rt_styles=[];
+var site_pt_styles=[];
+var site_map_pinned=false;
+var site_routesStale=false;
+var site_placesStale=false;
+
+//styles
+var site_blue_dot;
+var site_purple_star;
+var site_red_star;
+var site_green_star;
+var site_red_line;
+// Site-specfic stuff follows - should be in separate file
+//
+
+function site_init() {
+  if(typeof(map_map)=='undefined') {
+    site_init_styles();
+    site_create_styles();
+    map_init_mapspast('map_map');
+    site_create_rt_styles();
+    site_create_pt_styles();
+    site_add_vector_layers();
+  
+    map_map.addLayer(map_scratch_layer);
+    map_add_tooltip();
+    map_on_click_activate(map_navigate_on_click_callback);
+    if ($(window).width() < 960) {
+      site_smaller_map();
+    }
+  }
+}
+
+function site_add_vector_layers() {
+  places_layer=map_add_vector_layer("Places", "http://routeguides.co.nz/cgi-bin/mapserv?map=/var/www/html/rg_maps/rg_map.map", "places",site_point_style_function,true,8,32);
+  routes_layer=map_add_vector_layer("Routes", "http://routeguides.co.nz/cgi-bin/mapserv?map=/var/www/html/rg_maps/rg_map.map", "routes",site_route_style_function,true,8,32);
+  routes_simple_layer=map_add_vector_layer("Routes Simple", "http://routeguides.co.nz/cgi-bin/mapserv?map=/var/www/html/rg_maps/rg_map.map", "routes-simple",site_route_style_function,true,1,8);
+  map_map.addLayer(places_layer);
+  map_map.addLayer(routes_layer);
+  map_map.addLayer(routes_simple_layer);
+
+}
+function site_mapKey() {
+        BootstrapDialog.show({
+            title: "Map options",
+            message: $('<div id="info_details2">Retrieving ...</div>'),
+            size: "size-small"
+        });
+
+        $.ajax({
+          beforeSend: function (xhr){
+            xhr.setRequestHeader("Content-Type","application/javascript");
+            xhr.setRequestHeader("Accept","text/javascript");
+          },
+          type: "GET",
+          timeout: 10000,
+          url: "/legend?projection="+map_current_proj,
+          error: function() {
+              document.getElementById("info_details2").innerHTML = 'Error contacting server';
+          },
+          complete: function() {
+//              document.getElementById("page_status").innerHTML = '';
+          }
+        });
+}
+
+
+
+function site_add_layers() {
+	map_add_raster_layer('NZTM Topo 2009', 'http://au.mapspast.org.nz/topo50/{z}/{x}/{-y}.png', 'mapspast', 4891.969809375, 11);
+	map_add_raster_layer('NZMS260 1999', 'http://au.mapspast.org.nz/nzms260-1999/{z}/{x}/{-y}.png', 'mapspast', 4891.969809375, 11);
+	map_add_raster_layer('NZMS1/260 1989','http://au.mapspast.org.nz/nzms-1989/{z}/{x}/{-y}.png','mapspast', 4891.969809375, 11);
+	map_add_raster_layer('NZMS1 1979', 'http://au.mapspast.org.nz/nzms-1979/{z}/{x}/{-y}.png','mapspast', 4891.969809375, 11);
+        map_add_raster_layer('NZMS1 1969','http://au.mapspast.org.nz/nzms-1969/{z}/{x}/{-y}.png','mapspast', 4891.969809375, 11);
+        map_add_raster_layer('NZMS1 1959','http://au.mapspast.org.nz/nzms-1959/{z}/{x}/{-y}.png','mapspast',4891.969809375, 11);
+        map_add_raster_layer('NZMS15 1949','http://au.mapspast.org.nz/nzms15-1949/{z}/{x}/{-y}.png','mapspast',4891.969809375, 11);
+        map_add_raster_layer('NZMS13 1939','http://au.mapspast.org.nz/nzms13-1939/{z}/{x}/{-y}.png','mapspast',4891.969809375, 11); 
+        map_add_raster_layer('NZMS13 1929','http://au.mapspast.org.nz/nzms13-1929/{z}/{x}/{-y}.png','mapspast',4891.969809375, 11);
+        map_add_raster_layer('NZMS13 1919','http://au.mapspast.org.nz/nzms13-1919/{z}/{x}/{-y}.png','mapspast',4891.969809375, 11);
+        map_add_raster_layer('NZMS13 1909','http://au.mapspast.org.nz/nzms13-1909/{z}/{x}/{-y}.png','mapspast',4891.969809375, 11);
+        map_add_raster_layer('NZMS13 1899','http://au.mapspast.org.nz/nzms13-1899/{z}/{x}/{-y}.png','mapspast',4891.969809375, 11);
+        map_add_raster_layer('(LINZ) Topo50 latest','http://tiles-a.data-cdn.linz.govt.nz/services;key=d8c83efc690a4de4ab067eadb6ae95e4/tiles/v4/layer=767/EPSG:2193/{z}/{x}/{y}.png','linz',8690, 17);
+        map_add_raster_layer('(LINZ) Airphoto latest','http://tiles-a.data-cdn.linz.govt.nz/services;key=d8c83efc690a4de4ab067eadb6ae95e4/tiles/v4/set=2/EPSG:2193/{z}/{x}/{y}.png','linz',8690, 17);
+}
+
+function site_add_controls() {
+	map_create_control("/assets/key24.png","Show Legend / Configure map",site_mapKey,"mapKey");
+	map_create_control("/assets/layers24.png","Select basemap",map_mapLayers,"mapLayers");
+}
+
+function site_bigger_map() {
+  document.getElementById('map').style.display="none";
+  if (site_map_size==1) {
+    $('#left_panel_container').toggleClass('span3 span12');
+    $('#right_panel').toggleClass('span9 span0');
+  setTimeout( function() {document.getElementById('right_panel').style.display="none";}, 100);
+    site_map_size=2;
+  }
+
+  if (site_map_size==0) {
+    $('#left_panel_container').toggleClass('span0 span3');
+    $('#right_panel').toggleClass('span12 span9');
+    document.getElementById('right_panel').style.marginLeft="25%";
+    document.getElementById('right_panel').style.width="75%";
+    document.getElementById('map').style.width="75%";
+    document.getElementById('left_panel_container').style.display="block";
+    site_map_size=1;
+  }
+  setTimeout( function() {
+    map_map.updateSize();
+    document.getElementById('map').style.display="block";
+    setTimeout( function() { map_map.updateSize(); }, 1000);
+    map_map.updateSize();
+  }, 200);
+  return false ;
+}
+
+function site_smaller_map() {
+
+  document.getElementById('map').style.display="none";
+  if (site_map_size==1) {
+    $('#left_panel_container').toggleClass('span3 span0');
+    $('#right_panel').toggleClass('span9 span12');
+    document.getElementById('right_panel').style.marginLeft="0px";
+    document.getElementById('right_panel').style.width="100%";
+    document.getElementById('map').style.width="100%";
+    document.getElementById('left_panel_container').style.display="none";
+    site_map_size=0;
+  }
+  if (site_map_size==2) {
+    document.getElementById('right_panel').style.display="block";
+    $('#left_panel_container').toggleClass('span12 span3');
+    $('#right_panel').toggleClass('span0 span9');
+    site_map_size=1;
+  }
+
+  setTimeout( function() {
+    map_map.updateSize();
+    document.getElementById('map').style.display="block";
+    setTimeout( function() { map_map.updateSize(); }, 1000);
+    map_map.updateSize();
+  }, 200);
+
+  return false ;
+}
+
+function linkHandler(entity_name) {
+    /* close the dropdown */
+    $('.dropdown').removeClass('open');
+
+    /* show 'loading ...' */
+    document.getElementById("page_status").innerHTML = 'Loading ...'
+
+    $(function() {
+     $.rails.ajax = function (options) {
+       options.tryCount= (!options.tryCount) ? 0 : options.tryCount;0;
+       options.timeout = 5000*(options.tryCount+1);
+       options.retryLimit=1;
+       options.complete = function(jqXHR, thrownError) {
+         /* complete also fires when error ocurred, so only clear if no error has been shown */
+         if(thrownError=="timeout") {
+           this.tryCount++;
+           document.getElementById("page_status").innerHTML = 'Retrying ...';
+           this.timeout=15000*this.tryCount;
+           if(this.tryCount<=this.retryLimit) {
+             $.rails.ajax(this);
+           } else {
+             document.getElementById("page_status").innerHTML = 'Timeout';
+           }
+         }
+         if(thrownError=="error") {
+           document.getElementById("page_status").innerHTML = 'Error';
+         }
+         if(thrownError=="success") {
+           if(site_map_size==0) site_bigger_map();
+           document.getElementById("page_status").innerHTML = ''
+         }
+         lastUrl=document.URL;
+       }
+       return $.ajax(options);
+     };
+   });
+}
+
+   function update_title(title) {
+     document.getElementById('logo').innerHTML='Routeguides '+title;
+     document.title = 'MapsPast'+title;
+}
+   function update_heading(title) {
+     document.getElementById('logo').innerHTML='Routeguides '+title;
+}
+
+
+
+
+function site_printmap(filetype) {
+  var extent=map_map.getView().calculateExtent();
+  var xl=extent[0];
+  var xr=extent[2];
+  var yt=extent[1];
+  var yb=extent[3];
+  var width=document.selectform.pix_width.value;
+  var height=document.selectform.pix_height.value;
+  layerid=map_current_layer;
+  sheetid=document.extentform.layerid.value;
+  var maxzoom=document.extentform.maxzoom.value;
+  var filename=document.selectform.filename.value;
+  if (document.extentform.serverpath.value=="http://mapspast.org.nz/") {
+    window.open('http://mapspast.org.nz/assets/print.html?print=true&left='+xl+'&right='+xr+'&top='+yt+'&bottom='+yb+'&sheetid='+sheetid+'&layerid='+layerid+'&wwidth='+width+'&wheight='+height+'&maxzoom='+maxzoom+'&filetype='+filetype+'&filename='+filename, 'printwindow');
+
+  } else {
+    window.open('http://au.mapspast.org.nz/print.html?print=true&left='+xl+'&right='+xr+'&top='+yt+'&bottom='+yb+'&sheetid='+sheetid+'&layerid='+layerid+'&wwidth='+width+'&wheight='+height+'&maxzoom='+maxzoom+'&filetype='+filetype+'&filename='+filename, 'printwindow');
+  }
+  return false;
+}
+
+function site_init_styles() {
+  site_blue_dot=map_create_style("circle", 3, "#2222ff", "#22ffff", 1);
+  site_purple_star=map_create_style("star", 10, "#8b008b", "#8b008b", 1);
+  site_red_star=map_create_style("star", 10, "#990000","#990000", 1);
+  site_green_star=map_create_style("star", 10, "#009900", "#009900", 1);
+  site_red_line=map_create_style("", null, "#990000", "#990000", 4);
+
+}
+
+function site_create_styles() {
+  
+}
+
+function site_create_rt_styles() {
+  site_rt_styles[0]=map_create_style('',0, '#666666', '#666666', 2);
+  site_rt_styles[1]=map_create_style('',0, '#009900', '#009900', 2);
+  site_rt_styles[2]=map_create_style('',0, '#006600', '#006600', 2);
+  site_rt_styles[3]=map_create_style('',0, '#004433', '#004433', 2);
+  site_rt_styles[4]=map_create_style('',0, '#000099', '#000099', 2);
+  site_rt_styles[5]=map_create_style('',0, '#660066', '#660066', 2);
+  site_rt_styles[6]=map_create_style('',0, '#440044', '#440044', 2);
+  site_rt_styles[7]=map_create_style('',0, '#440022', '#440022', 2);
+  site_rt_styles[8]=map_create_style('',0, '#220011', '#220011', 2);
+  site_rt_styles[9]=map_create_style('',0, '#444444', '#444444', 2);
+  site_rt_styles[10]=map_create_style('',0, '#000000', '#000000', 2);
+}
+
+function site_create_pt_styles() {
+  site_pt_styles={
+     "Bridge": map_create_style('cross',4,'#414141','#414141',1),
+     "Campsite": map_create_style('circle',3,'#00ffff','#00ffff',1),
+     "Campspot": map_create_style('circle',3,'#00ff00','#00ff00',1),
+     "Hut": map_create_style('circle',3,'#0000ff','#0000ff',1),
+     "Junction": map_create_style('square',2,'#00003d','#00003d',1),
+     "Locality": map_create_style('square',3,'#000000','#000000',1),
+     "Lookout": map_create_style('circle',3,'#414141','#414141',1),
+     "Other": map_create_style('square',3,'#00003d','#00003d',1),
+     "Pass": map_create_style('triangle',4,'#333300','#333300',1),
+     "River Crossing": map_create_style('x',4,'#414141','#414141',1),
+     "Rock Biv": map_create_style('cross',4,'#414141','#414141',1),
+     "Roadend": map_create_style('square',3,'#1a1a1a','#1a1a1a',1),
+     "Summit": map_create_style('triangle',4,'#b26b00','#b26b00',1),
+     "Waterbody": map_create_style('x',4,'#000099','#000099',1)
+  };
+}
+
+function reset_map_controllers() {
+
+//deactiavte all other click controllers
+
+  if(typeof(map_map)!='undefined') map_on_click_activate(map_navigate_on_click_callback);
+
+//set status icon to show click to navigate
+}
+
+function deactivate_all_click() {
+
+  if(typeof(map_map)!='undefined') map_on_click_deactivate(map_navigate_on_click_callback);
+
+  //set status icon to show blank
+}
+
+function site_point_style_function(feature, resoluton) {
+  return site_pt_styles[feature.get('place_type')];
+}
+
+function site_route_style_function(feature, resoluton) {
+  return site_rt_styles[feature.get(site_route_classifier)];
+}
+
+function site_updateRouteClass(classifier) {
+  site_route_classifier=classifier+"_id";
+  alert(site_route_classifier);
+  map_refresh_layer(routes_layer);
+}
+function site_navigate_to(url) {
+  if(url.length>0) {
+        document.getElementById("page_status").innerHTML = 'Loading ...';
+
+        $.ajax({
+          beforeSend: function (xhr){
+            xhr.setRequestHeader("Content-Type","application/javascript");
+            xhr.setRequestHeader("Accept","text/javascript");
+          },
+          type: "GET",
+          timeout: 20000,
+          url: '/'+url,
+          complete: function() {
+              /* complete also fires when error ocurred, so only clear if no error has been shown */
+              if(site_map_size==2) site_smaller_map();
+              document.getElementById("page_status").innerHTML = '';
+          }
+
+        });
+      }
+}
+
+function route_init(startloc, endloc, rtline, keep) {
+  if (typeof(map_map)=='undefined') site_init();
+
+  if ((keep==0) && (typeof(map_scratch_layer)!='undefined')) map_clear_scratch_layer();
+  /* add start point */
+  if(startloc!="") {
+    map_add_feature_from_wkt(startloc, 'EPSG:4326',site_green_star,true);
+  }
+  /* add end point */
+  if(endloc!="") {
+    map_add_feature_from_wkt(endloc, 'EPSG:4326',site_red_star,true);
+  }
+
+
+  /* add route */
+  if(rtline!="") {
+    map_add_feature_from_wkt(rtline, 'EPSG:4326',site_red_line,true);
+  }
+  
+  if (site_map_pinned==false) map_centre(rtline);
+
+ // if (typeof(document.selectform)!='undefined' && endloc!="" && startloc!="") {
+  //  document.selectform.currentx.value=(feaWGSs.geometry.x+feaWGSe.geometry.x)/2;
+   // document.selectform.currenty.value=(feaWGSs.geometry.y+feaWGSe.geometry.y)/2;
+  //}
+}
+
+function place_init(plloc, keep) {
+  if (typeof(map_map)=='undefined') site_init();
+
+ if (keep==0) map_clear_scratch_layer();
+
+  map_add_feature_from_wkt(plloc, 'EPSG:4326',site_purple_star);
+//  if (typeof(document.selectform)!='undefined') {
+//      document.selectform.currentx.value=feaWGS.geometry.x;
+//      document.selectform.currenty.value=feaWGS.geometry.y;
+//  }
+  if (site_map_pinned==false) map_centre(plloc);
+}

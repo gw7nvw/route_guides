@@ -107,6 +107,14 @@
            @real_endplace=nil
         end 
         @route=Route.find_by_signed_id(routeId)
+        if @route and @route.id then 
+          flatloc=Route.find_by_sql [ "select ST_AsText(ST_AsEWKT(ST_Force2D(location))) as location from routes where id="+@route.id.abs().to_s ]
+          @rtloc=flatloc[0].location
+        else 
+          @rtloc=nil
+        end
+ 
+        
        %>
          <% if item[1]=="v" and @route then %>
            <%= render '/routes/route_details' %> 
@@ -174,13 +182,13 @@
 //  deactivate_all_click();
 
   /* relad routes layer if we've been asked to */
-  if(routesStale) {
-       routes_layer.refresh({force: true}); 
-       routesStale=false;
+  if(site_routesStale) {
+       map_refresh_layer(routes_layer);
+       site_routesStale=false;
   }
-  if(placesStale) {
-     places_layer.refresh({force: true}); 
-     placesStale=false;
+  if(site_placesStale) {
+       map_refresh_layer(places_layer);
+       site_placesStale=false;
   }
 
 </script>

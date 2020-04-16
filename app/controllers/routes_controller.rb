@@ -128,8 +128,22 @@ require "rexml/document"
     @route.updatedBy_id = @current_user.id #current_user.id
     route_add_altitude()
     @route.datasource=params[:datasource]
-    # but doesn;t handle location ... so
     @url=params[:url]
+
+
+# location
+  tmploc=params[:route][:location]
+
+  if tmploc[0..12]=="LINESTRING ZM" then
+     tmploc='LINESTRING'+tmploc[13..-1] 
+     factory=RGeo::Geographic.spherical_factory(:srid => 4326, :has_z_coordinate => true, :has_m_coordinate => true)
+     @route.location=factory.parse_wkt(tmploc)
+  end
+  if tmploc[0..11]=="LINESTRING Z" then
+     tmploc='LINESTRING'+tmploc[12..-1] 
+     factory=RGeo::Geographic.spherical_factory(:srid => 4326, :has_z_coordinate => true)
+     @route.location=factory.parse_wkt(tmploc)
+  end
 
     dupRoute=Route.find_by_sql ['select * from routes where "startplace_id"=? and "endplace_id"=? and via=?',@route.startplace_id, @route.endplace_id, @route.via]
      logger.debug dupRoute.count
@@ -259,7 +273,8 @@ end
 
       if( @route) then
         if(@route.location)
-          @route.location=@route.location.as_text
+          flatloc=Route.find_by_sql [ " select ST_AsText(ST_AsEWKT(ST_Force2D(location))) as location from routes where id="+@route.id.abs().to_s ]
+          @rtloc=flatloc[0].location
         end
         @referring_page='/routes/'+@route.id.to_s
       else
@@ -283,9 +298,14 @@ end
     @edit=true
     if( @route = Route.find_by_signed_id(params[:id]))
     then
-      if(@route.location) 
-         @route.location=@route.location.as_text
-      end
+      if(@route.location)
+          if(@route.location) 
+             @route.location=@route.location.as_text
+          end
+          flatloc=Route.find_by_sql [ " select ST_AsText(ST_AsEWKT(ST_Force2D(location))) as location from routes where id="+@route.id.abs().to_s ]
+          @rtloc=flatloc[0].location
+        end
+
       @route.experienced_at=nil if @current_user!=@route.updatedBy
       prepare_route_vars()
     else
@@ -421,24 +441,28 @@ end
       if(!trip=TripDetail.find_by(:route_id => params[:id])) 
          
         route=Route.find_by_id(params[:id].to_i.abs)
-        links=route.links
-        links.each do |l| 
-           l.destroy
-        end
-        if route.destroy
-          flash[:success] = "Route deleted, id:"+params[:id]
-          redirect_to '/'
+        if !route then 
+          redirect_to '/legs'
         else
-          edit()
-          render 'edit'
-        end 
+          links=route.links
+          links.each do |l| 
+             l.destroy
+          end
+          if route.destroy
+            flash[:success] = "Route deleted, id:"+params[:id]
+            redirect_to '/legs/'
+          else
+            edit()
+            render 'edit'
+          end 
+        end
       else
         flash[:error] = "Trip "+trip.id.to_s+" uses this route, cannot delete"
         edit()
         render 'edit'
       end
-     end
-   end
+    end
+  end
 end
 
 def route_add_altitude

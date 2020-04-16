@@ -51,11 +51,11 @@
            <%=render :partial => 'help_buttons',  :locals => {:expName => "helplocation", :initialSt => 0} %>
            <div class="leftbuttons">
               <span title="Click to draw locstion on map">
-                 <img id="placeplus" src="/assets/draw-point.png" onclick="place_selectPlace()" width="16" style="display:block">
+                 <img id="placeplus" src="/assets/draw-point.png" onclick="site_drawPlace('placetick', 'placeplus','photo_location', 'photo_x', 'photo_y')" width="16" style="display:block">
               </span>
 
               <span title="Click to confirm selection">
-                 <img id="placetick" src="/assets/tick.png" onclick="place_selectNothing()" width="16" style="display:none">
+                 <img id="placetick" src="/assets/tick.png" onclick="site_selectNothing('placetick', 'placeplus')" width="16" style="display:none">
               </span>
            </div>
          <% end %>

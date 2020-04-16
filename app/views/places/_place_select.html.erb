@@ -12,7 +12,7 @@
            <%=render :partial => 'help_buttons',  :locals => {:expName => "rhelpstart", :initialSt => 0} %>
            <div class="leftbuttons">
               <span title="Click to select an existing place from the map">
-                 <img id="startplaceplus" src="/assets/select-point.png" onclick="route_selectStartPlace()" width="16" style="display:block">
+                 <img id="startplaceplus" src="/assets/select-point.png" onclick="site_selectPlace('route_startplace_id', 'route_startplace_name','startplacetick', 'startplaceplus')" width="16" style="display:block">
               </span>
               <span title="Click to confirm selection">
                  <div class="pastebutton"  id='startplacetick' style="display:none"> <%= submit_tag "select", :id => "selectButton", :type => :image, :src => '/assets/tick.png', :style => 'margin-bottom:0;border:none', :onclick=> "linkHandler('selectButton')"%> </div>
@@ -55,22 +55,22 @@
       </div>
 
       <div class="rowtext">
-        <input type="text" name="route_startplace_name" value='<%=@startplacename if @startplace%>' disabled="disabled"/>
+        <input type="text" name="route_startplace_name" id="route_startplace_name" value='<%=@startplacename if @startplace%>' disabled="disabled"/>
       </div>
 <% if Rails.env.production? %>
-      <input type="hidden" name="route_startplace_id" value='<%=@startplace.id if @startplace%>'/>
+      <input type="hidden" name="route_startplace_id" id="route_startplace_id" value='<%=@startplace.id if @startplace%>'/>
 <% else %>
-      <input type="text" name="route_startplace_id" value='<%=@startplace.id if @startplace%>'/>
+      <input type="text" name="route_startplace_id" id="route_startplace_id" value='<%=@startplace.id if @startplace%>'/>
 <% end %>
 
-      <input type="hidden" name="route_startplace_location"/>
+      <input type="hidden" name="route_startplace_location" id="route_startplace_location"/>
 
-      <input type="hidden" name="route_endplace_id"/>
-      <input type="hidden" name="route_endplace_location"/>
+      <input type="hidden" name="route_endplace_id" id="route_endplace_id"/>
+      <input type="hidden" name="route_endplace_location" id="route_endplace_location"/>
       <div id="endplaceplus"></div>
       <div id="endplacetick"></div>
 
-      <input type="hidden" name="route_location"/>
+      <input type="hidden" name="route_location" id="route_location"/>
       <div id="locationplus"></div>
       <div id="locationtick"></div>
 

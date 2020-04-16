@@ -8,9 +8,7 @@
    update_title('<%=@title%>'); 
    document.getElementById("page_status").innerHTML = '';
    reset_map_controllers();
-
-   // clear any existing map features
-   if (typeof(vectorLayer)!='undefined') vectorLayer.destroyFeatures();
+   map_clear_scratch_layer();
 
 </script>
 

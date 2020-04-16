@@ -44,7 +44,8 @@ def wishlist
       @order='latest'
       @trips=@trips.order('updated_at desc')
     else  
-      @trips=@trips.sort_by(&:starty)
+ #     @trips=@trips.sort_by(&:starty)
+      @trips=@trips.order('name')
     end
 
     @trips=@trips.paginate(:per_page => 20, :page => params[:page])

@@ -7,7 +7,7 @@
    update_title('<%=@title%>'); 
    document.getElementById("page_status").innerHTML = '';
    reset_map_controllers();
-
+   map_clear_scratch_layer();
 </script>
 <% if @trip %>
 <div id='place_details'>
@@ -232,7 +232,13 @@
         <% if td.route_id %>
           <% if td.route_id !=0 %>
             <% @route=Route.find_by_signed_id(td.route_id) %>
-            <% if @route %>
+            <% if @route  %>
+              <% flatloc=Route.find_by_sql [ "select ST_AsText(ST_AsEWKT(ST_Force2D(location))) as location from routes where id="+@route.id.abs().to_s ] %>
+              <% if flatloc and flatloc.length>0 then %>
+                <% @rtloc=flatloc[0].location %>
+              <% else %>
+                <% @rtloc=nil %>
+              <% end %>
               <%= render 'routes/route_details' %> 
             <% end %>
           <% end %>

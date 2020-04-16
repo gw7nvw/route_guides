@@ -1378,7 +1378,19 @@ function linkWithExtent(entity_name) {
 
      if (document.routeform.gpxfield.value) {
        var fea = gpxp.read(document.routeform.gpxfield.value);
+       debug_f=fea;
        if (fea.length>0) {
+         if(fea.length>1) {
+           feaindex=window.prompt('GPX file contains '+fea.length+' features. Select the number (0-'+fea.length+') you want','0');
+         } else { 
+           feaindex=0;
+         }
+         var firstfea=fea[feaindex];
+         if firstfea.getGeometry().getType()=='MultiLineString') {
+           allfea=firstfea.getGeometry().getLineStrings();
+           index=window.prompt('GPX feature contains '+allfea.length+' track segments. Select the number (0-'+allfea.length+') you want','0');
+           firstfea=firstfea.getGeometry().getLineString(index);
+         }
          document.routeform.route_location.value=wktp.write(fea[0]);
 
          var lineGeomMeterProj = fea[0].geometry.transform(gpxProj,distProj);
@@ -1424,7 +1436,7 @@ function overlay_getTileURL(bounds,url) {
        //console.log( this.url + z + "/" + x + "/" + y + "." + this.type);
         return this.url + z + "/" + x + "/" + y + "." + this.type;
     } else {
-        return "http://www.maptiler.org/img/none.png";
+        return "http://au.mapspast.org.nz/none.png";
     }
 
 }
@@ -2027,18 +2039,18 @@ function getSelectedText(elementId) {
 
 function map_bigger() {
   document.getElementById('map_map').style.display="none";
-  if (map_size==1) {
+  if (site_map_size==1) {
     $('#left_panel').toggleClass('span5 span12'); 
     $('#right_panel').toggleClass('span7 span0');
   setTimeout( function() {document.getElementById('right_panel').style.display="none";}, 100);
-    map_size=2;
+    site_map_size=2;
   }
 
-  if (map_size==0) {
+  if (site_map_size==0) {
     $('#left_panel').toggleClass('span0 span5'); 
     $('#right_panel').toggleClass('span12 span7');
     document.getElementById('left_panel').style.display="block";
-    map_size=1;
+    site_map_size=1;
   }
   setTimeout( function() { 
     map_map.updateSize();
@@ -2052,17 +2064,17 @@ function map_bigger() {
 function map_smaller() {
 
   document.getElementById('map_map').style.display="none";
-  if (map_size==1) {
+  if (site_map_size==1) {
     $('#left_panel').toggleClass('span5 span0'); 
     $('#right_panel').toggleClass('span7 span12');
     document.getElementById('left_panel').style.display="none";
     map_size=0;
   }
-  if (map_size==2) {
+  if (site_map_size==2) {
     document.getElementById('right_panel').style.display="block";
     $('#left_panel').toggleClass('span12 span5'); 
     $('#right_panel').toggleClass('span0 span7');
-    map_size=1;
+    site_map_size=1;
   }
 
   setTimeout( function() { 

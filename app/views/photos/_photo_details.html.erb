@@ -26,8 +26,13 @@
   
          xyarr=RGeo::CoordSys::Proj4::transform_coords(fromproj,toproj,@photo.location.x, @photo.location.y)
          #convery location to readable format
-         x=xyarr[0]
-         y=xyarr[1]
+         if xyarr and xyarr.length>1 then
+           x=xyarr[0]
+           y=xyarr[1]
+         else
+           x=0
+           y=0
+         end
        else
          x=0
          y=0

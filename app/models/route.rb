@@ -31,6 +31,7 @@ class Route < ActiveRecord::Base
   validates :name, uniqueness: true
   after_validation :default_values
   before_save :handle_negatives_before_save
+  before_save :calculate_length
 
   after_save :create_new_instance
   after_save :queue_regenerate_route_index
@@ -288,6 +289,19 @@ def handle_negatives_before_save
     else
       self
     end
+end
+
+def calculate_length
+    fromproj4s=  Projection.find_by_id(4326).proj4
+    toproj4s=  Projection.find_by_id(2193).proj4
+
+    fromproj=RGeo::CoordSys::Proj4.new(fromproj4s)
+    toproj=RGeo::CoordSys::Proj4.new(toproj4s)
+     
+    nztm_factory=RGeo::Cartesian.factory(:srid => 2193)
+    location=RGeo::CoordSys::Proj4::transform(fromproj,self.location, toproj, nztm_factory)
+
+    self.distance=location.length/1000
 end
 
 def create_new_instance

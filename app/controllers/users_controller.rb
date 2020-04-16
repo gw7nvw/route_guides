@@ -63,6 +63,10 @@ class UsersController < ApplicationController
       @user.currenttrip=@trip
       @user.role=Role.find_by(:name => 'user')
 
+      #temp until mailer working
+      @user.activated=true
+      @user.activated_at=Time.now()
+
       if @user.save
         @user.reload
         # resave trip with userID
@@ -74,12 +78,12 @@ class UsersController < ApplicationController
         session[:id2]=nil
         session[:op]=nil
 
-        @user.send_activation_email
-        flash[:info] = "Please check your email for details on how to activate your account"
-        redirect_to '/signin'
-#        sign_in @user
-#        flash[:success] = "Welcome to the Route Guides"
-#        redirect_to '/users/'+@user.name
+#        @user.send_activation_email
+#        flash[:info] = "Please check your email for details on how to activate your account"
+#        redirect_to '/signin'
+        sign_in @user
+        flash[:success] = "Welcome to the Route Guides"
+        redirect_to '/users/'+@user.name
       else
         # generate a security question and store it for this session 
         @id1= rand(Securityquestion.count)+Securityquestion.minimum(:id)

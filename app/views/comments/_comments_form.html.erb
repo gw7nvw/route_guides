@@ -1,4 +1,7 @@
 <% if !@comment then @comment=Comment.new() end %>
+<% if !signed_in? %>
+           <small>You are not currently signed in. Please register to comment</small>
+<% else %>
 <div id='comment_form' style="display:none<% if @comment.errors.any? %>;border-color:#f00;border-style:solid;border-width:1px<% end %>" >
 
      <%= render 'shared/error_messages' %>
@@ -7,29 +10,14 @@
            Enter your comments below.  If you have corrections / additions to the information above then edit the information by clicking on the pencil next to the title, rather than leaving comments.  This is a wiki so don't be shy about editing other people's contributions. All current and past versions are available to view.
         </small></div>
       <% end %>
-<% if !signed_in? %>
-           <small>You are not currently signed in. You can post a comment as a guest by supplying a name and email below. If you do not supply or validate your email address then the comment will appear only after approval by a moderator</small>
-<% end %>
      <%= form_for  @comment, :remote=> true, :html => {:name => 'commentform'}  do |f| %>
       <input type="hidden" name="url" value="<%=@referring_page%>"/>
       <%= f.hidden_field :item_type, :value => itemType %>
       <%= f.hidden_field :item_id, :value => itemId %>
-<% if signed_in? %>
       <div id="fromname"></div>
       <div id="fromemail"></div>
       <%= f.hidden_field :fromName, :default => @current_user.name %>
       <%= f.hidden_field :fromEmail, :default => @current_user.email %>
-<% else %>
-      <div id="fromname", class="small"<%="style=display:none" if @hide_to %>>
-
-        <%= f.label "Name*" %>
-        <%= f.text_field :fromName%>
-      </div>
-      <div id="fromemail", class="small"<%="style=display:none" if @hide_to %>>
-        <%= f.label "Email" %>
-        <%= f.text_field :fromEmail%>
-      </div>
-<% end %>
 
       <div class="erow">
         <div id="helpcomment" class="helptext" style="display:none">
@@ -69,3 +57,4 @@
 
     <% end %>
 </div>
+<% end %>

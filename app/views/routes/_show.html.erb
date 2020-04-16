@@ -10,7 +10,8 @@
    reset_map_controllers();
 
    // clear any existing map features
-   if (typeof(vectorLayer)!='undefined') vectorLayer.destroyFeatures();
+   map_clear_scratch_layer();
+
 
 </script>
 
@@ -116,9 +117,9 @@
 //  deactivate_all_click();
 
   /* relad routes layer if we've been asked to */
-  if(routesStale) {
-       routes_layer.refresh({force: true}); 
-       routesStale=false;
+  if(site_routesStale) {
+       map_refresh_layer(routes_layer);
+       site_routesStale=false;
   }
 </script>
 

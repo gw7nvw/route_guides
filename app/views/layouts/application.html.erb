@@ -6,23 +6,23 @@
 <script>
 if( /Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent))
 {
- document.write('<script type="text/javascript" src="/assets/OpenLayers-mobile.js"><\/script>');
 } else {
- document.write('<script type="text/javascript" src="/assets/OpenLayers.js"><\/script>');
 }
+ document.write('<script type="text/javascript" src="/assets/ol.js"><\/script>');
 </script>
 
     <script>
-      <% if @zoomlevel and @zoomlevel.to_i>=5 and @zoomlevel.to_i<=15%> var defzoom=<%=@zoomlevel%> <% end %>
+      <% if @zoomlevel and @zoomlevel.to_i>=5 and @zoomlevel.to_i<=15%> var def_zoom=<%=@zoomlevel%> <% end %>
       <% if @map_x %> var def_x=<%=@map_x%> <% end %>
       <% if @map_y %> var def_y=<%=@map_y%> <% end %>
     </script>
-    <%  @init_name = "init()" %>
+    <%  @init_name = "site_init()" %>
 
     <title><%= full_title(yield(:title)) %></title>
     <% if @description and @description.length>0 %>
     <meta name="description" content="<%=@description%>">
     <% end %>
+    <link rel="stylesheet" href="/assets/ol.css" type="text/css">
     <%= stylesheet_link_tag "application", media: "all", "data-turbolinks-track" => true %>
     <%= stylesheet_link_tag "application", media: "all", "jquery-ui.mi" => true %>
 
@@ -54,8 +54,8 @@ if( /Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent))
     <%= render 'layouts/header' %>
       <div class="wrapper">
         <ul id="tab">
-            <li><%= link_to "Map ^^", "#",    :onclick => "map_bigger(); return false;" %></li>
-            <li><%= link_to "Info vv", "#",    :onclick => "map_smaller(); return false;" %></li>
+            <li><%= link_to "Map ^^", "#",    :onclick => "site_bigger_map(); return false;" %></li>
+            <li><%= link_to "Info vv", "#",    :onclick => "site_smaller_map(); return false;" %></li>
         </ul>
       </div>
     <div id="main_page" class="container-fluid"> 
