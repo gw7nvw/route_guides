@@ -3,9 +3,17 @@
 <%= render 'flash' %>
 <script>
    update_title('<%=@title%>');
-   reset_map_controllers();
+   reset_map_controllers(<%=if @current_user then @current_user.id.to_s end%>);
    document.getElementById("page_status").innerHTML = '';
 </script>
+<div id="actionbar" class="span7">
+   <div id="crumbs"></div>
+   <div id="controls">
+       <%= render :partial => 'mytrip_button'%>
+   </div>
+</div>
+
+<div id='place_container'>
   <% if @threads %>
     <% count=0%>
     <% @threads.each do |thread| %>
@@ -26,3 +34,4 @@
     <% end %>
   <% end %>
 <%=render 'message_form'%>
+</div>

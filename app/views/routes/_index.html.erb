@@ -5,7 +5,7 @@
 <script>
    update_title('<%=@title%>'); 
    document.getElementById("page_status").innerHTML = '';
-   reset_map_controllers();
+   reset_map_controllers(<%=if @current_user then @current_user.id.to_s end%>);
 
 $(function () {
   $('#right_panel .pagination a').on('click', function () {
@@ -15,13 +15,19 @@ $(function () {
 })
 
 </script>
+<div id="actionbar" class="span7">
+   <div id="crumbs"></div>
+   <div id="controls">
+       <%= render :partial => 'mytrip_button'%>
+   </div>
+</div>
 
+<div id='place_container'>
 <%if @order=='latest'%>
   <div class="date_pagination"> <%= will_paginate(@routes) %></div>
 <% else %>
   <div class="name_pagination"> <%= will_paginate(@routes) %></div>
 <% end %>
-
 
 
   <ul class="places">
@@ -38,4 +44,12 @@ $(function () {
 <% else %>
   <div class="name_pagination"> <%= will_paginate(@routes) %></div>
 <% end %>
+</div>
 
+<script>
+    if(site_map_size!=1) { 
+       $('#actionbar').removeClass('span7');
+       var cl=document.getElementById('right_panel').className;
+       $('#actionbar').addClass(cl);
+}
+</script>

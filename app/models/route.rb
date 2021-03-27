@@ -35,6 +35,7 @@ class Route < ActiveRecord::Base
 
   after_save :create_new_instance
   after_save :queue_regenerate_route_index
+  after_save :do_beenthere
 
   before_destroy :prune_route_index
 
@@ -174,6 +175,15 @@ def split(splitplace)
            self.customerrors="Route has been split, but failed creating a link for the new route: "+l2.errors.messages.to_s
       end
     end
+  end
+
+  if !self.customerrors then
+    #copy been theres
+    bts=Beenthere.where(:route_id => self.id)
+    if bts then bts.each do |bt|
+      uid=bt.user_id
+      r2.add_beenthere(uid)
+    end end
   end
 
   if !self.customerrors then     
@@ -1031,4 +1041,33 @@ def location_without_nan(locn)
    end
  locn
  end
+
+def do_beenthere
+  if self.experienced_at and self.experienced_at > "1950-01-01".to_date then
+    add_beenthere(self.updatedBy_id)
+  end
+end
+
+def add_beenthere(user_id)
+          beenthere = Beenthere.new
+          beenthere.route_id = self.id
+          beenthere.user_id=user_id
+          dup=Beenthere.find_by_sql [ "select id from beentheres where user_id="+beenthere.user_id.to_s+" and route_id="+beenthere.route_id.to_s ]
+          if dup.count==0 then 
+              beenthere.save 
+              #now places
+              pl=self.startplace
+              pl.add_beenthere(user_id)
+
+              pl=self.endplace
+              pl.add_beenthere(user_id)
+          else 
+          end
+
+end
+
+def beenthere(user_id)
+    dup=Beenthere.find_by_sql [ "select id from beentheres where user_id="+user_id.to_s+" and route_id="+self.id.to_s ]
+    if dup and dup.count>0 then true else false end
+end
 end

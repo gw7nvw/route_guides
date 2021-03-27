@@ -39,4 +39,13 @@ def readable_name
    str
 end
 
+def self.add_all_beenthere
+  ris=RouteInstance.all
+  ris.each do |ri|
+    if ri.route and ri.experienced_at and ri.experienced_at > "1950-01-01".to_date then
+      ri.route.add_beenthere(ri.createdBy_id)
+    end
+  end
+end
+
 end

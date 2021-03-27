@@ -1,0 +1,88 @@
+<% provide(:title, 'Places') %>
+<% @title=" | Places" %>
+<%= render 'flash' %>
+<script>
+   update_title('<%=@title%>');
+   reset_map_controllers(<%=if @current_user then @current_user.id.to_s end%>);
+   document.getElementById("page_status").innerHTML = '';
+   site_show_parks_layer();
+
+$(function () {
+  $('#right_panel .pagination a').on('click', function () {
+    $.getScript(this.href);
+    return false;
+  });
+})
+</script>
+<div id="actionbar" class="span7">
+   <div id="crumbs"></div>
+   <div id="controls">
+       <%= render :partial => 'mytrip_button'%>
+   </div>
+</div>
+<div id='place_container'>
+
+<div id="right_scroll">
+  <%= render 'flash' %>
+<%= form_tag '/parks', :name => 'findform', :remote => true, :method => 'get', :style => 'margin-bottom: 0px' %>
+  <br/>
+  <div class="erow">
+    <div class="rowtitle">Find:</div>
+    <div class="rowtext">
+      <input type="text" name="searchtext" value='<%=@searchtext%>'/>
+    </div>
+  </div>
+  <div class="erow">
+    <div class="rowtitle">Include minor reserves</div>
+    <div class="rowtext">
+       <input id="search_minor_reserves" name="search_mr" type="checkbox" value="true" <%=if @searchMR==true then "checked" end %>>
+    </div>
+  </div>
+  <div class="erow" style="margin-top:10px">
+      <div class="rowtitle">
+        <%= submit_tag "Find", :id => "find", :onclick => "submit_search('find');" %>
+      </div>
+    <div class="rowtext">
+      Your search returned <%=@count.to_s%> results.
+    </div>
+   </div>
+</form>
+
+
+<div class="erow">
+  <div class="name_pagination"> <%= will_paginate(@parks, :renderer => PaginationListLinkRenderer, :order => @order) %></div>
+</div>
+
+
+<div class="erow">
+  <ul class="places">
+    <% if @parks then @parks.each do |park| %> <% if park.id then %>
+      <li>
+        <%= link_to park.name, '/parks/'+park.id.to_s, remote: true, :id => 'park_link_'+park.id.to_s, :onclick => "linkHandler('park_link_"+park.id.to_s+"')" %> 
+
+        [<%=park.owner%>]
+        <% if not park.description or park.description=="" then
+             dp=Crownparks.find_by(napalis_id: park.id)
+             if dp then description=dp.legislation+" "+dp.section end
+           else
+             description=park.description
+           end
+        %>
+        <%= " ("+description+")" %>
+      </li>
+    <% end end end %>
+  </ul>
+</div>
+
+<div class="erow">
+  <div class="name_pagination"> <%= will_paginate(@parks, :renderer => PaginationListLinkRenderer, :order => @order) %></div>
+</div>
+
+<script>
+    if(site_map_size!=1) { 
+       $('#actionbar').removeClass('span7');
+       var cl=document.getElementById('right_panel').className;
+       $('#actionbar').addClass(cl);
+    }
+</script>
+</div>

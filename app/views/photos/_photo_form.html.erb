@@ -9,7 +9,7 @@
           <%=render :partial => 'help_buttons',  :locals => {:expName => "helpname", :initialSt => 0} %>
 
          <% end %>
-         <div class="sectiontitle25">Name:</div>
+         <div class="sectiontitle25"><span class="mandatory">*</span>Name:</div>
       </div>
       <div class="erow">
         <div id="helpname" class="helptext" style="display:none">
@@ -59,7 +59,7 @@
               </span>
            </div>
          <% end %>
-         <div class="sectiontitle50">Location:</div>
+         <div class="sectiontitle25"><span class="mandatory">*</span>Location:</div>
       </div>
       <div class="erow">
         <div id="helplocation" class="helptext" style="display:none">
@@ -108,7 +108,7 @@
          <% if @edit %>
           <%=render :partial => 'help_buttons',  :locals => {:expName => "helpfilename", :initialSt => 0} %>
          <% end %>
-         <div class="sectiontitle25">Image file:</div>
+         <div class="sectiontitle25"><span class="mandatory">*</span>Image file:</div>
       </div>
       <div class="erow">
         <div id="helpfilename" class="helptext" style="display:none">
@@ -137,7 +137,7 @@
 
 
 <script>
-/*    reset_map_controllers(); */
+/*    reset_map_controllers(<%=if @current_user then @current_user.id.to_s end%>); */
     place_init('<%=@photo.location%>', 0);
     deactivate_all_click();
 </script>

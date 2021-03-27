@@ -4,7 +4,7 @@ class LinksController < ApplicationController
 
  def create
    @render_to='editlinks'
-
+   
    @parent_type=params[:parent_type]
    case params[:parent_type]
    when 'report'
@@ -39,6 +39,8 @@ class LinksController < ApplicationController
         rl.baseItem_type=params[:parent_type]
         rl.item_id=params[:itemId].to_i.abs
         rl.item_type=params[:itemType]
+        if params[:itemType]=='Places' then rl.item_type='place' end
+        if params[:itemType]=='Routes' then rl.item_type='route' end
         if rl.item_type=="URL" or rl.item_type=="page"  then
           rl.item_url=params[:itemName]
           if rl.item_url[0..3]!='http' then rl.item_url="http://"+rl.item_url end

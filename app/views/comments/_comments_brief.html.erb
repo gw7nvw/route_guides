@@ -17,13 +17,14 @@
 <div class="erow">
    <%# if signed_in?%>
       <div class="leftbuttons" class="no-print">
-         <span title="Add a comment">
-           <img id='addComment' src="/assets/add.png" width="16" <%=%q[onclick=editcommenton()]%>>
-         </span>
       </div>
    <%# end %>
    <div class="sectiontitle">
       Comments:
+         <span title="Add a comment" id="addComment">
+           <%=link_to "Add", '#', class: 'link_to', onclick: 'editcommenton();return false;'%>
+
+         </span>
    </div>
 </div>
 <div class="erow">
@@ -52,7 +53,7 @@
                     <input type="hidden" name="selected_id" value='<%=comment.id%>' />
                     <input type="hidden" name="referring_page" value='item' />
                     <span title="Delete comment">
-                      <%= submit_tag "Destroy",  :type => :image, :src => '/assets/red-x.png', :style => 'margin-bottom:0;border:none',  id: "Approve", onclick: "linkHandler('approve')", confirm: "Do you really ant to delete this comment?"  %>
+                      <%= submit_tag "Destroy",  :type => :image, :src => '/assets/red-x.png', :style => 'margin-bottom:0;border:none',  id: "Approve", onclick: "linkHandler('approve')", confirm: "Do you really want to delete this comment?"  %>
                      </span>
                   </form>
                 </div>

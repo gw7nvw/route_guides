@@ -1,11 +1,10 @@
 <% provide(:title, 'Legs') %>
 <% @title=" | Legs" %>
-<%= render 'flash' %>
 
 <script>
    update_title('<%=@title%>'); 
    document.getElementById("page_status").innerHTML = '';
-   reset_map_controllers();
+   reset_map_controllers(<%=if @current_user then @current_user.id.to_s end%>);
 
 $(function () {
   $('#right_panel .pagination a').on('click', function () {
@@ -15,28 +14,64 @@ $(function () {
 })
 
 </script>
+<div id="actionbar" class="span7">
+   <div id="crumbs"></div>
+   <div id="controls">
+       <%= render :partial => 'mytrip_button'%>
+   </div>
+</div>
 
+<div id='place_container'>
+<span id='flash'><%= render 'flash' %></span>
+
+<div class="erow">
+ <%= form_tag '/legs', :name => 'findform', :remote => true, :method => 'get', :style => 'margin-bottom: 0px' %>
+  <br/>
+  <div class="rowtitle">Find:</div>
+  <div class="rowtext">
+    <input type="text" name="searchtext" value='<%=@searchtext%>'/>
+  </div>
+  <div class="buttonshort">
+    <%= submit_tag "Find", :id => "find", :onclick => "submit_search('find');" %>
+  </div>
+ </form>
+Your search returned <%=@count.to_s%> results.
+</div>
+
+<div class='erow'>
 <%if @order=='latest'%>
   <div class="date_pagination"> <%= will_paginate(@routes, :renderer => PaginationListLinkRenderer, :order => @order, :inner_window => 3) %></div>
 <% else %>
   <div class="name_pagination"> <%= will_paginate(@routes, :renderer => PaginationListLinkRenderer, :order => @order) %></div>
 <% end %>
-
+</div>
+<div class='erow'>
   <ul class="places">
     <% @routes.each do |route| %>
       <li>
         <% if !route.published %>Draft: <%end%>
         
         <%= link_to route.name, route, remote: true, :id => 'route_link_'+route.id.to_s, :onclick => "linkHandler('route_link_"+route.id.to_s+"')" %>
+        <% if signed_in? %> <% if !route.beenthere(@current_user.id) then %><span title="Click to record your visit to this route"><%= link_to "Been there!",'/beenthere/new?url=xrv'+route.id.to_s, class: "link_to", onclick: "myplacesHandler('beenthere');", remote: true, id: "beenthere" %></span><% end end %>
         <% if @order and @order == 'latest' %>
           <br/><%if route.createdBy %> added by <%= link_to route.createdBy.name.capitalize, '/users/'+route.createdBy.name, remote: true%> <% end %> <% if route.updatedBy %> (last updated <%=route.updated_at.strftime("%F")%> by <%= link_to route.updatedBy.name.capitalize, '/users/'+route.updatedBy.name, remote: true%>) <% end %>
         <% end %> 
       </li>
     <% end %>
   </ul>
-
+  </div>
+<div class="erow">
 <%if @order=='latest'%>
   <div class="date_pagination"> <%= will_paginate(@routes, :renderer => PaginationListLinkRenderer, :order => @order, :inner_window => 3) %></div>
 <% else %>
   <div class="name_pagination"> <%= will_paginate(@routes, :renderer => PaginationListLinkRenderer, :order => @order) %></div>
 <% end %>
+</div>
+</div>
+<script>
+    if(site_map_size!=1) { 
+       $('#actionbar').removeClass('span7');
+       var cl=document.getElementById('right_panel').className;
+       $('#actionbar').addClass(cl);
+}
+</script>

@@ -8,11 +8,19 @@
    document.getElementById("page_status").innerHTML = '';
    // clear any existing map features and reset hover if map exists
    if(typeof(vectorLayer)!='undefined') {
-    reset_map_controllers();
+    reset_map_controllers(<%=if @current_user then @current_user.id.to_s end%>);
     map_clear_scratch_layer();
    }
 
 </script>
+<div id="actionbar" class="span7">
+   <div id="crumbs"></div>
+   <div id="controls">
+       <%= render :partial => 'mytrip_button'%>
+   </div>
+</div>
+<div id='place_container'>
+
 <div id='place_details'>
    <%= render 'photos/photo_details' %>
      <div class="erow">
@@ -38,15 +46,13 @@
     </div>
   <% else %>
     <div class="erow">
-      <% if signed_in? %>
-        <div class="leftbuttons">
-          <span title="Edit links" id="edit_links">
-            <%=  link_to image_tag("/assets/pencil_edit.png", :border=>0, :class => 'dock-item'), '/photos/'+@photo.id.to_s+'/?editlinks=true', remote: true, onclick: "linkHandler('editbutton')", id:  "editbutton"  %>
-          </span>
-        </div>
-      <% end %>
-      <div class="sectiontitle-bold" id="links_title">
+      <div class="sectiontitle" id="links_title">
         Links:
+        <% if signed_in? %>
+          <span title="Edit links" id="edit_links">
+            <%=  link_to 'Add / edit links', '/photos/'+@photo.id.to_s+'/?editlinks=true', remote: true, onclick: "linkHandler('editbutton')", id:  "editbutton", class: 'link_to'  %>
+          </span>
+        <% end %>
       </div>
     </div>
     <%=render :partial => 'links_photos',  :locals => {:parent => @photo} %>
@@ -59,3 +65,11 @@
    </div>
 
 </div>
+</div>
+<script>
+    if(site_map_size!=1) { 
+       $('#actionbar').removeClass('span7');
+       var cl=document.getElementById('right_panel').className;
+       $('#actionbar').addClass(cl);
+    }
+</script>

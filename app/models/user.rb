@@ -33,6 +33,28 @@ class User < ActiveRecord::Base
     SecureRandom.urlsafe_base64
   end
 
+  def been_places
+    bts=Beenthere.find_by_sql [ "select * from beentheres where user_id="+self.id.to_s+" and place_id>0" ]
+    pls=[]
+    bts.each do |bt|
+      if bt.place then 
+        pls+=[bt.place]
+      end
+    end
+    pls
+  end
+
+  def been_routes
+    bts=Beenthere.find_by_sql [ "select * from beentheres where user_id="+self.id.to_s+" and route_id>0" ]
+    rts=[]
+    bts.each do |bt|
+    if bt.route then
+      rts+=[bt.route]
+    end
+    end
+    rts
+  end
+
   def User.digest(token)
     Digest::SHA1.hexdigest(token.to_s)
   end

@@ -1,0 +1,100 @@
+<% provide(:title, "User | "+@user.name+" | Been There!") %>
+<% @title=" | User | "+@user.name+" | Been There!" %>
+<%= render 'application/mail_status' %>
+
+<script> 
+   update_title('<%=@title%>'); 
+   document.getElementById("page_status").innerHTML = '';
+   reset_map_controllers(<%=if @current_user then @current_user.id.to_s end%>);
+   site_add_my_layers(<%=@user.id%>);
+   site_toggle_beenthere(true);
+   $(function () {
+    $('#right_panel .pagination a').on('click', function () {
+      $.getScript(this.href);
+      return false;
+    });
+})
+
+</script>
+<div id="actionbar" class="span7">
+   <div id="crumbs"></div>
+   <div id="controls">
+       <%= render :partial => 'mytrip_button'%>
+   </div>
+</div>
+
+<div id='place_container'>
+<span class="flash"><%= render 'flash' %></span>
+  <div class="sectiontitle" id="page_title">
+  <%= link_to @user.name.capitalize, '/users/'+URI.encode(@user.name), remote: true, :id => 'user_link_'+@user.id.to_s, :onclick => "linkHandler('user_link_"+@user.id.to_s+"')" %></li>
+       (<% if (@user.firstName and @user.lastName and !@user.hide_name) %> 
+         <%= @user.firstName.capitalize+" "+@user.lastName.capitalize %>
+       <% else %>
+         <%= 'Anonymous' %>
+       <% end %>)
+  </div>
+  <div class="erow">
+    <div class="hrline">
+      <hr noshade size="4">
+    </div>
+  </div>
+ 
+  <div class="erow">
+    <div class="sectiontitle">
+      Places visited
+    </div>
+  </div>
+
+  <div class="erow">
+    <div class="name_pagination"> <%= will_paginate(@places,:param_name => 'places_page') %></div>
+  </div>
+  <div class="erow">
+    <ul class="places">
+      <% @places.each do |place| %>
+        <li>
+          <%= link_to place.name+" ("+place.place_type+")", place, remote: true, :id => 'place_link_'+place.id.to_s, :onclick => "linkHandler('place_link_"+place.id.to_s+"')" %>
+          <% if place.park %> - - - <%= link_to place.park.name, '/parks/'+place.park.napalis_id.to_s, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')", class: "intext_link" %>  <% end %>
+          <% if signed_in? and (@user.id==@current_user.id or @current_user.role.name=='root') %>
+            <%= link_to "Remove", '/beenthere/delete?user_id='+@user.id.to_s+'&place_id='+place.id.to_s, remote: true, :id => 'place_link_'+place.id.to_s, :onclick => "myplacesHandler('place_link_"+place.id.to_s+"')", class: 'link_to' %>
+          <% end %> 
+         </li>
+      <% end %>
+    </ul>
+  </div>
+ 
+  <div class="erow">
+    <div class="hrline">
+      <hr noshade size="4">
+    </div>
+  </div>
+ 
+  <div class="erow">
+    <div class="sectiontitle">
+      Routes visited
+    </div>
+  </div>
+  <div class="erow">
+    <div class="name_pagination"> <%= will_paginate(@routes,:param_name => 'routes_page') %></div>
+  </div>
+  <div class='erow'>
+    <ul class="places">
+     <% @routes.each do |route| %>
+       <li>
+          <% if !route.published %>Draft: <%end%>
+         <%= link_to route.name, route, remote: true, :id => 'route_link_'+route.id.to_s, :onclick => "linkHandler('route_link_"+route.id.to_s+"')" %>
+          <% if signed_in? and (@user.id==@current_user.id or @current_user.role.name=='root') %>
+            <%= link_to "Remove", '/beenthere/delete?user_id='+@user.id.to_s+'&route_id='+route.id.to_s, remote: true, :id => 'route_link_'+route.id.to_s, :onclick => "myplacesHandler('route_link_"+route.id.to_s+"')", class: 'link_to' %>
+          <% end %> 
+       </li>
+      <% end %>
+    </ul>
+  </div>
+</div>
+<script>
+    if(site_map_size!=1) { 
+       $('#actionbar').removeClass('span7');
+       var cl=document.getElementById('right_panel').className;
+       $('#actionbar').addClass(cl);
+}
+</script>
+

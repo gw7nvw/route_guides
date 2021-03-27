@@ -23,7 +23,7 @@
                     <input type="hidden" name="selected_id" value='<%=@show_message.id%>' />
                     <input type="hidden" name="id" value='<%=@id%>' />
                     <input type="hidden" name="subject" value='<%=@subject%>' />
-                    <%= submit_tag "Destroy",  :type => :image, :src => '/assets/red-x.png', :style => 'margin-bottom:0;border:none',  id: "Approve", onclick: "linkHandler('approve')", confirm: "Do you really ant to delete this message?"   %>
+                    <%= submit_tag "Destroy",  :type => :image, :src => '/assets/red-x.png', :style => 'margin-bottom:0;border:none',  id: "Approve", onclick: "linkHandler('approve')", confirm: "Do you really want to delete this message?"   %>
                   </form>
          </div>
           <p class="left-bubble">
@@ -50,7 +50,7 @@
                       <input type="hidden" name="id" value='<%=@id%>' />
                       <input type="hidden" name="subject" value='<%=@subject%>' />
                       <span title="Delete message">
-                        <%= submit_tag "Destroy",  :type => :image, :src => '/assets/red-x.png', :style => 'margin-bottom:0;border:none',  id: "Approve", onclick: "linkHandler('approve')", confirm: "Do you really ant to delete this message?"  %>
+                        <%= submit_tag "Destroy",  :type => :image, :src => '/assets/red-x.png', :style => 'margin-bottom:0;border:none',  id: "Approve", onclick: "linkHandler('approve')", confirm: "Do you really want to delete this message?"  %>
                       </span>
                     </form>
                  <% end %>

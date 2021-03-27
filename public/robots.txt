@@ -1,4 +1,4 @@
-# See http://www.robotstxt.org/robotstxt.html for documentation on how to use the robots.txt file
+#See http://www.robotstxt.org/robotstxt.html for documentation on how to use the robots.txt file
 #
 # To ban all spiders from the entire site uncomment the next two lines:
 # User-agent: *
@@ -6,10 +6,12 @@
 User-Agent: *
 Disallow: */edit
 Disallow: */new
-Disallow: /history/*
-Disallow: /*/adj_route/*
-Disallow: /adj_route/*
+Disallow: *history/*
+Disallow: *addtrip
+Disallow: *addtrip/*
+Disallow: *trips/*/copy
+Disallow: *adj_route/*
+Disallow: *adj_route/*
 Disallow: *.gpx
-Disallow: /routes/*x*
-Disallow: /search/*
-
+Disallow: *routes/*x*
+Disallow: *search/*

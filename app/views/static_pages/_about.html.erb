@@ -6,9 +6,24 @@
 
 <script>
    update_title('<%=@title%>');
-   reset_map_controllers();
+   reset_map_controllers(<%=if @current_user then @current_user.id.to_s end%>);
    document.getElementById("page_status").innerHTML = '';
 </script>
+<div id="actionbar" class="span7">
+   <div id="crumbs"></div>
+   <div id="controls">
+       <%= render :partial => 'mytrip_button'%>
+   </div>
+</div>
+<div id="place_container">
+<div style="background-image: url('assets/banner3.jpg'); background-size: cover;padding-bottom: 10px">
+<h1>NZ Route Guides wiki</h1>
+  <h2>
+    A repository for tramping knowledge
+  <br/>
+  </h2>
+</div>
+
 <h1>About</h1>
 <p>
 In the tradition of Moir's Guide and Tararua Footprints 
@@ -46,3 +61,12 @@ Matt (madpom)
 </div>
 
 </p>
+</div>
+<script>
+    if(site_map_size!=1) { 
+       $('#actionbar').removeClass('span7');
+       var cl=document.getElementById('right_panel').className;
+       $('#actionbar').addClass(cl);
+}
+</script>
+

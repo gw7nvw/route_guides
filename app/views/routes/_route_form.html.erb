@@ -7,18 +7,16 @@
  
 
       <div class="erow">
-         <% if @edit %> 
            <%=render :partial => 'help_buttons',  :locals => {:expName => "rhelpstart", :initialSt => 0} %>
            <div class="leftbuttons">
               <span title="Click to select a start place from the map">
-                 <img id="startplaceplus" src="/assets/select-point.png" onclick="site_selectPlace('route_startplace_id', 'route_startplace_name','startplacetick', 'startplaceplus', site_green_star)" width="16" style="display:block">
+                 <img id="startplaceplus" src="/assets/select-point.png" onclick="site_selectPlace('route_startplace_id', 'route_startplace_name', 'route_startplace_location', 'startplacetick', 'startplaceplus', site_green_star)" width="16" style="display:block">
               </span>
               <span title="Click to confirm selection">
                  <img id="startplacetick" src="/assets/tick.png" onclick="site_selectNothing('startplacetick', 'startplaceplus')" width="16" style="display:none">
               </span>
            </div>
-         <% end %>
-         <div class="sectiontitle">From:</div>
+         <div class="sectiontitle"><span class="mandatory">*</span>From:</div>
       </div>
       <div class="erow">
         <div id="rhelpstart" class="helptext" style="display:none">
@@ -41,18 +39,16 @@
       <input  type="hidden" id="route_startplace_location" name="route[startplace_location]" type="text" <%if @route.startplace %>value='<%=@route.startplace.location%>'<%end%>>
 
       <div class="erow">
-         <% if @edit %> 
            <%=render :partial => 'help_buttons',  :locals => {:expName => "rhelpend", :initialSt => 0} %>
            <div class="leftbuttons">
               <span title="Click to select an end place from the map">
-                 <img id="endplaceplus" src="/assets/select-point.png" onclick="site_selectPlace('route_endplace_id', 'route_endplace_name','endplacetick', 'endplaceplus',site_red_star)" width="16" style="display:block">
+                 <img id="endplaceplus" src="/assets/select-point.png" onclick="site_selectPlace('route_endplace_id', 'route_endplace_name', 'route_endplace_location', 'endplacetick', 'endplaceplus',site_red_star)" width="16" style="display:block">
               </span>
               <span title="Click to confirm selection">
                  <img id="endplacetick" src="/assets/tick.png" onclick="site_selectNothing('endplacetick', 'endplaceplus')" width="16" style="display:none">
               </span>
            </div>
-         <% end %>
-         <div class="sectiontitle">To:</div>
+         <div class="sectiontitle"><span class="mandatory">*</span>To:</div>
       </div>
       <div class="erow">
         <div id="rhelpend" class="helptext" style="display:none">
@@ -82,7 +78,7 @@
       <div class="erow">
            <%=render :partial => 'help_buttons',  :locals => {:expName => "rhelpvia", :initialSt => 0} %>
 
-          <div class="sectiontitle25">Via:</div>
+          <div class="sectiontitle25"><span class="mandatory">*</span>Via:</div>
       </div>
       <div class="erow">
         <div id="rhelpvia" class="helptext" style="display:none">
@@ -93,12 +89,10 @@ sufficient to differentiate it from other routes between the same two places. <b
         </div>
       </div>
 
-      <%= f.text_field :via, :disabled=>!@edit %>
+      <%= f.text_field :via %>
 
       <div class="erow">
-         <% if @edit %>
           <%=render :partial => 'help_buttons',  :locals => {:expName => "helpdatetime", :initialSt => 0} %>
-         <% end %>
          <div class="sectiontitle25">Date experienced:</div>
       </div>
       <div class="erow">
@@ -107,13 +101,12 @@ sufficient to differentiate it from other routes between the same two places. <b
         </div>
       </div>
 
-      <%= f.date_field :experienced_at, :disabled=>!@edit %>
+      <%= f.date_field :experienced_at %>
 
 
       <div class="erow"> 
          <%=render :partial => 'help_buttons',  :locals => {:expName => "rhelproute", :initialSt => 0} %>
 
-         <% if @edit %> 
            <div class="leftbuttons">
               <span title="Click to draw route on map">
                  <img id="locationplus" src="/assets/draw.png" onclick="site_drawRoute('locationtick','locationplus')" width="16" style="display:block">
@@ -122,8 +115,10 @@ sufficient to differentiate it from other routes between the same two places. <b
                  <img id="locationtick" src="/assets/tick.png" onclick="site_selectNothing('locationtick','locationplus')" width="16" style="display:none">
               </span>
             </div>
-         <% end %>
-         <div class="sectiontitle" style="font-weight:normal"><b>Route points: </b>(select from map or drag and drop a GPX file into this field)</div>
+         <div class="sectiontitle" style="font-weight:normal">
+            <b><span class="mandatory">*</span>Route points: </b><%=link_to "Draw on map", '#', class: "link_to", onclick: 'site_drawRoute("locationtick","locationplus");return false;'%>&nbsp;&nbsp;or 
+            <input type="file" id="gpxfile" class="file_intext" onchange="site_add_gpx_file('gpxfile', 'route_location')" accept=".gpx">
+         </div>
       </div>
       <div class="erow">
         <div id="rhelproute" class="helptext" style="display:none">
@@ -139,7 +134,7 @@ sufficient to differentiate it from other routes between the same two places. <b
           --- If you need to scroll the map you can do so by dragging the map in any direction during editing<br/>
           --- If you need to zoom the map you can do so with the mouse wheel during editing<br/>
           --- Try to include points at high and low points along the route, as the altitude profile of the route will only be calculated where you draw points.<br/>
-          (5) When complete, double click to end drawing.  The line drawn will change colour to red and will be copied to the Route Points box on the form.<br/>
+          (5) When complete, right click to end drawing.  The line drawn will change colour to red and will be copied to the Route Points box on the form.<br/>
           --- The route points will now be listed in the 'Route Points' box.<br/>
           --- If you made a mistake or if you are editing an existing route, then simply repeat the above process and the new route will overwrite the old one. <br/>
           --- Click the green tick to save the drawing once you are happy. <br/>
@@ -155,20 +150,21 @@ sufficient to differentiate it from other routes between the same two places. <b
       <div id="drop_location">
       <%= f.text_field :location, :readonly=>true %>
       </div>
+
    
 
-      <div class="erow">
-        <textarea id="gpxfield" name="gpxfield" type="text" style="display:none" rows="8"></textarea>
-      </div>
 
-      <select name="datasource">
+      <select name="datasource" style="margin-bottom: 2px">
         <option value="Drawn on map" <%='selected="selected"' if @route.datasource!="Uploaded from GPS"%>>Drawn on map</option>
         <option value="Uploaded from GPS" <%='selected="selected"' if @route.datasource=="Uploaded from GPS"%>>Uploaded from GPS</option>
       </select>
+      <div class="sectiontitle" style="margin-bottom: 10px">
+        <%=link_to "Crop route to From / To points", '#', class: "link_to", onclick: 'site_trim_route();return false;'%>
+      </div>
 
       <div class="erow">
          <%=render :partial => 'help_buttons',  :locals => {:expName => "rhelpdescription", :initialSt => 0} %>
-         <div class="sectiontitle25">Description:</div>
+         <div class="sectiontitle25"><span class="mandatory">*</span>Description:</div>
       </div>
       <div class="erow">
         <div id="rhelpdescription" class="helptext" style="display:none">
@@ -176,7 +172,7 @@ sufficient to differentiate it from other routes between the same two places. <b
         </div>
       </div>
 
-      <%= f.text_area :description, :disabled=>!@edit, :rows=>"8"   %>
+      <%= f.text_area :description, :rows=>"8"   %>
 
       <div class="erow">
          <%=render :partial => 'help_buttons',  :locals => {:expName => "rhelprevdescription", :initialSt => 0} %>
@@ -191,13 +187,13 @@ sufficient to differentiate it from other routes between the same two places. <b
         </div>
       </div>
 
-      <%= f.text_area :reverse_description, :disabled=>!@edit, :rows=>"8"   %>
+      <%= f.text_area :reverse_description, :rows=>"8"   %>
 
      <b>Length:</b><br/>
      <div class="erow">
          <%=render :partial => 'help_buttons',  :locals => {:expName => "rhelphours", :initialSt => 0} %>
 
-         <div class="sectiontitle25">Time (DOC hours)</div>
+         <div class="sectiontitle25"><span class="mandatory">*</span>Time (DOC hours)</div>
      </div>
      <div class="erow">
         <div id="rhelphours" class="helptext" style="display:none">
@@ -206,10 +202,10 @@ sufficient to differentiate it from other routes between the same two places. <b
         </div>
       </div>
 
-      <%= f.text_field :time, :disabled=>!@edit %>
+      <%= f.text_field :time %>
      <div class="erow">
          <%=render :partial => 'help_buttons',  :locals => {:expName => "rhelpkms", :initialSt => 0} %>
-        <div class="rowtitle">Distance (km) - calculated on save</div>
+        <div class="sectionitle" style="font-weight: normal"><b>Distance (km)</b><i> - calculated on save</i></div>
       </div>
       <div class="erow">
         <div id="rhelpkms" class="helptext" style="display:none">
@@ -221,7 +217,7 @@ sufficient to differentiate it from other routes between the same two places. <b
 
       <div class="erow">
          <%=render :partial => 'help_buttons',  :locals => {:expName => "rhelpimportance", :initialSt => 0} %>
-        <div class="rowtitle">Importance:</div>
+        <div class="sectiontitle">Importance:</div>
       </div>
 
       <div class="erow">
@@ -244,7 +240,7 @@ sufficient to differentiate it from other routes between the same two places. <b
 
       <div class="erow">
          <%=render :partial => 'help_buttons',  :locals => {:expName => "rhelpnormal", :initialSt => 0} %>
-        <div class="rowtitle">Normal conditions:</div>
+        <div class="sectiontitle">Normal conditions:</div>
       </div>
 
       <div class="erow">
@@ -321,7 +317,7 @@ sufficient to differentiate it from other routes between the same two places. <b
 
       <div class="erow">
          <%=render :partial => 'help_buttons',  :locals => {:expName => "rhelpwinter", :initialSt => 0} %>
-        <div class="rowtitle">Winter conditions:</div>
+        <div class="sectiontitle">Winter conditions:</div>
       </div>
 
       <div class="erow">
@@ -347,15 +343,13 @@ sufficient to differentiate it from other routes between the same two places. <b
 
       <br/><br/>
       <div>
-        <div class="rowtitle">Winter notes</div>
-        <%= f.text_area :winterdescription, :disabled=>!@edit, :rows=>"8"   %>
+        <div class="sectiontitle">Winter notes</div>
+        <%= f.text_area :winterdescription, :rows=>"8"   %>
       </div>
 
       <br/>
       <div class="erow">
-         <% if @edit %>
           <%=render :partial => 'help_buttons',  :locals => {:expName => "rhelppublished", :initialSt => 0} %>
-         <% end %>
          <div class="sectiontitle25">Published:</div>
       </div>
       <div class="erow">
@@ -367,7 +361,6 @@ sufficient to differentiate it from other routes between the same two places. <b
      <%= f.check_box :published %>
      <br/><br/>
 
-      <% if @edit %>
         <%= f.submit "Save", class: "btn btn-small btn-primary", name: "save", onclick: "return site_updateRoute('savebutton')", id:  "savebutton"  %>
         <% if @url and @url.include?('x') then%>
           <%=  link_to "Cancel", '/routes/'+@viewurl, class: "btn btn-small btn-primary", remote: true %>
@@ -379,10 +372,6 @@ sufficient to differentiate it from other routes between the same two places. <b
         <% else %>
            <%=  link_to "Cancel", '/legs/', class: "btn btn-small btn-primary", remote: true %>
         <% end %>
-      <% else %>
-        <%=  link_to "Edit", '/routes/'+@route.id.to_s+'/edit', class: "btn btn-small btn-primary", remote: true %>
-        <%= f.submit "Add to trip", class: "btn btn-small btn-primary", :disabled => @current_user, name: "add" %>
-      <% end %>
 
     <% end %>
 </div>
@@ -474,40 +463,11 @@ alpw_change();
 document.routeform.alpinewinter.value = <%=@route.alpinewinter_id || 1%>;
 
 
-/* disable slider in read-only mode */
-<% if !@edit %>
-  $('#route_type').slider('disable');
-  $('#gradient').slider('disable');
-  $('#terrain').slider('disable');
-  $('#alpinesummer').slider('disable');
-  $('#river').slider('disable');
-  $('#alpinewinter').slider('disable');
-<% end %>
 
 /* specify map click mode */
 deactivate_all_click();
 
-/* turn on click_to_select if not in edit mode */
-<% if !@edit %>
-   click_to_select_all.activate();
-<% end %>
 
-/* gox drag and drop */
-var zone = new FileDrop('drop_location', {input: false});
-
-zone.event('upload', function (e) {
-  zone.eventFiles(e).each(function (file) {
-    file.readData(
-      function (str) {
-        var area = document.getElementById("gpxfield")
-        area.value = str;
-        copyGpx()
-      },
-      function () { alert('Problem reading this file.'); },
-      'text'
-    );
-  });
-});
 
   setTimeout( function() {
     setTimeout( function() { map_map.updateSize(); }, 1000);

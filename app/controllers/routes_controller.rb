@@ -6,13 +6,21 @@ require "rexml/document"
  before_action :touch_user
  
   def leg_index
-
-    if params[:order]=='latest' then
-      @order='latest'
-      @routes=Route.where(published: true).order('updated_at desc').paginate(:per_page => 80, :page => params[:page])
-    else
-      @routes = Route.all.order(:name).paginate(:per_page => 80, :page => params[:page])
+    @searchtext=params[:searchtext]
+    whereclause="true"
+    if params[:searchtext] then
+       whereclause=whereclause+" and lower(name) like '%%"+@searchtext.downcase+"%%'"
     end
+
+    @routes=Route.where(whereclause)
+    if params[:order]=='latest' then
+      @routes=@routes.order('updated_at desc')
+      @order='latest'
+    else
+      @routes=@routes.order('name')
+    end
+    @count=@routes.count
+    @routes=@routes.paginate(:per_page => 80, :page => params[:page])
   end
 
   def index
@@ -73,8 +81,8 @@ require "rexml/document"
     prepare_route_vars()
   end
 
-  def many
-    @items=params[:route].split('x')[1..-1]
+  def addtrip
+    @items=params[:id].split('x')[1..-1]
     current_user()
     if (!signed_in?) then 
       if (!is_guest?) then
@@ -84,6 +92,7 @@ require "rexml/document"
     end
     if signed_in? then @trip=Trip.find_by_id(@current_user.currenttrip) end
     if is_guest? then @trip=Trip.find_by_id(@current_guest.currenttrip) end
+    @trip.touch
     @items.each do |item|
         itemno=item[2..-1].to_i
         if item[0]=='p' then
@@ -126,25 +135,30 @@ require "rexml/document"
     prepare_route_vars()
     @route.createdBy_id = @current_user.id #current_user.id
     @route.updatedBy_id = @current_user.id #current_user.id
-    route_add_altitude()
     @route.datasource=params[:datasource]
     @url=params[:url]
 
 
-# location
-  tmploc=params[:route][:location]
-
-  if tmploc[0..12]=="LINESTRING ZM" then
-     tmploc='LINESTRING'+tmploc[13..-1] 
-     factory=RGeo::Geographic.spherical_factory(:srid => 4326, :has_z_coordinate => true, :has_m_coordinate => true)
-     @route.location=factory.parse_wkt(tmploc)
-  end
-  if tmploc[0..11]=="LINESTRING Z" then
-     tmploc='LINESTRING'+tmploc[12..-1] 
-     factory=RGeo::Geographic.spherical_factory(:srid => 4326, :has_z_coordinate => true)
-     @route.location=factory.parse_wkt(tmploc)
-  end
-
+    # location
+    tmploc=params[:route][:location]
+    #check num fields
+    coordset=tmploc.split('(')[1].split(',')[0]
+    coords=coordset.split(' ')
+    dims=coords.length
+  
+    if tmploc[0..12]=="LINESTRING ZM" then
+       tmploc='LINESTRING'+tmploc[13..-1] 
+    end
+    if tmploc[0..11]=="LINESTRING Z" then
+       tmploc='LINESTRING'+tmploc[12..-1] 
+    end
+  
+    if dims==4 then   factory=RGeo::Geographic.spherical_factory(:srid => 4326, :has_z_coordinate => true, :has_m_coordinate => true) end
+    if dims==3 then   factory=RGeo::Geographic.spherical_factory(:srid => 4326, :has_z_coordinate => true) end
+    if dims==2 then   factory=RGeo::Geographic.spherical_factory(:srid => 4326, :has_z_coordinate => false) end
+    @route.location=factory.parse_wkt(tmploc)
+    route_add_altitude()
+  
     dupRoute=Route.find_by_sql ['select * from routes where "startplace_id"=? and "endplace_id"=? and via=?',@route.startplace_id, @route.endplace_id, @route.via]
      logger.debug dupRoute.count
     if dupRoute.count>0  then 
@@ -384,6 +398,19 @@ end
       # but doesn;t handle location ... so
 
       @route.attributes=route_params
+      tmploc=params[:route][:location]
+
+      if tmploc[0..12]=="LINESTRING ZM" then
+         tmploc='LINESTRING'+tmploc[13..-1]
+         factory=RGeo::Geographic.spherical_factory(:srid => 4326, :has_z_coordinate => true, :has_m_coordinate => true)
+         @route.location=factory.parse_wkt(tmploc)
+      end
+      if tmploc[0..11]=="LINESTRING Z" then
+         tmploc='LINESTRING'+tmploc[12..-1]
+         factory=RGeo::Geographic.spherical_factory(:srid => 4326, :has_z_coordinate => true)
+         @route.location=factory.parse_wkt(tmploc)
+      end
+
       route_add_altitude()
       @route.datasource=params[:datasource]
       @route.updated_at=Time.new()
@@ -486,6 +513,7 @@ def route_add_altitude
                'POINT('+p.x.to_s+' '+p.y.to_s+')']
   
          linestr+=p.x.to_s+" "+p.y.to_s+" "+altArr.first.try(:rid).to_s
+         puts "Alt: "+altArr.first.try(:rid).to_s
       end
       @route.location=linestr+")"
     end

@@ -26,5 +26,13 @@ def revision_number
      t.first.try(:id)
 end
 
+def self.add_all_beenthere
+  pis=PlaceInstance.all
+  pis.each do |pi|
+    if pi.place and pi.experienced_at and pi.experienced_at > "1950-01-01".to_date then 
+      pi.place.add_beenthere(pi.createdBy_id)
+    end
+  end
+end
   
 end

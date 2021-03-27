@@ -49,6 +49,6 @@
 </div>
 
 <script>
-/*    reset_map_controllers(); */
+/*    reset_map_controllers(<%=if @current_user then @current_user.id.to_s end%>); */
     catchment_init(<%=@catchment.id%>)
 </script>

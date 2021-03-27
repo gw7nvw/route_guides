@@ -7,7 +7,7 @@
 <script> 
    update_title('<%=@title%>'); 
    document.getElementById("page_status").innerHTML = '';
-   reset_map_controllers();
+   reset_map_controllers(<%=if @current_user then @current_user.id.to_s end%>);
    map_clear_scratch_layer();
 
 </script>
@@ -59,3 +59,11 @@
    </div>
 
 </div>
+<script>
+    if(site_map_size!=1) { 
+       $('#actionbar').removeClass('span7');
+       var cl=document.getElementById('right_panel').className;
+       $('#actionbar').addClass(cl);
+    }
+</script>
+

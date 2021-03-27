@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160227191949) do
+ActiveRecord::Schema.define(version: 20210326222122) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -42,6 +42,14 @@ ActiveRecord::Schema.define(version: 20160227191949) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "auth_digest"
+  end
+
+  create_table "beentheres", force: true do |t|
+    t.integer  "user_id"
+    t.integer  "place_id"
+    t.integer  "route_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "catchments", force: true do |t|
@@ -163,6 +171,21 @@ ActiveRecord::Schema.define(version: 20160227191949) do
     t.integer  "height"
     t.datetime "created_at"
     t.datetime "updated_at"
+  end
+
+  create_table "parks", force: true do |t|
+    t.string   "name"
+    t.string   "doc_link"
+    t.string   "tramper_link"
+    t.string   "general_link"
+    t.text     "description"
+    t.boolean  "is_mr",                                                      default: false
+    t.boolean  "is_active",                                                  default: true
+    t.integer  "createdBy_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.spatial  "boundary",     limit: {:srid=>4326, :type=>"multi_polygon"}
+    t.string   "owner"
   end
 
   create_table "photos", force: true do |t|
@@ -485,5 +508,13 @@ ActiveRecord::Schema.define(version: 20160227191949) do
 
   add_index "users", ["email"], :name => "index_users_on_email", :unique => true
   add_index "users", ["remember_token"], :name => "index_users_on_remember_token"
+
+  create_table "visits", force: true do |t|
+    t.string   "visit_type"
+    t.integer  "item_id"
+    t.integer  "user_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
 end

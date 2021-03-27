@@ -1,74 +1,82 @@
-<% provide(:title, "Trip | "+(@trip.name or "")) %>
-<% @title=" | Trip | "+(@trip.name or "") %>
+<% if @trip then name=@trip.name else name="My Trip" end%> 
+<% provide(:title, "Trip | "+(name or "")) %>
+<% @title=" | Trip | "+(name or "") %>
 <%= render 'application/mail_status' %>
 
 
 <script> 
    update_title('<%=@title%>'); 
    document.getElementById("page_status").innerHTML = '';
-   reset_map_controllers();
+   reset_map_controllers(<%=if @current_user then @current_user.id.to_s end%>);
    map_clear_scratch_layer();
 </script>
+<div id="actionbar" class="span7">
+   <div id="crumbs">
+     <% if @showcurrenttrip %> My Trip <% else %>
+       <span title="Click to record your visit to this place"><%= link_to "Been there!",'/beenthere/new?url='+@trip.to_url, class: "btn btn-small btn-primary", onclick: "myplacesHandler('beenthere');return false;", remote: true, id: "beenthere" %></span>
+     <% end %>
+   </div>
+   <div id="controls">
+   <% if @edit %>
+
+   <% else %>
+     <% if @trip %> 
+       <%= link_to "Download GPX", '/trips/'+@trip.id.to_s+'.gpx', class: "btn btn-small btn-primary" %> 
+     
+       <% if !@showcurrenttrip %> 
+         <%= link_to "Add to my trip", '/trips/'+@trip.id.to_s+'/copy', class: "btn btn-small btn-primary", onclick: "linkHandler('addtrip')", remote: true, id: "addtrip"%>
+         <%= render :partial => 'mytrip_button'%>
+       <% else %>
+             <%=  link_to "Edit", '/trips/'+@trip.id.to_s+'/edit', remote: true, onclick: "linkHandler('editbutton')", id:  "editbutton", class: "btn btn-small btn-primary"  %>
+        
+             <% if (@trip.trip_details and @trip.trip_details.count>1) %>
+               <%=  link_to "Rearrange order", '/trips/'+@trip.id.to_s+'/move', remote: true, onclick: "linkHandler('movebutton')", id:  "movebutton", class: "btn btn-small btn-primary"  %>
+             <% end %>
+             <%=  link_to "Clear", '/trips/'+@trip.id.to_s+'/delete', remote: true, onclick: "linkHandler('deletebutton')", id:  "deletebutton", class: "btn btn-small btn-primary", confirm: "Clear all entries from your trip: Are you sure?"  %>
+       <% end %>
+     <% end %>
+   <% end %>
+   </div>
+</div>
+
+<div id='place_container'>
+
 <% if @trip %>
 <div id='place_details'>
-   <%= render 'flash' %>
+   <span id="flash"><%= render 'flash' %></span>
    <% if !@edit %>
       <div class="erow">
-         <%  if(signed_in? and ((@trip.createdBy_id == current_user.id) or (@current_user.role==Role.find_by( :name => 'root'))) or (is_guest? and @trip.id == @current_guest.currenttrip_id)) %>
-            <div class="leftbuttons">
-                <%= form_for @trip, remote: true do |f| %>
-                   <span title="Edit" id="editbutton">
-                       <%= f.submit "edit", :type => :image, :src => '/assets/pencil_edit.png', :style => 'margin-bottom:0;border:none',onclick: "linkHandler('editbutton')", id:  "editbutton" %>
-                   </span>
-                <% end %>
-            </div>
-         <% end %>
-         <%  if(signed_in? and (@trip.createdBy_id != current_user.id)) or (is_guest? and (@trip.id != @current_guest.currenttrip_id))%>
-            <div class="leftbuttons">
-                <%= form_for @trip, remote: true do |f| %>
-                   <span title="Make a personal copy I can edit">
-                       <%= submit_tag "Make my own copy", :type => :image, :src => '/assets/copy.png', :style => 'margin-bottom:0;border:none'  %>
-                   </span>
-                <% end %>
-            </div>
-         <% end %>
 
          <div class="sectiontitle">
-            <span id="page_title"><%="(draft) " if !@trip.published %>Trip: <%= link_to @trip.name, @trip, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %></span>
-            <%= link_to "Download GPX", '/trips/'+@trip.id.to_s+'.gpx', class: "btn btn-small btn-primary no-print", style: "font-weight:normal" %>
+           <span id="page_title"><%="(draft) " if !@trip.published %>Trip: <%= link_to @trip.name, @trip, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %></span>
+           <% if !@showcurrenttrip %><%  if((signed_in? and ((@trip.createdBy_id == current_user.id) or (@current_user.role==Role.find_by( :name => 'root')))) or (is_guest? and @trip.id == @current_guest.currenttrip_id)) %>
+             <% if !@edit %><%=  link_to "Edit", '/trips/'+@trip.id.to_s+'/edit', remote: true, onclick: "linkHandler('editbutton')", id:  "editbutton", class: "link_to"  %><% end %>
+             <% if (@trip.trip_details and @trip.trip_details.count>1) %>
+               <% if !@edit %><%=  link_to "Rearrange order", '/trips/'+@trip.id.to_s+'/move', remote: true, onclick: "linkHandler('movebutton')", id:  "movebutton", class: "link_to"  %><% end %>
+             <% end %>
+             <% if !@edit  %><%=  link_to "Delete", '/trips/'+@trip.id.to_s+'/delete', remote: true, onclick: "linkHandler('deletebutton')", id:  "deletebutton", class: "link_to"  %><% end %>
+           <% end %> <% end %>
+
          </div>
 
       </div>
-         <% if (@trip.lengthmin) and (@trip.lengthmin>0) or (@trip.lengthmax) and (@trip.lengthmax>0) %>
-           <div class="erow" id="trip_length">Length:<% if (@trip.lengthmin) and (@trip.lengthmin>0)  %> from <%=@trip.lengthmin%><% end %><% if (@trip.lengthmax) and (@trip.lengthmax>0)  %> up to <%=@trip.lengthmax %><% end %> days</div>
-         <% end %>
-       <% @url=@trip.to_url %>
-       <%= render '/routes/summary_stats' %>
-       <div id="trip_description"><p>
+
+      <% if (@trip.lengthmin) and (@trip.lengthmin>0) or (@trip.lengthmax) and (@trip.lengthmax>0) %>
+        <div class="erow" id="trip_length">Length:<% if (@trip.lengthmin) and (@trip.lengthmin>0)  %> from <%=@trip.lengthmin%><% end %><% if (@trip.lengthmax) and (@trip.lengthmax>0)  %> up to <%=@trip.lengthmax %><% end %> days</div>
+      <% end %>
+
+      <% @url=@trip.to_url %>
+      <%= render '/routes/summary_stats' %>
+      <div id="trip_description"><p>
             <%=simple_format(@trip.description).html_safe%>
       </p></div>
+
    <% else %>
 
       <%= form_for @trip, remote: true do |f| %>
 
          <div class="erow">
             <%= render 'shared/error_messages' %>
-            <div class="leftbuttons">
-               <span title="Save trip" id="save_button">
-                  <%= f.submit "Save", :type => :image, :src => '/assets/save.png', :style => 'margin-bottom:0;border:none',onclick: "linkHandler('savebutton')", id:  "savebutton" %>
-               </span>
-            </div>
-            <div class="leftbuttons">
-               <span title="Cancel edit" id="cancel_button">
-                  <%= link_to image_tag("/assets/red-x.png", :border=>0, :class => 'dock-item'), '/trips/'+@trip.id.to_s, remote: true, onclick: "linkHandler('cancelbutton')", id:  "cancelbutton"  %>
-               </span>
-            </div>
-
-            <div class="rightbuttons">
-               <span title="Delete trip" id="delete_button">
-                  <%= submit_tag "Delete",  :type => :image, :src => '/assets/trash.png', :style => 'margin-bottom:0;border:none'  %>
-               </span>
-            </div>
          </div>
          <div class="erow">
            <div id="thelptitle" class="helptext" style="display:none">
@@ -166,43 +174,25 @@
          <p>
             <%= f.text_area :description, :rows => "8" %>
          </p>
+
+         <div class="erow">
+           <%= f.submit "Save", class: "btn btn-small btn-primary", name: "save", onclick: "linkHandler('savebutton')", id:  "savebutton" %>
+           <%=  link_to "Cancel", '/trips/'+@trip.id.to_s, class: "btn btn-small btn-primary", remote: true %>
+           <%= link_to "Delete", '/trips/'+@trip.id.to_s+'/delete', class: "btn btn-small btn-primary", name: "delete", onclick: "linkHandler('deletebutton');", id:  "deletebutton", remote: true %>
       <% end %>
    <% end %>
 
-<%= form_tag '/trips/move', :remote=> true, :id => "moveForm", :name=> 'moveForm', :method=> 'post'%>
-     <input type="hidden" name="cutFrom"  /> 
-     <input type="hidden" name="pasteAfter" /> 
-     <input type="hidden" name="id", value=<%=@trip.id.to_s%>>
-     <% if @edit %>
-     <div class="erow">
-         <i><small>Note: cutting/pasting, deleting or reversing the items below has immediate effect and cannot be cancelled</small></i>
-     </div>
-     <% end %>
+      <% if @showcurrenttrip and (!@trip.trip_details or @trip.trip_details.count==0) %>
+          <p></br></p>
+          <p>Your trip is empty.<p>
+          <p>Start clicking <span class="btn btn-small btn-primary"> Add To My Trip </span> where you see it to add places and routes and even entire trips to your trip.</p>
+      <% end %>
 
       <% @trip.trip_details.order(:order).each do |td| %>
-         <div class="hrline">
-            <hr noshade size="4">
-         </div>
          <div class="erow">
-            <% if @edit %>
-               <span title="Cut following section and ...">
-                  <div class="cutbutton" id="cutItem<%=td.id.to_s%>"> <%= submit_tag "cut"+td.id.to_s, :id => "cutItem", :type => :image, :src => '/assets/cut.png', :style => 'margin-bottom:0;border:none', :onclick => "cutItem("+td.id.to_s+"); return false;" %> 
-               </span>
-               <% if td.route_id and td.route_id.abs>0 %> 
-                 <span title="Reverse direction of this route" >
-                   <%= submit_tag "reverse"+td.id.to_s, :id => "reverseItem", :type => :image, :src => '/assets/switch24.png', :style => 'margin-bottom:0;border:none', :onclick => "linkHandler('reverseItem')" %> 
-                 </span>
-               <% end %>
-               </div>
-               <span title="... paste cut section here">
-                  <div class="pastebutton"  id='pasteItem<%=td.id.to_s%>'style="display:none"> <%= submit_tag "paste"+td.id.to_s, :id => "pasteItem", :type => :image, :src => '/assets/big-insert.png', :style => 'margin-bottom:0;border:none' %> </div>
-               </span>
-               <span title="...delete cut section">
-                  <div class="deletebutton" id='deleteItem<%=td.id.to_s%>' style="display:none"> <%= submit_tag  "delete",  :type => :image, :src => '/assets/trash.png', :style => 'margin-bottom:0;border:none' %> </div>
-               </span>
-
-
-            <% end %>
+           <div class="hrline">
+             <hr noshade size="4">
+           </div>
          </div>
          <% 
             #convert show boolean to int
@@ -247,12 +237,14 @@
       <div class="hrline">
          <hr noshade size="4">
       </div>
-      <span title="... paste cut section here">
-         <div class="pastebutton" style="display:none"> <%= submit_tag "paste", :id => "pasteItem", :type => :image, :src => '/assets/big-insert.png', :style => 'margin-bottom:0;border:none' %> </div>
-      </span>
    </form>
 
 <% if !@edit %>
+    <div class="erow">
+      <div class="hrline">
+        <hr noshade size="4">
+      </div>
+    </div>
   <div id="links_section">
     <% if @editlinks and !@edit and signed_in?%>
       <div class="erow">
@@ -270,15 +262,11 @@
       </div>
     <% else %>
       <div class="erow">
-        <% if signed_in? %>
-          <div class="leftbuttons">
-            <span title="Edit links" id="edit_links">
-              <%=  link_to image_tag("/assets/pencil_edit.png", :border=>0, :class => 'dock-item'), '/trips/'+@trip.id.to_s+'/?editlinks=true', remote: true, onclick: "linkHandler('editbutton')", id:  "editbutton"  %>
-            </span>
-            </div>
-        <% end %>
         <div class="sectiontitle-bold" id="links_title">
           Links:
+          <% if signed_in? %>
+              <%=  link_to 'Add / Edit Links', '/trips/'+@trip.id.to_s+'/?editlinks=true', remote: true, onclick: "linkHandler('editbutton')", id:  "editbutton", class: 'link_to'  %>
+          <% end %>
         </div>
       </div>
       <%=render :partial => 'links_photos',  :locals => {:parent => @trip} %>
@@ -298,4 +286,19 @@
 
 <% end %>
 
+<% else %> 
+  <div id='place_details'>
+    <%= render 'flash' %>
+    <p>Your trip is empty.<p>  
+    <p>Start clicking <span class="btn btn-small btn-primary"> Add To My Trip </span> where you see it to add places and routes and even entire trips to your trip.</p>
+  </div>
 <% end %>
+</div>
+<script>
+    if(site_map_size!=1) { 
+       $('#actionbar').removeClass('span7');
+       var cl=document.getElementById('right_panel').className;
+       $('#actionbar').addClass(cl);
+    }
+</script>
+

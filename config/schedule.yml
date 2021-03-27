@@ -1,0 +1,6 @@
+# config/schedule.yml
+prune_trips_job:  
+  cron: '0 12 * * *'  
+  rails_env: production  
+  class: Pruner  
+  description: Prune unused guest trips

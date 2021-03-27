@@ -16,7 +16,7 @@
           <% when 'photo' %>
           <% when 'done' %>
           <% else %>
-            <%= link_to rl.child.name, rl.child, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
+            <%= link_to (if rl.child then rl.child.name else 'broken' end), (if rl.child then rl.child else '#' end),  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')"  %>
           <% end %>
         </div>
       </div>

@@ -5,11 +5,9 @@
       <input type="hidden" name="url" id="urlfield" value="<%=@url%>"/>
 
       <div class="erow">
-         <% if @edit %>
           <%=render :partial => 'help_buttons',  :locals => {:expName => "helpname", :initialSt => 0} %>
 
-         <% end %>
-         <div class="sectiontitle25">Name:</div>
+         <div class="sectiontitle25"><span class="mandatory">*</span>Name:</div>
       </div>
       <div class="erow">
         <div id="helpname" class="helptext" style="display:none">
@@ -17,13 +15,11 @@
            For track junctions feel free to just put 'track junction'
         </div>
       </div>
-      <%= f.text_field :name, :disabled=>!@edit %>
+      <%= f.text_field :name %>
 
       <div class="erow">
-         <% if @edit %>
           <%=render :partial => 'help_buttons',  :locals => {:expName => "helpdatetime", :initialSt => 0} %>
-         <% end %>
-         <div class="sectiontitle25">Date experienced:</div>
+         <div class="sectiontitle25"><span class="mandatory">*</span>Date experienced:</div>
       </div>
       <div class="erow">
         <div id="helpdatetime" class="helptext" style="display:none">
@@ -31,13 +27,11 @@
         </div>
       </div>
 
-      <%= f.date_field :experienced_at, :disabled=>!@edit %>
+      <%= f.date_field :experienced_at %>
 
       <div class="erow">
-         <% if @edit %>
           <%=render :partial => 'help_buttons',  :locals => {:expName => "helptype", :initialSt => 0} %>
-         <% end %>
-         <div class="sectiontitle25">Place Type:</div>
+         <div class="sectiontitle25"><span class="mandatory">*</span>Place Type:</div>
       </div>
       <div class="erow">
         <div id="helptype" class="helptext" style="display:none">
@@ -46,12 +40,10 @@
       </div>
 
 
-      <%= collection_select( :place, :place_type, PlaceType.all.order(:name), :name, :name, {}, {:disabled => !@edit}) %>
+      <%= collection_select( :place, :place_type, PlaceType.all.order(:name), :name, :name, {}) %>
 
       <div class="erow">
-         <% if @edit %>
           <%=render :partial => 'help_buttons',  :locals => {:expName => "helpowner", :initialSt => 0} %>
-         <% end %>
          <div class="sectiontitle25">Place Owner:</div>
       </div>
       <div class="erow">
@@ -60,13 +52,11 @@
           For other places this can normally be left blank.
         </div>
       </div>
-      <%= f.text_field :place_owner, :disabled=>!@edit %>
+      <%= f.text_field :place_owner %>
 
       <div class="erow">
-         <% if @edit %>
           <%=render :partial => 'help_buttons',  :locals => {:expName => "helpdescription", :initialSt => 0} %>
-         <% end %>
-         <div class="sectiontitle25">Description:</div>
+         <div class="sectiontitle25"><span class="mandatory">*</span>Description:</div>
       </div>
       <div class="erow">
         <div id="helpdescription" class="helptext" style="display:none">
@@ -75,12 +65,11 @@
           However, do not put tramping directions here, they should be entered as a separate route.
         </div>
       </div>
-      <%= f.text_area :description, :disabled=>!@edit, :rows=>"8"   %>
+      <%= f.text_area :description, :rows=>"8"   %>
 
       <%= f.hidden_field :location, :readonly => true %>
 
       <div class="erow">
-         <% if @edit %>
            <%=render :partial => 'help_buttons',  :locals => {:expName => "helplocation", :initialSt => 0} %>
            <div class="leftbuttons">
               <span title="Click to draw locstion on map">
@@ -91,8 +80,7 @@
                  <img id="placetick" src="/assets/tick.png" onclick="site_selectNothing('placetick', 'placeplus')" width="16" style="display:none">
               </span>
            </div>
-         <% end %>
-         <div class="sectiontitle50">Location:</div>
+         <div class="sectiontitle25"><span class="mandatory">*</span>Location:</div>
       </div>
       <div class="erow">
         <div id="helplocation" class="helptext" style="display:none">
@@ -112,19 +100,17 @@
       </div>
 
       <%= f.label :projection %>
-      <%= collection_select( :place, :projection_id, Projection.all.order(:name), :id, :name, {}, {:disabled => !@edit}) %>
+      <%= collection_select( :place, :projection_id, Projection.all.order(:name), :id, :name, {}) %>
 
       <%= f.label :x %>
-      <%= f.text_field :x, :disabled=>!@edit, :size => 8 %>
+      <%= f.text_field :x, :size => 8 %>
 
       <%= f.label :y %>
-      <%= f.text_field :y, :disabled=>!@edit, :size => 8 %>
+      <%= f.text_field :y, :size => 8 %>
 
       <div class="erow">
-         <% if @edit %>
           <%=render :partial => 'help_buttons',  :locals => {:expName => "helpaltitude", :initialSt => 0} %>
-         <% end %>
-         <div class="sectiontitle25">Altitude (leave blank to calculate from map upon save):</div>
+         <div class="sectiontitle25" style="font-weight: normal"><b>Altitude</b><i> (leave blank to calculate from map upon save):</i></div>
       </div>
       <div class="erow">
         <div id="helpaltitude" class="helptext" style="display:none">
@@ -132,10 +118,9 @@
         </div>
       </div>
 
-      <%= f.text_field :altitude, :disabled=>!@edit %>
+      <%= f.text_field :altitude %>
 
       <br/>
-        <% if @edit %>
               <%= f.submit "Save", class: "btn btn-small btn-primary", name: "save", onclick: "site_updatePlace('savebutton')", id:  "savebutton" %>
               <% if @url and @url.include?('x')%>   
                <%=  link_to "Cancel", '/routes/'+@viewurl, class: "btn btn-small btn-primary", remote: true %>
@@ -146,10 +131,6 @@
                <% end %>
             <% end %>
 
-        <% else %>
-          <%=  link_to "Edit", '/places/'+@place.id.to_s+'/edit', class: "btn btn-small btn-primary", remote: true %>
-          <%= f.submit "Add to trip", class: "btn btn-small btn-primary", :disabled => @current_user, name: "add" %>
-        <% end %>
     <% end %>
 </div>
 <% if @place.id and @place.createdBy_id %>
@@ -159,7 +140,7 @@
 
 
 <script>
-/*    reset_map_controllers(); */
+/*    reset_map_controllers(<%=if @current_user then @current_user.id.to_s end%>); */
     place_init('<%=@place.location%>', 0);
     deactivate_all_click();
 </script>

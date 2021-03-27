@@ -1,16 +1,23 @@
 <% provide(:title, '') %>
 <% @title=" " %>
-<%= render 'flash' %>
 <%= render 'application/mail_status' %>
 
 
 <script>
    update_title('<%=@title%>'); 
-   reset_map_controllers();
+   reset_map_controllers(<%=if @current_user then @current_user.id.to_s end%>);
    document.getElementById("page_status").innerHTML = '';
 
 </script>
+<div id="actionbar" class="span7">
+   <div id="crumbs"></div>
+   <div id="controls">
+       <%= render :partial => 'mytrip_button'%>
+   </div>
+</div>
 
+<div id="place_container">
+<div id="flash"><%= render 'flash' %></div>
 <div style="background-image: url('assets/banner3.jpg'); background-size: cover;padding-bottom: 10px">
 <h1>NZ Route Guides wiki</h1>
   <h2>
@@ -57,4 +64,12 @@
   <% @routes=Route.find_latest_by_user(3) %>
   <%= render 'routes/index_details' %>
 <br/>
+</div>
+<script>
+    if(site_map_size!=1) { 
+       $('#actionbar').removeClass('span7');
+       var cl=document.getElementById('right_panel').className;
+       $('#actionbar').addClass(cl);
+}
+</script>
 

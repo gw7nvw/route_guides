@@ -5,24 +5,33 @@
   <% provide(:title, 'Route | New') %>
   <% @title=' | Route | New '%>
 <% end %>
-<%= render 'flash' %>
 <%= render 'application/mail_status' %>
 
 
 <script>
    update_title('<%=@title%>'); 
    document.getElementById("page_status").innerHTML = '';
-   reset_map_controllers();
+   reset_map_controllers(<%=if @current_user then @current_user.id.to_s end%>);
 </script>
+<div id="actionbar" class="span7">
+   <div id="crumbs">
+       <span title="Click to record your visit to this place"><%= link_to "Been there!",'/beenthere/new?url='+@url, class: "btn btn-small btn-primary", onclick: "myplacesHandler('beenthere');", remote: true, id: "beenthere" %></span>
+   </div>
+   <div id="controls">
+       <%= link_to "Download GPX", '/routes/'+@url+'.gpx?version='+@version.to_s, class: "btn btn-small btn-primary" %>
+       <%= link_to "Add to my trip", '/addtrip?id='+@url, class: "btn btn-small btn-primary", onclick: "linkHandler('addtrip')", remote: true, id: "addtrip" %>
+       <%= render :partial => 'mytrip_button'%>
+   </div>
+</div>
 
+<div id='place_container'>
+   <span id="flash"><%= render 'flash' %></span>
 <% if @items and @startplace and @endplace and @url #and (@url.include?('rv') or @url.include?('qv'))%>
   <%= form_tag '/routes/many', :remote=> true, :name => "AddMany", :name=> 'listForm', :method=> 'post'%>
     <div class="erow">
       <div class="sectiontitle">
         <span id="page_title"><%=  link_to @startplace.name+' to '+@endplace.name, '/routes/'+@url, remote: true, onclick: %q[linkHandler('r]+@url+%q[')], id:  'r'+@url  %></span>
         <input type="hidden" name="route" value='<%=@url%>' />
-        <%= submit_tag  "Add to trip", id: "Add Many", class: "btn btn-small btn-primary", remote: true, id: "addbutton", onclick: "linkHandler('addbutton')" %>      
-        <%=  link_to "Download GPX", '/routes/'+@id+'.gpx', class: "btn btn-small btn-primary no-print", style: "font-weight:normal" %>
       </div>
     </div>
   </form>
@@ -154,7 +163,7 @@
      <% @index=@index+1%>
      <div class="erow">
         <div class="hrline">
-           <hr noshade size="4">
+           <hr noshade size="3">
         </div>
      </div>
 
@@ -163,7 +172,7 @@
 <% end %>
 
 <% if @url and (@url.include?('rv') or @url.include?('qv')) and not @url.include?('s') and not @url.include?('n') and  not @url.include?('e') and not @url.include?('m') and @startplace and @endplace%>
-  <div id="links_section2">
+  <div class="no-print" id="links_section2">
      <div class="erow" style="margin-top:12px" id="adjplaces">
        <div class="sectiontitle-bold">
           Places you can go from here:
@@ -190,6 +199,10 @@
        map_refresh_layer(places_layer);
        site_placesStale=false;
   }
-
+    if(site_map_size!=1) { 
+       $('#actionbar').removeClass('span7');
+       var cl=document.getElementById('right_panel').className;
+       $('#actionbar').addClass(cl);
+    }
 </script>
-
+</div>

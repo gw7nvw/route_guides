@@ -1,0 +1,2 @@
+module BeenthereHelper
+end

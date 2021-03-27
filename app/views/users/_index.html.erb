@@ -5,9 +5,16 @@
 
 <script>
    update_title('<%=@title%>');
-   reset_map_controllers();
+   reset_map_controllers(<%=if @current_user then @current_user.id.to_s end%>);
    document.getElementById("page_status").innerHTML = '';
 </script>
+<div id="actionbar" class="span7">
+   <div id="crumbs"></div>
+   <div id="controls">
+       <%= render :partial => 'mytrip_button'%>
+   </div>
+</div>
+<div id='place_container'>
 
   <ul class="places">
     <% @users.each do |user| %>
@@ -16,4 +23,12 @@
       </li>
     <% end %>
   </ul>
+</div>
+<script>
+    if(site_map_size!=1) { 
+       $('#actionbar').removeClass('span7');
+       var cl=document.getElementById('right_panel').className;
+       $('#actionbar').addClass(cl);
+}
+</script>
 

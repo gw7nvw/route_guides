@@ -22,6 +22,6 @@
    </div>
 </div>
 <script>
-/*    reset_map_controllers(); */
+/*    reset_map_controllers(<%=if @current_user then @current_user.id.to_s end%>); */
     place_init('<%=@place.location%>',1);
 </script>

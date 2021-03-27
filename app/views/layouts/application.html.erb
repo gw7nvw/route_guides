@@ -16,7 +16,8 @@ if( /Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent))
       <% if @map_x %> var def_x=<%=@map_x%> <% end %>
       <% if @map_y %> var def_y=<%=@map_y%> <% end %>
     </script>
-    <%  @init_name = "site_init()" %>
+    <% @init_name = "site_init("+(if @current_user then @current_user.id.to_s else "" end)+")" %>
+    <% puts @init_name %>
 
     <title><%= full_title(yield(:title)) %></title>
     <% if @description and @description.length>0 %>

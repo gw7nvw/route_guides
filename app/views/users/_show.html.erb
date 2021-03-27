@@ -7,11 +7,21 @@
 <script> 
    update_title('<%=@title%>'); 
    document.getElementById("page_status").innerHTML = '';
+   reset_map_controllers(<%=@user.id%>);
+   site_toggle_beenthere(true);
 </script>
+<div id="actionbar" class="span7">
+   <div id="crumbs">
+       <%=  link_to "Where's "+@user.name.capitalize+" been?", '/users/'+URI.escape(@user.name)+'/beenthere', class: "btn btn-small btn-primary", remote: true %>
+   </div>
+   <div id="controls">
+       <%= render :partial => 'mytrip_button'%>
+   </div>
+</div>
+<div id='place_container'>
 <div class="sectiontitle" id="page_title">
 <%= @user.name.capitalize %><br/>
 <br/>
-
 </div>
  <div class="erow" id="realname">
     <% if(signed_in? and ((@user.id==@current_user.id) or (@current_user.role==Role.find_by( :name => 'root')))) %>
@@ -34,11 +44,11 @@
  <div class="erow" id="lastvisited">
      Last visited: <% if @user.lastVisited %><%= @user.lastVisited.localtime().strftime("%F %T") %><%else%>Never<%end%><br/><br/>
  </div>
-<%     if(signed_in? and ((@user.id==@current_user.id) or (@current_user.role==Role.find_by( :name => 'root')))) %>
  <div class="erow" id="editbutton">
-  <%=  link_to "Edit", '/users/'+URI.escape(@user.name)+'/edit', class: "btn btn-small btn-primary", remote: true %><br/>
+<%     if(signed_in? and ((@user.id==@current_user.id) or (@current_user.role==Role.find_by( :name => 'root')))) %>
+            <%=  link_to "Edit", '/users/'+URI.escape(@user.name)+'/edit', class: "btn btn-small btn-primary", remote: true %><br/>
+       <%end%>
  </div>
-<%end%>
 <% @reports = @user.reports %>
 <%= render 'reports/index_details' %>
 
@@ -55,3 +65,11 @@
   <% @routes = @user.routes.select{ |route| !route.published }  %>
   <% @hidetitle=true %>
   <%= render 'routes/index_details' %>
+</div>
+<script>
+    if(site_map_size!=1) { 
+       $('#actionbar').removeClass('span7');
+       var cl=document.getElementById('right_panel').className;
+       $('#actionbar').addClass(cl);
+}
+</script>

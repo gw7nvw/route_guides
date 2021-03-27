@@ -1,0 +1,5 @@
+   <span class="no-print" title="Show more information"> <img id='<%=expName+"plus"%>' src="/assets/info.png" <%=%q[onclick=clickplus(']+expName+%q[')]%> 
+        style='display:<%=if(initialSt==1) then "none" else "inline-block" end%>'></span>
+   <span class="no-print" title="Show less information"> <img id='<%=expName+"minus"%>' src="/assets/info-off.png" <%=%q[onclick=clickminus(']+expName+%q[')]%> 
+        style='display:<%=if(initialSt==1) then "inline-block" else "none" end%>'></span>
+

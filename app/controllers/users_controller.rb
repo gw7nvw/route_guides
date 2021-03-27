@@ -14,6 +14,22 @@ class UsersController < ApplicationController
     end
   end
 
+  def beenthere
+    a=signed_in?
+    if(!(@user = User.where(name: params[:id]).first))
+      redirect_to '/'
+      return false
+    end
+
+    @places=@user.been_places.sort_by{|p| if p then p.name else "" end} 
+
+    @places=@places.paginate(:per_page => 40, :page => params[:places_page])
+
+    @routes=@user.been_routes.sort_by{|r| r.name}
+    @routes=@routes.paginate(:per_page => 40, :page => params[:routes_page])
+
+  end
+
   def drafts
     @user=@current_user
 

@@ -11,13 +11,21 @@ def new
 end
 
 def index
-    if params[:order]=='latest' then
-      @order='latest'
-      @photos=Photo.all.order('updated_at desc').paginate(:per_page => 20, :page => params[:page])
-    else
-      @photos=Photo.all.order(:name).paginate(:per_page => 20, :page => params[:page])
+    @searchtext=params[:searchtext]
+    whereclause="true"
+    if params[:searchtext] then
+       whereclause=whereclause+" and lower(name) like '%%"+@searchtext.downcase+"%%'"
     end
 
+    @photos=Photo.where(whereclause)
+    if params[:order]=='latest' then
+      @photos=@photos.order('updated_at desc')
+      @order='latest'
+    else
+      @photos=@photos.order('name')
+    end
+    @count=@photos.count
+    @photos=@photos.paginate(:per_page => 20, :page => params[:page])
 end
 
 def create

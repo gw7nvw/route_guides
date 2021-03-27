@@ -1,0 +1,109 @@
+<% provide(:title, "Trip | "+(@trip.name or "")) %>
+<% @title=" | Trip | "+(@trip.name or "") %>
+<%= render 'application/mail_status' %>
+
+<%  if((signed_in? and ((@trip.createdBy_id == current_user.id) or (@current_user.role==Role.find_by( :name => 'root')))) or (is_guest? and @trip.id == @current_guest.currenttrip_id)) %>
+
+
+<script> 
+   update_title('<%=@title%>'); 
+   document.getElementById("page_status").innerHTML = '';
+   reset_map_controllers(<%=if @current_user then @current_user.id.to_s end%>);
+   map_clear_scratch_layer();
+</script>
+<div id="actionbar" class="span7">
+   <div id="crumbs">
+      Reordering trip
+   </div>
+   <div id="controls">
+     <%= link_to "Done", '/trips/'+@trip.id.to_s, class: "btn btn-small btn-primary", remote: true, onclick: "linkHandler('doneLink');" %>
+
+   </div>
+</div>
+
+<div id='place_container'>
+
+  <% if @trip %>
+    <div id='place_details'>
+      <%= render 'flash' %>
+      <div class="erow">
+  
+      <div class="sectiontitle">
+        <span id="page_title"><%="(draft) " if !@trip.published %>Trip: <%= link_to @trip.name, @trip, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %></span>
+      </div>
+  
+    </div>
+    <% if (@trip.lengthmin) and (@trip.lengthmin>0) or (@trip.lengthmax) and (@trip.lengthmax>0) %>
+       <div class="erow" id="trip_length">Length:<% if (@trip.lengthmin) and (@trip.lengthmin>0)  %> from <%=@trip.lengthmin%><% end %><% if (@trip.lengthmax) and (@trip.lengthmax>0)  %> up to <%=@trip.lengthmax %><% end %> days</div>
+    <% end %>
+    <% @url=@trip.to_url %>
+    <%= render '/routes/summary_stats' %>
+    <div id="trip_description"><p>
+      <%=simple_format(@trip.description).html_safe%>
+    </p></div>
+  
+  
+    <%= form_tag '/trips/move', :remote=> true, :id => "moveForm", :name=> 'moveForm', :method=> 'post'%>
+      <input type="hidden" name="cutFrom"  /> 
+      <input type="hidden" name="pasteAfter" /> 
+      <input type="hidden" name="id", value=<%=@trip.id.to_s%>>
+  
+      <% @trip.trip_details.order(:order).each do |td| %>
+        <div class="erow">
+          <span class="pastebutton"  id='pasteItem<%=td.id.to_s%>'style="display:none"> 
+            <%= submit_tag "-------> Paste", class: "submit_link_to", :id => "pasteItem", :onclick => "reverse('"+td.id.to_s+"')" %> 
+          </span>
+        </div>
+        <div class="hrline">
+          <hr noshade size="4">
+        </div>
+        <div id="title<%=td.id.to_s%>"> 
+  
+        <% 
+            #convert show boolean to int
+#         @showForward=if(td.showForward) then 1 else 0 end
+          @showForward=1
+#           @showReverse=if(td.showReverse) then 1 else 0 end
+        %>
+        <% if td.place  %>
+          <% @place=td.place  %>
+            <%= render 'places/place_title' %> 
+        <% end %>
+        <% if td.route_id %>
+          <% if td.route_id !=0 %>
+            <% @route=Route.find_by_signed_id(td.route_id) %>
+            <% if @route  %>
+              <%= render 'routes/route_title' %> 
+            <% end %>
+          <% end %>
+        <% end %>
+        <span class="cutbutton" id="cutItem<%=td.id.to_s%>"> <%= link_to "Cut", '#', :id => "cutitem", class: 'link_to', :onclick => "cutItem('"+td.id.to_s+"'); return false;" %> </span>
+        <% if td.route_id and td.route_id.abs>0 %> 
+          <span class="cutbutton" title="Reverse direction of this route" >
+            <%= submit_tag "Reverse", class: "submit_link_to", :id => "reverseItem", :onclick => "reverse('"+td.id.to_s+"')" %> 
+          </span>
+          <span class="cutbutton" title="Delete">
+            <%= submit_tag  "Delete",  class: "submit_link_to", :id => "reverseItem", :onclick => "reverse('"+td.id.to_s+"')", data: { confirm: "Detete item from trip: are you sure?" }%> 
+          </span>
+        <% end %>
+        </div>
+      <% end %>
+      <div class="hrline">
+        <hr noshade size="4">
+      </div>
+      <span class="pastebutton"  id='pasteItemlast'style="display:none"> 
+        <%= submit_tag "-------> Paste", class: "submit_link_to", :id => "pasteItem", :onclick => "reverse('')" %>
+      </span>
+      </span>
+    </form>
+  <% end %>
+</div>
+<% end %>
+<script>
+    if(site_map_size!=1) { 
+       $('#actionbar').removeClass('span7');
+       var cl=document.getElementById('right_panel').className;
+       $('#actionbar').addClass(cl);
+    }
+</script>
+

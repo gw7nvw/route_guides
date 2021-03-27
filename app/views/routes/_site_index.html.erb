@@ -5,7 +5,7 @@
  <script>
    update_title('<%=@title%>'); 
    document.getElementById("page_status").innerHTML = '';
-   reset_map_controllers();
+   reset_map_controllers(<%=if @current_user then @current_user.id.to_s end%>);
  </script>
 
  <div class="erow">

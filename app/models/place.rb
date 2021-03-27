@@ -14,6 +14,7 @@ class Place < ActiveRecord::Base
   validates :y, presence: true
   validates :projection, presence: true 
   before_save :default_values
+  after_save :do_beenthere
 
 
   # But use a geographic implementation for the :lonlat column.
@@ -547,6 +548,36 @@ def linked(type)
               where  (l.item_type='place' and l.item_id=? and "baseItem_type"=?)],self.id, type, self.id, type]
 end
 
+def park
+   hs=Crownparks.find_by_sql [ %q[select * from crownparks p where ST_Contains(p."WKT",ST_GeomFromText(']+self.location.as_text+%q[',4326)) limit 1; ] ]
+   hs.first
+end 
 
+def do_beenthere
+  if self.experienced_at and self.experienced_at > "1950-01-01".to_date then
+    add_beenthere(self.updatedBy_id)
+  end
+end
+
+def add_beenthere(user_id)
+    if self.experienced_at!=nil then
+          puts "met conds"
+          beenthere = Beenthere.new
+          beenthere.place_id = self.id
+          beenthere.user_id=self.updatedBy_id
+          dup=Beenthere.find_by_sql [ "select id from beentheres where user_id="+beenthere.user_id.to_s+" and place_id="+beenthere.place_id.to_s ]
+          if dup.count==0 then 
+              beenthere.save
+              true
+          else
+              false
+          end
+  end
+end
+
+def beenthere(user_id)
+    dup=Beenthere.find_by_sql [ "select id from beentheres where user_id="+user_id.to_s+" and place_id="+self.id.to_s ]
+    if dup and dup.count>0 then true else false end
+end
 
 end

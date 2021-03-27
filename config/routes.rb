@@ -12,8 +12,10 @@ resources :account_activations, only: [:edit]
 resources :address_auths, only: [:edit]
 resources :users
 resources :photos
+resources :parks, only: [:edit, :show, :index]
 resources :routes
 resources :reports
+resources :beenthere, only: [:new]
 resources :sessions, only: [:new, :create, :destroy]
 resources :links, only: [:create, :destroy]
 resources :places
@@ -39,10 +41,15 @@ root 'static_pages#home'
   match '/comments/destroy', to: "comments#destroy", via: 'post'
   match '/messages', to: 'messages#update',    via:'post'
   match '/trips/move', to: 'trips#move', via: 'post'
+  get 'beenthere/delete', to: 'beenthere#delete'
+  get 'trips/:id/delete', to: 'trips#delete'
+  get 'trips/:id/copy', to: 'trips#copy'
+  get 'trips/:id/move', to: 'trips#move'
+  get 'users/:id/beenthere', to: 'users#beenthere'
   match '/places/select', to: 'places#select', via: 'post'
   match '/routes/find', to: 'routes#find', via: 'post'
+  match '/addtrip', to: 'routes#addtrip', via: 'get'
   match '/adj_route', to: 'places#adj_route', via: 'get'
-  match '/routes/many', to: 'routes#many', via: 'post'
   match '/find', to: 'search#find', via: 'get'
   match '/find', to: 'search#findresults', via: 'post'
   match '/search', to: 'search#search', via: 'get'

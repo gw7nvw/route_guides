@@ -1,0 +1,301 @@
+<% provide(:title, "Trip | "+(@trip.name or "")) %>
+<% @title=" | Trip | "+(@trip.name or "") %>
+<%= render 'application/mail_status' %>
+
+
+<script> 
+   update_title('<%=@title%>'); 
+   document.getElementById("page_status").innerHTML = '';
+   reset_map_controllers();
+   map_clear_scratch_layer();
+</script>
+<% if @trip %>
+<div id='place_details'>
+   <%= render 'flash' %>
+   <% if !@edit %>
+      <div class="erow">
+         <%  if(signed_in? and ((@trip.createdBy_id == current_user.id) or (@current_user.role==Role.find_by( :name => 'root'))) or (is_guest? and @trip.id == @current_guest.currenttrip_id)) %>
+            <div class="leftbuttons">
+                <%= form_for @trip, remote: true do |f| %>
+                   <span title="Edit" id="editbutton">
+                       <%= f.submit "edit", :type => :image, :src => '/assets/pencil_edit.png', :style => 'margin-bottom:0;border:none',onclick: "linkHandler('editbutton')", id:  "editbutton" %>
+                   </span>
+                <% end %>
+            </div>
+         <% end %>
+         <%  if(signed_in? and (@trip.createdBy_id != current_user.id)) or (is_guest? and (@trip.id != @current_guest.currenttrip_id))%>
+            <div class="leftbuttons">
+                <%= form_for @trip, remote: true do |f| %>
+                   <span title="Make a personal copy I can edit">
+                       <%= submit_tag "Make my own copy", :type => :image, :src => '/assets/copy.png', :style => 'margin-bottom:0;border:none'  %>
+                   </span>
+                <% end %>
+            </div>
+         <% end %>
+
+         <div class="sectiontitle">
+            <span id="page_title"><%="(draft) " if !@trip.published %>Trip: <%= link_to @trip.name, @trip, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %></span>
+            <%= link_to "Download GPX", '/trips/'+@trip.id.to_s+'.gpx', class: "submit_link_to", style: "font-weight:normal" %>
+         </div>
+
+      </div>
+         <% if (@trip.lengthmin) and (@trip.lengthmin>0) or (@trip.lengthmax) and (@trip.lengthmax>0) %>
+           <div class="erow" id="trip_length">Length:<% if (@trip.lengthmin) and (@trip.lengthmin>0)  %> from <%=@trip.lengthmin%><% end %><% if (@trip.lengthmax) and (@trip.lengthmax>0)  %> up to <%=@trip.lengthmax %><% end %> days</div>
+         <% end %>
+       <% @url=@trip.to_url %>
+       <%= render '/routes/summary_stats' %>
+       <div id="trip_description"><p>
+            <%=simple_format(@trip.description).html_safe%>
+      </p></div>
+   <% else %>
+
+      <%= form_for @trip, remote: true do |f| %>
+
+         <div class="erow">
+            <%= render 'shared/error_messages' %>
+            <div class="leftbuttons">
+               <span title="Save trip" id="save_button">
+                  <%= f.submit "Save", :type => :image, :src => '/assets/save.png', :style => 'margin-bottom:0;border:none',onclick: "linkHandler('savebutton')", id:  "savebutton" %>
+               </span>
+            </div>
+            <div class="leftbuttons">
+               <span title="Cancel edit" id="cancel_button">
+                  <%= link_to image_tag("/assets/red-x.png", :border=>0, :class => 'dock-item'), '/trips/'+@trip.id.to_s, remote: true, onclick: "linkHandler('cancelbutton')", id:  "cancelbutton"  %>
+               </span>
+            </div>
+
+            <div class="rightbuttons">
+               <span title="Delete trip" id="delete_button">
+                  <%= submit_tag "Delete",  :type => :image, :src => '/assets/trash.png', :style => 'margin-bottom:0;border:none'  %>
+               </span>
+            </div>
+         </div>
+         <div class="erow">
+           <div id="thelptitle" class="helptext" style="display:none">
+              A trip is a collection of routes that make up an end-to-end journey. <br>
+              <br>
+              Enter a title which describes the trip.
+           </div>
+         </div>
+
+         <div class="erow">
+            <%=render :partial => 'help_buttons',  :locals => {:expName => "thelptitle", :initialSt => 0} %>
+
+            <div class="rowtitlesmall">
+               Trip:
+            </div>
+            <div class="rowtext">
+               <%= f.text_field :name %>
+            </div>
+         </div>
+         <div class="erow">
+           <div id="thelpdays" class="helptext" style="display:none">
+              Enter the minumum and maximum likely duration of the trip described in days
+           </div>
+         </div>
+         <div class="erow">
+            <%=render :partial => 'help_buttons',  :locals => {:expName => "thelpdays", :initialSt => 0} %>
+            <div class="rowtitlesmall">
+               Length (days):
+            </div>
+            <div class="rowtext">
+               <%= f.text_field :lengthmin, :style => "width:20%" %> to <%= f.text_field :lengthmax, :style => "width:20%" %>
+            </div>
+         </div>
+         <% if (@trip.distance) %>
+            <div class="erow">
+              <div id="thelpdistance" class="helptext" style="display:none">
+                 Distance is calculated from the total lengths of all routes you add to the trip.  
+                 You cannot specify it manually here.
+              </div>
+            </div>
+            <div class="erow">
+               <%=render :partial => 'help_buttons',  :locals => {:expName => "thelpdistance", :initialSt => 0} %>
+               <div class="rowtitlesmall">Distance:</div><div class="rowtext" id="trip_distance"> <%= number_with_precision(@trip.distance, :precision => 2) %> km</div>
+            </div>
+         <% end %>
+         <% if @trip.walkingtime %>
+            <div class="erow">
+              <div id="thelptime" class="helptext" style="display:none">
+                 Time is the total walking time and is calculated from the total lengths of all routes you add to the trip.  
+                 You cannot specify it manually here.
+              </div>
+            </div>
+             <div class="erow">
+               <%=render :partial => 'help_buttons',  :locals => {:expName => "thelptime", :initialSt => 0} %>
+                 <div class="rowtitlesmall">Walking time:</div><div class="rowtext" id="trip_time"> <%= @trip.walkingtime %> DOC hours </div>
+             </div>
+         <% end %>
+         <% if signed_in? %>
+           <div class="erow">
+             <div id="thelppublished" class="helptext" style="display:none">
+                Tick the 'published' checkbox to make your trip visible for all users to view
+             </div>
+           </div>
+           <div class="erow">
+              <%=render :partial => 'help_buttons',  :locals => {:expName => "thelppublished", :initialSt => 0} %>
+              <div class="rowtitlesmall">
+                 Published:
+              </div>
+              <div class="rowtext">
+                 <%= f.check_box :published %>
+              </div>
+           </div>
+         <% end %>
+         <div class="erow">
+            <br/>
+            <%=render :partial => 'help_buttons',  :locals => {:expName => "thelpdescription", :initialSt => 0} %>
+
+            <div class="sectiontitle25">
+                Description:
+            </div>
+         </div>
+         <div class="erow">
+           <div id="thelpdescription" class="helptext" style="display:none">
+              Enter an <b>overview</b> of the trip.  This can contain information such as the 
+              type of experience the trip provides, the highlights, the best season / weather,
+              possible transport arrangements, etc.  <br>
+              <br>
+              This is <b>not</b> the place to enter the route guide (the details of how to get from
+              A to B). A trip is a collection of routes ('route segments') and the details of 
+              the places and how to get from one to another should be cointained in those routes. See
+              the guides on the 'About' page if you require information on how inbformation is 
+              structured or entered on this site.
+           </div>
+         </div>
+         <p>
+            <%= f.text_area :description, :rows => "8" %>
+         </p>
+      <% end %>
+   <% end %>
+
+<%= form_tag '/trips/move', :remote=> true, :id => "moveForm", :name=> 'moveForm', :method=> 'post'%>
+     <input type="hidden" name="cutFrom"  /> 
+     <input type="hidden" name="pasteAfter" /> 
+     <input type="hidden" name="id", value=<%=@trip.id.to_s%>>
+     <% if @edit %>
+     <div class="erow">
+         <i><small>Note: cutting/pasting, deleting or reversing the items below has immediate effect and cannot be cancelled</small></i>
+     </div>
+     <% end %>
+
+      <% @trip.trip_details.order(:order).each do |td| %>
+         <div class="hrline">
+            <hr noshade size="4">
+         </div>
+         <div class="erow">
+            <% if @edit %>
+               <span title="Cut following section and ...">
+                  <div class="cutbutton" id="cutItem<%=td.id.to_s%>"> <%= submit_tag "cut"+td.id.to_s, :id => "cutItem", :type => :image, :src => '/assets/cut.png', :style => 'margin-bottom:0;border:none', :onclick => "cutItem("+td.id.to_s+"); return false;" %> 
+               </span>
+               <% if td.route_id and td.route_id.abs>0 %> 
+                 <span title="Reverse direction of this route" >
+                   <%= submit_tag "reverse"+td.id.to_s, :id => "reverseItem", :type => :image, :src => '/assets/switch24.png', :style => 'margin-bottom:0;border:none', :onclick => "linkHandler('reverseItem')" %> 
+                 </span>
+               <% end %>
+               </div>
+               <span title="... paste cut section here">
+                  <div class="pastebutton"  id='pasteItem<%=td.id.to_s%>'style="display:none"> <%= submit_tag "paste"+td.id.to_s, :id => "pasteItem", :type => :image, :src => '/assets/big-insert.png', :style => 'margin-bottom:0;border:none' %> </div>
+               </span>
+               <span title="...delete cut section">
+                  <div class="deletebutton" id='deleteItem<%=td.id.to_s%>' style="display:none"> <%= submit_tag  "delete",  :type => :image, :src => '/assets/trash.png', :style => 'margin-bottom:0;border:none' %> </div>
+               </span>
+
+
+            <% end %>
+         </div>
+         <% 
+            #convert show boolean to int
+#            @showForward=if(td.showForward) then 1 else 0 end
+             @showForward=1
+#            @showReverse=if(td.showReverse) then 1 else 0 end
+            @showConditions=if(td.showConditions) then 1 else 0 end
+            @showLinks=if(td.showLinks) then 1 else 0 end 
+         %>
+         <% if td.place  %>
+            <%
+               @place=td.place 
+               
+               wgs84_proj4 = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
+               nztm_proj4 = '+proj=tmerc +lat_0=0 +lon_0=173 +k=0.9996 +x_0=1600000 +y_0=10000000 +ellps=GRS80 +towg'
+               wgs=RGeo::CoordSys::Proj4.new(wgs84_proj4)
+               nztm=RGeo::CoordSys::Proj4.new(nztm_proj4)
+   
+               xyarr=RGeo::CoordSys::Proj4::transform_coords(wgs,nztm,@place.location.x, @place.location.y)
+         
+               #convery location to readable format
+               @x=xyarr[0]
+               @y=xyarr[1]      
+            %>
+            <%= render 'places/place_details' %> 
+        <% end %>
+        <% if td.route_id %>
+          <% if td.route_id !=0 %>
+            <% @route=Route.find_by_signed_id(td.route_id) %>
+            <% if @route  %>
+              <% flatloc=Route.find_by_sql [ "select ST_AsText(ST_AsEWKT(ST_Force2D(location))) as location from routes where id="+@route.id.abs().to_s ] %>
+              <% if flatloc and flatloc.length>0 then %>
+                <% @rtloc=flatloc[0].location %>
+              <% else %>
+                <% @rtloc=nil %>
+              <% end %>
+              <%= render 'routes/route_details' %> 
+            <% end %>
+          <% end %>
+        <% end %>
+      <% end %>
+      <div class="hrline">
+         <hr noshade size="4">
+      </div>
+      <span title="... paste cut section here">
+         <div class="pastebutton" style="display:none"> <%= submit_tag "paste", :id => "pasteItem", :type => :image, :src => '/assets/big-insert.png', :style => 'margin-bottom:0;border:none' %> </div>
+      </span>
+   </form>
+
+<% if !@edit %>
+  <div id="links_section">
+    <% if @editlinks and !@edit and signed_in?%>
+      <div class="erow">
+        <div class="leftbuttons">
+           <span title="Close editing">
+             <%=  link_to image_tag("/assets/red-x.png", :border=>0, :class => 'dock-item'), '/trips/'+@trip.id.to_s, remote: true, onclick: "linkHandler('cnclbutton')", id:  "cnclbutton"  %>
+           </span>
+        </div>
+        <div class="sectiontitle-bold">
+          Edit Links:
+        </div>
+      </div>
+      <div id="editlinks">
+          <%=render :partial => 'links_form',  :locals => {:parent => @trip, :parent_type=>'trip'} %>
+      </div>
+    <% else %>
+      <div class="erow">
+        <% if signed_in? %>
+          <div class="leftbuttons">
+            <span title="Edit links" id="edit_links">
+              <%=  link_to image_tag("/assets/pencil_edit.png", :border=>0, :class => 'dock-item'), '/trips/'+@trip.id.to_s+'/?editlinks=true', remote: true, onclick: "linkHandler('editbutton')", id:  "editbutton"  %>
+            </span>
+            </div>
+        <% end %>
+        <div class="sectiontitle-bold" id="links_title">
+          Links:
+        </div>
+      </div>
+      <%=render :partial => 'links_photos',  :locals => {:parent => @trip} %>
+      <div class="erow"><div class="hrline"> <hr noshade size="2"> </div></div>
+      <%=render :partial => 'links_details',  :locals => {:parent => @trip} %>
+    <% end %>
+    <div class="erow">
+      <div class="hrline">
+        <hr noshade size="4">
+      </div>
+    </div>
+  </div>
+ 
+  <div id="comments_section">
+     <%=render :partial => 'comments/comments_brief',  :locals => {:itemType => "trip", :itemId => @trip.id} %>  
+  </div>
+
+<% end %>
+
+<% end %>

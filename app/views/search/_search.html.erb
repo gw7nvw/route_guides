@@ -6,58 +6,68 @@
      <% provide(:title, 'Search') %> 
      <% @title=" | Search" %>
   <% end %>
-  <div class='erow'>
-    <div class='sectiontitle'>
-  Select a start and end place from the map and search for through routes between them:
-    </div>
-  </div>
 <% end %>
-<%= render 'flash' %>
 
 <script>
    update_title('<%=@title%>'); 
    document.getElementById("page_status").innerHTML = '';
-   reset_map_controllers();
+   reset_map_controllers(<%=if @current_user then @current_user.id.to_s end%>);
 </script>
+<% if !@static_page %>
+<div id="actionbar" class="span7">
+   <div id="crumbs"></div>
+   <div id="controls">
+       <%= render :partial => 'mytrip_button'%>
+   </div>
+</div>
+<% end %>
 
-
+<div id='place_container'>
+  <% if !@static_page %>
+    <span id="flash"><%= render 'flash' %></span>
+    <div class='erow'>
+      <div class='sectiontitle'>
+  Select a start and end place from the map and search for through routes between them:
+      </div>
+    </div>
+  <% end %>
     <%= form_tag '/search', :name => 'routeform', :remote => true, :method => 'post', :style => 'margin-bottom: 0px' %>
 
       <div class="erow">
         <div class="leftbuttons">
               <span title="Select start place from map">
-                 <img id="startplaceplus" src="/assets/select-point.png" onclick="route_selectStartPlace()" width="16" style="display:block">
+                 <img id="startplaceplus" src="/assets/select-point.png" onclick="site_selectPlace('route_startplace_id', 'route_startplace_name', 'route_startplace_location', 'startplacetick', 'startplaceplus', site_green_star)" width="16" style="display:block">
               </span>
               <span title="Confirm selection">
-                 <img id="startplacetick" src="/assets/tick.png" onclick="route_selectNothing()" width="16" style="display:none">
+                 <img id="startplacetick" src="/assets/tick.png" onclick="site_selectNothing('startplacetick', 'startplaceplus')" width="16" style="display:none">
               </span>
         </div>
         <div class="rowtitleshort">From:</div>
         <div class="rowtextshort">     
-          <input type="text" name="route_startplace_name" value='<%=@startplacename%>' disabled="disabled"/>
+          <input type="text" id="route_startplace_name" name="route_startplace_name" value='<%=@startplacename%>' disabled="disabled"/>
         </div>
       </div>
-      <input type="hidden" name="route_startplace_id" value='<%=@startplace%>'/>
-      <input type="hidden" name="route_startplace_location"/>
+      <input type="hidden" id="route_startplace_id" name="route_startplace_id" value='<%=@startplace%>'/>
+      <input type="hidden" id="route_startplace_location" name="route_startplace_location"/>
       <div class="erow">
         <div class="leftbuttons">
               <span title="Select end place from map">
-                 <img id="endplaceplus" src="/assets/select-point.png" onclick="route_selectEndPlace()" width="16" style="display:block">
+                 <img id="endplaceplus" src="/assets/select-point.png" onclick="site_selectPlace('route_endplace_id', 'route_endplace_name', 'route_endplace_location', 'endplacetick', 'endplaceplus',site_red_star)" width="16" style="display:block">
               </span>
               <span title="Confirm selection">
-                 <img id="endplacetick" src="/assets/tick.png" onclick="route_selectNothing()" width="16" style="display:none">
+                 <img id="endplacetick" src="/assets/tick.png" onclick="site_selectNothing('endplacetick', 'endplaceplus')" width="16" style="display:none">
               </span>
         </div>    
         <div class="rowtitleshort">To:</div>    
         <div class="rowtextshort">   
-          <input type="text" name="route_endplace_name" value='<%=@endplacename%>' disabled="disabled"/>
+          <input type="text" id="route_endplace_name" name="route_endplace_name" value='<%=@endplacename%>' disabled="disabled"/>
         </div>
         <div class="buttonshort">
           <%= submit_tag "Search", :id => "find", :onclick => "linkHandler('find')" %>
         </div>
       </div>
-      <input type="hidden" name="route_endplace_id" value='<%=@endplace%>'/>
-      <input type="hidden" name="route_endplace_location"/>
+      <input type="hidden" id="route_endplace_id" name="route_endplace_id" value='<%=@endplace%>'/>
+      <input type="hidden" id="route_endplace_location" name="route_endplace_location"/>
       <input type="hidden" name="route_location"/>
        <div id="locationplus"></div>
        <div id="locationtick"></div>
@@ -86,6 +96,17 @@
 </div>
 <% if @searchNow %>
 <script>
-  route_selectStartPlace()
+  site_selectPlace('route_startplace_id', 'route_startplace_name', 'route_startplace_location', 'startplacetick', 'startplaceplus', site_green_star)  
 </script>
 <% end %>
+</div>
+<% if !@static_page %>
+  <script>
+    if(site_map_size!=1) { 
+       $('#actionbar').removeClass('span7');
+       var cl=document.getElementById('right_panel').className;
+       $('#actionbar').addClass(cl);
+    }
+  </script>
+<% end %>
+~           

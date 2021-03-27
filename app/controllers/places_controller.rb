@@ -40,12 +40,20 @@ end
 def index
 
     @order=params[:order]
-
-    if params[:order]=='latest' then
-      @places=Place.all.order('updated_at desc').paginate(:per_page => 80, :page => params[:page])
-    else
-      @places = Place.all.order('name').paginate(:per_page => 80, :page => params[:page])
+    @searchtext=params[:searchtext]
+    whereclause="true"
+    if params[:searchtext] then
+       whereclause=whereclause+" and lower(name) like '%%"+@searchtext.downcase+"%%'"
     end
+
+    @places=Place.where(whereclause)
+    if params[:order]=='latest' then
+      @places=@places.order('updated_at desc')
+    else
+      @places=@places.order('name')
+    end
+    @count=@places.count
+    @places=@places.paginate(:per_page => 40, :page => params[:page])
 
 end
 

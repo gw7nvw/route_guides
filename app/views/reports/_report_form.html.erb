@@ -13,10 +13,10 @@ function startEdit() {
      <%= form_for  @report, :remote=> true, :html => {:name => 'reportform'}  do |f| %>
       <%= render 'shared/error_messages' %>
 
-      <%= f.label :name %>
+      <div class="sectiontitle"><span class="mandatory">*</span>Name:</div>
       <%= f.text_field :name, :disabled=>!@edit %>
 
-      <%= f.label :description %>
+      <div class="sectiontitle"><span class="mandatory">*</span>Description:</div>
       <div class="erow">
       <div id="editPanel"></div>
       <span id="descrSpan">

@@ -3,7 +3,7 @@
 <%= render 'flash' %>
 <script>
    update_title('<%=@title%>');
-   reset_map_controllers();
+   reset_map_controllers(<%=if @current_user then @current_user.id.to_s end%>);
    document.getElementById("page_status").innerHTML = '';
 
 $(function () {
@@ -47,7 +47,7 @@ $(function () {
                     <input type="hidden" name="selected_id" value='<%=comment.id%>' />
                     <input type="hidden" name="referring_page" value='index' />
                     <span title="Delete comment">
-                      <%= submit_tag "Destroy",  :type => :image, :src => '/assets/red-x.png', :style => 'margin-bottom:0;border:none',  id: "Approve", onclick: "linkHandler('approve')", confirm: "Do you really ant to delete this comment?"  %>
+                      <%= submit_tag "Destroy",  :type => :image, :src => '/assets/red-x.png', :style => 'margin-bottom:0;border:none',  id: "Approve", onclick: "linkHandler('approve')", confirm: "Do you really want to delete this comment?"  %>
                      </span>
                   </form>
                 </div> 

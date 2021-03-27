@@ -111,4 +111,14 @@ def linked(type)
 
 end
 
+def self.prune
+  ts=Trip.find_by_sql [ 'select * from trips where "createdBy_id" is null and "updated_at" < '+"'"+(Time.now()-1.month).to_s+"'"]
+  count=0
+  ts.each do |t|
+     count=count+1
+     t.destroy_tree
+  end
+  puts Time.now()
+  puts "Deleted "+count.to_s+" old guest trips"
+end
 end

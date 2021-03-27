@@ -12,7 +12,7 @@
            <%=render :partial => 'help_buttons',  :locals => {:expName => "rhelpstart", :initialSt => 0} %>
            <div class="leftbuttons">
               <span title="Click to select an existing place from the map">
-                 <img id="startplaceplus" src="/assets/select-point.png" onclick="site_selectPlace('route_startplace_id', 'route_startplace_name','startplacetick', 'startplaceplus')" width="16" style="display:block">
+                 <img id="startplaceplus" src="/assets/select-point.png" onclick="site_selectPlace('route_startplace_id', 'route_startplace_name','route_startplace_location', 'startplacetick', 'startplaceplus')" width="16" style="display:block">
               </span>
               <span title="Click to confirm selection">
                  <div class="pastebutton"  id='startplacetick' style="display:none"> <%= submit_tag "select", :id => "selectButton", :type => :image, :src => '/assets/tick.png', :style => 'margin-bottom:0;border:none', :onclick=> "linkHandler('selectButton')"%> </div>

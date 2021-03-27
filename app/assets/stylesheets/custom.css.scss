@@ -18,7 +18,7 @@ $grayMediumLight: #eaeaea;
 
 @media print
 {    
-    .no-print, .no-print *
+    .no-print, .no-print *, .link_to, .submit_link_to, .btn
     {
         display: none !important;
     }
@@ -50,6 +50,9 @@ textarea {
   font-size: 0.9em;
   max-width: 100%;
   width: auto;
+}
+.btn {
+  font-weight: normal;
 }
 .center {
   text-align: center;
@@ -132,7 +135,7 @@ p {
 }
 
 #our_logo {
-  width: calc(100% - 580px);
+  width: calc(100% - 620px);
   height: 24px;
   overflow: hidden;
   float: left;
@@ -171,9 +174,49 @@ p {
   margin-left:2%;
   margin-right:2%;
 }
+
+#place_container {
+  margin-top: 32px;
+}
+
 .ol-overlay-container {
      background-color: #ffffff;
      width: 50%;
+}
+
+#actionbar
+{
+     background-color: #4B0082;
+     min-height: 32px;
+     position: fixed;
+     margin-left: 0px;
+     padding-left: 8px;
+     padding-right: 6px;
+}
+#actionbar-form
+{
+     background-color: #4B0082;
+     height: 32px;
+     position: fixed;
+     margin-left: 0px;
+     padding-left: 8px;
+     padding-right: 6px;
+     margin-top: -32px;
+     margin-left: -6px;
+}
+
+#crumbs
+{
+     color: white;
+     float: left;
+     margin-top: 4px;
+     font-weight: bold;
+}
+
+#controls
+{
+     float: right;
+     margin-top: 2px;
 }
 
 #tooltip{
@@ -358,9 +401,9 @@ html, body {
 }
 
 .subrow {
-        width: calc(100% - 25px);
-        float: left;
-        padding-left: 25px;
+//        width: calc(100% - 25px);
+//        float: left;
+//        padding-left: 25px;
 
 }
 
@@ -392,8 +435,8 @@ html, body {
 }
 .sectiontext {
         float: left;
-        width: calc(100% - 25px);
-        padding-left: 25px;
+//       width: calc(100% - 25px);
+//       padding-left: 25px;
         font-size: 1.0em;
         line-height: 1.3em;
 }
@@ -485,18 +528,18 @@ html, body {
 .sectiontitle {
         margin-top: 1px;
         float: left;
-        font-size: 1.2em;
+        font-size: 1.0em;
         letter-spacing: -1px;
         font-weight: bold;
-        color: $grayLight;
+#        color: $grayLight;
 }
 .sectiontitle25 {
         margin-top: 1px;
         float: left;
-        font-size: 1.2em;
+        font-size: 1.0em;
         letter-spacing: -1px;
         font-weight: bold;
-        color: $grayLight;
+#        color: $grayLight;
         padding-left: 25px;
 }
 
@@ -504,10 +547,10 @@ html, body {
 .sectiontitle50 {
         margin-top: 1px;
         float: left;
-        font-size: 1.2em;
+        font-size: 1.0em;
         letter-spacing: -1px;
         font-weight: bold;
-        color: $grayLight;
+#        color: $grayLight;
         padding-left: 50px;
 }
 
@@ -520,6 +563,73 @@ html, body {
         color: $grayLight;
 }
 
+.intext_link {
+   border-bottom: 1px dotted; 
+   color: inherit !important;
+}
+
+.mandatory {
+   margin-left: 4px;
+   margin-right: 4px;
+   color: #880000
+}
+
+#gpxfile {
+  border: none;
+}
+
+.file_intext {
+   background-color: transparent;
+   border: none;
+   border:0;
+   padding:0;
+   margin:0;
+   font-family:inherit;
+   letter-spacing: -1px;
+   line-height: 12px !important;
+   margin-left: 6px;
+   font-size: 0.8em !important;
+   font-weight: normal !important;
+   font-style: italic;
+
+}
+.submit_link_to {
+   background-color: transparent;
+   border: none;
+   cursor: pointer;
+   letter-spacing: -1px;
+   border:0;
+   padding:0;
+   margin:0;
+   font-family:inherit;
+   line-height: 12px !important;
+   margin-left: 6px;
+   margin-right: 3px;
+   margin-bottom: 1px;
+   font-size: 12px !important;
+   font-weight: normal !important;
+   color: #440000;
+   border-bottom: 1px dotted; 
+   font-style: italic;
+}
+.submit_link_to::-moz-focus-inner
+{
+    border:0;
+    padding:0;
+}
+.submit_link_to:focus {
+  outline: none;
+}
+
+.link_to {
+   margin-left: 6px;
+   font-size: 12px !important;
+   font-weight: normal !important;
+   color: #440000;
+   border-bottom: 1px dotted; 
+   font-style: italic;
+}
+ 
 #links_section > .erow > #route_details > .erow > .sectiontitle25 {
         font-weight: normal;
 }
@@ -581,11 +691,13 @@ img.photo {
 {
 	float: right;
         margin-top: 12px;
-//	margin-left: 45%;
-//        padding-left: 5px;
-//        padding-top: 28px;
-//	width: calc(55% - 10px);
 	height: auto;    
+}
+
+#right_scroll
+{
+     margin-top: 32px;
+     padding-bottom: 64px;
 }
 
 .half_column
@@ -834,6 +946,10 @@ h2 {
   font-size: 1.0em;
 }
 input {
+  font-size: 0.9em !important;
+  line-height: 1.1em !important;
+}
+.btn {
   font-size: 0.9em !important;
   line-height: 1.1em !important;
 }

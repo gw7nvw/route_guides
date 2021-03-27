@@ -8,7 +8,7 @@
    document.getElementById("page_status").innerHTML = '';
    // clear any existing map features and reset hover if map exists
    if(typeof(vectorLayer)!='undefined') {
-    reset_map_controllers();
+    reset_map_controllers(<%=if @current_user then @current_user.id.to_s end%>);
    }
 
 </script>

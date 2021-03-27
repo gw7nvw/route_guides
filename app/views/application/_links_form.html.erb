@@ -22,7 +22,7 @@
           <% when 'URL' %>
             <%= link_to rl.item_url, rl.item_url, :target=>"_blank" %>
           <% else %>
-            <%= link_to rl.child.name, rl.child, remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')" %>
+            <%= link_to (if rl.child then rl.child.name else 'broken' end) , (if rl.child then rl.child else '#' end),  remote:true,  remote: true, :id => 'home_link', :onclick => "linkHandler('home_link')"  %>
           <% end %>
           <div class="rightbuttons"> <span title="Delete link"> <%= submit_tag  "delete"+rl.id.to_s,  :type => :image, :src => '/assets/trash.png', :style => 'margin-bottom:0;border:none;width:16px;',:onclick => "linkHandler('deletelink')", :id => "deletelink" %> </span> </div>
 
