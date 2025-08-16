@@ -12,6 +12,14 @@ def firstexperienced_at
    self.experienced_at
 end
 
+def merged_from
+  nil
+end
+
+def merged_into
+  nil
+end
+
 def readable_name
    str=""
    if self.updated_at then str+=self.updated_at.localtime().strftime("%F %T")+" " end

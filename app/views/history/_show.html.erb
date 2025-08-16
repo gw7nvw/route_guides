@@ -33,6 +33,13 @@
            <% end %>
 <% end %>
            <%=  link_to "History", '/history/'+@itemType+"-"+@item.id.to_s, class: "btn btn-small btn-primary",  remote: true, onclick: "linkHandler('histbutton')", id:  "histbutton"  %>
+<% if signed_in? %>
+           <%=  link_to "Merge into", '#', class: "btn btn-small btn-primary",  onclick: %q{document.getElementById('merge_div').style.display="block";return false;}, id:  "histbutton"  %>
+           <div class="erow" id="merge_div" style="display:none">
+             Destination route/place ID: <input type="text" name="merge_id"/>
+             <%= f.submit "Merge", class: "btn btn-small btn-primary", name: "current", onclick: "linkHandler('mergeInto')", id: "mergeInto" %>
+           </div> 
+<% end %>
        <% end %>
     </form>
 

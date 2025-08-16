@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20210326222122) do
+ActiveRecord::Schema.define(version: 20220529025704) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -376,6 +376,8 @@ ActiveRecord::Schema.define(version: 20210326222122) do
     t.integer  "altgain"
     t.integer  "minalt"
     t.integer  "maxalt"
+    t.integer  "merged_into_id"
+    t.integer  "merged_from_id"
   end
 
   create_table "routeclasses", force: true do |t|
@@ -413,6 +415,8 @@ ActiveRecord::Schema.define(version: 20210326222122) do
     t.integer  "altgain"
     t.integer  "minalt"
     t.integer  "maxalt"
+    t.integer  "merged_into_id"
+    t.integer  "merged_from_id"
   end
 
   add_index "routes", ["endplace_id"], :name => "index_routes_on_endplace_id"

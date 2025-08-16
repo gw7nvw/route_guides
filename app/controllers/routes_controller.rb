@@ -145,17 +145,27 @@ require "rexml/document"
     coordset=tmploc.split('(')[1].split(',')[0]
     coords=coordset.split(' ')
     dims=coords.length
-  
+    has_z = false
+    has_m = false
+ 
     if tmploc[0..12]=="LINESTRING ZM" then
        tmploc='LINESTRING'+tmploc[13..-1] 
+       has_z = true
+       has_m = true
     end
     if tmploc[0..11]=="LINESTRING Z" then
        tmploc='LINESTRING'+tmploc[12..-1] 
+       has_z = true
+    end
+    if tmploc[0..11]=="LINESTRING M" then
+       tmploc='LINESTRING'+tmploc[12..-1] 
+       has_z = true
     end
   
-    if dims==4 then   factory=RGeo::Geographic.spherical_factory(:srid => 4326, :has_z_coordinate => true, :has_m_coordinate => true) end
-    if dims==3 then   factory=RGeo::Geographic.spherical_factory(:srid => 4326, :has_z_coordinate => true) end
-    if dims==2 then   factory=RGeo::Geographic.spherical_factory(:srid => 4326, :has_z_coordinate => false) end
+#    if dims==4 then   factory=RGeo::Geographic.spherical_factory(:srid => 4326, :has_z_coordinate => true, :has_m_coordinate => true) end
+    factory=RGeo::Geographic.spherical_factory(:srid => 4326, :has_z_coordinate => has_z, :has_m_coordinate => has_m) 
+#    if dims==3 then   factory=RGeo::Geographic.spherical_factory(:srid => 4326, :has_z_coordinate => true) end
+#    if dims==2 then   factory=RGeo::Geographic.spherical_factory(:srid => 4326, :has_z_coordinate => false) end
     @route.location=factory.parse_wkt(tmploc)
     route_add_altitude()
   
@@ -397,6 +407,8 @@ end
 
       # but doesn;t handle location ... so
 
+      @route.merged_from_id=nil
+      @route.merged_into_id=nil
       @route.attributes=route_params
       tmploc=params[:route][:location]
 
@@ -484,7 +496,7 @@ end
           end 
         end
       else
-        flash[:error] = "Trip "+trip.id.to_s+" uses this route, cannot delete"
+        flash[:error] = "Trip "+trip.trip_id.to_s+" uses this route, cannot delete"
         edit()
         render 'edit'
       end
@@ -505,16 +517,19 @@ def route_add_altitude
       @route.location.points.each do |p|
          if linestr.length>11 then linestr+="," end
          #get alt from map if it is blank or 0
-         altArr=Dem30.find_by_sql ["
+         altArr=Dem15.find_by_sql ["
             select ST_Value(rast, ST_GeomFromText(?,4326))  rid
-               from dem30s
+               from dem16
                where ST_Intersects(rast,ST_GeomFromText(?,4326));",
                'POINT('+p.x.to_s+' '+p.y.to_s+')',
                'POINT('+p.x.to_s+' '+p.y.to_s+')']
-  
-         linestr+=p.x.to_s+" "+p.y.to_s+" "+altArr.first.try(:rid).to_s
-         puts "Alt: "+altArr.first.try(:rid).to_s
+ 
+         alt = altArr.first.try(:rid)
+         if !alt then alt = 0 end 
+         linestr+=p.x.to_s+" "+p.y.to_s+" "+alt.to_s
+         puts "Alt: "+alt.to_s
       end
+      @test=linestr+")"
       @route.location=linestr+")"
     end
   end

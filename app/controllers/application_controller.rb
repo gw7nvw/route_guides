@@ -1,6 +1,7 @@
 class ApplicationController < ActionController::Base
 
 before_filter :set_cache_headers
+  before_filter :log_visit
 
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
@@ -11,6 +12,19 @@ before_filter :set_cache_headers
 
   def signed_in_user
       redirect_to signin_url+"?referring_url="+URI.escape(request.fullpath), notice: "Please sign in." unless signed_in?
+  end
+
+  def log_visit
+   if request.env["HTTP_USER_AGENT"].match(/\(.*https?:\/\/.*\)/) then
+      Rails.logger.info "BOT: "+request.remote_ip
+   else
+      Rails.logger.info request.env["HTTP_USER_AGENT"]
+      if signed_in? then
+        Rails.logger.info "USER: "+current_user.name+" - "+request.remote_ip
+      else
+        Rails.logger.info "USER: "+request.remote_ip
+      end
+   end
   end
 
   def touch_user

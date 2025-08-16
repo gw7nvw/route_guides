@@ -1,5 +1,11 @@
 <% if !@itemNumber then @itemNumber=1 else @itemNumber+=1 end %>
 <div id="route_details"+@itemNumber.to_s>    
+   <% if @route.merged_into %>
+     <div class="erow" id="expwarning<%=@itemNumber.to_s%>">
+             <p style='color:red'>Warning: this route segment has been merged into <%=link_to @route.merged_into.name, '/routes/'+@route.merged_into.id.to_s, remote: true, :id => 'merged_link', :onclick => "linkHandler('merged_link')", :class => 'intext_link' %>.</p>
+             <p style='color:red'>You are viewing a historic version of this route.</p>
+     </div>
+   <% end %>
    <% if @route.experienced_at==nil %>
      <div class="erow" id="expwarning<%=@itemNumber.to_s%>">
              <p style='color:red'>Warning: this route segment has not been experienced by the author</p>

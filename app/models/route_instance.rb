@@ -24,6 +24,26 @@ def firstexperienced_at
    self.experienced_at
 end
 
+def parent_id
+   "route-"+self.route_id.to_s
+end
+
+def merged_into
+  r=nil
+  if self.merged_into_id then
+    r=Route.find(self.merged_into_id)
+  end
+  r
+end
+
+def merged_from
+  r=nil
+  if self.merged_from_id then
+    r=Route.find(self.merged_from_id)
+  end
+  r
+end
+
 def revision_number
      t=RouteInstance.find_by_sql ["select count(id) id from route_instances ri 
                  where ri.route_id = ? and ri.updated_at <= ?",self.route_id, self.updated_at]

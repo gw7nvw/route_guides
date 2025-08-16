@@ -39,6 +39,26 @@ def update
     end
   end
 
+  if params[:current]=="Merge"
+    if @itemType=="route"
+      #merge this instance into provided instance
+      r=Route.find(itemId)
+      other_r=Route.find_by_id(params[:merge_id].to_i)
+      if r and other_r then
+        r.updatedBy_id=@current_user.id
+        r.updated_at=Time.new()
+        r.merged_into_id=params[:merge_id].to_i
+        r.published=false
+        r.save
+  
+        other_r.updatedBy_id=@current_user.id
+        other_r.updated_at=Time.new()
+        other_r.merged_from_id=itemId
+        other_r.save
+      end
+    end
+  end
+
   if params[:current]=="Make current" 
     if @itemType=="place"
        # create new instance

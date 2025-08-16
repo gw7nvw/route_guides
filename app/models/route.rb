@@ -41,6 +41,10 @@ class Route < ActiveRecord::Base
 
   set_rgeo_factory_for_column(:location, RGeo::Geographic.spherical_factory(:srid => 4326, :proj4=> '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs', :has_z_coordinate => true))
 
+def history_id
+  'route-'+self.id.to_s
+end
+
 def self.find_latest_by_user(count)
   routes=[]
   contributors=Route.find_by_sql [ 'select "createdBy_id" from routes where published=true group by "createdBy_id" order by max(updated_at) desc limit ?', count ]
@@ -342,6 +346,22 @@ def firstcreated_at
      t.first.try(:id)  || "1900-01-01".to_datetime
 end
 
+def merged_into
+     r=nil
+     if self.merged_into_id then 
+       r=Route.find(self.merged_into_id)
+     end
+     r
+end
+ 
+def merged_from
+     r=nil
+     if self.merged_from_id then 
+       r=Route.find(self.merged_from_id) 
+     end
+     r
+end
+
 def revision_number
      t=Route.find_by_sql ["select count(id) id from route_instances ri 
                  where ri.route_id = ? and ri.updated_at <= ?",self.id.abs, self.updated_at]
@@ -456,7 +476,7 @@ end
 
 def regenerate_route_index
   starttime=Time.now()
-  maxLegCount=14 #15
+  maxLegCount=12 #15
   newcount=0
 
   #delete old entries using this route

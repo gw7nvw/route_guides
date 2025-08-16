@@ -359,7 +359,7 @@ def create
        end
       else
   
-        flash[:error] = "Trip "+trip.id.to_s+" uses this place, cannot delete"
+        flash[:error] = "Trip "+trip.trip_id.to_s+" uses this place, cannot delete"
         edit()
         render 'edit'
       end
@@ -420,9 +420,9 @@ end
 
        if place_params[:altitude].to_i == 0
          #get alt from map if it is blank or 0
-         altArr=Dem30.find_by_sql ["
+         altArr=Dem15.find_by_sql ["
             select ST_Value(rast, ST_GeomFromText(?,4326))  rid
-               from dem30s
+               from dem16
                where ST_Intersects(rast,ST_GeomFromText(?,4326));",
                'POINT('+params[:location]+')',
                'POINT('+params[:location]+')']

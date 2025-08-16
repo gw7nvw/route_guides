@@ -14,7 +14,7 @@ class Place < ActiveRecord::Base
   validates :y, presence: true
   validates :projection, presence: true 
   before_save :default_values
-  after_save :do_beenthere
+  after_create :do_beenthere
 
 
   # But use a geographic implementation for the :lonlat column.
@@ -22,6 +22,19 @@ class Place < ActiveRecord::Base
 
 def isDest
     (self.placeType.isDest  or self.adjoiningRoutes.count<2)
+end
+
+#will be populated with merged place_id when merging is supported for places
+def history_id
+  'place-'+self.id.to_s
+end
+
+def merged_from
+  nil
+end
+
+def merged_into
+  nil
 end
 
 def placeType
@@ -561,7 +574,6 @@ end
 
 def add_beenthere(user_id)
     if self.experienced_at!=nil then
-          puts "met conds"
           beenthere = Beenthere.new
           beenthere.place_id = self.id
           beenthere.user_id=self.updatedBy_id

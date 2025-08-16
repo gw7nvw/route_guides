@@ -1,3 +1,4 @@
+LINZ_API_KEY='d01gerrwytrsmhgce8xp5sjrrmb'
 var clickMode;
 var searchMode;
 var site_map_size=1;
@@ -199,9 +200,9 @@ function site_add_my_layers(user_id) {
     map_map.removeLayer(myroutes_simple_layer);
     var filter="<PropertyIsEqualTo><PropertyName>user_id</PropertyName><Literal>"+user_id+"</Literal></PropertyIsEqualTo>"; 
     //var filter='user_id='+user_id
-    myplaces_layer=map_add_vector_layer("My Places", "http://routeguides.co.nz/cgi-bin/mapserv?map=/var/www/html/rg_maps/rg_map.map", "myplaces",site_pink_dot,false,1,32,filter);
-    myroutes_layer=map_add_vector_layer("My Routes", "http://routeguides.co.nz/cgi-bin/mapserv?map=/var/www/html/rg_maps/rg_map.map", "myroutes",site_red_line,false,8,32,filter);
-    myroutes_simple_layer=map_add_vector_layer("My Routes Simple", "http://routeguides.co.nz/cgi-bin/mapserv?map=/var/www/html/rg_maps/rg_map.map", "myroutes-simple",site_red_line,false,1,8,filter);
+    myplaces_layer=map_add_vector_layer("My Places", "https://routeguides.co.nz/cgi-bin/mapserv?map=/var/www/html/rg_maps/rg_map.map", "myplaces",site_pink_dot,false,1,32,filter);
+    myroutes_layer=map_add_vector_layer("My Routes", "https://routeguides.co.nz/cgi-bin/mapserv?map=/var/www/html/rg_maps/rg_map.map", "myroutes",site_red_line,false,8,32,filter);
+    myroutes_simple_layer=map_add_vector_layer("My Routes Simple", "https://routeguides.co.nz/cgi-bin/mapserv?map=/var/www/html/rg_maps/rg_map.map", "myroutes-simple",site_red_line,false,1,8,filter);
     map_map.addLayer(myplaces_layer);
     map_map.addLayer(myroutes_layer);
     map_map.addLayer(myroutes_simple_layer);
@@ -215,12 +216,12 @@ function site_docland_style_function(feature, resoluton) {
 }
 
 function site_add_vector_layers() {
-  places_layer=map_add_vector_layer("Places", "http://routeguides.co.nz/cgi-bin/mapserv?map=/var/www/html/rg_maps/rg_map.map", "places",site_point_style_function,true,8,32);
-  routes_layer=map_add_vector_layer("Routes", "http://routeguides.co.nz/cgi-bin/mapserv?map=/var/www/html/rg_maps/rg_map.map", "routes",site_route_style_function,true,8,32);
-  routes_simple_layer=map_add_vector_layer("Routes Simple", "http://routeguides.co.nz/cgi-bin/mapserv?map=/var/www/html/rg_maps/rg_map.map", "routes-simple",site_route_style_function,true,1,8);
-  parks_layer=map_add_vector_layer("Parks", "http://routeguides.co.nz/cgi-bin/mapserv?map=/var/www/html/rg_maps/rg_map.map", "parks",site_docland_style_function,false,11,32);
-  parks_simple_layer=map_add_vector_layer("Parks Simple", "http://routeguides.co.nz/cgi-bin/mapserv?map=/var/www/html/rg_maps/rg_map.map", "parks_simple",site_docland_style_function,false,8,11);
-  parks_very_simple_layer=map_add_vector_layer("Parks Very Simple", "http://routeguides.co.nz/cgi-bin/mapserv?map=/var/www/html/rg_maps/rg_map.map", "parks_very_simple",site_docland_style_function,false,1,8);
+  places_layer=map_add_vector_layer("Places", "https://routeguides.co.nz/cgi-bin/mapserv?map=/var/www/html/rg_maps/rg_map.map", "places",site_point_style_function,true,8,32);
+  routes_layer=map_add_vector_layer("Routes", "https://routeguides.co.nz/cgi-bin/mapserv?map=/var/www/html/rg_maps/rg_map.map", "routes",site_route_style_function,true,8,32);
+  routes_simple_layer=map_add_vector_layer("Routes Simple", "https://routeguides.co.nz/cgi-bin/mapserv?map=/var/www/html/rg_maps/rg_map.map", "routes-simple",site_route_style_function,true,1,8);
+  parks_layer=map_add_vector_layer("Parks", "https://routeguides.co.nz/cgi-bin/mapserv?map=/var/www/html/rg_maps/rg_map.map", "parks",site_docland_style_function,false,11,32);
+  parks_simple_layer=map_add_vector_layer("Parks Simple", "https://routeguides.co.nz/cgi-bin/mapserv?map=/var/www/html/rg_maps/rg_map.map", "parks_simple",site_docland_style_function,false,8,11);
+  parks_very_simple_layer=map_add_vector_layer("Parks Very Simple", "https://routeguides.co.nz/cgi-bin/mapserv?map=/var/www/html/rg_maps/rg_map.map", "parks_very_simple",site_docland_style_function,false,1,8);
   map_map.addLayer(places_layer);
   map_map.addLayer(routes_layer);
   map_map.addLayer(routes_simple_layer);
@@ -272,22 +273,24 @@ function site_mapKey() {
 
 
 function site_add_layers() {
-	map_add_raster_layer('NZTM Topo 2019', 'http://au.mapspast.org.nz/topo50-2019/{z}/{x}/{-y}.png', 'mapspast', 4891.969809375, 11);
-	map_add_raster_layer('NZTM Topo 2009', 'http://au.mapspast.org.nz/topo50/{z}/{x}/{-y}.png', 'mapspast', 4891.969809375, 11);
-	map_add_raster_layer('NZMS260 1999', 'http://au.mapspast.org.nz/nzms260-1999/{z}/{x}/{-y}.png', 'mapspast', 4891.969809375, 11);
-	map_add_raster_layer('NZMS1/260 1989','http://au.mapspast.org.nz/nzms-1989/{z}/{x}/{-y}.png','mapspast', 4891.969809375, 11);
-	map_add_raster_layer('NZMS1 1979', 'http://au.mapspast.org.nz/nzms-1979/{z}/{x}/{-y}.png','mapspast', 4891.969809375, 11);
-        map_add_raster_layer('NZMS1 1969','http://au.mapspast.org.nz/nzms-1969/{z}/{x}/{-y}.png','mapspast', 4891.969809375, 11);
-        map_add_raster_layer('NZMS1 1959','http://au.mapspast.org.nz/nzms-1959/{z}/{x}/{-y}.png','mapspast',4891.969809375, 11);
-        map_add_raster_layer('NZMS15 1949','http://au.mapspast.org.nz/nzms15-1949/{z}/{x}/{-y}.png','mapspast',4891.969809375, 11);
-        map_add_raster_layer('NZMS13 1939','http://au.mapspast.org.nz/nzms13-1939/{z}/{x}/{-y}.png','mapspast',4891.969809375, 11); 
-        map_add_raster_layer('NZMS13 1929','http://au.mapspast.org.nz/nzms13-1929/{z}/{x}/{-y}.png','mapspast',4891.969809375, 11);
-        map_add_raster_layer('NZMS13 1919','http://au.mapspast.org.nz/nzms13-1919/{z}/{x}/{-y}.png','mapspast',4891.969809375, 11);
-        map_add_raster_layer('NZMS13 1909','http://au.mapspast.org.nz/nzms13-1909/{z}/{x}/{-y}.png','mapspast',4891.969809375, 11);
-        map_add_raster_layer('NZMS13 1899','http://au.mapspast.org.nz/nzms13-1899/{z}/{x}/{-y}.png','mapspast',4891.969809375, 11);
+        map_add_raster_layer('NZTM Topo 2019', 'https://object-storage.nz-por-1.catalystcloud.io/v1/AUTH_b1d1ad52024f4f1b909bfea0e41fbff8/mapspast/2193/topo50-2019/{z}/{x}/{-y}.png', 'mapspast', 4891.969809375, 11);
+	//map_add_raster_layer('NZTM Topo 2019', 'http://au.mapspast.org.nz/topo50-2019/{z}/{x}/{-y}.png', 'mapspast', 4891.969809375, 11);
+        map_add_raster_layer('Public Access Land', 'https://object-storage.nz-por-1.catalystcloud.io/v1/AUTH_b1d1ad52024f4f1b909bfea0e41fbff8/mapspast/2193/pal-2193/{z}/{x}/{-y}.png', 'mapspast', 4891.969809375, 11);
+        //map_add_raster_layer('Public Access Land', 'http://au.mapspast.org.nz/pal-2193/{z}/{x}/{-y}.png', 'mapspast', 4891.969809375, 11);
+        map_add_raster_layer('NZTM Topo 2009', 'https://object-storage.nz-por-1.catalystcloud.io/v1/AUTH_b1d1ad52024f4f1b909bfea0e41fbff8/mapspast/2193/topo50-2009/{z}/{x}/{-y}.png', 'mapspast', 4891.969809375, 11);
+	//map_add_raster_layer('NZTM Topo 2009', 'http://au.mapspast.org.nz/topo50/{z}/{x}/{-y}.png', 'mapspast', 4891.969809375, 11);
+        map_add_raster_layer('NZMS260 1999', 'https://object-storage.nz-por-1.catalystcloud.io/v1/AUTH_b1d1ad52024f4f1b909bfea0e41fbff8/mapspast/2193/nzms260-1999/{z}/{x}/{-y}.png', 'mapspast', 4891.969809375, 11);
+	//map_add_raster_layer('NZMS260 1999', 'http://au.mapspast.org.nz/nzms260-1999/{z}/{x}/{-y}.png', 'mapspast', 4891.969809375, 11);
+        map_add_raster_layer('NZMS1/260 1989', 'https://object-storage.nz-por-1.catalystcloud.io/v1/AUTH_b1d1ad52024f4f1b909bfea0e41fbff8/mapspast/2193/nzms-1989/{z}/{x}/{-y}.png', 'mapspast', 4891.969809375, 11);
+	//map_add_raster_layer('NZMS1/260 1989','http://au.mapspast.org.nz/nzms-1989/{z}/{x}/{-y}.png','mapspast', 4891.969809375, 11);
+        map_add_raster_layer('NZMS1 1979', 'https://object-storage.nz-por-1.catalystcloud.io/v1/AUTH_b1d1ad52024f4f1b909bfea0e41fbff8/mapspast/2193/nzms-1979/{z}/{x}/{-y}.png', 'mapspast', 4891.969809375, 11);
+	//map_add_raster_layer('NZMS1 1979', 'http://au.mapspast.org.nz/nzms-1979/{z}/{x}/{-y}.png','mapspast', 4891.969809375, 11);
+        map_add_raster_layer('NZMS1 1969', 'https://object-storage.nz-por-1.catalystcloud.io/v1/AUTH_b1d1ad52024f4f1b909bfea0e41fbff8/mapspast/2193/nzms-1969/{z}/{x}/{-y}.png', 'mapspast', 4891.969809375, 11);
+        //map_add_raster_layer('NZMS1 1969','http://au.mapspast.org.nz/nzms-1969/{z}/{x}/{-y}.png','mapspast', 4891.969809375, 11);
+        map_add_raster_layer('NZMS1 1959', 'https://object-storage.nz-por-1.catalystcloud.io/v1/AUTH_b1d1ad52024f4f1b909bfea0e41fbff8/mapspast/2193/nzms-1959/{z}/{x}/{-y}.png', 'mapspast', 4891.969809375, 11);
+        //map_add_raster_layer('NZMS1 1959','http://au.mapspast.org.nz/nzms-1959/{z}/{x}/{-y}.png','mapspast',4891.969809375, 11);
         map_add_raster_layer('(LINZ) Topo50 latest','http://tiles-a.data-cdn.linz.govt.nz/services;key=d8c83efc690a4de4ab067eadb6ae95e4/tiles/v4/layer=767/EPSG:2193/{z}/{x}/{y}.png','linz',8690, 17);
-        map_add_raster_layer('(LINZ) Airphoto latest','http://tiles-a.data-cdn.linz.govt.nz/services;key=d8c83efc690a4de4ab067eadb6ae95e4/tiles/v4/set=2/EPSG:2193/{z}/{x}/{y}.png','linz',8690, 17);
-}
+        map_add_raster_layer('(LINZ) Airphoto latest','https://basemaps.linz.govt.nz/v1/tiles/aerial/2193/{z}/{x}/{y}.png?api='+LINZ_API_KEY,'linz',8690, 17);}
 
 function site_add_controls() {
     if(!print) {
@@ -391,14 +394,14 @@ function linkHandler(entity_name) {
     $(function() {
      $.rails.ajax = function (options) {
        options.tryCount= (!options.tryCount) ? 0 : options.tryCount;0;
-       options.timeout = 5000*(options.tryCount+1);
+       options.timeout = 10000*(options.tryCount+1);
        options.retryLimit=1;
        options.complete = function(jqXHR, thrownError) {
          /* complete also fires when error ocurred, so only clear if no error has been shown */
          if(thrownError=="timeout") {
            this.tryCount++;
            document.getElementById("page_status").innerHTML = 'Retrying ...';
-           this.timeout=15000*this.tryCount;
+           this.timeout=30000*this.tryCount;
            if(this.tryCount<=this.retryLimit) {
              $.rails.ajax(this);
            } else {
@@ -466,7 +469,7 @@ function site_print_map(filetype) {
   layerid=map_current_layer;
   var maxzoom=15;
   var filename=document.printform.filename.value;
-  window.open('http://au.mapspast.org.nz/printrg.html?print=true&left='+xl+'&right='+xr+'&top='+yt+'&bottom='+yb+'&layerid='+layerid+'&wwidth='+width+'&wheight='+height+'&maxzoom='+maxzoom+'&filetype='+filetype+'&filename='+filename, 'printwindow');
+  window.open('https://au.mapspast.org.nz/printrg.html?print=true&left='+xl+'&right='+xr+'&top='+yt+'&bottom='+yb+'&layerid='+layerid+'&wwidth='+width+'&wheight='+height+'&maxzoom='+maxzoom+'&filetype='+filetype+'&filename='+filename, 'printwindow');
   return false;
 }
 

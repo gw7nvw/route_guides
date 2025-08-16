@@ -82,10 +82,10 @@
           <span class="cutbutton" title="Reverse direction of this route" >
             <%= submit_tag "Reverse", class: "submit_link_to", :id => "reverseItem", :onclick => "reverse('"+td.id.to_s+"')" %> 
           </span>
-          <span class="cutbutton" title="Delete">
-            <%= submit_tag  "Delete",  class: "submit_link_to", :id => "reverseItem", :onclick => "reverse('"+td.id.to_s+"')", data: { confirm: "Detete item from trip: are you sure?" }%> 
-          </span>
         <% end %>
+        <span class="cutbutton" title="Delete">
+          <%= submit_tag  "Delete",  class: "submit_link_to", :id => "reverseItem", :onclick => "reverse('"+td.id.to_s+"')", data: { confirm: "Detete item from trip: are you sure?" }%> 
+        </span>
         </div>
       <% end %>
       <div class="hrline">

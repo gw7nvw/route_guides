@@ -12,11 +12,22 @@
   <ul class="history">
     <% if @item_instances %>
        <% @item_instances.each do |item| %>
+         <% if item.merged_from then %>
+           <li>
+             <%= link_to "--> Merged from "+item.merged_from.name, '/history/'+item.merged_from.history_id, remote: true, :id => 'item_link_'+item.id.to_s, :onclick => "linkHandler('item_link_"+item.id.to_s+"')" %>
+           </li>
+         <% end %>
          <li>
-           <%= link_to "Revision "+item.revision_number.to_s, '/history/'+params[:id]+'-'+item.id.to_s, remote: true, :id => 'item_link_'+item.id.to_s, :onclick => "linkHandler('item_link_"+item.id.to_s+"')" %></li>
+           <%= link_to "Revision "+item.revision_number.to_s, '/history/'+params[:id]+'-'+item.id.to_s, remote: true, :id => 'item_link_'+item.id.to_s, :onclick => "linkHandler('item_link_"+item.id.to_s+"')" %>
+         </li>
                Created by: <%= link_to item.createdBy.name.capitalize, '/users/'+item.createdBy.name, remote: true%> (<%if item.createdBy.hide_name%>Anonymous<%else%><%=item.createdBy.firstName%> <%=item.createdBy.lastName%><%end%>) on <%=item.updated_at.localtime().strftime("%F %T")%>
                <% if item.try("experienced_at") and item.experienced_at.strftime("%F")>"1900-01-01" %>. Experienced <%=item.experienced_at.strftime("%F")%>.<%end%>
          </li>
+         <% if item.merged_into then %>
+           <li>
+             <%= link_to "Merged into --> "+item.merged_into.name, '/history/'+item.merged_into.history_id, remote: true, :id => 'item_link_'+item.id.to_s, :onclick => "linkHandler('item_link_"+item.id.to_s+"')" %>
+           </li>
+         <% end %>
        <% end %>
      <% end %>
   </ul>
