@@ -384,7 +384,7 @@ def split_route(url, place)
     else
       url=url.gsub('xpn','xpe'+place.id.to_s)
       flash[:error]=route.customerrors+'. Update the place (below) and save to try again'
-      puts route.customerrors
+      logger.debug route.customerrors
     end
   else
     flash[:error]="Error: Route does not exist"

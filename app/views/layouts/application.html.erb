@@ -17,7 +17,7 @@ if( /Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent))
       <% if @map_y %> var def_y=<%=@map_y%> <% end %>
     </script>
     <% @init_name = "site_init("+(if @current_user then @current_user.id.to_s else "" end)+")" %>
-    <% puts @init_name %>
+    <% logger.debug @init_name %>
 
     <title><%= full_title(yield(:title)) %></title>
     <% if @description and @description.length>0 %>
@@ -68,6 +68,19 @@ if( /Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent))
  <% end %> 
 
       <%=yield %>
+      <div class="sys-nodes-container" style="display: none !important; visibility: hidden; opacity: 0; width: 0; height: 0;">
+        <%
+          # Generate a couple of random fake tokens and anchor words on every page load
+          trap_words = %w[Support Index Archives Readme Status Settings Legacy Nodes]
+
+          2.times do
+            fake_id = SecureRandom.hex(4)
+            display_text = trap_words.sample
+        %>
+          <a href="<%= challenge_trap_path(id: fake_id) %>" tabindex="-1" aria-hidden="true" rel="nofollow"><%= display_text %></a>
+        <% end %>
+      </div>
+
     </div> 
     <div class="clear"></div> 
   </div>

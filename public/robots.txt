@@ -4,14 +4,19 @@
 # User-agent: *
 # Disallow: /
 User-Agent: *
-Disallow: */edit
-Disallow: */new
-Disallow: *history/*
-Disallow: *addtrip
-Disallow: *addtrip/*
-Disallow: *trips/*/copy
-Disallow: *adj_route/*
-Disallow: *adj_route/*
-Disallow: *.gpx
-Disallow: *routes/*x*
-Disallow: *search/*
+Allow: /$
+Allow: /places
+Allow: /trips
+Allow: /legs
+Allow: /reports
+Disallow: /places/*/*
+Disallow: /trips/*/*
+Disallow: /legs/*/*
+Disallow: /reports/*/*
+Allow: /places/*
+Allow: /trips/*
+Allow: /legs/*
+Allow: /reports/*
+
+Disallow: /
+

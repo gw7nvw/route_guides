@@ -26,6 +26,14 @@ resources :history, only: [:index, :show, :update]
 resources :messages, only: [:index, :show, :update]
 resources :forums, only: [:index, :show, :update, :approve, :destroy]
 resources :password_resets, only: [:new, :create, :edit, :update]
+get  '/challenge',          to: 'challenges#show',   as: :challenge
+get  '/challenge/verify',   to: 'challenges#verify', as: :challenge_verify
+get  '/challenge/node/:id', to: 'challenges#trap',   as: :challenge_trap
+resources :blocks, only: [:index]
+get 'blocks/:id/delete', to: 'blocks#delete'
+get 'blocks/reset', to: 'blocks#reset'
+get 'blocks/:id/human', to: 'blocks#human'
+get 'blocks/:id/robot', to: 'blocks#robot'
 
 #controller :places do
 #    post 'places/:id' => :redisplay

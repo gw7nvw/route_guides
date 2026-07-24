@@ -1,5 +1,6 @@
 class BeenthereController < ApplicationController
 before_action :touch_user
+before_action :signed_in_user
 
 def delete
   user_id=params[:user_id]

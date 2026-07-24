@@ -133,7 +133,7 @@ def update
        end
      end
    else
-     puts "failed"
+     logger.debug "failed"
      @id=@message.forum_id
      @subject=@message.subject
      show_thread()

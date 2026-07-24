@@ -2,7 +2,7 @@ class RoutesController < ApplicationController
 require "rexml/document"
 
 #get altitude from DEM if not set
- before_action :signed_in_user, only: [:edit, :new, :create]
+ before_action :signed_in_user, only: [:edit, :new, :create, :index]
  before_action :touch_user
  
   def leg_index
@@ -31,7 +31,7 @@ require "rexml/document"
   end
 
   def site_index
-    @route_index = RouteIndex.select(:startplace_id, :endplace_id).uniq
+    #@route_index = RouteIndex.select(:startplace_id, :endplace_id).uniq
     @trips=Trip.where(published: true).order(:name)
     @reports = Report.all.order(:name)
     @places = Place.order(:name)
@@ -159,7 +159,7 @@ require "rexml/document"
     end
     if tmploc[0..11]=="LINESTRING M" then
        tmploc='LINESTRING'+tmploc[12..-1] 
-       has_z = true
+       has_m = true
     end
   
 #    if dims==4 then   factory=RGeo::Geographic.spherical_factory(:srid => 4326, :has_z_coordinate => true, :has_m_coordinate => true) end
@@ -257,7 +257,7 @@ def show
             end
 
             xml = route_to_gpx(routearr)
-            puts ":"+@startplace.name+"::"+@endplace.name+":"
+            logger.debug ":"+@startplace.name+"::"+@endplace.name+":"
             response.headers['Content-Disposition'] = 'attachment; filename=' + (@startplace.name+' to '+@endplace.name).gsub(/[\\\/\s\,\(\)]/, '_') + '.gpx'
             render :xml => xml
           end
@@ -527,7 +527,7 @@ def route_add_altitude
          alt = altArr.first.try(:rid)
          if !alt then alt = 0 end 
          linestr+=p.x.to_s+" "+p.y.to_s+" "+alt.to_s
-         puts "Alt: "+alt.to_s
+         logger.debug "Alt: "+alt.to_s
       end
       @test=linestr+")"
       @route.location=linestr+")"

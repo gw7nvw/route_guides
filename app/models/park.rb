@@ -34,7 +34,7 @@ class Park < ActiveRecord::Base
       p.save
       uc=uc+1
     end
-    puts "Created "+cc.to_s+" rows, updated "+uc.to_s+" rows"
+    logger.debug "Created "+cc.to_s+" rows, updated "+uc.to_s+" rows"
     true
   end
 

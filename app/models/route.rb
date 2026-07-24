@@ -373,10 +373,10 @@ def adjoiningRoutes
 #       where published=true and (startplace_id = ? or endplace_id = ? or startplace_id = ? or endplace_id = ?) and id <> ?",self.startplace_id, self.startplace_id, self.endplace_id, self.endplace_id, self.id.abs]
    t1=Time.now
    t=self.startplace.adjoiningRoutes
-   puts "Startplace adjoiningROutes :"+(Time.now-t1).to_s
+   logger.debug "Startplace adjoiningROutes :"+(Time.now-t1).to_s
    t1=Time.now
    t+=self.endplace.adjoiningRoutes
-   puts "Endplace adjoiningROutes :"+(Time.now-t1).to_s
+   logger.debug "Endplace adjoiningROutes :"+(Time.now-t1).to_s
    self.linked('place').each do |lp|
      pl=Place.find_by_id(lp.item_id)
      t+=pl.adjoiningRoutes
@@ -480,12 +480,12 @@ def regenerate_route_index
   newcount=0
 
   #delete old entries using this route
-  puts "Deleting old entries" if ENV["RAILS_ENV"] != "test"
+  logger.debug "Deleting old entries" if ENV["RAILS_ENV"] != "test"
 
   RouteIndex.where("url ~ ? or url ~ ?",'x[rq]v[-]{0,1}'+self.id.to_s+'x', 'x[rq]v[-]{0,1}'+self.id.to_s+'$').destroy_all
 
   if self.published==true then
-    puts "Finding routes from start: "+(Time.now()-starttime).to_s+" seconds" if ENV["RAILS_ENV"] != "test"
+    logger.debug "Finding routes from start: "+(Time.now()-starttime).to_s+" seconds" if ENV["RAILS_ENV"] != "test"
     #find all place-to-place routes of length < <maxhops-1> for the start or endplace
     startAffectedRoutes=[{:place => self.startplace.id, :placelist => [self.startplace.id], :route => [], :url => ''}]+self.startplace.adjoiningPlaces(nil,false,maxLegCount-1, nil,self.id)
     
@@ -497,7 +497,7 @@ def regenerate_route_index
     end
 
 
-    puts "Finding routes from end: "+(Time.now()-starttime).to_s+" seconds" if ENV["RAILS_ENV"] != "test"
+    logger.debug "Finding routes from end: "+(Time.now()-starttime).to_s+" seconds" if ENV["RAILS_ENV"] != "test"
     endAffectedRoutes=[{:place => self.endplace.id, :placelist => [self.endplace.id], :route => [], :url => ''}]+self.endplace.adjoiningPlaces(nil,false,maxLegCount-1, nil,-self.id)
 
     rear=[]
@@ -508,7 +508,7 @@ def regenerate_route_index
     end
   
     #and any linked places
-    puts "Finding routes from links: "+(Time.now()-starttime).to_s+" seconds" if ENV["RAILS_ENV"] != "test"
+    logger.debug "Finding routes from links: "+(Time.now()-starttime).to_s+" seconds" if ENV["RAILS_ENV"] != "test"
     linkedAffectedRoutes=[]
     rlar=[]
     link=0
@@ -525,7 +525,7 @@ def regenerate_route_index
       link+=1
     end
     
-    puts "Generating start<->end: "+(Time.now()-starttime).to_s+" seconds" if ENV["RAILS_ENV"] != "test"
+    logger.debug "Generating start<->end: "+(Time.now()-starttime).to_s+" seconds" if ENV["RAILS_ENV"] != "test"
     #recalculate all routes from the route's startplace that go via us
     #start <-> end
     ourUrl="xrv"+self.id.to_s 
@@ -542,7 +542,7 @@ def regenerate_route_index
       end
     end 
 
-    puts "Generating start<->links: "+(Time.now()-starttime).to_s+" seconds" if ENV["RAILS_ENV"] != "test"
+    logger.debug "Generating start<->links: "+(Time.now()-starttime).to_s+" seconds" if ENV["RAILS_ENV"] != "test"
     #start <-> links   
     link=0
     self.linked('place').each do |lp|
@@ -565,7 +565,7 @@ def regenerate_route_index
     link+=1
     end
 
-    puts "Generating end<->links: "+(Time.now()-starttime).to_s+" seconds" if ENV["RAILS_ENV"] != "test"
+    logger.debug "Generating end<->links: "+(Time.now()-starttime).to_s+" seconds" if ENV["RAILS_ENV"] != "test"
     #end <-> links
     link=0
     self.linked('place').each do |lp|
@@ -585,7 +585,7 @@ def regenerate_route_index
     link+=1
     end
 
-    puts "Generating links<->links: "+(Time.now()-starttime).to_s+" seconds" if ENV["RAILS_ENV"] != "test"
+    logger.debug "Generating links<->links: "+(Time.now()-starttime).to_s+" seconds" if ENV["RAILS_ENV"] != "test"
     #links <-> links
     linka=0
     self.linked('place').each do |lpa|
@@ -612,7 +612,7 @@ def regenerate_route_index
     end
    
   end
-  puts "Completed: "+newcount.to_s+" routes added/updated in "+(Time.now()-starttime).to_s+" seconds" if ENV["RAILS_ENV"] != "test"
+  logger.debug "Completed: "+newcount.to_s+" routes added/updated in "+(Time.now()-starttime).to_s+" seconds" if ENV["RAILS_ENV"] != "test"
 end
 
 def createRI(startplace, baseRoute, endplace)
@@ -838,9 +838,9 @@ def regenerate_route_index_old
   maxLegCount=15 #15
 
   #delete old entries using this route
-  puts "Deleting old entries" if ENV["RAILS_ENV"] != "test"
+  logger.debug "Deleting old entries" if ENV["RAILS_ENV"] != "test"
   RouteIndex.where("url ~ ? or url ~ ?",'x[rq]v[-]{0,1}'+self.id.to_s+'x', 'x[rq]v[-]{0,1}'+self.id.to_s+'$').destroy_all
-  puts "Finding affected places" if ENV["RAILS_ENV"] != "test"
+  logger.debug "Finding affected places" if ENV["RAILS_ENV"] != "test"
 
   if self.published==true then
     #find all place-to-place routes of length < <maxhops-1> for the start or endplace
@@ -933,7 +933,7 @@ def regenerate_route_index_old
 
     #recalculate all routes from the route's startplace that go via us
 
-    puts "Regenerating "+allAR.count.to_s+" routes from affected places via us" if ENV["RAILS_ENV"] != "test"
+    logger.debug "Regenerating "+allAR.count.to_s+" routes from affected places via us" if ENV["RAILS_ENV"] != "test"
     #recalculate all routes from the route's startplace that go via us
     newcount=0
     allAR.each do |ar|
@@ -987,7 +987,7 @@ def regenerate_route_index_old
        end
     end  
   end
-  puts "Completed: "+newcount.to_s+" routes added/updated in "+(Time.now()-starttime).to_s+" seconds" if ENV["RAILS_ENV"] != "test"
+  logger.debug "Completed: "+newcount.to_s+" routes added/updated in "+(Time.now()-starttime).to_s+" seconds" if ENV["RAILS_ENV"] != "test"
 end
 
 def reverseRouteUrl(urlstr)

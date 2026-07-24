@@ -14,9 +14,9 @@ class ParksController < ApplicationController
 
     @searchtext=params[:searchtext]
    
-    puts "searchMR"
-    puts params[:search_mr]
-    puts "end" 
+    logger.debug "searchMR"
+    logger.debug params[:search_mr]
+    logger.debug "end" 
     if params[:search_mr]=="true" then 
         @searchMR=true 
     else 

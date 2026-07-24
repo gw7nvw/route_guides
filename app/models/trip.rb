@@ -118,7 +118,6 @@ def self.prune
      count=count+1
      t.destroy_tree
   end
-  puts Time.now()
-  puts "Deleted "+count.to_s+" old guest trips"
+  logger.debug "Deleted "+count.to_s+" old guest trips"
 end
 end

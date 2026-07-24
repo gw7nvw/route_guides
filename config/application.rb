@@ -1,5 +1,6 @@
 require File.expand_path('../boot', __FILE__)
 
+require_relative '../app/middleware/skip_bot_sessions'
 require 'rails/all'
 
 # Require the gems listed in Gemfile, including any gems
@@ -9,6 +10,8 @@ Bundler.require(*Rails.groups)
 
 module RouteGuides
   class Application < Rails::Application
+#    config.middleware.insert_after "ActionDispatch::Session::ActiveRecordStore", "SkipBotSessions"
+    config.middleware.insert_before 0, SkipBotSessions
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.

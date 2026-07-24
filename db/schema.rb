@@ -11,12 +11,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20220529025704) do
+ActiveRecord::Schema.define(version: 20260712002710) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
   enable_extension "postgis_topology"
+  enable_extension "pg_stat_statements"
 
   create_table "alpines", force: true do |t|
     t.string   "name"
@@ -478,6 +479,9 @@ ActiveRecord::Schema.define(version: 20220529025704) do
     t.boolean  "is_reverse"
   end
 
+  add_index "trip_details", ["route_id"], :name => "index_name"
+  add_index "trip_details", ["trip_id"], :name => "td_trip_id_idx"
+
   create_table "trips", force: true do |t|
     t.string   "name"
     t.text     "description"
@@ -489,6 +493,22 @@ ActiveRecord::Schema.define(version: 20220529025704) do
     t.boolean  "published"
     t.date     "experienced_at"
   end
+
+  create_table "user_agents", force: true do |t|
+    t.text     "user_agent",                          null: false
+    t.integer  "access_count",            default: 0, null: false
+    t.text     "user_ip",                             null: false
+    t.boolean  "suspected_bot"
+    t.boolean  "confirmed_bot"
+    t.integer  "suspicious_access_count", default: 0, null: false
+    t.datetime "created_at",                          null: false
+    t.datetime "updated_at",                          null: false
+    t.integer  "html_count",              default: 0, null: false
+    t.integer  "js_count",                default: 0, null: false
+    t.boolean  "confirmed_human"
+  end
+
+  add_index "user_agents", ["user_ip", "user_agent"], :name => "index_user_agents_on_user_ip_and_user_agent", :unique => true
 
   create_table "users", force: true do |t|
     t.string   "name"

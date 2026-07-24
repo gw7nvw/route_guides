@@ -80,12 +80,16 @@
                    <b>Me</b> <b class="caret"></b>
                 </a>
                 <ul class="dropdown-menu">
+                  <% if @current_user.role_id>1 %> 
+                    <li><%= link_to "IP Blocking",  "/blocks",  remote: true,  :id => 'blocks_link', :onclick => "linkHandler('blocks_link')"  %></li> 
+                    <li class="divider"></li>
+                  <% end %>
+
                   <li><%= link_to "Where have I been?", '/users/'+URI.escape(@current_user.name)+'/beenthere',  remote: true,  :id => 'drafts_link', :onclick => "linkHandler('drafts_link')" %></li>
                   <li><%= link_to "My draft items", drafts_path,  remote: true,  :id => 'drafts_link', :onclick => "linkHandler('drafts_link')" %></li>
                   <li><%= link_to "My trips", wishlist_path,  remote: true,  :id => 'trips_link', :onclick => "linkHandler('trips_link')" %></li>
                   <% if @current_user.currenttrip %> <li><%= link_to "Current trip",  currenttrip_path,  remote: true,  :id => 'my_trip_link', :onclick => "linkHandler('my_trip_link')"  %></li> <% end %>
                   <li><%= link_to "Add new trip", new_trip_path,  remote: true,  :id => 'new_trip_link', :onclick => "linkHandler('new_trip_link')" %></li>
-                  <li class="divider"></li>
                   <li><%= link_to "Profile", '/users/'+current_user.name, remote: true %></li>
                   <li class="divider"></li>
                   <li>

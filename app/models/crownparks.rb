@@ -21,7 +21,7 @@ def self.my_import(file)
     h=row.to_hash
     h.shift
     self.create!(h)
-    puts count
+    logger.debug count
     count+=1
 end
 end

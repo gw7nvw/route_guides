@@ -13,7 +13,7 @@ end
 def findresults
     @respond_to=params[:referer]
     @refpage=params[:refpage]
-    puts @refpage
+    logger.debug @refpage
     @searchtext=params[:searchtext]
     searchtext='%'+params[:searchtext]+'%'
     @findplaces=params[:Places]=="1"
@@ -28,7 +28,7 @@ def findresults
 
     exttext=""
     if @inextent then exttext="and location && ST_MakeEnvelope("+params[:extent_left]+", "+params[:extent_bottom]+", "+params[:extent_right]+", "+params[:extent_top]+")"
-      puts exttext
+      logger.debug exttext
     end
 
     if @findplaces then
