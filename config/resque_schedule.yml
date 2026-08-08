@@ -1,0 +1,6 @@
+do_tidy_user_agents:
+  every: 2591000s
+  class: TidyUserAgentsJob
+  args:
+  description: Runs the perform method in TidyUserAgentsJob monthly-ish
+
